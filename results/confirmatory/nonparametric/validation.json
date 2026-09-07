@@ -1,0 +1,53 @@
+{
+  "schema": "nonparametric-analysis-validation/1",
+  "metric": "external_test_macro_f1",
+  "higher_is_better": true,
+  "strategies": [
+    "GFS",
+    "Top-k",
+    "Completa",
+    "Individual",
+    "Homogenea"
+  ],
+  "source_sha256": {
+    "confirmatory_summary": "7176c68689d1066a0d2db7863e6fc8ff578ddbc5c2eea8c3e4aade18579923da",
+    "confirmatory_topk": "89b23037705965e2f45e8da4802424d5b70b91bc8f5639298d2a261ed60c173d",
+    "outex_summary": "9cbfc02199eff1356ae53d86c637ea2b6e29186a995b398f4da28dfd1474f649",
+    "outex_topk": "55d07643729e414976f0c1233bb5a63b0745a00531b0d6ad01ce09284a625d09"
+  },
+  "analyses": [
+    {
+      "analysis": "primary_by_dataset",
+      "n_blocks": 4,
+      "k_strategies": 5,
+      "friedman_chi_square": 6.6000000000000085,
+      "friedman_df": 4,
+      "friedman_asymptotic_p": 0.1585976198253315,
+      "kendalls_w": 0.41250000000000053,
+      "mean_ranks": {
+        "GFS": 2.5,
+        "Top-k": 2.25,
+        "Completa": 2.5,
+        "Individual": 4.75,
+        "Homogenea": 3.0
+      }
+    },
+    {
+      "analysis": "sensitivity_dataset_classifier",
+      "n_blocks": 8,
+      "k_strategies": 5,
+      "friedman_chi_square": 11.5,
+      "friedman_df": 4,
+      "friedman_asymptotic_p": 0.021483770376440253,
+      "kendalls_w": 0.359375,
+      "mean_ranks": {
+        "GFS": 2.25,
+        "Top-k": 2.5,
+        "Completa": 2.625,
+        "Individual": 4.625,
+        "Homogenea": 3.0
+      }
+    }
+  ],
+  "interpretation_boundary": "The primary analysis uses one block per dataset. The sensitivity analysis duplicates each dataset across classifiers and therefore does not satisfy between-block independence; it is descriptive only."
+}

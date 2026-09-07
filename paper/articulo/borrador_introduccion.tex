@@ -1,0 +1,129 @@
+%% Borrador inicial para discusión con el tutor.
+%% Basado en el template Elsevier CAS Single Column (cas-sc-template.tex).
+%% No constituye una versión lista para envío.
+
+\documentclass[a4paper,fleqn]{cas-sc}
+
+\usepackage[authoryear,longnamesfirst]{natbib}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+%%% Author macros
+\def\tsc#1{\csdef{#1}{\textsc{\lowercase{#1}}\xspace}}
+%%%
+
+\begin{document}
+\let\WriteBookmarks\relax
+\def\floatpagepagefraction{1}
+\def\textpagefraction{.001}
+
+% Short title
+\shorttitle{Selección y concatenación de descriptores para texturas}
+
+% Short author
+\shortauthors{C. Ayala y J. Delgado}
+
+% Main title of the paper
+\title[mode=title]{Selección y concatenación de descriptores visuales heterogéneos para clasificación de texturas}
+
+% Title footnote mark
+\tnotemark[1]
+
+% Title footnote
+\tnotetext[1]{Borrador derivado de un trabajo de Tesis de Grado de la Facultad Politécnica de la Universidad Nacional de Asunción. Versión preparada para discusión académica; los análisis de validación externa continúan en desarrollo.}
+
+% First author
+\author[1]{Carlos Ayala}
+\cormark[1]
+\fnmark[1]
+\ead{carlos.ayala@est.fpuna.edu.py}
+\credit{Conceptualización, Metodología, Software, Experimentación, Análisis formal, Redacción del borrador original}
+
+% Address/affiliation
+\affiliation[1]{organization={Universidad Nacional de Asunción, Facultad Politécnica},
+            addressline={Campus Universitario},
+            city={San Lorenzo},
+            postcode={},
+            state={Central},
+            country={Paraguay}}
+
+% Second author
+\author[1]{Joaquín Delgado}
+\fnmark[1]
+\ead{joaquin.delgado@est.fpuna.edu.py}
+\credit{Conceptualización, Metodología, Software, Experimentación, Análisis formal, Redacción, Revisión y edición}
+
+% Corresponding author text
+\cortext[1]{Autor de correspondencia}
+
+% Footnote text
+\fntext[1]{Ambos autores contribuyeron al diseño y ejecución del estudio. Tutor: Prof. José Vázquez.}
+
+% Abstract placeholder: the final abstract will be written after the manuscript is complete.
+\begin{abstract}
+Este documento presenta un borrador inicial del artículo. El resumen definitivo se redactará una vez completadas la validación externa del procedimiento de selección, la consolidación de las tablas finales y la revisión integral del manuscrito.
+\end{abstract}
+
+% Research highlights (provisional)
+\begin{highlights}
+\item Se estudia la concatenación de descriptores clásicos y modernos bajo un protocolo experimental común.
+\item Se compara la concatenación acumulativa con la selección greedy de subconjuntos de descriptores.
+\item El análisis considera conjuntamente desempeño predictivo, dimensionalidad y dependencia del dataset.
+\end{highlights}
+
+% Keywords
+\begin{keywords}
+clasificación de texturas \sep concatenación de características \sep fusión de descriptores \sep selección de subconjuntos \sep Greedy Forward Selection \sep representaciones visuales
+\end{keywords}
+
+\maketitle
+
+% Main text
+\section{Introducción}\label{sec:introduccion}
+
+La clasificación de texturas es un problema fundamental en visión por computador y constituye un componente relevante en aplicaciones como la inspección de materiales, la recuperación de imágenes por contenido, la teledetección y el análisis automatizado de superficies \citep{bel2022texture}. A diferencia de tareas dominadas por la forma global de los objetos, el reconocimiento de texturas depende de regularidades locales, distribuciones espaciales, respuesta en frecuencia y patrones que pueden variar con la escala, la iluminación y el punto de vista. Esta diversidad explica por qué no existe un descriptor que resulte óptimo para todos los dominios y condiciones de adquisición \citep{cimpoi2014dtd,cimpoi2016fisher}.
+
+Los primeros sistemas de clasificación se apoyaron en descriptores diseñados manualmente. Local Binary Patterns codifica microestructuras locales mediante comparaciones de intensidad \citep{ojala2002lbp}; las matrices de coocurrencia representan relaciones estadísticas entre niveles de gris \citep{haralick1979glcm}; y los histogramas de gradientes describen la distribución local de orientaciones \citep{dalal2005hog}. Estos métodos ofrecen interpretabilidad y bajo costo, pero su capacidad queda condicionada por las propiedades definidas durante su diseño. Las redes convolucionales ampliaron el espacio representacional mediante características aprendidas en grandes conjuntos de imágenes \citep{he2016resnet,tan2019efficientnet}. Posteriormente, los Vision Transformers y los métodos auto-supervisados introdujeron representaciones globales y preentrenamientos con menor dependencia de etiquetas \citep{dosovitskiy2021vit,liu2021swin,caron2021dino,oquab2024dinov2}. Como resultado, actualmente conviven descriptores con sesgos inductivos, dimensionalidades y costos muy diferentes.
+
+La coexistencia de estas familias plantea una alternativa a la selección de un único extractor: combinar varias representaciones de la misma imagen. La concatenación de características conserva la información producida por cada descriptor y permite que un clasificador posterior determine su utilidad conjunta. Trabajos previos han mostrado que la fusión de características manuales y profundas puede mejorar la clasificación de texturas \citep{sanchez2013image,cimpoi2016fisher,zhang2017deepten}. Sin embargo, incorporar más vectores no garantiza una representación mejor. Los componentes pueden ser redundantes, operar en escalas incompatibles o incrementar la dimensionalidad hasta perjudicar la generalización y el costo computacional. Por ello, el problema no consiste solamente en decidir si se deben concatenar descriptores, sino en determinar cuáles aportan información complementaria y cuándo conviene incorporarlos.
+
+Una parte de la literatura evalúa combinaciones pequeñas o concatenaciones definidas de antemano. Este enfoque permite demostrar que dos representaciones pueden complementarse, pero ofrece información limitada sobre el comportamiento de espacios más amplios y heterogéneos. También dificulta separar tres efectos: la calidad de los descriptores individuales, el beneficio de aumentar la dimensionalidad y la utilidad específica de seleccionar un subconjunto. Esta distinción es especialmente importante cuando se comparan descriptores clásicos, redes convolucionales, Transformers y modelos auto-supervisados bajo diferentes clasificadores y tamaños de muestra.
+
+El presente trabajo estudia la siguiente pregunta: \emph{¿en qué condiciones la concatenación de descriptores visuales heterogéneos mejora la clasificación de texturas, y qué balance ofrece la selección de subconjuntos entre desempeño y dimensionalidad?} Para responderla se construyó un benchmark con 17 extractores base distribuidos en cuatro familias: cinco descriptores clásicos, seis redes convolucionales, tres Vision Transformers y tres variantes auto-supervisadas. Una extensión experimental incorporó EVA-02, MAE y SigLIP, ampliando el espacio a 20 extractores. Las representaciones se evaluaron sobre seis datasets públicos de texturas mediante cuatro clasificadores: SVM lineal, KNN, Random Forest y ResMLP.
+
+El diseño compara tres configuraciones. La primera utiliza cada descriptor por separado y establece el rendimiento individual de referencia. La segunda concatena progresivamente los extractores en un orden fijo, lo que permite estudiar la curva de saturación y el efecto acumulativo de incorporar nuevas familias. La tercera emplea Greedy Forward Selection (GFS) para construir el subconjunto de manera incremental a partir de la mejora observada en macro-F1. Esta comparación permite analizar no solo el desempeño predictivo, sino también el tamaño del subconjunto, la dimensionalidad de la representación y la dependencia de la solución respecto del dataset y del clasificador.
+
+Los experimentos realizados hasta el momento muestran un patrón consistente a nivel exploratorio. La concatenación completa no domina en todas las configuraciones y puede introducir componentes innecesarios. GFS identifica subconjuntos compactos, generalmente formados por entre dos y cinco extractores, que alcanzan resultados competitivos frente al mejor descriptor individual y la concatenación acumulativa. Asimismo, la composición seleccionada cambia entre datasets y clasificadores, lo que sugiere que la complementariedad no puede reducirse a una combinación universal. Estos resultados se presentan como evidencia empírica del comportamiento del método; la estimación confirmatoria de generalización mediante selección anidada y particiones externas permanece como parte de la validación en curso.
+
+La contribución del trabajo es principalmente empírica y metodológica. En primer lugar, se ofrece una comparación homogénea de representaciones visuales heterogéneas sobre varios datasets y clasificadores. En segundo lugar, se distingue el efecto de concatenar todas las características del efecto de seleccionar componentes complementarios. En tercer lugar, se cuantifica el compromiso entre macro-F1, número de extractores y dimensionalidad. Finalmente, se documentan configuraciones en las que la concatenación no mejora, lo cual permite delimitar las condiciones de utilidad del enfoque y evita interpretar la fusión como una operación universalmente beneficiosa.
+
+El resto del artículo se organiza de la siguiente manera. La Sección~\ref{sec:trabajos} revisa los descriptores de texturas y las estrategias de fusión relacionadas. La Sección~\ref{sec:metodologia} describe los datasets, extractores, clasificadores y protocolos de selección y evaluación. La Sección~\ref{sec:resultados} presenta los resultados individuales y de concatenación. La Sección~\ref{sec:discusion} analiza la complementariedad, el costo dimensional y las amenazas a la validez. Finalmente, la Sección~\ref{sec:conclusion} resume las conclusiones y las líneas de trabajo futuro.
+
+\section{Trabajos relacionados}\label{sec:trabajos}
+% Sección pendiente.
+
+\section{Metodología}\label{sec:metodologia}
+% Sección pendiente. Incluir validación anidada o evaluación externa corregida.
+
+\section{Resultados}\label{sec:resultados}
+% Sección pendiente. Diferenciar resultados exploratorios y confirmatorios.
+
+\section{Discusión}\label{sec:discusion}
+% Sección pendiente.
+
+\section{Conclusión}\label{sec:conclusion}
+% Sección pendiente.
+
+% To print the credit authorship contribution details
+\printcredits
+
+% Loading bibliography style file
+\bibliographystyle{cas-model2-names}
+
+% Loading bibliography database
+\bibliography{references}
+
+\end{document}

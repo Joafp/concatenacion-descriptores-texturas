@@ -1,0 +1,93 @@
+\documentclass[tikz,border=5pt]{standalone}
+\usepackage{fontspec}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+\setmainfont{TeX Gyre Heros}
+\definecolor{ink}{HTML}{24364B}
+\definecolor{blue}{HTML}{DCEAF7}
+\definecolor{teal}{HTML}{DDF1EC}
+\definecolor{amber}{HTML}{F7EBCF}
+\definecolor{violet}{HTML}{EAE3F4}
+\definecolor{muted}{HTML}{66788A}
+\tikzset{
+  extractor/.style={draw=ink,rounded corners=1.5pt,line width=.65pt,minimum width=28mm,minimum height=7mm,align=center,font=\scriptsize,text=ink},
+  mainbox/.style={draw=ink,rounded corners=2pt,line width=.75pt,align=center,text=ink},
+  flow/.style={-{Latex[length=2mm]},draw=ink,line width=.85pt},
+  bus/.style={draw=ink!65,line width=.75pt},
+  phase/.style={font=\bfseries\scriptsize,text=muted,align=center},
+  tinylabel/.style={font=\tiny,text=muted,align=center}
+}
+\newcommand{\featurebar}[3]{%
+  \begin{scope}[shift={(#1,#2)}]
+    \foreach \x/\c in {0/blue,1/teal,2/amber,3/violet,4/blue,5/teal,6/amber,7/violet}{
+      \pgfmathsetmacro{\xx}{.17*\x}
+      \fill[\c] (\xx,0) rectangle ++(.145,.32);
+    }
+    \draw[ink!55,line width=.35pt] (0,0) rectangle (1.335,.32);
+    \node[font=\tiny,text=ink,anchor=west] at (1.45,.16) {$#3$};
+  \end{scope}%
+}
+\begin{document}
+\special{pdf:minorversion 5}
+\begin{tikzpicture}[font=\small]
+  % Real sample from the validated Outex collection.
+  \node[inner sep=0,draw=ink,line width=.7pt] (image) at (0,0)
+    {\includegraphics[width=18mm,height=18mm]{../../../../../results/confirmatory/recovery/outex13/staging/official1360/Outex_TC_00013/images/000423.bmp}};
+  \node[phase,below=2mm of image] {IMAGEN $x_i$};
+
+  % Four families execute without updating their pretrained parameters.
+  \node[extractor,fill=blue] (classic) at (3.4,1.55) {Clásicos \;($5$)};
+  \node[extractor,fill=amber] (cnn) at (3.4,.52) {CNN \;($6$)};
+  \node[extractor,fill=violet] (transformer) at (3.4,-.52) {Transformers \;($4$)};
+  \node[extractor,fill=teal] (auto) at (3.4,-1.55) {Autoenc. / VL \;($5$)};
+  \begin{scope}[on background layer]
+    \node[draw=muted,dashed,rounded corners=2pt,fit=(classic)(auto),inner xsep=3mm,inner ysep=4mm] (bank) {};
+  \end{scope}
+  \node[phase,above=1.5mm of bank] {EXTRACTORES CONGELADOS};
+
+  % Fan-out from the image.
+  \coordinate (split) at (1.35,0);
+  \draw[flow] (image.east) -- (split);
+  \draw[bus] (split |- classic.west) -- (split |- auto.west);
+  \foreach \n in {classic,cnn,transformer,auto}{\draw[flow] (split |- \n.west) -- (\n.west);}
+
+  % Each descriptor produces an independently normalized block.
+  \featurebar{5.25}{1.39}{\tilde{\mathbf z}_{i1}}
+  \featurebar{5.25}{.36}{\tilde{\mathbf z}_{i2}}
+  \featurebar{5.25}{-.68}{\tilde{\mathbf z}_{i3}}
+  \featurebar{5.25}{-1.71}{\tilde{\mathbf z}_{i20}}
+  \foreach \n/\yy in {classic/1.55,cnn/.52,transformer/-.52,auto/-1.55}{
+    \draw[flow] (\n.east) -- (5.17,\yy);
+  }
+  \node[phase] at (6.25,-2.18) {NORMALIZACIÓN $L_2$ POR BLOQUE};
+
+  % Candidate vectors converge; only blocks selected in S are concatenated.
+  \coordinate (merge) at (7.55,0);
+  \draw[bus] (merge |- classic.east) -- (merge |- auto.east);
+  \foreach \yy in {1.55,.52,-.52,-1.55}{\draw[flow] (7.18,\yy) -- (7.55,\yy);}
+
+  \node[mainbox,fill=amber,minimum width=38mm,minimum height=26mm] (concat) at (9.75,0) {};
+  \node[font=\bfseries\small,text=ink,align=center] at ([yshift=8.5mm]concat.center) {Seleccionar $S$\\y concatenar};
+  \node[font=\small,text=ink] at ([yshift=-1mm]concat.center)
+    {$\mathbf z_{i,S}=\tilde{\mathbf z}_{ij_1}\Vert\cdots\Vert\tilde{\mathbf z}_{ij_k}$};
+  \node[tinylabel] at ([yshift=-8.5mm]concat.center) {$k\leq20$ bloques completos};
+  \draw[flow] (merge) -- (concat.west);
+
+  \node[mainbox,fill=teal,minimum width=28mm,minimum height=26mm,right=7mm of concat] (model)
+    {\bfseries Modelo final\\[2mm]SVM lineal\\o ResMLP};
+  \draw[flow] (concat) -- (model);
+
+  \node[mainbox,fill=violet,minimum width=25mm,minimum height=19mm,right=7mm of model] (output)
+    {\bfseries Clase\\[1mm]$\hat y_i=h(\mathbf z_{i,S})$};
+  \draw[flow] (model) -- (output);
+  \node[phase,below=2mm of output] {PREDICCIÓN};
+
+  \node[draw=ink!55,rounded corners=1.5pt,fill=white,font=\scriptsize,text=ink,below=8mm of model,inner xsep=5pt,inner ysep=3pt] (metric)
+    {test externo $\longrightarrow$ macro-F1};
+  \draw[flow,draw=muted] (output.south) |- (metric.east);
+
+  % Protected title-band whitespace for rendered QA.
+  \path ([yshift=7mm]current bounding box.north) coordinate (topPadding);
+\end{tikzpicture}
+\end{document}

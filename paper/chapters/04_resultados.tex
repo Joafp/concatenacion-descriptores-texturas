@@ -1,0 +1,25 @@
+\chapter{Resultados del estudio anidado}\label{sec:resultados-experimentales}
+
+\section{Resultados principales: desempeño y descriptor individual}
+
+La Tabla~\ref{tab:resultados-confirmatorios} compara las cinco estrategias con la biblioteca de 21 descriptores. Individual corresponde a una política de selección interna: el descriptor elegido puede cambiar entre particiones. El panel B identifica esos descriptores y sus frecuencias, evitando atribuir la media a un único extractor cuando hubo varios. La Tabla~\ref{tab:accuracy} presenta la exactitud bajo el mismo protocolo.
+
+\input{articulo/borrador_profesor/generated/baseline_f1.tex}
+\input{articulo/borrador_profesor/generated/baseline_accuracy.tex}
+\input{articulo/borrador_profesor/generated/dimensions_primary.tex}
+
+GFS obtiene mayor macro-F1 medio que Individual en las ocho configuraciones, pero el método con mayor desempeño depende del dataset. Completa alcanza los mayores valores en CUReT y en Outex con SVM; GFS obtiene el mayor valor en Outex con ResMLP. En DTD destaca GFS, mientras que en FMD destacan Top-$k$ con SVM y GFS con ResMLP. Esta comparación describe las medias externas y no implica que cada diferencia sea estadísticamente significativa.
+
+La Tabla~\ref{tab:dimensiones} permite contrastar el desempeño con el tamaño de la representación en las cinco estrategias. La dimensión media de GFS por configuración dataset--clasificador se sitúa entre 2.909,3 y 5.632 componentes, una reducción de entre 71,7\% y 85,4\% respecto de los 19.884 de Completa. Este rango compara las ocho medias, no los extremos de las particiones individuales. La disminución corresponde al vector almacenado y utilizado por el clasificador. No se midió una reducción proporcional de latencia o memoria de extremo a extremo.
+
+\section{Rankings y comparaciones estadísticas}\label{sec:replica-paiva}
+
+Las Tablas~\ref{tab:rankings-comparison} y~\ref{tab:global-tests-comparison} presentan los rankings y los contrastes de la biblioteca de 21 descriptores bajo las dos formas de agregación.
+
+\input{articulo/borrador_profesor/generated/rankings_comparison.tex}
+\input{articulo/borrador_profesor/generated/global_tests_comparison.tex}
+\input{articulo/borrador_profesor/generated/vs_individual_comparison.tex}
+
+La Tabla~\ref{tab:vs-individual-comparison} presenta las mismas cuatro comparaciones frente a Individual en paralelo. Al promediar SVM y ResMLP por dataset, los valores ajustados con Holm son 0,2281 para GFS y 0,1391 para Top-$k$; al mantener separados los clasificadores, ambos alcanzan 0,0157. Completa y Homogénea obtienen 0,2149 y 0,5739 en la segunda organización. Como magnitud descriptiva, las diferencias absolutas de macro-F1 de GFS frente a Individual, promediando ambos clasificadores, son 0,0277 en DTD, 0,0066 en FMD, 0,0024 en CUReT y 0,0392 en Outex.
+
+Las dos organizaciones responden a preguntas distintas: la primera resume el comportamiento medio por dataset y la segunda permite observar si el efecto se mantiene por clasificador. Las ocho filas desagregadas reutilizan los mismos datasets e imágenes, por lo que sus resultados deben interpretarse junto con la estructura de dependencia del protocolo. Los procedimientos adicionales y sus salidas Java se conservan en los materiales de reproducibilidad.

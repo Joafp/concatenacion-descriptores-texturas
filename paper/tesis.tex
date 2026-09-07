@@ -1,0 +1,117 @@
+\documentclass[12pt,a4paper]{report}
+
+% Paquetes
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{placeins,float}
+\newenvironment{resulttable}{\begin{table}[!htbp]}{\end{table}}
+\renewcommand{\chaptername}{Capítulo}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\contentsname}{Contenido}
+\renewcommand{\bibname}{Referencias}
+\addto\captionsenglish{\renewcommand{\chaptername}{Capítulo}\renewcommand{\tablename}{Tabla}\renewcommand{\figurename}{Figura}\renewcommand{\contentsname}{Contenido}\renewcommand{\bibname}{Referencias}}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{url}
+
+% Configuración
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{5pt}
+
+% Título
+\title{\textbf{Concatenación sistemática de descriptores visuales clásicos y modernos para clasificación de texturas} \\
+\large Evaluación anidada de estrategias de concatenación de 21 descriptores}
+\author{Carlos Ayala \and Joaquín Delgado}
+\date{Septiembre 2026}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================
+% PORTADA
+% ============================================================
+\begin{titlepage}
+\begin{center}
+\vspace*{2cm}
+{\Large \textbf{Universidad Nacional de Asunción}} \\
+\vspace{0.3cm}
+{\large Facultad Politécnica} \\
+\vspace{2cm}
+{\Huge \textbf{Concatenación sistemática de descriptores visuales clásicos y modernos para clasificación de texturas}} \\
+\vspace{0.5cm}
+{\large Evaluación anidada de estrategias de concatenación de 21 descriptores} \\
+\vspace{3cm}
+{\large \textbf{Carlos Ayala} \\
+\textbf{Joaquín Delgado}} \\
+\vspace{1cm}
+{\large Tutor: José Vázquez} \\
+\vspace{2cm}
+{\large Septiembre 2026}
+\end{center}
+\end{titlepage}
+
+% ============================================================
+% AGRADECIMIENTOS
+% ============================================================
+\chapter*{Agradecimientos}
+A nuestro tutor, José Vázquez, por su guía y paciencia. \\
+A la Facultad Politécnica de la UNA, por el espacio y los recursos. \\
+A nuestras familias, por el apoyo incondicional.
+
+% ============================================================
+% RESUMEN
+% ============================================================
+\chapter*{Resumen}
+
+Este trabajo evalúa la concatenación de descriptores heterogéneos para clasificar texturas. Se comparan cinco estrategias: Individual, Completa, Top-$k$, Greedy Forward Selection (GFS) y Homogénea. La biblioteca evaluada reúne 21 descriptores sobre DTD, FMD, CUReT y Outex con SVM lineal y ResMLP. La selección se realiza dentro del entrenamiento y el desempeño se mide mediante macro-F1 y exactitud en 56 condiciones externas en total. GFS obtiene mayor macro-F1 medio que Individual en las ocho configuraciones dataset--clasificador, pero el método con mayor desempeño varía entre dominios y clasificadores. Con un bloque por dataset, Friedman ($p=0{,}1074$) y Quade ($p=0{,}0705$) no rechazan la hipótesis global, y ninguna comparación por pares resulta significativa tras Holm a $\alpha=0{,}05$. GFS reduce la dimensión media entre 71,7\% y 85,4\% respecto de la concatenación completa. Los resultados respaldan evaluar la composición y el costo dimensional según el dominio, sin establecer una estrategia universalmente superior.
+
+\textbf{Palabras clave:} clasificación de texturas, concatenación de descriptores, selección de bloques, GFS, evaluación anidada.
+
+\chapter*{Abstract}
+
+This thesis compares five descriptor selection and concatenation strategies using 21 descriptors. The complete evaluation covers DTD, FMD, CUReT and Outex with linear SVM and a residual MLP, using 56 external conditions. GFS obtains higher mean macro-F1 than the internally selected individual descriptor in all eight dataset--classifier configurations. With one block per dataset, Friedman (p=0.1074) and Quade (p=0.0705) do not reject their global null hypotheses; no pairwise comparison is significant after Holm adjustment at 0.05. These results support evaluating concatenation by domain, performance and representation size, without establishing universal superiority.
+
+\textbf{Keywords:} texture classification, descriptor concatenation, block selection, GFS, nested evaluation.
+
+% ============================================================
+% ÍNDICE
+% ============================================================
+\tableofcontents
+\newpage
+
+% ============================================================
+% CAPÍTULOS
+% ============================================================
+\input{chapters/01_introduccion}
+\newpage
+\input{chapters/02_literatura}
+\newpage
+\input{chapters/03_metodologia}
+\newpage
+\input{chapters/04_resultados}
+\newpage
+\input{chapters/05_discusion}
+\newpage
+\input{chapters/06_conclusion}
+
+% ============================================================
+% BIBLIOGRAFÍA
+% ============================================================
+\newpage
+\bibliographystyle{unsrtnat}
+\bibliography{articulo/borrador_profesor/references}
+
+\end{document}

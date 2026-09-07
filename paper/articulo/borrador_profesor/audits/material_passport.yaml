@@ -1,0 +1,52 @@
+origin_skill: academic-research-suite
+origin_mode: integrity-update
+origin_date: "2026-08-11"
+verification_status: VERIFIED
+version_label: "outex13_official1360_integration"
+
+datasets:
+  confirmatory_core:
+    names: [DTD, FMD, CUReT]
+    conditions: 54
+    main_evaluations: 216
+    random_controls: 5400
+    topk_controls: 54
+    result_file: "results/confirmatory/nested_fold_results.csv"
+  outex_official:
+    name: Outex13Official1360
+    images: 1360
+    classes: 68
+    train: 680
+    test: 680
+    manifest: "results/extensions/outex13_official1360/sample_manifests/Outex13Official1360.csv"
+    manifest_sha256: "6499321a05630111dda4e3a7421995555553deea4807f23a5b4673a011856447"
+    archive: "Outex_TC_00013-20260120T014101Z-3-001.zip"
+    archive_sha256: "8d8c6b9d55dccc6302d3a1afb07eb55caedc622649e1c669a79ecde1bccbc642"
+    general_result_file: "results/extensions/outex13_official1360/nested_fold_results.csv"
+    ngram_result_dir: "results/extensions/rgb_pixel_ngrams_outex13_official"
+
+experiments:
+  - id: EXP-CONFIRMATORY-CORE
+    status: COMPLETE
+    methods: [best_individual, full_concat, gfs, best_homogeneous, topk_individual]
+  - id: EXP-OUTEX13-OFFICIAL-NGRAM
+    status: COMPLETE
+    primary_metric: accuracy
+    reference_accuracy: 0.9632352941176471
+    full_concat_accuracy: 0.9691176470588235
+    interpretation: "point improvement; statistical superiority not established"
+  - id: EXP-OUTEX13-OFFICIAL-GENERAL
+    status: COMPLETE
+    classifiers: [svm, resmlp]
+    outer_protocol: "single official 680/680 split"
+    inner_protocol: "four stratified folds within official training only"
+    conditions: 2
+    main_evaluations: 8
+    random_controls: 200
+    topk_controls: 2
+
+known_limitations:
+  - "One official Outex split cannot support split-level inference."
+  - "Repeated folds within a dataset are dependent."
+  - "Top-k inherits the block budget selected by GFS."
+  - "Reported fit time excludes descriptor extraction and subset search."

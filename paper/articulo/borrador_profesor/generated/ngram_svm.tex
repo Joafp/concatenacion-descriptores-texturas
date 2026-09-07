@@ -1,0 +1,33 @@
+\begin{resulttable}
+\centering\fontsize{9}{11}\selectfont\setlength{\tabcolsep}{3.6pt}
+\caption{Comparación completa con SVM: medias con 20 frente a 21 bloques, incluyendo RGB Pixel N-grams + SVD. Mismas 28 condiciones externas: DTD (10), FMD (15), CUReT (2) y Outex (1). La selección se repite dentro del entrenamiento.}
+\label{tab:ngram-svm}
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+Dataset & Estrategia & F1 (20) & F1 (21) & $\Delta$ F1 & Exactitud (21) \\
+\midrule
+DTD & Individual & $0{,}8426$ & $0{,}8426$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}8448$ \\
+DTD & Completa & $0{,}8648$ & $0{,}8629$ & $-0{,}0019\,\pm\,0{,}0026$ & $0{,}8644$ \\
+DTD & Top-$k$ & $0{,}8684$ & $0{,}8684$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}8697$ \\
+DTD & GFS & $0{,}8694$ & $0{,}8694$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}8707$ \\
+DTD & Homogénea & $0{,}8606$ & $0{,}8606$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}8623$ \\
+FMD & Individual & $0{,}9726$ & $0{,}9726$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}9727$ \\
+FMD & Completa & $0{,}9644$ & $0{,}9644$ & $0{,}0000\,\pm\,0{,}0033$ & $0{,}9643$ \\
+FMD & Top-$k$ & $0{,}9820$ & $0{,}9820$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}9820$ \\
+FMD & GFS & $0{,}9766$ & $0{,}9766$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}9767$ \\
+FMD & Homogénea & $0{,}9789$ & $0{,}9789$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}9790$ \\
+CUReT & Individual & $0{,}9948$ & $0{,}9948$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}9948$ \\
+CUReT & Completa & $0{,}9991$ & $0{,}9989$ & $-0{,}0002\,\pm\,0{,}0002$ & $0{,}9989$ \\
+CUReT & Top-$k$ & $0{,}9989$ & $0{,}9989$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}9989$ \\
+CUReT & GFS & $0{,}9988$ & $0{,}9988$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}9988$ \\
+CUReT & Homogénea & $0{,}9989$ & $0{,}9989$ & $0{,}0000\,\pm\,0{,}0000$ & $0{,}9989$ \\
+Outex & Individual & $0{,}9066$ & $0{,}9066$ & $0{,}0000$ & $0{,}9103$ \\
+Outex & Completa & $0{,}9572$ & $0{,}9674$ & $0{,}0102$ & $0{,}9676$ \\
+Outex & Top-$k$ & $0{,}9503$ & $0{,}9441$ & $-0{,}0062$ & $0{,}9456$ \\
+Outex & GFS & $0{,}9426$ & $0{,}9610$ & $0{,}0184$ & $0{,}9618$ \\
+Outex & Homogénea & $0{,}9307$ & $0{,}9307$ & $0{,}0000$ & $0{,}9324$ \\
+\bottomrule
+\end{tabular}
+\par\smallskip{\footnotesize F1 designa macro-F1. $\Delta$ es la media de las diferencias pareadas (21 menos 20), acompañada de su desviación estándar cuando hay más de una partición; no es un intervalo de confianza ni una prueba de significancia.}
+\end{resulttable}
+\FloatBarrier

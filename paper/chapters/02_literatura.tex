@@ -1,0 +1,17 @@
+\chapter{Trabajos relacionados}\label{sec:trabajos}
+
+\section{Representaciones de textura}
+
+Los descriptores de textura resumen señales distintas de una misma imagen: microestructuras (LBP), coocurrencias, orientación de gradientes y patrones en frecuencia \citep{haralick1979glcm,ojala2002lbp,dalal2005hog,mehta2016drlbp}. Las representaciones aprendidas introducen sesgos adicionales derivados de arquitecturas convolucionales, Transformers y objetivos de preentrenamiento supervisado, autosupervisado o multimodal \citep{he2016resnet,tan2019efficientnet,dosovitskiy2021vit,liu2021swin,caron2021dino,oquab2024dinov2,he2022mae,radford2021clip,zhai2023siglip}. Por ello, ningún extractor debe suponerse universalmente suficiente: vectores con distinto origen pueden contener información redundante, pero también señales complementarias aprovechables por un clasificador conjunto. Esta complementariedad, y no la comparación aislada entre arquitecturas, motiva la composición de bloques del presente estudio.
+
+\section{Concatenación y selección de bloques}
+
+La fusión de características combina información antes de la decisión final del clasificador. Una estrategia directa consiste en concatenar los vectores extraídos de una misma imagen. A diferencia de la fusión de decisiones, esta operación conserva explícitamente las coordenadas de cada representación y permite entrenar un único clasificador sobre el espacio conjunto. Su sencillez constituye una ventaja experimental: permite estudiar el efecto de combinar descriptores sin introducir un módulo de fusión altamente parametrizado. No obstante, el vector resultante crece con cada extractor incorporado y puede acumular escalas incompatibles, variables redundantes y dimensiones poco informativas.
+
+Los Fisher vectors mostraron que la agregación de descriptores locales puede producir representaciones de alto rendimiento \citep{sanchez2013image}; en texturas, los bancos de filtros profundos combinaron activaciones convolucionales con agregación estadística \citep{cimpoi2016fisher} y DeepTEN integró una capa de codificación residual dentro de una arquitectura profunda \citep{zhang2017deepten}. Estos antecedentes muestran que reunir señales distintas puede mejorar la representación, pero no determinan si todos los componentes son necesarios cuando la biblioteca contiene extractores heterogéneos y congelados.
+
+Los antecedentes citados motivan evaluar si una búsqueda secuencial supera a reunir los descriptores individualmente más fuertes bajo el mismo número de bloques. Por ello, este estudio compara esas políticas bajo las mismas particiones y separa la selección de la evaluación externa, como recomiendan los diseños wrapper y la evaluación anidada \citep{kohavi1997wrappers,guyon2003feature}. El foco no está en proponer otro extractor ni en atribuir el resultado a una arquitectura particular, sino en evaluar la \emph{concatenación de descriptores como problema de selección de bloques}, comparando su desempeño externo y dimensionalidad. Igualar el número de bloques no iguala las dimensiones ni permite aislar causalmente la complementariedad.
+
+% ============================================================
+% 3. METODO
+% ============================================================

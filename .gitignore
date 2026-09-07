@@ -1,0 +1,105 @@
+# --- Local / machine-only ---
+archive/local/**
+!archive/local/README.md
+.venv/
+.venv-*/
+venv/
+env/
+
+# Agent / editor tooling (not required to reproduce experiments)
+.claude/
+.agents/
+.codex/
+.cursor/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+
+# --- Large regenerable artifacts ---
+# Raw datasets (see docs/DATASETS.md)
+data/
+
+# Feature embeddings (extract with src/01_extract_features.py or reextract scripts)
+embeddings/
+embeddings_confirmatory/
+embeddings_extensions/
+embeddings_paiva/
+
+# Binary toolchains downloaded locally
+.tools/tectonic-*/
+*.deb
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.pyc
+
+# Pickles / model weights / arrays
+*.pkl
+*.pickle
+*.pt
+*.pth
+*.npy
+*.npz
+*.h5
+
+# --- Experiment runtime outputs (keep summaries / manifests) ---
+logs/
+results/**/logs/
+results/**/checkpoints/
+results/**/smoke/
+results/**/queue/
+results/**/rgb_ngram_count_cache/
+results/**/count_cache/
+results/confusion_matrices/
+results/logs/
+
+# Dataset staging recovered under results (keep only reports *.md / *.csv small)
+results/confirmatory/recovery/**/staging/
+results/confirmatory/recovery/**/*.tar
+results/confirmatory/recovery/**/*.tar.Z
+results/confirmatory/recovery/**/*.jpg
+results/confirmatory/recovery/**/*.png
+results/confirmatory/recovery/**/*.ppm
+results/confirmatory/recovery/**/*.bmp
+
+# Heavy local docs (templates / papers / Word drafts)
+docs/**/*.pdf
+docs/**/*.docx
+docs/Concatenación_de_descriptores_para_clasificación_de_textura/
+
+# Paper build auxiliaries
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.toc
+*.out
+*.lof
+*.lot
+paper/**/*.log
+paper/**/main.abs
+!results/**/*.log.md
+
+# Local paper revision snapshots (canonical manuscript is paper/articulo/)
+paper/revision_*/
+paper/lit_review_out/
+paper/presentacion/
+
+# Overleaf packaging leftovers if recreated at root
+overleaf_*/
+*.zip

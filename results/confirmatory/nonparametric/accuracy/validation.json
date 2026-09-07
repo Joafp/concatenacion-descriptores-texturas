@@ -1,0 +1,47 @@
+{
+  "schema": "nonparametric-analysis-validation/1",
+  "metric": "external_test_accuracy",
+  "higher_is_better": true,
+  "strategies": [
+    "GFS",
+    "Top-k",
+    "Completa",
+    "Individual",
+    "Homogenea"
+  ],
+  "analyses": [
+    {
+      "analysis": "primary_by_dataset",
+      "n_blocks": 4,
+      "k_strategies": 5,
+      "friedman_chi_square": 6.6000000000000085,
+      "friedman_df": 4,
+      "friedman_asymptotic_p": 0.1585976198253315,
+      "kendalls_w": 0.41250000000000053,
+      "mean_ranks": {
+        "GFS": 2.5,
+        "Top-k": 2.25,
+        "Completa": 2.5,
+        "Individual": 4.75,
+        "Homogenea": 3.0
+      }
+    },
+    {
+      "analysis": "sensitivity_dataset_classifier",
+      "n_blocks": 8,
+      "k_strategies": 5,
+      "friedman_chi_square": 11.245283018867935,
+      "friedman_df": 4,
+      "friedman_asymptotic_p": 0.023941373700620796,
+      "kendalls_w": 0.351415094339623,
+      "mean_ranks": {
+        "GFS": 2.375,
+        "Top-k": 2.4375,
+        "Completa": 2.625,
+        "Individual": 4.625,
+        "Homogenea": 2.9375
+      }
+    }
+  ],
+  "interpretation_boundary": "Primary: one independent block per dataset. Sensitivity duplicates datasets across classifiers and is descriptive only."
+}

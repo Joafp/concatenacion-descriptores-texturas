@@ -1,0 +1,63 @@
+\documentclass[tikz,border=6pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,graphicx,amsmath,amssymb}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\definecolor{c1}{HTML}{3979A6}
+\definecolor{c2}{HTML}{22877D}
+\definecolor{c3}{HTML}{B17A24}
+\definecolor{c4}{HTML}{8064A2}
+\definecolor{c5}{HTML}{B55362}
+\begin{document}
+% Research mode. Transformations are schematic, not measured activation maps.
+% Invariant: concatenation preserves blocks, dimension = sum of selected d_j.
+\begin{tikzpicture}[font=\sffamily\small,>=Stealth,
+ flow/.style={->,draw=black!65,line width=.7pt},
+ box/.style={draw=black!30,rounded corners=2pt,fill=white,align=center},
+ lab/.style={font=\sffamily\footnotesize,align=center}]
+\node[lab] at (0,2) {Una misma imagen};
+\node[inner sep=0] (im) at (0,0) {\includegraphics[width=2cm,height=2cm]{texture_banded_0045.jpg}};
+\node[lab] at (0,-1.5) {Textura de DTD\\\texttt{banded\_0045}};
+\draw[black!55] (im.east)--(1.6,0);
+\draw[black!55] (1.6,-4)--(1.6,4);
+\node[font=\sffamily\bfseries] at (4,5.15) {Extracción};
+\node[font=\sffamily\bfseries] at (7.4,5.15) {Bloques normalizados};
+\foreach \y/\idx/\col/\name in {4/1/c1/LBP,2/2/c2/Gabor,0/3/c3/GLCM,-2/4/c4/ResNet,-4/5/c5/RGB Pixel N-grams}{
+ \node[box,draw=\col,minimum width=3.3cm,minimum height=1.6cm] (e\idx) at (4,\y) {};
+ \node[lab,font=\sffamily\bfseries\small,text=\col] at (4,\y+.5) {\name};
+ \draw[flow] (1.6,\y)--(e\idx.west);
+ \node[box,draw=\col,fill=\col!12,minimum width=1.55cm,minimum height=.55cm] (z\idx) at (7.4,\y) {$\widehat{\mathbf z}_{\idx}\in\mathbb R^{d_{\idx}}$};
+ \draw[flow] (e\idx.east)--(z\idx.west);
+}
+\node[lab] at (4,3.8) {$\begin{smallmatrix}0&1&1\\0&\bullet&1\\0&0&1\end{smallmatrix}\;\longrightarrow\;$ histograma};
+\draw[c2,thick] plot[smooth,domain=2.8:3.7,samples=35] (\x,{1.83+.15*sin(\x*1000)});
+\node[lab] at (4.8,1.8) {media\\desviación};
+\node[lab] at (4,-.2) {$\begin{smallmatrix}3&1&0\\1&4&2\\0&2&3\end{smallmatrix}\;\longrightarrow\;$ propiedades};
+\foreach \x/\y in {2.8/-2.3,2.95/-2.15,3.1/-2}{\draw[c4,fill=c4!12] (\x,\y) rectangle +(0.55,.4);}
+\node[lab] at (4.7,-2.2) {activaciones\\$\to$ embedding};
+\node[lab] at (4,-4.2) {ventana RGB $\to$ conteos\\$\to$ hashing y SVD};
+\node[lab] at (7.4,-5.15) {$\widehat{\mathbf z}_j=\mathbf z_j/\max(\|\mathbf z_j\|_2,\varepsilon)$};
+% Direct route for one selected block.
+\node[box,minimum width=2.25cm,minimum height=.85cm] (single) at (10.4,4) {Individual\\$\widehat{\mathbf z}_j$};
+\draw[flow] (z1.east)--(single.west);
+\node[box,fill=black!4,minimum width=2.2cm,minimum height=.85cm] (clf1) at (13.4,4) {Clasificador\\SVM / ResMLP};
+\draw[flow] (single)--(clf1);
+\node[lab] at (11.9,4.85) {Un bloque elegido internamente};
+% Shared block bank routes to a selection policy, then concatenation.
+\foreach \idx/\y in {1/4,2/2,3/0,4/-2,5/-4}{
+ \draw[black!45] (z\idx.east)--(8.55,\y);
+}
+\draw[black!45] (8.55,-4)--(8.55,3.55);
+\draw[black!45] (8.55,3.55)--(8.55,4);
+\node[box,minimum width=2.25cm,minimum height=1.4cm] (select) at (10.4,0) {Bloques $S$\\Completa / GFS\\Top-$k$ / Homogénea};
+\draw[flow] (8.55,0)--(select.west);
+\node[lab,font=\sffamily\bfseries\small] at (13.4,1.2) {Concatenación};
+\foreach \x/\idx/\col in {12.5/1/c1,13.4/3/c3,14.3/5/c5}{
+ \node[draw=\col,fill=\col!15,minimum width=.88cm,minimum height=.65cm,inner sep=1pt] at (\x,0) {$\widehat{\mathbf z}_{\idx}$};
+}
+\draw[flow] (select.east)--(12.04,0);
+\node[lab] at (13.4,-.85) {Ejemplo: $S=\{1,3,5\}$\\$d_S=d_1+d_3+d_5$};
+\node[box,fill=black!4,minimum width=2.2cm,minimum height=.85cm] (clf2) at (13.4,-2.5) {Clasificador\\SVM / ResMLP};
+\draw[flow] (13.4,-1.38)--(clf2.north);
+
+\end{tikzpicture}
+\end{document}

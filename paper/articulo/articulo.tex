@@ -1,0 +1,134 @@
+% ============================================================
+% Artículo: Concatenación sistemática de descriptores visuales
+%           clásicos y modernos para clasificación de texturas
+% Template: Elsevier CAS Single Column (cas-sc)
+% Autores:  Carlos Ayala & Joaquín Delgado
+% Tutor:    José Vázquez (UNA-FP)
+% Fecha:    Julio 2026
+% ============================================================
+
+\documentclass[a4paper,fleqn]{cas-sc}
+
+\usepackage[authoryear,longnamesfirst]{natbib}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\def\tsc#1{\csdef{#1}{\textsc{\lowercase{#1}}\xspace}}
+
+\begin{document}
+\let\WriteBookmarks\relax
+\def\floatpagepagefraction{1}
+\def\textpagefraction{.001}
+
+% --- Título y metadata ---
+\shorttitle{Concatenaci\'on de descriptores visuales para clasificaci\'on de texturas}
+\shortauthors{C. Ayala \& J. Delgado}
+
+\title[mode=title]{Concatenaci\'on sistem\'atica de descriptores visuales cl\'asicos y modernos para clasificaci\'on de texturas}
+
+\tnotemark[1]
+\tnotetext[1]{Trabajo de Tesis de Grado, Facultad Polit\'ecnica, Universidad Nacional de Asunci\'on (UNA-FP). Tutor: Prof. Jos\'e V\'azquez.}
+
+% --- Autores ---
+\author[1]{Carlos Ayala}
+\cormark[1]
+\fnmark[1]
+\ead{carlos.ayala@est.fpuna.edu.py}
+\credit{Conceptualizaci\'on, Metodolog\'ia, Software, Experimentaci\'on, An\'alisis formal, Redacci\'on -- borrador original}
+
+\affiliation[1]{organization={Universidad Nacional de Asunci\'on, Facultad Polit\'ecnica (UNA-FP)},
+            addressline={Campus San Lorenzo}, 
+            city={San Lorenzo},
+            postcode={}, 
+            state={},
+            country={Paraguay}}
+
+\author[2]{Joaqu\'in Delgado}
+\fnmark[1]
+\ead{joaquin.delgado@est.fpuna.edu.py}
+\credit{Conceptualizaci\'on, Metodolog\'ia, Software, Experimentaci\'on, Redacci\'on -- revisi\'on y edici\'on}
+
+\affiliation[2]{organization={Universidad Nacional de Asunci\'on, Facultad Polit\'ecnica (UNA-FP)},
+            addressline={Campus San Lorenzo}, 
+            city={San Lorenzo},
+            postcode={}, 
+            state={},
+            country={Paraguay}}
+
+\cortext[1]{Autor de correspondencia}
+\fntext[1]{Ambos autores contribuyeron igualmente a este trabajo.}
+
+% --- Abstract ---
+\begin{abstract}
+La clasificaci\'on de texturas es un problema fundamental en visi\'on por computador. Este trabajo eval\'ua sistem\'aticamente si la concatenaci\'on de m\'ultiples descriptores visuales---cl\'asicos y modernos---mejora la clasificaci\'on m\'as all\'a del mejor descriptor individual. Se evaluaron 20 extractores sobre 6 datasets p\'ublicos, con aproximadamente 1200 experimentos, validaci\'on cruzada estratificada y 4 clasificadores. Se compararon linear probing, concatenaci\'on acumulativa y Greedy Forward Selection (GFS). Los resultados muestran que: (1) la concatenaci\'on aporta valor cuando se seleccionan representaciones complementarias; (2) GFS mejora o iguala al mejor individual en 5/6 datasets y supera al prefix concat con subconjuntos de 2--5 extractores; (3) la composici\'on \'optima depende del dataset y del clasificador; (4) la diversidad entre familias aporta m\'as que acumular modelos similares; y (5) ResMLP es competitivo con SVM lineal. Las validaciones estad\'isticas y contra subconjuntos aleatorios respaldan que el beneficio proviene de la selecci\'on y no solamente de aumentar la dimensionalidad. Se concluye que la estrategia de combinaci\'on es tan importante como la calidad de los descriptores individuales.
+\end{abstract}
+
+% --- Highlights ---
+\begin{highlights}
+\item La concatenaci\'on seleccionada mejora o iguala al mejor descriptor individual en 5/6 datasets.
+\item Greedy Forward Selection (GFS) supera al prefix concat can\'onico con subconjuntos 84\,\% m\'as compactos y mejora promedio de +0.022 F1.
+\item La complementariedad entre representaciones depende del dataset y del clasificador.
+\item Validaci\'on estad\'istica rigurosa: GFS supera significativamente a subsets aleatorios en 96\,\% de los casos (Holm-Bonferroni, $\Delta$ F1 = +0.083).
+\item El primer modelo profundo (CNN/ViT) a\~nadido a los descriptores cl\'asicos produce el mayor salto en F1 (+0.48--0.51).
+\end{highlights}
+
+% --- Keywords ---
+\begin{keywords}
+clasificaci\'on de texturas \sep concatenaci\'on de caracter\'isticas \sep fusi\'on de descriptores \sep selecci\'on de subconjuntos \sep Greedy Forward Selection \sep complementariedad
+\end{keywords}
+
+\maketitle
+
+% ============================================================
+% 1. INTRODUCCIÓN
+% ============================================================
+\section{Introducci\'on}\label{sec:intro}
+
+La clasificaci\'on de texturas es un problema fundamental en visi\'on por computador, con aplicaciones que abarcan desde la inspecci\'on industrial de materiales y la teledetecci\'on hasta el diagn\'ostico m\'edico asistido y la recuperaci\'on de im\'agenes por contenido \citep{bel2022texture}. A pesar de m\'as de cinco d\'ecadas de investigaci\'on, la elecci\'on del descriptor de caracter\'isticas sigue siendo una decisi\'on abierta: no existe un \'unico extractor que domine universalmente todos los tipos de texturas y dominios \citep{cimpoi2016fisher}.
+
+Hist\'oricamente, la investigaci\'on se estructur\'o en torno a descriptores \textit{handcrafted} como Local Binary Patterns (LBP) \citep{ojala2002lbp}, Gray-Level Co-occurrence Matrices (GLCM) \citep{haralick1979glcm}, bancos de filtros Gabor, e Histogram of Oriented Gradients (HOG) \citep{dalal2005hog}. Estos m\'etodos, aunque interpretables y computacionalmente eficientes, capturan estad\'isticas locales predefinidas que pueden resultar insuficientes frente a la alta variabilidad intra-clase de las texturas naturales \citep{cimpoi2014dtd}. Con la irrupci\'on de las redes convolucionales profundas (CNNs) preentrenadas en ImageNet---desde AlexNet hasta arquitecturas modernas como ResNet \citep{he2016resnet}, EfficientNet \citep{tan2019efficientnet} y ConvNeXt V2 \citep{woo2023convnextv2}---el campo experiment\'o un salto cualitativo, desplazando progresivamente a los descriptores cl\'asicos como extractores de caracter\'isticas por defecto. M\'as recientemente, los Vision Transformers (ViT) \citep{dosovitskiy2021vit,liu2021swin} y los modelos auto-supervisados como DINO \citep{caron2021dino} y DINOv2 \citep{oquab2024dinov2} han elevado nuevamente el estado del arte, planteando una pregunta natural: \textit{\textbf{?`los modelos modernos capturan ya toda la se\~nal relevante, o los descriptores cl\'asicos a\'un aportan informaci\'on complementaria?}}
+
+La intuici\'on detr\'as de la fusi\'on de caracter\'isticas (\textit{feature fusion}) es que distintos extractores capturan aspectos diferentes de la textura: un descriptor LBP codifica micro-patrones locales, mientras que un ViT preentrenado extrae estructura sem\'antica global. La concatenaci\'on de ambos vectores produce, en principio, una representaci\'on m\'as rica que cualquiera por separado. Esta hip\'otesis de complementariedad ha sido validada emp\'iricamente en la literatura de texturas \citep{cimpoi2016fisher,sanchez2013image,zhang2017deepten}, pero los trabajos existentes presentan limitaciones significativas: (i) eval\'uan t\'ipicamente 2--3 extractores, casi siempre un cl\'asico y un CNN; (ii) concatenan en un orden can\'onico fijo sin explorar la selecci\'on del subconjunto \'optimo; (iii) reportan resultados en 1--2 datasets, sin caracterizar la transferibilidad entre dominios; y (iv) no documentan las aproximaciones que no funcionan. Con el advenimiento de DINOv2 \citep{oquab2024dinov2} y los modelos SOTA de 2023--2024 (EVA-02 \citep{fang2023eva02}, SigLIP \citep{zhai2023siglip}, MAE \citep{he2022mae}), la pregunta adquiere nueva relevancia: \textit{\textbf{en un panorama donde un solo modelo auto-supervisado domina los benchmarks, ?`la concatenaci\'on sistem\'atica cl\'asico+deep todav\'ia aporta valor?}}
+
+El presente trabajo aborda esta pregunta mediante una evaluaci\'on sistem\'atica a una escala sin precedentes en la literatura de texturas. Se comparan \textbf{20 extractores} heterog\'eneos organizados en cuatro familias---5 cl\'asicos (LBP multi-escala, GLCM, Gabor, HOG, DRLBP \citep{mehta2011drlbp}), 6 CNNs (VGG16, ResNet-50, ResNet-101, DenseNet-121, EfficientNet-B0, ConvNeXt V2-T), 3 Vision Transformers (ViT-B/16, Swin-T, DeiT-S \citep{touvron2021deit}), 3 DINOv2 (small/base/large), y 3 SOTA 2024 (EVA-02, MAE, SigLIP)---sobre \textbf{6 datasets p\'ublicos} (DTD \citep{cimpoi2014dtd}, FMD \citep{sharan2013fmd}, Outex13, CUReT, Soil, VisTex) que cubren texturas naturales, materiales, controladas y escenarios con pocas muestras. Se ejecutaron aproximadamente 1200 experimentos controlados con validaci\'on cruzada estratificada de 5 pliegues, utilizando 4 clasificadores (SVM lineal, KNN, Random Forest, ResMLP). Se comparan tres estrategias de fusi\'on: (1) linear probing sobre cada extractor individual (baseline), (2) concatenaci\'on acumulativa en orden can\'onico fijo (prefix concat, $k=17$), y (3) Greedy Forward Selection (GFS), una b\'usqueda voraz del subconjunto \'optimo que minimiza la dimensionalidad sin sacrificar precisi\'on.
+
+Los resultados revelan cinco hallazgos principales. Primero, \textbf{la concatenaci\'on resulta beneficiosa cuando se seleccionan representaciones complementarias}: GFS mejora o iguala al mejor individual en 5 de 6 datasets. Segundo, \textbf{GFS supera al prefix concat can\'onico} con subconjuntos de 2--5 extractores, 84\,\% menos componentes que $k=17$ y una mejora promedio de $+0.022$ en macro-F1 frente al linear probing. Tercero, \textbf{la composici\'on \'optima depende del dataset y del clasificador}; los subconjuntos combinan distintas familias y no siguen una receta universal. Cuarto, \textbf{la diversidad entre familias aporta m\'as que acumular modelos similares}: el primer descriptor profundo causa el mayor salto en F1, mientras que las incorporaciones posteriores refinan la representaci\'on. Quinto, \textbf{ResMLP es competitivo con SVM lineal}, especialmente en el dataset de menor tama\~no.
+
+M\'as all\'a de los hallazgos positivos, este trabajo documenta rigurosamente las aproximaciones que \textbf{no} funcionaron: PCA antes de concatenar no produce cambios en F1, los cabezales MLP sobre vectores concatenados rinden peor que SVM lineal, y estrategias de fusi\'on alternativas (suma ponderada, atenci\'on temprana) son inferiores a la concatenaci\'on simple seguida de clasificador lineal. Esta transparencia experimental, junto con la validaci\'on estad\'istica mediante correcci\'on de Holm-Bonferroni sobre 6936 comparaciones y la verificaci\'on de que GFS supera significativamente a subconjuntos aleatorios del mismo tama\~no en 23 de 24 casos (96\,\%, $\Delta$ F1 medio $= +0.083$), constituye una contribuci\'on metodol\'ogica en s\'i misma.
+
+El resto del art\'iculo se organiza como sigue. La Secci\'on~\ref{sec:literatura} revisa el estado del arte en descriptores de texturas y estrategias de fusi\'on. La Secci\'on~\ref{sec:metodologia} detalla la metodolog\'ia experimental: los 20 extractores, los 6 datasets, el protocolo de evaluaci\'on y el algoritmo GFS. La Secci\'on~\ref{sec:resultados} presenta los resultados: baseline individual, curvas de saturaci\'on, GFS y comparaci\'on entre estrategias. La Secci\'on~\ref{sec:discusion} discute las implicaciones de los hallazgos, incluyendo el an\'alisis costo-beneficio y las limitaciones del estudio. La Secci\'on~\ref{sec:conclusion} concluye con un resumen de contribuciones y l\'ineas de trabajo futuro.
+
+% ============================================================
+% SECCIONES SIGUIENTES (placeholders para ir completando)
+% ============================================================
+
+% \section{Trabajos relacionados}\label{sec:literatura}
+% [A completar]
+% 
+% \section{Metodolog\'ia}\label{sec:metodologia}
+% [A completar]
+% 
+% \section{Resultados}\label{sec:resultados}
+% [A completar]
+% 
+% \section{Discusi\'on}\label{sec:discusion}
+% [A completar]
+% 
+% \section{Conclusi\'on}\label{sec:conclusion}
+% [A completar]
+
+% --- Agradecimientos ---
+% \section*{Agradecimientos}
+% Los autores agradecen al Prof. Jos\'e V\'azquez por la supervisi\'on de este trabajo de tesis.
+
+% --- CRediT authorship contribution statement ---
+\printcredits
+
+% --- Referencias ---
+\bibliographystyle{cas-model2-names}
+\bibliography{references}
+
+\end{document}
