@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(cd -- "$(dirname -- "$0")/.." && pwd)"
 
 classifier="${1:?classifier required: svm or resmlp}"
-dataset="${2:?dataset required: DTD, FMD, CUReT or Outex13Official1360}"
+dataset="${2:?dataset required: DTD, FMD, CUReT, Outex13Official1360 or KTHTIPS2b}"
 
 case "$classifier" in
   svm) jobs=4 ;;
@@ -52,6 +52,17 @@ case "$dataset" in
       --embedding-root embeddings_extensions \
       --output results/extensions/outex13_official1360 \
       "${common[@]}"
+    ;;
+  KTHTIPS2b)
+    # Official 4-fold protocol (Caputo et al. 2005): one physical sample trains,
+    # the other three test, rotating -- split_1..split_4 in the manifest.
+    for split in 1 2 3 4; do
+      .venv-confirmatory/bin/python -u src/run_confirmatory_nested.py \
+        --dataset KTHTIPS2b --seed 42 --fold 0 --official-split "$split" \
+        --embedding-root embeddings_extensions \
+        --output results/extensions/kth_tips2b \
+        "${common[@]}"
+    done
     ;;
   *)
     echo "unsupported dataset: $dataset" >&2
