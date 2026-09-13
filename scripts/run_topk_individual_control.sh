@@ -26,3 +26,12 @@ done
   --seed 42 --fold 0 --official-split 1 \
   --embedding-root embeddings_extensions \
   --output results/extensions/outex13_official1360 --n-jobs 3
+
+# Official 4-fold protocol (Caputo et al. 2005): one physical sample trains,
+# the other three test, rotating -- split_1..split_4 in the manifest.
+for split in 1 2 3 4; do
+  "$PY" "$RUN" --dataset KTHTIPS2b --classifier "$CLF" \
+    --seed 42 --fold 0 --official-split "$split" \
+    --embedding-root embeddings_extensions \
+    --output results/extensions/kth_tips2b --n-jobs 3
+done

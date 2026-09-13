@@ -87,6 +87,34 @@ No substitute list will be inferred from filename position. Re-extraction stays
 blocked until that list/cropped release is obtained from the primary authors or
 reproduced from documented camera metadata with a reviewed, frozen script.
 
+## KTH-TIPS2-b: official 4-fold protocol, not group CV
+
+The manifest is built directly from the raw archive tree
+(`<material>/sample_<a|b|c|d>/*.png`) by
+`results/confirmatory/recovery/kth_tips2b/build_kth_tips2b_manifest.py`; no
+pre-existing embeddings or historical row order are reused. 11 materials x 4
+physical samples x 108 images/sample = 4,752 rows.
+
+The official protocol (Caputo, Hayman and Mallikarjuna, ICCV 2005) trains on
+the images of **one** physical sample and tests on the images of the **other
+three**, rotating over the four samples (a, b, c, d). This gives four fixed,
+disjoint folds -- not an invented stratified/grouped CV -- stored as
+machine-readable `split_1`..`split_4` columns (`train`/`test`), read by
+`official_split_indices` in `src/run_confirmatory_nested.py` via
+`--official-split {1,2,3,4}`. There is no official validation subset.
+
+- `group`: source-image SHA-256. No duplicate payloads are expected across
+  samples, so the train/test purge step in `official_split_indices` (built for
+  DTD's duplicate content) should be a no-op here; if it isn't, that signals an
+  unexpected duplicate in the downloaded archive and must be investigated
+  before trusting results.
+- This dataset was excluded from the v3 confirmatory scope (README.md) because
+  it is saturated (F1 ~= 1.0 with every method in the earlier exploratory
+  pipeline) -- see `paper/chapters/04_resultados.md`. It is being reintroduced
+  here as a new extension (parallel to Outex13/Soil/VisTex) specifically to
+  compare against Neshov et al. (Electronics 2025), which benchmarks the same
+  dataset with the same official protocol.
+
 ## Manifest semantics
 
 - `row_id`: exact extraction row in the associated manifest.
