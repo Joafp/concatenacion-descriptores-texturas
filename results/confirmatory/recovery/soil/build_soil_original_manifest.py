@@ -90,7 +90,10 @@ def main() -> None:
                 "row_id": row_id,
                 "label": record["label"],
                 "group": record["family"],
-                "source_path": record["path"].relative_to(REPO),
+                # Persist POSIX separators so the frozen manifest is portable
+                # between the Windows extraction host and the WSL evaluation
+                # environment.
+                "source_path": record["path"].relative_to(REPO).as_posix(),
                 "source_sha256": record["source_sha256"],
                 "pixel_sha256": record["pixel_sha256"],
                 "width": record["width"],

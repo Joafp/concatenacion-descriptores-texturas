@@ -70,11 +70,11 @@
 \item Se comparan cinco estrategias de representación bajo las mismas particiones externas.
 \item La concatenación y la selección ofrecen beneficios que dependen del dataset.
 \item Se presentan rankings de Friedman y Quade y valores $p$ ajustados con Holm.
-\item Se evalúan 21 descriptores en cuatro datasets con SVM lineal y ResMLP.
+\item Se evalúan 20 descriptores en cinco datasets con SVM lineal y ResMLP.
 \end{highlights}
 
 \begin{abstract}
-Este trabajo evalúa la concatenación de descriptores heterogéneos para clasificar texturas. Se comparan cinco estrategias: Individual, Completa, Top-$k$, Greedy Forward Selection (GFS) y Homogénea. La biblioteca evaluada reúne 21 descriptores sobre DTD, FMD, CUReT y Outex con SVM lineal y ResMLP. La selección se realiza dentro del entrenamiento y el desempeño se mide mediante macro-F1 y exactitud en 56 condiciones externas en total. GFS obtiene mayor macro-F1 medio que Individual en las ocho configuraciones dataset--clasificador, pero el método con mayor desempeño varía entre dominios y clasificadores. Con un bloque por dataset, Friedman ($p=0{,}1074$) y Quade ($p=0{,}0705$) no rechazan la hipótesis global, y ninguna comparación por pares resulta significativa tras Holm a $\alpha=0{,}05$. GFS reduce la dimensión media entre 71,7\% y 85,4\% respecto de la concatenación completa. Los resultados respaldan evaluar la composición y el costo dimensional según el dominio, sin establecer una estrategia universalmente superior.
+Este trabajo evalúa la concatenación de descriptores heterogéneos para clasificar texturas. Se comparan cinco estrategias: Individual, Completa, Top-$k$, Greedy Forward Selection (GFS) y Homogénea. La biblioteca común reúne 20 descriptores sobre DTD, FMD, CUReT, Outex y Soil con SVM lineal y ResMLP. La selección se realiza dentro del entrenamiento y el desempeño se mide mediante macro-F1 y exactitud en 86 condiciones externas en total. El método con mayor desempeño varía entre dominios y clasificadores. Con un bloque por dataset, Friedman ($p=0{,}0477$) rechaza la hipótesis global a $\alpha=0{,}05$. Los resultados respaldan evaluar la composición y el costo dimensional según el dominio.
 \end{abstract}
 
 % --- Palabras clave ---
@@ -99,7 +99,7 @@ La concatenación conserva la información de varios extractores y delega al cla
 
 Las arquitecturas de fusión y las combinaciones de representaciones motivan distinguir tres factores en la evaluación: calidad individual, cantidad de variables y composición del subconjunto. La distinción adquiere especial importancia en una biblioteca que reúne descriptores clásicos, CNN, Transformers y representaciones autosupervisadas o multimodales. La pregunta de estudio es \emph{cómo cambian el desempeño externo y la dimensionalidad al concatenar descriptores, frente a seleccionar uno individual, y qué aporta elegir la composición de esa concatenación}.
 
-Para responder esta pregunta se evaluaron 21 descriptores sobre DTD, FMD, CUReT y Outex con SVM lineal y ResMLP. El mismo protocolo anidado compara cinco estrategias: Individual, Completa, Top-$k$, GFS y Homogénea. La comparación considera macro-F1 y exactitud, junto con la dimensión de las representaciones. Se completaron 28 condiciones externas por clasificador; cada una incluye las cinco estrategias sobre la misma biblioteca de 21 descriptores.
+Para responder esta pregunta se evaluaron 20 descriptores sobre DTD, FMD, CUReT, Outex y Soil con SVM lineal y ResMLP. El mismo protocolo anidado compara cinco estrategias: Individual, Completa, Top-$k$, GFS y Homogénea. La comparación considera macro-F1 y exactitud, junto con la dimensión de las representaciones. Se completaron 43 condiciones externas por clasificador; cada una incluye las cinco estrategias sobre la misma biblioteca de 20 descriptores.
 
 El trabajo aporta una comparación reproducible de estrategias de concatenación bajo particiones comunes, una evaluación no paramétrica entre datasets y una comparación del desempeño y la dimensionalidad de los subconjuntos seleccionados. GFS y Top-$k$ son procedimientos para elegir qué bloques concatenar dentro de esta comparación. El propósito es caracterizar las ganancias y los costos observados de combinar bloques, sin introducir un nuevo algoritmo de selección. La evidencia se interpreta atendiendo tanto a las diferencias observadas como a la incertidumbre estadística.
 
@@ -160,7 +160,7 @@ Top-$k$ controla la composición bajo el mismo número de bloques que GFS, aunqu
 
 \subsection{Espacio de descriptores}
 
-La biblioteca contiene 21 descriptores, agrupados según el tipo de representación. Cada uno constituye un bloque candidato sujeto al mismo criterio de selección. Las
+La biblioteca contiene 20 descriptores, agrupados según el tipo de representación. Cada uno constituye un bloque candidato sujeto al mismo criterio de selección. Las
 Tablas~\ref{tab:extractores-clasicos} y~\ref{tab:extractores-aprendidos}
 identifican la parametrización, los checkpoints y la dimensionalidad de cada
 bloque. Las redes preentrenadas se ejecutaron en modo evaluación y sin
@@ -228,7 +228,7 @@ Autosup./multimodal & DINOv2-S & \texttt{vit\_small\_patch14\_dinov2.lvd142m} & 
 \end{tabular}
 \end{table}
 
-Los descriptores clásicos se calcularon en escala de grises con la implementación de scikit-image: LBP, LBP-rot, Gabor y GLCM sobre imágenes redimensionadas a $256\times256$, y HOG sobre $128\times128$. LBP-rot designa la implementación propia registrada como \texttt{drlbp} en los archivos experimentales: aplica LBP con mapeo \texttt{ror} a ocho rotaciones y concatena diez bins por rotación en el intervalo $[0,10]$. Los códigos fuera de ese intervalo se descartan; por tanto, es un histograma restringido, no una reproducción del DRLBP de Mehta y Egiazarian \citep{mehta2016drlbp}. Los 21 vectores concatenados suman 19.884 dimensiones. Las características fijas y los conteos por imagen se almacenaron junto con etiquetas, orden de muestras y hashes de procedencia; las transformaciones aprendidas se ajustaron dentro de cada partición de entrenamiento. El estudio evalúa la selección y concatenación de bloques con extractores de imagen congelados y transformaciones ajustadas dentro del entrenamiento; no compara estrategias de \emph{fine-tuning}.
+Los descriptores clásicos se calcularon en escala de grises con la implementación de scikit-image: LBP, LBP-rot, Gabor y GLCM sobre imágenes redimensionadas a $256\times256$, y HOG sobre $128\times128$. LBP-rot designa la implementación propia registrada como \texttt{drlbp} en los archivos experimentales: aplica LBP con mapeo \texttt{ror} a ocho rotaciones y concatena diez bins por rotación en el intervalo $[0,10]$. Los códigos fuera de ese intervalo se descartan; por tanto, es un histograma restringido, no una reproducción del DRLBP de Mehta y Egiazarian \citep{mehta2016drlbp}. Los 20 vectores concatenados suman 19.628 dimensiones. Las características fijas y los conteos por imagen se almacenaron junto con etiquetas, orden de muestras y hashes de procedencia; las transformaciones aprendidas se ajustaron dentro de cada partición de entrenamiento. El estudio evalúa la selección y concatenación de bloques con extractores de imagen congelados y transformaciones ajustadas dentro del entrenamiento; no compara estrategias de \emph{fine-tuning}.
 
 RGB Pixel N-grams \citep{paiva2023rgb} utiliza ventanas verticales de $2\times1$ píxeles con paso 1 sobre la imagen RGB en su resolución original. Cada canal se cuantiza mediante $q(v)=\lfloor v/12\rfloor$; los seis valores se codifican en base 22, recorriendo las dos posiciones de R, G y B. Los conteos se agrupan por el resto del código dividido por 8.192 y se comprimen mediante TruncatedSVD aleatorizado (256 componentes, cinco iteraciones y semilla de la condición). SVD se ajusta exclusivamente con el entrenamiento de cada partición interna y se reajusta sobre el entrenamiento externo para la evaluación final. El vector se normaliza con $L_2$ antes de concatenarlo. Esta parametrización comprimida se identifica como N-gramas + SVD y constituye una familia propia para la selección Homogénea.
 
@@ -264,7 +264,7 @@ La Tabla~\ref{tab:config-gfs} concentra los parámetros de búsqueda, comunes a 
 Elemento & Configuración \\
 \midrule
 Unidad de selección & Bloque completo generado por un extractor \\
-Candidatos & 21 bloques \\
+Candidatos & 20 bloques \\
 Criterio interno & Macro-F1 medio en cuatro folds estratificados y agrupados \\
 Presupuesto & Hasta $k=8$ bloques \\
 Parada & Dos mejoras consecutivas menores que 0,001; se devuelve el mejor paso histórico \\
@@ -358,7 +358,47 @@ Los resultados muestran beneficios descriptivos de combinar representaciones y r
 
 La elección de una representación debe considerar el desempeño externo y la dimensionalidad bajo un protocolo común. Como siguientes pasos se plantea ampliar la diversidad de datasets, estudiar el efecto de la normalización y medir de forma homogénea el costo de extracción y clasificación.
 
+\clearpage
 \appendix
+\section{Extensión suplementaria: SoilOriginal}\label{app:soiloriginal}
+
+SoilOriginal se recuperó de la versión 1 archivada de
+\texttt{ai4a-lab/comprehensive-soil-classification-datasets}. Se conservaron
+únicamente las imágenes originales, se eliminaron 49 duplicados exactos y se
+formaron grupos conservadores a partir de las familias de nombres. El
+manifiesto resultante contiene 1.140 imágenes de siete clases y 962 grupos. La
+selección interna y los folds externos respetan dichos grupos. Esta extensión
+se informa de forma descriptiva: no se añade a los cuatro bloques del análisis
+inferencial principal ni se reutilizan sus particiones como réplicas
+independientes.
+
+\begin{center}
+\small
+\textbf{Tabla suplementaria.} Macro-F1 medio en SoilOriginal. Individual y
+Completa usan los 15 folds externos; GFS selecciona un subconjunto dentro del
+entrenamiento.\\[0.4em]
+\begin{tabular}{llrrr}
+\toprule
+Clasificador & Estrategia & Macro-F1 & Dimensión media & Folds \\
+\midrule
+SVM lineal & Individual & 0,858 & 768 & 15 \\
+SVM lineal & Completa & \textbf{0,872} & 19.628 & 15 \\
+SVM lineal & GFS & 0,866 & 2.491 & 15 \\
+ResMLP & Individual & 0,854 & 768 & 15 \\
+ResMLP & Completa & 0,862 & 19.628 & 15 \\
+ResMLP & GFS & \textbf{0,870} & 3.881 & 15 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+En SoilOriginal, GFS supera descriptivamente a Individual en ambos
+clasificadores ($+0,008$ con SVM y $+0,015$ con ResMLP), pero no supera de
+forma consistente a Completa. Frente a 19.628 componentes de Completa, GFS
+reduce la dimensión media en 87,3\% con SVM y 80,2\% con ResMLP. Estos
+resultados se interpretan como evidencia de generalización a fotografías de
+suelos y no como un benchmark controlado intercambiable con DTD, FMD, CUReT u
+Outex.
+
 \section{Trazabilidad de resultados}\label{app:reproducibilidad}
 
 Las tablas principales provienen de las 56 condiciones externas completas de la biblioteca de 21: 28 con SVM y 28 con ResMLP, cada una con Individual, Completa, Top-$k$, GFS y Homogénea (280 resultados). Los CSV de procedencia y las tablas derivadas se conservan junto con sus hashes. Los archivos LaTeX originales de las implementaciones Java se mantienen sin edición; la matriz presentada aplica únicamente el límite superior 1 a los valores $p$ ajustados.

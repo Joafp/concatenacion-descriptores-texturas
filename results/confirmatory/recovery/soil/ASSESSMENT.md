@@ -1,5 +1,27 @@
 # Soil recovery assessment
 
+## Resolution update - 2026-09-13
+
+The previous assessment below describes the state before source recovery. It is
+now superseded for the `SoilOriginal` supplementary extension.
+
+- The pinned Kaggle archive `ai4a-lab/comprehensive-soil-classification-datasets`
+  version 1 was acquired intact and its SHA-256 is
+  `a4ae6ce5f918128104d79ccfbf12ec93e670fa6aa4617eb788df3e4dda08d97e`.
+- The archive contains 1,189 original images and 5,097 CycleGAN-generated
+  images. Only the original tree was admitted.
+- The old 1,186 placeholder names exactly match the archive except for three
+  non-`.jpg` files (`Alluvial_Soil/43.webp`, `Alluvial_Soil/46.jpeg`, and
+  `Red_Soil/41c.jpeg`); this explains the historical count discrepancy.
+- Exact duplicate removal yields 1,140 source images in 7 classes. The frozen
+  manifest defines 962 conservative filename-family dependency groups.
+- `src/soil_original_extension.py` verifies all source hashes and the 20
+  descriptor matrices aligned to the frozen manifest, with status
+  `PASS_REEXTRACTED_GROUP_AWARE`.
+
+This makes SoilOriginal valid as a supplementary, group-aware extension. It
+does not by itself add Soil to the four-dataset primary inferential analysis.
+
 ## Material Passport
 
 - **Artifact:** local provenance and recoverability assessment
