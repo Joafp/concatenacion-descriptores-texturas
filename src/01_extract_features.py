@@ -125,6 +125,17 @@ EXTRACTORS = {
         "model_name": "convnextv2_tiny.fcmae_ft_in22k_in1k",
         "embedding_dim": 768,
     },
+    # --- Extra (post-hoc, KTH-TIPS2-b competitiveness check vs. Electronics 2025) ---
+    "beitv2_base": {
+        "type": "timm",
+        "model_name": "beitv2_base_patch16_224.in1k_ft_in22k_in1k",
+        "embedding_dim": 768,
+    },
+    "swinv2_base": {
+        "type": "timm",
+        "model_name": "swinv2_base_window8_256.ms_in1k",
+        "embedding_dim": 1024,
+    },
     # --- 3er paradigma (Fase 3) ---
     # "vmamba_t":       {"type": "timm",        "model_name": "vmamba_tiny", "embedding_dim": 768},
     # --- Clásicos (Fase 4) ---

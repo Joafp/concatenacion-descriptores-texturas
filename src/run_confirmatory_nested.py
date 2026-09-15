@@ -41,6 +41,7 @@ FAMILIES = {
     "dinov2_large": "self_supervised", "mae_base": "self_supervised",
     "siglip_base": "self_supervised", "eva02_base": "transformer",
     "rgb_ngram_svd": "ngram",
+    "beitv2_base": "transformer", "swinv2_base": "transformer",
 }
 RESULT_FIELDS = [
     "dataset", "classifier", "seed", "outer_fold", "run_mode", "method", "macro_f1",
