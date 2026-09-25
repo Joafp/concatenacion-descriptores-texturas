@@ -47,8 +47,8 @@ DATASETS = {
         "notes": "Verificar estructura según subdataset específico (Soil_Type, Soil_Texture, etc.)",
     },
     "KTH-TIPS2-b": {
-        "path": "data/KTH-TIPS2-b/train1",  # 11 clases, ~3,564 imgs (split 1 de 10)
-        "mode": "subdirs",
+        "path": "results/confirmatory/recovery/kth/staging/KTH-TIPS2-b",
+        "mode": "two_level",  # 11 classes × 4 physical samples; all 4,752 images
     },
     "GTOS-Mobile": {
         "path": "data/GTOS-Mobile_jpg",       # 31 clases, 100k imgs (post-conversion parquet→jpg)

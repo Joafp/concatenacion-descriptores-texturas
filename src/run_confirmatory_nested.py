@@ -40,6 +40,10 @@ FAMILIES = {
     "dinov2": "self_supervised", "dinov2_small": "self_supervised",
     "dinov2_large": "self_supervised", "mae_base": "self_supervised",
     "siglip_base": "self_supervised", "eva02_base": "transformer",
+    # BEiTv2 is evaluated as a frozen feature extractor.  The final-layer and
+    # four-layer aggregation variants must remain separate candidates so that
+    # any gain from the backbone is not confused with a gain from aggregation.
+    "beitv2_base_final": "transformer", "beitv2_base_multilayer": "transformer",
     "rgb_ngram_svd": "ngram",
 }
 RESULT_FIELDS = [
@@ -60,11 +64,12 @@ def l2_rows(x: np.ndarray) -> np.ndarray:
 
 
 def load_dataset(repo: Path, dataset: str, embedding_root: Path | None = None) -> tuple[dict[str, np.ndarray], np.ndarray]:
+    embedding_dataset = {"KTHTIPS2b": "KTH-TIPS2-b"}.get(dataset, dataset)
     if embedding_root is not None:
-        base = embedding_root / dataset
+        base = embedding_root / embedding_dataset
     else:
-        confirmatory = repo / "embeddings_confirmatory" / dataset
-        base = confirmatory if confirmatory.is_dir() else repo / "embeddings" / dataset
+        confirmatory = repo / "embeddings_confirmatory" / embedding_dataset
+        base = confirmatory if confirmatory.is_dir() else repo / "embeddings" / embedding_dataset
     cache: dict[str, np.ndarray] = {}
     reference = None
     for path in sorted(base.glob("*.npy")):
@@ -293,7 +298,8 @@ def file_sha256(path: Path) -> str:
 def run_condition(repo, output, dataset, classifier, seed, fold, random_b, max_k, smoke,
                   official_split=None, curet_direction=None, n_jobs=2, embedding_root=None,
                   svm_backend="cpu", include_rgb_ngram=False, ngram_components=256,
-                  ngram_hash_bins=8192):
+                  ngram_hash_bins=8192, invert_official_split=False,
+                  exclude_extractors=(), result_subdir=None):
     if official_split is not None and curet_direction is not None:
         raise ValueError("official_split and curet_direction are mutually exclusive")
     if curet_direction is not None and dataset != "CUReT":
@@ -302,6 +308,11 @@ def run_condition(repo, output, dataset, classifier, seed, fold, random_b, max_k
         raise ValueError("dataset CUReT requires curet_direction")
     audit_gate(output, dataset)
     cache, y = load_dataset(repo, dataset, embedding_root=embedding_root)
+    unknown_exclusions = sorted(set(exclude_extractors).difference(cache))
+    if unknown_exclusions:
+        raise ValueError(f"cannot exclude missing extractors: {unknown_exclusions}")
+    for name in exclude_extractors:
+        cache.pop(name)
     groups, manifest_rows = load_manifest(output, dataset, y)
     ngram_block = None
     if include_rgb_ngram:
@@ -312,6 +323,8 @@ def run_condition(repo, output, dataset, classifier, seed, fold, random_b, max_k
                                        random_state=seed, hash_bins=ngram_hash_bins)
     if official_split is not None:
         train, test = official_split_indices(manifest_rows, official_split)
+        if invert_official_split:
+            train, test = test, train
         fold = official_split - 1
     elif curet_direction is not None:
         train, test = curet_half_indices(manifest_rows, curet_direction)
@@ -329,13 +342,16 @@ def run_condition(repo, output, dataset, classifier, seed, fold, random_b, max_k
     # remain reproducible and cannot be mixed accidentally.
     backend_root = output / "gpu_svm" if svm_backend == "cuml" else output
     if include_rgb_ngram:
-        backend_root = backend_root / "ngram21"
+        default_subdir = "ngram21_radam_3train" if invert_official_split else "ngram21"
+        backend_root = backend_root / (result_subdir or default_subdir)
+    elif result_subdir:
+        backend_root = backend_root / result_subdir
     result_root = backend_root / "smoke" if smoke else backend_root
     result_root.mkdir(parents=True, exist_ok=True)
     checkpoint_dir = result_root / "checkpoints"
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
     run_mode = "smoke" if smoke else "full"
-    split_tag = (f"official{official_split}" if official_split is not None
+    split_tag = (f"official{official_split}{'_inverted' if invert_official_split else ''}" if official_split is not None
                  else curet_direction if curet_direction is not None else f"fold{fold}")
     key = f"{dataset}__{classifier}__{seed}__{split_tag}__{run_mode}"
     checkpoint = checkpoint_dir / f"{key}.json"
@@ -432,6 +448,12 @@ def main():
                         help="add leakage-safe RGB Pixel N-gram + TruncatedSVD as descriptor 21")
     parser.add_argument("--ngram-components", type=int, default=256)
     parser.add_argument("--ngram-hash-bins", type=int, default=8192)
+    parser.add_argument("--invert-official-split", action="store_true",
+                        help="swap manifest train/test roles (KTH RADAM: 3 physical samples train, 1 tests)")
+    parser.add_argument("--exclude-extractors", nargs="*", default=[],
+                        help="freeze a historical descriptor library by excluding named embedding files")
+    parser.add_argument("--result-subdir", default=None,
+                        help="isolated result folder (for example ngram22_beitv2)")
     args = parser.parse_args()
     if args.n_jobs < 1:
         parser.error("--n-jobs must be >= 1")
@@ -462,7 +484,10 @@ def main():
                       embedding_root=embedding_root, svm_backend=args.svm_backend,
                       include_rgb_ngram=args.include_rgb_ngram,
                       ngram_components=args.ngram_components,
-                      ngram_hash_bins=args.ngram_hash_bins)
+                      ngram_hash_bins=args.ngram_hash_bins,
+                      invert_official_split=args.invert_official_split,
+                      exclude_extractors=args.exclude_extractors,
+                      result_subdir=args.result_subdir)
         status, error = "complete", None
     except KeyboardInterrupt:
         status, error = "interrupted", "KeyboardInterrupt()"
@@ -479,13 +504,18 @@ def main():
                   "include_rgb_ngram": args.include_rgb_ngram,
                   "ngram_components": args.ngram_components,
                   "ngram_hash_bins": args.ngram_hash_bins,
+                  "invert_official_split": args.invert_official_split,
+                  "exclude_extractors": args.exclude_extractors,
+                  "result_subdir": args.result_subdir,
                   "embedding_root": str(embedding_root) if embedding_root is not None else None,
                   "started_unix": started, "elapsed_seconds": time.time() - started,
                   "command": " ".join(sys.argv), "python": sys.version,
                   "platform": platform.platform(), "script_sha256": file_sha256(Path(__file__))}
-        logs = output / ("ngram21/logs" if args.include_rgb_ngram else "logs")
+        default_log_subdir = "ngram21_radam_3train" if args.invert_official_split else "ngram21"
+        log_subdir = args.result_subdir or default_log_subdir
+        logs = output / (f"{log_subdir}/logs" if args.include_rgb_ngram or args.result_subdir else "logs")
         if args.svm_backend == "cuml":
-            logs = output / "gpu_svm" / ("ngram21/logs" if args.include_rgb_ngram else "logs")
+            logs = output / "gpu_svm" / (f"{log_subdir}/logs" if args.include_rgb_ngram or args.result_subdir else "logs")
         logs.mkdir(parents=True, exist_ok=True)
         log_fold = (f"official{args.official_split}" if args.official_split
                     else args.curet_direction if args.curet_direction else str(args.fold))

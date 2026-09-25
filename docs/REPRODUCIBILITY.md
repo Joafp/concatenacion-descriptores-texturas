@@ -13,8 +13,8 @@ mismo protocolo experimental que el estudio confirmatorio.
 ## 2. Entorno
 
 ```bash
-git clone <URL_DEL_REPO>
-cd tesis_claude   # o el nombre del clone
+git clone https://github.com/Joafp/concatenacion-descriptores-texturas.git
+cd concatenacion-descriptores-texturas
 bash scripts/setup_env.sh          # GPU: ruedas cu126
 # bash scripts/setup_env.sh --cpu  # solo CPU (tests y análisis livianos)
 ```
@@ -30,7 +30,11 @@ análisis y descriptores sintéticos:
 .venv-confirmatory/bin/python -m pytest experiments/ -q
 ```
 
-Expectativa: **32 passed**.
+El número de tests puede cambiar con el repositorio. Dos pruebas de
+`test_vistex_reference12_extension.py` requieren las imágenes originales de
+VisTex Reference12 en `results/confirmatory/recovery/vistex/staging/`; no son
+pruebas independientes de datasets. Sin ese corpus, las restantes se ejecutan
+con `-k 'not test_manifest_discovery_is_canonical and not test_manifest_gate_counts_hashes_and_groups'`.
 
 ## 4. Datos y embeddings
 
@@ -40,6 +44,12 @@ Expectativa: **32 passed**.
    `embeddings_extensions/`.
 
 ## 5. Protocolo confirmatorio
+
+La matriz del manuscrito utiliza 22 bloques, seis datasets, SVM y ResMLP.
+Cada clasificador tiene 47 condiciones externas (DTD 10, FMD 15, CUReT 2,
+Outex 1, Soil 15 y KTH-TIPS2-b 4), con cinco estrategias por condición.
+Los CSV de 21 bloques se requieren únicamente para la comparación incremental
+de BEiTv2.
 
 Una condición DTD (ejemplo del manuscrito):
 
@@ -77,7 +87,29 @@ Análisis consolidado:
   --output results/confirmatory
 ```
 
-## 6. Tests no paramétricos (SCI2S)
+## 6. Reconstrucción de tablas y pruebas del manuscrito
+
+Con las salidas CSV de 21 y 22 bloques en las rutas indicadas por
+`scripts/build_primary22_beitv2_paper.py`, ejecutá:
+
+```bash
+.venv-confirmatory/bin/python scripts/build_primary22_beitv2_paper.py
+```
+
+El script valida 94 condiciones externas, 470 filas de resultados y ausencia
+de claves duplicadas o métricas no finitas. Comprueba también que las claves
+externas de Completa-21 y Completa-22 coincidan. Luego genera las tablas LaTeX
+en `paper/articulo/borrador_profesor/generated/` y las entradas/salidas SCI2S
+por clasificador en `results/primary22_beitv2/nonparametric/`.
+
+El archivo `results/primary22_beitv2/nonparametric/validation.json` guarda
+hashes SHA-256 de los CSV fuente y del CSV canónico de 470 filas. La tabla
+bibliográfica usa el mayor **promedio externo por configuración**; ese máximo
+se elige después de observar los tests y sirve únicamente como contexto.
+Soil Original no es el mismo corpus/protocolo que el Soil aumentado del paper
+de Neshov et al.
+
+## 7. Tests no paramétricos (SCI2S)
 
 Herramientas en `.tools/nonparametric/` (CONTROLTEST y MULTIPLETEST).
 Procedimiento detallado: [`PASO_A_PASO_SOFTWARE.md`](PASO_A_PASO_SOFTWARE.md).
@@ -87,16 +119,24 @@ cd .tools/nonparametric/controlTest
 java Friedman <entrada.csv> > salida_controltest.tex
 ```
 
-## 7. Evidencia archivada en el repo
+## 8. Evidencia y estado de publicación
 
-Sin reejecutar GPU, ya están versionados (cuando no caen bajo `.gitignore`):
+El material necesario para auditar las tablas, una vez versionado en un commit
+y comprobado contra una versión pública, incluye:
 
-- Resúmenes CSV/JSON en `results/confirmatory/`
-- Manifiestos y `ORDER_AND_SPLIT_PROTOCOL.md`
-- Salidas SCI2S en `results/confirmatory/nonparametric/`
-- Manuscrito en `paper/articulo/borrador_profesor/`
+- Los CSV `nested_fold_results.csv` y `topk_individual_control/nested_fold_results.csv`
+  de las ocho raíces de 21 y 22 bloques enumeradas en el script.
+- El CSV canónico `paper/articulo/borrador_profesor/generated/primary22_beitv2_source_rows.csv`.
+- Las entradas y salidas SCI2S de SVM y ResMLP y `validation.json` en
+  `results/primary22_beitv2/nonparametric/`.
+- El manuscrito y las tablas derivadas en `paper/articulo/borrador_profesor/`.
 
-## 8. Qué no se clona
+Un archivo local sin commit no constituye evidencia disponible públicamente.
+Antes del envío, verificar que estos archivos figuren en el commit público,
+anotar su SHA y depositar una versión inmutable. Los datasets y embeddings
+originales se distribuyen o regeneran según las condiciones de sus fuentes.
+
+## 9. Qué no se clona
 
 | Ruta | Motivo |
 |---|---|

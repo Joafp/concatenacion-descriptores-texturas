@@ -27,9 +27,11 @@ from run_confirmatory_nested import (
 
 
 def outer_indices(dataset, seed, fold, y, groups, manifest_rows,
-                  official_split=None, curet_direction=None):
+                  official_split=None, curet_direction=None,
+                  invert_official_split=False):
     if official_split is not None:
-        return official_split_indices(manifest_rows, official_split)
+        train, test = official_split_indices(manifest_rows, official_split)
+        return (test, train) if invert_official_split else (train, test)
     if curet_direction is not None:
         return curet_half_indices(manifest_rows, curet_direction)
     splitter = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=seed)
@@ -37,12 +39,12 @@ def outer_indices(dataset, seed, fold, y, groups, manifest_rows,
 
 
 def archived_k(output, dataset, classifier, seed, fold, svm_backend="cpu",
-               include_rgb_ngram=False):
+               include_rgb_ngram=False, ngram_result_subdir="ngram21"):
     if svm_backend == "cuml":
-        source = output / "gpu_svm" / ("ngram21/nested_fold_results.csv"
+        source = output / "gpu_svm" / (f"{ngram_result_subdir}/nested_fold_results.csv"
                                         if include_rgb_ngram else "nested_fold_results.csv")
     else:
-        source = output / ("ngram21/nested_fold_results.csv"
+        source = output / (f"{ngram_result_subdir}/nested_fold_results.csv"
                            if include_rgb_ngram else "nested_fold_results.csv")
     rows = pd.read_csv(source)
     match = rows[
@@ -75,6 +77,9 @@ def main():
     parser.add_argument("--include-rgb-ngram", action="store_true")
     parser.add_argument("--ngram-components", type=int, default=256)
     parser.add_argument("--ngram-hash-bins", type=int, default=8192)
+    parser.add_argument("--ngram-result-subdir", default="ngram21")
+    parser.add_argument("--invert-official-split", action="store_true")
+    parser.add_argument("--exclude-extractors", nargs="*", default=[])
     args = parser.parse_args()
     if args.svm_backend == "cuml" and args.classifier != "svm":
         parser.error("--svm-backend cuml requires --classifier svm")
@@ -87,11 +92,16 @@ def main():
 
     audit_gate(output, args.dataset)
     cache, y = load_dataset(repo, args.dataset, embedding_root=embedding_root)
+    unknown_exclusions = sorted(set(args.exclude_extractors).difference(cache))
+    if unknown_exclusions:
+        raise ValueError(f"cannot exclude missing extractors: {unknown_exclusions}")
+    for name in args.exclude_extractors:
+        cache.pop(name)
     groups, manifest_rows = load_manifest(output, args.dataset, y)
     ngram_block = None
     if args.include_rgb_ngram:
         from rgb_ngram_descriptor import RGBNgramSVDBlock, build_count_cache
-        count_dir = output / "rgb_ngram_count_cache" / args.dataset / "rgb_ngram_impl1"
+        count_dir = output / args.ngram_result_subdir / "rgb_ngram_count_cache" / args.dataset / "rgb_ngram_impl1"
         counts = build_count_cache(manifest_rows, repo, count_dir, "rgb_ngram_impl1")
         ngram_block = RGBNgramSVDBlock(
             counts, n_components=args.ngram_components,
@@ -99,7 +109,7 @@ def main():
         )
     train, test = outer_indices(
         args.dataset, args.seed, args.fold, y, groups, manifest_rows,
-        args.official_split, args.curet_direction,
+        args.official_split, args.curet_direction, args.invert_official_split,
     )
     fold = (
         args.official_split - 1 if args.official_split is not None
@@ -110,11 +120,11 @@ def main():
         raise AssertionError("source group leakage in outer split")
 
     if args.svm_backend == "cuml":
-        control = output / "gpu_svm" / ("ngram21/topk_individual_control"
+        control = output / "gpu_svm" / (f"{args.ngram_result_subdir}/topk_individual_control"
                                          if args.include_rgb_ngram
                                          else "topk_individual_control")
     else:
-        control = output / ("ngram21/topk_individual_control"
+        control = output / (f"{args.ngram_result_subdir}/topk_individual_control"
                             if args.include_rgb_ngram else "topk_individual_control")
     control.mkdir(parents=True, exist_ok=True)
     key = f"{args.dataset}__{args.classifier}__{args.seed}__{fold}"
@@ -124,7 +134,7 @@ def main():
         return
 
     k = archived_k(output, args.dataset, args.classifier, args.seed, fold,
-                   args.svm_backend, args.include_rgb_ngram)
+                   args.svm_backend, args.include_rgb_ngram, args.ngram_result_subdir)
     names = sorted(cache)
     if ngram_block is not None:
         names.append(ngram_block.name)

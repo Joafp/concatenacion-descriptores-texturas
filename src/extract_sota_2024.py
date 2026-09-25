@@ -9,6 +9,7 @@ Extrae embeddings de 3 modelos SOTA 2024:
 Para 5 datasets: DTD, FMD, CUReT, Soil y VisTex.
 Total: 3 × 5 = 15 archivos .npy.
 """
+import argparse
 import json
 import os
 import sys
@@ -48,13 +49,13 @@ class ImageFolderDataset(Dataset):
         return self.transform(img), idx
 
 
-def discover_images_and_labels(dataset: str):
+def discover_images_and_labels(dataset: str, embeddings_root: Path, data_dir: Path | None = None):
     """Encuentra todas las imágenes y sus labels para un dataset.
 
     Usa el labels file de un extractor existente (dinov2) como referencia
     del orden. Las imágenes se descubren por globbing y se matchean.
     """
-    base = EMBEDDINGS_ROOT / dataset
+    base = embeddings_root / dataset
     sample_ext = "dinov2"
     classes = json.load(open(base / f"{sample_ext}_classes.json"))
     labels_existing = np.load(base / f"{sample_ext}_labels.npy")
@@ -67,6 +68,8 @@ def discover_images_and_labels(dataset: str):
         "Soil": "data/Soil",
         "VisTex": "data/VisTex_clean",
     }.get(dataset, f"data/{dataset}")
+    if data_dir is not None:
+        data_subdir = data_dir
     # Glob todas las imágenes del dataset
     all_imgs = []
     for ext_img in ["jpg", "jpeg", "png", "bmp", "ppm", "tif", "JPG", "JPEG", "PNG"]:
@@ -88,7 +91,10 @@ def discover_images_and_labels(dataset: str):
     # Para cada path, inferir label del nombre del directorio padre
     img_label_pairs = []
     for p in all_imgs:
-        label = p.parent.name
+        # KTH-TIPS2-b is organised as class/sample/image, while the
+        # original datasets use class/image.  With an explicit recovered
+        # data root, the first path component is therefore the class.
+        label = p.relative_to(data_subdir).parts[0] if data_dir is not None else p.parent.name
         img_label_pairs.append((str(p), label))
     by_label = {}
     for path, label in img_label_pairs:
@@ -165,21 +171,31 @@ def extract_embeddings(model, transform, img_paths, model_kind: str):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--datasets", nargs="+", default=DATASETS)
+    parser.add_argument("--embeddings-root", type=Path, default=EMBEDDINGS_ROOT)
+    parser.add_argument("--data-dir", type=Path,
+                        help="image root for a single recovered dataset")
+    args = parser.parse_args()
+    if args.data_dir is not None and len(args.datasets) != 1:
+        parser.error("--data-dir requires exactly one dataset")
+    embeddings_root = args.embeddings_root
+    datasets = args.datasets
     print(f"Extrayendo SOTA 2024 embeddings: {NEW_EXTRACTORS}")
-    print(f"Para {len(DATASETS)} datasets. Device: {DEVICE}\n")
+    print(f"Para {len(datasets)} datasets. Device: {DEVICE}\n")
 
     for ext_name in NEW_EXTRACTORS:
         print(f"\n=== {ext_name} ===")
         model, transform, kind = load_model_and_transform(ext_name)
-        for ds in DATASETS:
-            out_emb = EMBEDDINGS_ROOT / ds / f"{ext_name}.npy"
+        for ds in datasets:
+            out_emb = embeddings_root / ds / f"{ext_name}.npy"
             if out_emb.exists():
                 print(f"  {ds}: ya existe, skip")
                 continue
-            out_labels = EMBEDDINGS_ROOT / ds / f"{ext_name}_labels.npy"
-            out_classes = EMBEDDINGS_ROOT / ds / f"{ext_name}_classes.json"
+            out_labels = embeddings_root / ds / f"{ext_name}_labels.npy"
+            out_classes = embeddings_root / ds / f"{ext_name}_classes.json"
             t0 = time.time()
-            img_paths, labels, classes = discover_images_and_labels(ds)
+            img_paths, labels, classes = discover_images_and_labels(ds, embeddings_root, args.data_dir)
             if not img_paths:
                 print(f"  {ds}: sin imágenes")
                 continue

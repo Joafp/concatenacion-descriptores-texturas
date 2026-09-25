@@ -13,7 +13,7 @@ El trabajo trata cada extractor como un bloque completo. Compara, sin consultar
 el test durante la selección:
 
 1. el mejor descriptor individual;
-2. la concatenación completa de los 20 descriptores;
+2. la concatenación completa de los 22 descriptores;
 3. Greedy Forward Selection (GFS);
 4. la mejor selección restringida a una familia representacional;
 5. la concatenación de los `k` descriptores individualmente más fuertes,
@@ -24,8 +24,8 @@ La métrica primaria es macro-F1 externo.
 ## Inicio rápido (clonar y verificar)
 
 ```bash
-git clone <URL_DEL_REPO>
-cd tesis_claude
+git clone https://github.com/Joafp/concatenacion-descriptores-texturas.git
+cd concatenacion-descriptores-texturas
 bash scripts/setup_env.sh          # o: bash scripts/setup_env.sh --cpu
 .venv-confirmatory/bin/python -m pytest experiments/ -q
 ```
@@ -39,23 +39,25 @@ condiciones), seguí [`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md) y
 
 ## Alcance experimental vigente
 
-| Bloque | Dataset | Muestras | Clases | Protocolo externo |
-|---|---|---:|---:|---|
-| Principal | DTD | 5.640 | 47 | 10 splits oficiales |
-| Principal | FMD | 1.000 | 10 | 3 semillas × 5 folds agrupados |
-| Principal | CUReT | 5.612 | 61 | dos mitades complementarias de 46 condiciones |
-| Extensión oficial | Outex_TC_00013 color | 1.360 | 68 | 680 entrenamiento / 680 test oficiales |
-| Suplementario | Soil Original | 1.140 | 7 | 3 semillas × 5 folds agrupados |
-| Suplementario | VisTex Reference-12 | 140 | 12 | 3 semillas × 5 folds agrupados |
+| Dataset del análisis principal | Muestras | Clases | Protocolo externo |
+|---|---:|---:|---|
+| DTD | 5.640 | 47 | 10 splits oficiales |
+| FMD | 1.000 | 10 | 3 semillas × 5 folds agrupados |
+| CUReT | 5.612 | 61 | dos mitades complementarias de 46 condiciones |
+| Outex_TC_00013 color | 1.360 | 68 | 680 entrenamiento / 680 test oficiales |
+| Soil Original | 1.140 | 7 | 3 semillas × 5 folds agrupados |
+| KTH-TIPS2-b | 4.752 | 11 | cuatro particiones por muestra física |
+
+VisTex Reference-12 se conserva como análisis auxiliar; no entra en los contrastes principales.
 
 ## Descriptores
 
-- Clásicos: LBP, DRLBP, Gabor, GLCM y HOG.
+- Clásicos y conteos: LBP, LBP-rot, Gabor, GLCM, HOG y RGB N-gramas + SVD.
 - CNN: VGG16, ResNet-50, ResNet-101, DenseNet-121, EfficientNet-B0 y ConvNeXt V2-T.
 - Transformers: ViT-B/16, DeiT-S, Swin-T y EVA-02 base.
-- Autosupervisados o multimodales: DINOv2 small, base y large, MAE base y SigLIP base.
+- Autosupervisados o multimodales: DINOv2 small, base y large, MAE base, SigLIP base y BEiTv2-B.
 
-La concatenación completa suma 19.628 dimensiones. Los backbones permanecen
+La concatenación completa suma 20.652 dimensiones. Los backbones permanecen
 congelados y cada bloque se normaliza por muestra antes de concatenarse.
 
 ## Protocolo confirmatorio (resumen)
@@ -106,11 +108,14 @@ y respaldos en `archive/local/`. Detalle en `.gitignore`.
 
 ## Resultados principales (lectura)
 
-En DTD, FMD y CUReT, GFS superó al mejor descriptor individual en las seis
-combinaciones con SVM y ResMLP. Frente a la concatenación completa fue superior
-en DTD y FMD, y quedó apenas por debajo en CUReT. Los subconjuntos redujeron la
-dimensionalidad entre ~70 % y ~85 %. El detalle, tablas y auditoría están en
-`results/confirmatory/` y en el manuscrito.
+La matriz principal contiene 94 condiciones externas (47 por clasificador) y
+470 resultados. Friedman, Iman--Davenport y Quade detectan diferencias globales
+entre estrategias con SVM y ResMLP; Friedman alineado no rechaza. Tras Holm,
+GFS supera a Individual con ResMLP; ningún par es significativo con SVM.
+Completa no supera significativamente a Individual en la comparación bilateral
+exacta por dataset. Las cifras, CSV de procedencia y salidas de SCI2S se generan
+con `scripts/build_primary22_beitv2_paper.py`; ver
+[`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md).
 
 ## Entorno
 
@@ -121,6 +126,6 @@ dimensionalidad entre ~70 % y ~85 %. El detalle, tablas y auditoría están 
 
 ## Estado
 
-Bloque experimental principal y Outex oficial cerrados. El manuscrito está en
-revisión; este repositorio concentra el código y la evidencia necesaria para
-reproducir las pruebas automatizadas y el protocolo confirmatorio.
+Bloque experimental de seis datasets y Outex oficial cerrados. El manuscrito
+está en revisión; la versión pública verificable de las salidas de 22
+descriptores y su archivo inmutable siguen pendientes de fijar.

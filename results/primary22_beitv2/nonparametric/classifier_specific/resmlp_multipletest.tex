@@ -1,0 +1,197 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage{lscape}
+\title{Results}
+\author{}
+\date{\today}
+\begin{document}
+\begin{landscape}
+\oddsidemargin 0in \topmargin 0in\maketitle
+\section{Tables of Friedman, Bonferroni-Dunn, Holm, Hochberg and Hommel Tests}
+\begin{table}[!htp]
+\centering
+\caption{Average Rankings of the algorithms
+}\begin{tabular}{c|c}
+Algorithm&Ranking\\
+\hline
+Individual&4.5\\
+Completa&2.8333333333333335\\
+Top-$k$&2.1666666666666665\\
+GFS&1.6666666666666665\\
+Homogénea&3.833333333333333\\
+\end{tabular}
+\end{table}
+
+
+Friedman statistic considering reduction performance (distributed according to chi-square with 4 degrees of freedom: 13.066666666666663.
+
+
+P-value computed by Friedman Test: 0.010954601157745825.\newline
+
+Iman and Davenport statistic considering reduction performance (distributed according to F-distribution with 4 and 20 degrees of freedom: 5.975609756097557.
+
+
+P-value computed by Iman and Daveport Test: 0.002480841149690067.\newline
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Hochberg Table for $\alpha=0.05$}
+\begin{tabular}{ccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel\\
+\hline
+4&Individual&3.1037611591959413&0.00191077513736448&0.0125\\
+3&Homogénea&2.3734644158557194&0.01762209096232444&0.016666666666666666\\
+2&Completa&1.278019300845388&0.20124262095772394&0.025\\
+1&Top-$k$&0.5477225575051661&0.583882420770365&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+Hochberg's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Hochberg Table for $\alpha=0.10$}
+\begin{tabular}{ccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel\\
+\hline
+4&Individual&3.1037611591959413&0.00191077513736448&0.025\\
+3&Homogénea&2.3734644158557194&0.01762209096232444&0.03333333333333333\\
+2&Completa&1.278019300845388&0.20124262095772394&0.05\\
+1&Top-$k$&0.5477225575051661&0.583882420770365&0.1\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.025$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.05$.
+
+
+Hochberg's procedure rejects those hypotheses that have a p-value $\le0.03333333333333333$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.025$.
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Adjusted $p$-values}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Bonf}$&$p_{Holm}$&$p_{Hoch}$&$p_{Homm}$\\
+\hline
+1&Individual&0.00191077513736448&0.00764310054945792&0.00764310054945792&0.00764310054945792&0.00764310054945792\\
+2&Homogénea&0.01762209096232444&0.07048836384929776&0.05286627288697332&0.05286627288697332&0.05286627288697332\\
+3&Completa&0.20124262095772394&0.8049704838308958&0.4024852419154479&0.4024852419154479&0.4024852419154479\\
+4&Top-$k$&0.583882420770365&2.33552968308146&0.583882420770365&0.583882420770365&0.583882420770365\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Shaffer Table for $\alpha=0.05$}
+\begin{tabular}{cccccc}
+$i$&algorithms&$z=(R_0 - R_i)/SE$&$p$&Holm&Shaffer\\
+\hline
+10&Individual vs. GFS&3.1037611591959413&0.00191077513736448&0.005&0.005\\
+9&Individual vs. Top-$k$&2.556038601690775&0.010587137334056905&0.005555555555555556&0.008333333333333333\\
+8&GFS vs. Homogénea&2.3734644158557194&0.01762209096232444&0.00625&0.008333333333333333\\
+7&Individual vs. Completa&1.8257418583505534&0.06788915486182906&0.0071428571428571435&0.008333333333333333\\
+6&Top-$k$ vs. Homogénea&1.8257418583505534&0.06788915486182906&0.008333333333333333&0.008333333333333333\\
+5&Completa vs. GFS&1.278019300845388&0.20124262095772394&0.01&0.01\\
+4&Completa vs. Homogénea&1.0954451150103317&0.2733216782922984&0.0125&0.0125\\
+3&Individual vs. Homogénea&0.7302967433402218&0.4652088184521416&0.016666666666666666&0.016666666666666666\\
+2&Completa vs. Top-$k$&0.7302967433402218&0.4652088184521416&0.025&0.025\\
+1&Top-$k$ vs. GFS&0.5477225575051661&0.583882420770365&0.05&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Nemenyi's procedure rejects those hypotheses that have a p-value $\le0.005$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.005555555555555556$.
+
+
+Shaffer's procedure rejects those hypotheses that have a p-value $\le0.005$.
+
+
+Bergmann's procedure rejects these hypotheses:
+
+
+\begin{itemize}
+
+
+\item Individual vs. GFS
+\end{itemize}
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Shaffer Table for $\alpha=0.10$}
+\begin{tabular}{cccccc}
+$i$&algorithms&$z=(R_0 - R_i)/SE$&$p$&Holm&Shaffer\\
+\hline
+10&Individual vs. GFS&3.1037611591959413&0.00191077513736448&0.01&0.01\\
+9&Individual vs. Top-$k$&2.556038601690775&0.010587137334056905&0.011111111111111112&0.016666666666666666\\
+8&GFS vs. Homogénea&2.3734644158557194&0.01762209096232444&0.0125&0.016666666666666666\\
+7&Individual vs. Completa&1.8257418583505534&0.06788915486182906&0.014285714285714287&0.016666666666666666\\
+6&Top-$k$ vs. Homogénea&1.8257418583505534&0.06788915486182906&0.016666666666666666&0.016666666666666666\\
+5&Completa vs. GFS&1.278019300845388&0.20124262095772394&0.02&0.02\\
+4&Completa vs. Homogénea&1.0954451150103317&0.2733216782922984&0.025&0.025\\
+3&Individual vs. Homogénea&0.7302967433402218&0.4652088184521416&0.03333333333333333&0.03333333333333333\\
+2&Completa vs. Top-$k$&0.7302967433402218&0.4652088184521416&0.05&0.05\\
+1&Top-$k$ vs. GFS&0.5477225575051661&0.583882420770365&0.1&0.1\\
+\hline
+\end{tabular}
+\end{table}
+Nemenyi's procedure rejects those hypotheses that have a p-value $\le0.01$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Shaffer's procedure rejects those hypotheses that have a p-value $\le0.01$.
+
+
+Bergmann's procedure rejects these hypotheses:
+
+
+\begin{itemize}
+
+
+\item Individual vs. Top-$k$
+\item Individual vs. GFS
+\end{itemize}
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Adjusted $p$-values}
+\begin{tabular}{cccccccc}
+i&hypothesis&unadjusted $p$&$p_{Neme}$&$p_{Holm}$&$p_{Shaf}$&$p_{Berg}$\\
+\hline
+1&Individual vs .GFS&0.00191077513736448&0.019107751373644802&0.019107751373644802&0.019107751373644802&0.019107751373644802\\
+2&Individual vs .Top-$k$&0.010587137334056905&0.10587137334056905&0.09528423600651215&0.06352282400434144&0.06352282400434144\\
+3&GFS vs .Homogénea&0.01762209096232444&0.17622090962324438&0.1409767276985955&0.10573254577394664&0.10573254577394664\\
+4&Individual vs .Completa&0.06788915486182906&0.6788915486182906&0.4752240840328034&0.40733492917097436&0.27155661944731624\\
+5&Top-$k$ vs .Homogénea&0.06788915486182906&0.6788915486182906&0.4752240840328034&0.40733492917097436&0.27155661944731624\\
+6&Completa vs .GFS&0.20124262095772394&2.0124262095772396&1.0062131047886198&0.8049704838308958&0.8049704838308958\\
+7&Completa vs .Homogénea&0.2733216782922984&2.7332167829229843&1.0932867131691937&1.0932867131691937&0.8049704838308958\\
+8&Individual vs .Homogénea&0.4652088184521416&4.652088184521416&1.3956264553564248&1.3956264553564248&0.9304176369042833\\
+9&Completa vs .Top-$k$&0.4652088184521416&4.652088184521416&1.3956264553564248&1.3956264553564248&0.9304176369042833\\
+10&Top-$k$ vs .GFS&0.583882420770365&5.8388242077036505&1.3956264553564248&1.3956264553564248&0.9304176369042833\\
+\hline
+\end{tabular}
+\end{table}
+
+\end{landscape}\end{document}

@@ -33,5 +33,6 @@ for split in 1 2 3 4; do
   "$PY" "$RUN" --dataset KTHTIPS2b --classifier "$CLF" \
     --seed 42 --fold 0 --official-split "$split" \
     --embedding-root embeddings_extensions \
-    --output results/extensions/kth_tips2b --n-jobs 3
+    --output results/extensions/kth_tips2b --n-jobs 3 \
+    --include-rgb-ngram
 done

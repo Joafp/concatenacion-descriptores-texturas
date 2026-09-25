@@ -19,6 +19,11 @@
 \renewcommand{\refname}{Referencias}
 \addto\captionsenglish{\renewcommand{\tablename}{Tabla}\renewcommand{\figurename}{Figura}\renewcommand{\refname}{Referencias}}
 \usepackage{amsmath,amsfonts,amssymb}
+\expandafter\let\csname not=\endcsname\undefined
+\expandafter\let\csname not<\endcsname\undefined
+\expandafter\let\csname not>\endcsname\undefined
+\usepackage{unicode-math}
+\setmathfont{Latin Modern Math}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{placeins}
@@ -69,12 +74,12 @@
 \begin{highlights}[Aspectos destacados]
 \item Se comparan cinco estrategias de representación bajo las mismas particiones externas.
 \item La concatenación y la selección ofrecen beneficios que dependen del dataset.
-\item Se presentan rankings de Friedman y Quade y valores $p$ ajustados con Holm.
-\item Se evalúan 20 descriptores en cinco datasets con SVM lineal y ResMLP.
+\item Se presentan Friedman, Iman--Davenport, Friedman alineado, Quade y valores $p$ ajustados con Holm.
+\item Se evalúan 22 descriptores en seis datasets con SVM lineal y ResMLP.
 \end{highlights}
 
 \begin{abstract}
-Este trabajo evalúa la concatenación de descriptores heterogéneos para clasificar texturas. Se comparan cinco estrategias: Individual, Completa, Top-$k$, Greedy Forward Selection (GFS) y Homogénea. La biblioteca común reúne 20 descriptores sobre DTD, FMD, CUReT, Outex y Soil con SVM lineal y ResMLP. La selección se realiza dentro del entrenamiento y el desempeño se mide mediante macro-F1 y exactitud en 86 condiciones externas en total. El método con mayor desempeño varía entre dominios y clasificadores. Con un bloque por dataset, Friedman ($p=0{,}0477$) rechaza la hipótesis global a $\alpha=0{,}05$. Los resultados respaldan evaluar la composición y el costo dimensional según el dominio.
+Este trabajo evalúa la concatenación de descriptores heterogéneos para clasificar texturas. Se comparan cinco estrategias: Individual, Completa, Top-$k$, Greedy Forward Selection (GFS) y Homogénea. La biblioteca común reúne 22 descriptores, incluidos RGB N-gramas + SVD y BEiTv2-B, sobre DTD, FMD, CUReT, Outex, Soil y KTH-TIPS2-b con SVM lineal y ResMLP. La selección se realiza dentro del entrenamiento y el desempeño se mide mediante macro-F1 y exactitud en 94 condiciones externas. Friedman, Iman--Davenport y Quade detectan diferencias globales para ambos clasificadores, mientras Friedman alineado no rechaza. Tras ajustar con Holm los diez pares basados en Friedman dentro de cada clasificador, GFS supera a Individual con ResMLP; ningún par resulta significativo con SVM. La adición de BEiTv2 a la concatenación completa produce cambios pequeños y dependientes del dominio, sin diferencia global significativa frente a la biblioteca de 21 bloques. Los resultados respaldan elegir la composición y el costo dimensional según el dominio, sin afirmar superioridad universal de una estrategia.
 \end{abstract}
 
 % --- Palabras clave ---
@@ -99,7 +104,7 @@ La concatenación conserva la información de varios extractores y delega al cla
 
 Las arquitecturas de fusión y las combinaciones de representaciones motivan distinguir tres factores en la evaluación: calidad individual, cantidad de variables y composición del subconjunto. La distinción adquiere especial importancia en una biblioteca que reúne descriptores clásicos, CNN, Transformers y representaciones autosupervisadas o multimodales. La pregunta de estudio es \emph{cómo cambian el desempeño externo y la dimensionalidad al concatenar descriptores, frente a seleccionar uno individual, y qué aporta elegir la composición de esa concatenación}.
 
-Para responder esta pregunta se evaluaron 20 descriptores sobre DTD, FMD, CUReT, Outex y Soil con SVM lineal y ResMLP. El mismo protocolo anidado compara cinco estrategias: Individual, Completa, Top-$k$, GFS y Homogénea. La comparación considera macro-F1 y exactitud, junto con la dimensión de las representaciones. Se completaron 43 condiciones externas por clasificador; cada una incluye las cinco estrategias sobre la misma biblioteca de 20 descriptores.
+Para responder esta pregunta se evaluaron 22 descriptores sobre DTD, FMD, CUReT, Outex, Soil y KTH-TIPS2-b con SVM lineal y ResMLP. El mismo protocolo anidado compara cinco estrategias: Individual, Completa, Top-$k$, GFS y Homogénea. La comparación considera macro-F1 y exactitud, junto con la dimensión de las representaciones. Se completaron 47 condiciones externas por clasificador; cada una incluye las cinco estrategias sobre la misma biblioteca de 22 descriptores.
 
 El trabajo aporta una comparación reproducible de estrategias de concatenación bajo particiones comunes, una evaluación no paramétrica entre datasets y una comparación del desempeño y la dimensionalidad de los subconjuntos seleccionados. GFS y Top-$k$ son procedimientos para elegir qué bloques concatenar dentro de esta comparación. El propósito es caracterizar las ganancias y los costos observados de combinar bloques, sin introducir un nuevo algoritmo de selección. La evidencia se interpreta atendiendo tanto a las diferencias observadas como a la incertidumbre estadística.
 
@@ -121,6 +126,8 @@ La fusión de características combina información antes de la decisión final 
 Los Fisher vectors mostraron que la agregación de descriptores locales puede producir representaciones de alto rendimiento \citep{sanchez2013image}; en texturas, los bancos de filtros profundos combinaron activaciones convolucionales con agregación estadística \citep{cimpoi2016fisher} y DeepTEN integró una capa de codificación residual dentro de una arquitectura profunda \citep{zhang2017deepten}. Estos antecedentes muestran que reunir señales distintas puede mejorar la representación, pero no determinan si todos los componentes son necesarios cuando la biblioteca contiene extractores heterogéneos y congelados.
 
 Los antecedentes citados motivan evaluar si una búsqueda secuencial supera a reunir los descriptores individualmente más fuertes bajo el mismo número de bloques. Por ello, este estudio compara esas políticas bajo las mismas particiones y separa la selección de la evaluación externa, como recomiendan los diseños wrapper y la evaluación anidada \citep{kohavi1997wrappers,guyon2003feature}. El foco no está en proponer otro extractor ni en atribuir el resultado a una arquitectura particular, sino en evaluar la \emph{concatenación de descriptores como problema de selección de bloques}, comparando su desempeño externo y dimensionalidad. Igualar el número de bloques no iguala las dimensiones ni permite aislar causalmente la complementariedad.
+
+Dos estudios recientes permiten contextualizar el bloque BEiTv2. Neshov et al. concatenan representaciones de capas internas y finales de arquitecturas preentrenadas y entrenan una MLP; informan que la agregación multicapas de BEiTv2 mejora varios benchmarks de textura, aunque el efecto depende de la arquitectura \citep{neshov2025aggregation}. Scabini et al. comparan 25 variantes Transformer como extractores congelados y encuentran que BEiTv2-B/16 obtiene el mejor promedio entre sus modelos evaluados \citep{scabini2025survey}. El presente trabajo difiere de ambos: BEiTv2 constituye uno de 22 bloques candidatos y se estudia dentro de políticas de concatenación y selección con evaluación anidada, no como único backbone ni como arquitectura ajustada de extremo a extremo.
 
 % ============================================================
 % 3. METODO
@@ -160,7 +167,7 @@ Top-$k$ controla la composición bajo el mismo número de bloques que GFS, aunqu
 
 \subsection{Espacio de descriptores}
 
-La biblioteca contiene 20 descriptores, agrupados según el tipo de representación. Cada uno constituye un bloque candidato sujeto al mismo criterio de selección. Las
+La biblioteca contiene 22 descriptores, agrupados según el tipo de representación. Cada uno constituye un bloque candidato sujeto al mismo criterio de selección. Las
 Tablas~\ref{tab:extractores-clasicos} y~\ref{tab:extractores-aprendidos}
 identifican la parametrización, los checkpoints y la dimensionalidad de cada
 bloque. Las redes preentrenadas se ejecutaron en modo evaluación y sin
@@ -177,7 +184,7 @@ Las CNN corresponden a VGG16, ResNet, DenseNet, EfficientNet y ConvNeXt V2
 El grupo Transformer incluye ViT, DeiT, Swin y EVA-02
 \citep{dosovitskiy2021vit,touvron2021deit,liu2021swin,fang2024eva02}; las
 representaciones con preentrenamiento autosupervisado o multimodal se basan en
-DINOv2, MAE y SigLIP \citep{oquab2024dinov2,he2022mae,zhai2023siglip}.
+DINOv2, MAE, SigLIP y BEiTv2 \citep{oquab2024dinov2,he2022mae,zhai2023siglip,peng2022beitv2}.
 
 \begin{table}[pos=htbp]
 \centering
@@ -200,10 +207,11 @@ N-gramas & ventana vertical $2\times1$; cuantización RGB por 12; 8.192 bins; SV
 
 \begin{table}[pos=htbp]
 \centering
-\caption{Quince representaciones aprendidas congeladas incluidas en la biblioteca. ``Preclas.'' designa la salida inmediatamente anterior al clasificador del backbone.}
+\caption{Dieciséis representaciones aprendidas congeladas incluidas en la biblioteca. ``Preclas.'' designa la salida inmediatamente anterior al clasificador del backbone.}
 \label{tab:extractores-aprendidos}
 \small
-\begin{tabular}{@{}llp{6.5cm}lr@{}}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llp{6.3cm}p{1.7cm}r@{}}
 \toprule
 Familia & Descriptor & Checkpoint & Salida & Dim. \\
 \midrule
@@ -224,11 +232,12 @@ Autosup./multimodal & DINOv2-S & \texttt{vit\_small\_patch14\_dinov2.lvd142m} & 
  & DINOv2-L & \texttt{vit\_large\_patch14\_dinov2.lvd142m} & preclas. & 1.024 \\
  & MAE-B & \texttt{facebook/vit-mae-base} & pooler/CLS & 768 \\
  & SigLIP-B & \texttt{google/siglip-base-patch16-224} & pooler/CLS & 768 \\
+ & BEiTv2-B & \makecell[l]{\texttt{beitv2\_base\_patch16\_224.}\\\texttt{in1k\_ft\_in22k\_in1k}} & preclas. & 768 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Los descriptores clásicos se calcularon en escala de grises con la implementación de scikit-image: LBP, LBP-rot, Gabor y GLCM sobre imágenes redimensionadas a $256\times256$, y HOG sobre $128\times128$. LBP-rot designa la implementación propia registrada como \texttt{drlbp} en los archivos experimentales: aplica LBP con mapeo \texttt{ror} a ocho rotaciones y concatena diez bins por rotación en el intervalo $[0,10]$. Los códigos fuera de ese intervalo se descartan; por tanto, es un histograma restringido, no una reproducción del DRLBP de Mehta y Egiazarian \citep{mehta2016drlbp}. Los 20 vectores concatenados suman 19.628 dimensiones. Las características fijas y los conteos por imagen se almacenaron junto con etiquetas, orden de muestras y hashes de procedencia; las transformaciones aprendidas se ajustaron dentro de cada partición de entrenamiento. El estudio evalúa la selección y concatenación de bloques con extractores de imagen congelados y transformaciones ajustadas dentro del entrenamiento; no compara estrategias de \emph{fine-tuning}.
+Los descriptores clásicos se calcularon en escala de grises con la implementación de scikit-image: LBP, LBP-rot, Gabor y GLCM sobre imágenes redimensionadas a $256\times256$, y HOG sobre $128\times128$. LBP-rot designa la implementación propia registrada como \texttt{drlbp} en los archivos experimentales: aplica LBP con mapeo \texttt{ror} a ocho rotaciones y concatena diez bins por rotación en el intervalo $[0,10]$. Los códigos fuera de ese intervalo se descartan; por tanto, es un histograma restringido, no una reproducción del DRLBP de Mehta y Egiazarian \citep{mehta2016drlbp}. BEiTv2-B utiliza la salida final preclasificador de 768 dimensiones; las imágenes se redimensionan y recortan a $224\times224$ con la normalización asociada al checkpoint. Los 22 vectores concatenados suman 20.652 dimensiones. Las características fijas y los conteos por imagen se almacenaron junto con etiquetas, orden de muestras y hashes de procedencia; las transformaciones aprendidas se ajustaron dentro de cada partición de entrenamiento. El estudio evalúa la selección y concatenación de bloques con extractores de imagen congelados y transformaciones ajustadas dentro del entrenamiento; no compara estrategias de \emph{fine-tuning}.
 
 RGB Pixel N-grams \citep{paiva2023rgb} utiliza ventanas verticales de $2\times1$ píxeles con paso 1 sobre la imagen RGB en su resolución original. Cada canal se cuantiza mediante $q(v)=\lfloor v/12\rfloor$; los seis valores se codifican en base 22, recorriendo las dos posiciones de R, G y B. Los conteos se agrupan por el resto del código dividido por 8.192 y se comprimen mediante TruncatedSVD aleatorizado (256 componentes, cinco iteraciones y semilla de la condición). SVD se ajusta exclusivamente con el entrenamiento de cada partición interna y se reajusta sobre el entrenamiento externo para la evaluación final. El vector se normaliza con $L_2$ antes de concatenarlo. Esta parametrización comprimida se identifica como N-gramas + SVD y constituye una familia propia para la selección Homogénea.
 
@@ -264,7 +273,7 @@ La Tabla~\ref{tab:config-gfs} concentra los parámetros de búsqueda, comunes a 
 Elemento & Configuración \\
 \midrule
 Unidad de selección & Bloque completo generado por un extractor \\
-Candidatos & 20 bloques \\
+Candidatos & 22 bloques \\
 Criterio interno & Macro-F1 medio en cuatro folds estratificados y agrupados \\
 Presupuesto & Hasta $k=8$ bloques \\
 Parada & Dos mejoras consecutivas menores que 0,001; se devuelve el mejor paso histórico \\
@@ -280,7 +289,7 @@ Información excluida & Test externo y sus etiquetas durante toda la selección 
 
 \subsection{Conjuntos de datos y control de integridad}
 
-Antes del análisis se construyó un manifiesto por dataset y se verificaron etiquetas, orden de muestras, dimensiones, valores finitos y grupos de dependencia. Se utilizaron DTD, FMD, CUReT y Outex. Sus particiones se describen a continuación; los cuatro datasets integran el análisis estadístico principal.
+Antes del análisis se construyó un manifiesto por dataset y se verificaron etiquetas, orden de muestras, dimensiones, valores finitos y grupos de dependencia. Se utilizaron DTD, FMD, CUReT, Outex, Soil y KTH-TIPS2-b. Sus particiones se describen a continuación; los seis datasets integran el análisis estadístico principal.
 
 DTD contiene 5.640 imágenes de texturas en condiciones no controladas y proporciona diez particiones oficiales de entrenamiento, validación y prueba \citep{cimpoi2014dtd}. En cada partición se unieron entrenamiento y validación para ejecutar la selección interna, mientras que el test oficial se reservó para una única evaluación. Los duplicados byte-idénticos que cruzaban roles fueron retirados del conjunto de entrenamiento, conservando intacta la evaluación.
 
@@ -290,6 +299,10 @@ Outex contiene 1.360 BMP RGB de $128\times128$ píxeles, organizados en 68 clase
 
 Para CUReT se utilizó la distribución gris recortada de 61 materiales, con 92 condiciones compartidas por clase \citep{varma2003filter}. Cada condición constituye un grupo para impedir que la misma configuración de adquisición aparezca a ambos lados de una partición. Se definieron dos mitades complementarias deterministas de 46 condiciones: A para selección y entrenamiento con B como test, y la dirección inversa. Esta asignación reproduce de manera transparente el tamaño 46/46 publicado, pero no se presenta como el split histórico exacto. Debido a que las dos direcciones son complementarias y dependientes, sus resultados se interpretarán descriptivamente.
 
+Soil se recuperó de la versión 1 archivada del repositorio \emph{Comprehensive Soil Classification Datasets} de ai4a-lab. Se conservaron sólo las imágenes originales, se eliminaron 49 duplicados exactos y se definieron grupos conservadores a partir de las familias de nombres. El manifiesto final contiene 1.140 imágenes de siete clases y 962 grupos. La evaluación usa cinco folds estratificados y agrupados, repetidos con las semillas 42, 123 y 2026.
+
+KTH-TIPS2-b contiene 4.752 imágenes RGB de $200\times200$ píxeles, correspondientes a 11 materiales y cuatro muestras físicas por material \citep{mallikarjuna2005kth}. Se emplea el protocolo de cuatro particiones usado por RADAM: en cada una, tres muestras físicas por clase quedan en entrenamiento y la restante en prueba. El manifiesto conserva el hash de cada archivo y usa la muestra física como grupo, por lo que ninguna muestra aparece en ambos lados de una partición.
+
 \subsection{Clasificadores}
 
 Se emplearon dos clasificadores con sesgos diferentes. La SVM lineal se implementa con \texttt{LinearSVC} de scikit-learn: $C=1$, ponderación balanceada por clase, pérdida \emph{squared hinge}, regularización $L_2$, esquema uno-contra-el-resto, tolerancia $10^{-4}$ y un máximo de 10.000 iteraciones.
@@ -298,115 +311,104 @@ Se denomina ResMLP a la MLP residual implementada para este estudio sobre vector
 
 \subsection{Configuración experimental y protocolo anidado}
 
-La selección interna utiliza cuatro folds estratificados y agrupados. En DTD se ejecuta dentro de la unión \emph{train+val} de cada split oficial; en FMD dentro del entrenamiento de cada uno de los 15 folds externos; y en CUReT dentro de la mitad de 46 condiciones asignada al entrenamiento. En Outex, las cinco estrategias restringen los cuatro folds internos a las 680 imágenes del entrenamiento oficial. Después de seleccionar el subconjunto y los comparadores, cada modelo se ajusta con todo el entrenamiento externo y se evalúa una sola vez en el test correspondiente. Se verifica programáticamente que ningún grupo aparezca en entrenamiento y prueba.
+La selección interna utiliza cuatro folds estratificados y agrupados. En DTD se ejecuta dentro de la unión \emph{train+val} de cada split oficial; en FMD y Soil dentro del entrenamiento de cada uno de sus 15 folds externos; y en CUReT dentro de la mitad de 46 condiciones asignada al entrenamiento. En Outex y KTH-TIPS2-b, las cinco estrategias restringen los cuatro folds internos al entrenamiento definido por su partición oficial. Después de seleccionar el subconjunto y los comparadores, cada modelo se ajusta con todo el entrenamiento externo y se evalúa una sola vez en el test correspondiente. Se verifica programáticamente que ningún grupo aparezca en entrenamiento y prueba.
 
 
 
 \subsection{Análisis estadístico}\label{sec:analisis-estadistico}
 
-El análisis utiliza rankings de Friedman y Quade, contrastes globales y comparaciones por pares con ajuste de Holm, siguiendo una organización empleada en clasificación de texturas \citep{paiva2023rgb}. Los cálculos se realizaron con los paquetes Java ControlTest y MultipleTest distribuidos con el tutorial de pruebas no paramétricas \citep{derrac2011practical}.
+El análisis sigue la presentación de rankings, pruebas globales y comparaciones por pares del trabajo sobre RGB Pixel N-grams \citep{paiva2023rgb}. Se ejecutan CONTROLTEST y MULTIPLETEST de SCI2S por separado para SVM y ResMLP. Cada matriz contiene seis datasets y cinco estrategias; las condiciones externas se promedian dentro de cada dataset. Se reportan Friedman, Iman--Davenport, Friedman alineado y Quade. Los valores $p$ de los diez pares basados en los rangos de Friedman se ajustan con Holm dentro de cada clasificador. La familia de comparaciones y el nivel nominal $\alpha=0{,}05$ son explícitos; no se afirma control simultáneo del error sobre todos los análisis auxiliares. Las comparaciones por pares se interpretan tras el rechazo del Friedman clásico correspondiente y las conclusiones globales también consideran la discrepancia con Friedman alineado.
+
+Como sensibilidad a la aproximación de rangos con sólo seis bloques, se reporta Wilcoxon exacto bilateral para Completa frente a Individual. La comparación entre SVM y ResMLP bajo Completa y el efecto incremental de Completa-22 frente a Completa-21 también son bilaterales y se emparejan por dataset. Estos contrastes se definieron durante la revisión de resultados y se interpretan como exploratorios; no constituyen hipótesis preregistradas. La ausencia de significancia no implica equivalencia. Wilcoxon requiere diferencias independientes entre bloques y una distribución simétrica bajo la hipótesis nula.
 
 La exactitud es la proporción de imágenes clasificadas correctamente. Macro-F1 promedia el F1 de las $C$ clases con igual peso: $\mathrm{macro\mbox{-}F1}=C^{-1}\sum_{c=1}^{C}2TP_c/(2TP_c+FP_c+FN_c)$, donde $TP_c$, $FP_c$ y $FN_c$ son los verdaderos positivos, falsos positivos y falsos negativos de la clase $c$. Esta media evita que la contribución de una clase dependa directamente de su número de muestras.
 
-Macro-F1 es la métrica primaria. Para cada dataset se promedian primero las condiciones externas de cada clasificador y después los dos clasificadores con igual peso. Así se obtienen cuatro bloques, uno por dataset, y cinco estrategias. No se tratan las particiones repetidas ni los dos clasificadores de una misma base como problemas independientes. Se adopta $\alpha=0{,}05$ y Holm se aplica a la familia de diez pares posibles mediante comparaciones de rangos basadas en Friedman; estos valores no son contrastes post hoc de Quade. Se reportan todas las comparaciones, incluidas las que no rechazan la hipótesis nula. Los valores ajustados se acotan a 1 para su presentación.
+Macro-F1 es la métrica primaria. Para cada contraste se promedian las condiciones externas dentro de cada dataset y clasificador, manteniendo SVM y ResMLP separados. Así, cada prueba usa seis bloques emparejados, uno por dataset. No se tratan las particiones repetidas como problemas independientes. Se adopta $\alpha=0{,}05$.
 
 La exactitud se reporta como métrica descriptiva secundaria sobre las mismas condiciones. La media y la desviación estándar entre particiones describen la variación observada, pero no convierten las particiones dependientes en réplicas independientes. La ausencia de significancia no demuestra equivalencia entre estrategias.
 
 \subsection{Resultados principales: desempeño y descriptor individual}
 
-La Tabla~\ref{tab:resultados-confirmatorios} compara las cinco estrategias con la biblioteca de 21 descriptores. Individual corresponde a una política de selección interna: el descriptor elegido puede cambiar entre particiones. El panel B identifica esos descriptores y sus frecuencias, evitando atribuir la media a un único extractor cuando hubo varios. La Tabla~\ref{tab:accuracy} presenta la exactitud bajo el mismo protocolo.
+La Tabla~\ref{tab:resultados-confirmatorios} compara las cinco estrategias con la biblioteca de 22 descriptores. Individual corresponde a una política de selección interna: el descriptor elegido puede cambiar entre particiones. La Tabla~\ref{tab:accuracy} presenta la exactitud bajo el mismo protocolo.
 
 \input{generated/baseline_f1.tex}
 \input{generated/baseline_accuracy.tex}
 \input{generated/dimensions_primary.tex}
+\input{generated/individual_identity.tex}
 
-GFS obtiene mayor macro-F1 medio que Individual en las ocho configuraciones, pero el método con mayor desempeño depende del dataset. Completa alcanza los mayores valores en CUReT y en Outex con SVM; GFS obtiene el mayor valor en Outex con ResMLP. En DTD destaca GFS, mientras que en FMD destacan Top-$k$ con SVM y GFS con ResMLP. Esta comparación describe las medias externas y no implica que cada diferencia sea estadísticamente significativa.
+El método con mayor macro-F1 medio depende del dataset y del clasificador. GFS obtiene el máximo en DTD con SVM, FMD con ResMLP, Outex con ResMLP y Soil con ResMLP; Top-$k$ lo hace en DTD con ResMLP y FMD con SVM. Completa alcanza el máximo en CUReT con ResMLP, Outex con SVM, Soil con SVM y KTH-TIPS2-b con ambos clasificadores; en CUReT con SVM empata descriptivamente con Top-$k$. Esta comparación de medias no implica por sí sola significancia de cada diferencia.
 
-La Tabla~\ref{tab:dimensiones} permite contrastar el desempeño con el tamaño de la representación en las cinco estrategias. La dimensión media de GFS por configuración dataset--clasificador se sitúa entre 2.909,3 y 5.632 componentes, una reducción de entre 71,7\% y 85,4\% respecto de los 19.884 de Completa. Este rango compara las ocho medias, no los extremos de las particiones individuales. La disminución corresponde al vector almacenado y utilizado por el clasificador. No se midió una reducción proporcional de latencia o memoria de extremo a extremo.
+\subsection{Aporte de BEiTv2 y comparación externa}
 
-\subsection{Rankings y comparaciones estadísticas}\label{sec:replica-paiva}
+La Tabla~\ref{tab:beitv2-effect} aísla el cambio descriptivo de añadir el bloque final de BEiTv2 a Completa-21. Con SVM, Completa-22 mejora en DTD, FMD, Soil y KTH-TIPS2-b, permanece prácticamente igual en CUReT y disminuye en Outex. Con ResMLP mejora en DTD, FMD, Soil y KTH-TIPS2-b, y disminuye en CUReT y Outex. Promediado por dataset, el cambio es $+0{,}0010$ con SVM y $-0{,}0006$ con ResMLP. Wilcoxon exacto bilateral sobre seis diferencias no rechaza en SVM ($p=0{,}3125$) ni en ResMLP ($p=0{,}5625$). Por tanto, BEiTv2 aporta información útil en algunos dominios, pero añadirlo indiscriminadamente a la concatenación completa no produce una mejora global demostrable.
 
-Las Tablas~\ref{tab:rankings-comparison} y~\ref{tab:global-tests-comparison} presentan los rankings y los contrastes de la biblioteca de 21 descriptores bajo las dos formas de agregación.
+\input{generated/beitv2_effect.tex}
 
-\input{generated/rankings_comparison.tex}
-\input{generated/global_tests_comparison.tex}
-\input{generated/vs_individual_comparison.tex}
+La Tabla~\ref{tab:literature-comparison} contrasta descriptivamente el mayor \emph{promedio externo por configuración} del presente estudio con los resultados BEiTv2 publicados por Neshov et al. \citep{neshov2025aggregation} y Scabini et al. \citep{scabini2025survey}. Se promedian primero las particiones externas de cada combinación de estrategia y clasificador; no se toma el mejor resultado de una partición aislada. Frente a Neshov et al., este trabajo presenta mayor exactitud media en DTD y FMD, pero menor en KTH-TIPS2-b. Frente a Scabini et al., presenta valores mayores en los cuatro datasets compartidos. El máximo entre configuraciones propias se identificó después de observar sus tests externos: esta tabla sirve para contextualizar magnitudes, no para elegir un modelo ni demostrar superioridad. Además, los protocolos, clasificadores y formas de agregación son distintos.
 
-La Tabla~\ref{tab:vs-individual-comparison} presenta las mismas cuatro comparaciones frente a Individual en paralelo. Al promediar SVM y ResMLP por dataset, los valores ajustados con Holm son 0,2281 para GFS y 0,1391 para Top-$k$; al mantener separados los clasificadores, ambos alcanzan 0,0157. Completa y Homogénea obtienen 0,2149 y 0,5739 en la segunda organización. Como magnitud descriptiva, las diferencias absolutas de macro-F1 de GFS frente a Individual, promediando ambos clasificadores, son 0,0277 en DTD, 0,0066 en FMD, 0,0024 en CUReT y 0,0392 en Outex.
+El Soil de Neshov et al. no se incluye entre los datasets directamente compartidos: utilizan un corpus con 829 imágenes originales, aumento del entrenamiento y un test fijo de 178 imágenes, mientras que aquí se evalúan 1.140 imágenes originales tras depuración mediante validación cruzada agrupada. Nuestro mejor promedio de exactitud es $0{,}9281$ y el $0{,}9450$ publicado corresponde a otra variante del corpus y otro protocolo; la diferencia numérica no constituye una comparación de desempeño válida.
 
-Las dos organizaciones responden a preguntas distintas: la primera resume el comportamiento medio por dataset y la segunda permite observar si el efecto se mantiene por clasificador. Las ocho filas desagregadas reutilizan los mismos datasets e imágenes, por lo que sus resultados deben interpretarse junto con la estructura de dependencia del protocolo. Los procedimientos adicionales y sus salidas Java se conservan en los materiales de reproducibilidad.
+\input{generated/literature_comparison.tex}
 
+Antes de promover BEiTv2-B a la biblioteca común se realizó una ablación en KTH-TIPS2-b. La Tabla~\ref{tab:kth-beit-extension} compara Completa-21 con la capa final y con la concatenación de cuatro capas internas de BEiTv2 sobre las mismas cuatro particiones. La variante final mejoró descriptivamente a Completa-21 con ambos clasificadores; la variante multicapas no mejoró con ResMLP y multiplicó por cuatro la dimensión del bloque. Este resultado negativo motivó conservar únicamente la capa final de 768 dimensiones en el análisis principal de 22 bloques.
 
+\input{generated/kth_beit_extension.tex}
+
+En esta ablación exploratoria separada, agregar la capa final eleva el macro-F1 de Completa-21 en $0{,}0038$ con SVM y $0{,}0056$ con ResMLP; la matriz principal de la Tabla~\ref{tab:beitv2-effect}, ejecutada posteriormente con el flujo confirmatorio común, es la fuente autoritativa para la comparación multibase. La variante multicapas aporta $0{,}0034$ con SVM, pero cambia $-0{,}0010$ con ResMLP. Con sólo cuatro particiones, los contrastes exactos unilaterales de la ablación frente a Completa-21 no alcanzan $\alpha=0{,}05$ (capa final: $p=0{,}1250$ con SVM y $p=0{,}1875$ con ResMLP).
+
+La Tabla~\ref{tab:dimensiones} permite contrastar el desempeño con el tamaño de la representación. La dimensión de Completa es siempre 20.652; los subconjuntos seleccionados son menores y su dimensión puede variar entre folds. La disminución corresponde al vector usado por el clasificador y no implica una reducción proporcional de latencia o memoria de extremo a extremo. Todas las tablas muestran medias; en Outex, al existir un único split oficial, la media coincide con el valor observado.
+
+\subsection{Contrastes por clasificador}\label{sec:replica-paiva}
+
+La Tabla~\ref{tab:classifier-rankings} resume los rankings por clasificador; la Tabla~\ref{tab:classifier-global} presenta todas las pruebas globales producidas por CONTROLTEST. Con SVM rechazan Friedman ($p=0{,}0289$), Iman--Davenport ($p=0{,}0139$) y Quade ($p=0{,}0349$), mientras Friedman alineado no rechaza ($p=0{,}2860$). Con ResMLP ocurre el mismo patrón: $p=0{,}0110$, $p=0{,}0025$, $p=0{,}0210$ y $p=0{,}2883$, respectivamente. El rechazo del Friedman clásico predefinido justifica examinar sus pares dentro de cada clasificador, pero la discrepancia entre pruebas globales obliga a una interpretación prudente.
+
+\input{generated/classifier_rankings.tex}
+\input{generated/classifier_global.tex}
+
+En SVM, Completa y Top-$k$ comparten el mejor ranking de Friedman; sus comparaciones frente a Individual quedan en $p_{\mathrm{Holm}}=0{,}0617$ y no alcanzan el nivel nominal. Con ResMLP, GFS obtiene el mejor ranking y su comparación frente a Individual permanece significativa tras Holm ($p_{\mathrm{Holm}}=0{,}0191$). Ningún otro par alcanza 0,05. Estos valores proceden de la tabla de valores ajustados de MULTIPLETEST, no de los umbrales secuenciales de rechazo.
+
+\input{generated/classifier_holm.tex}
+
+La mejora media de Completa sobre Individual con SVM es de $0{,}0201$ en macro-F1, con cinco victorias y una derrota entre datasets. Wilcoxon exacto bilateral arroja $p=0{,}0938$ (Tabla~\ref{tab:classifier-sensitivity}). Con ResMLP, la mejora media es $0{,}0104$, con cuatro victorias y dos derrotas, y Wilcoxon da $p=0{,}4375$. Ambas diferencias se interpretan descriptivamente por el número reducido de datasets y porque no alcanzan el nivel nominal.
+
+\input{generated/classifier_sensitivity.tex}
+
+Para Completa, la diferencia media ResMLP menos SVM es $-0{,}0104$: SVM obtiene mayor macro-F1 en cinco de seis datasets. Wilcoxon exacto bilateral ($W=1$, $p=0{,}0625$, sin ajuste) no permite declarar un clasificador globalmente superior; tampoco demuestra equivalencia.
 
 \section{Discusión}\label{sec:discusion}
 
-La comparación muestra que concatenar descriptores puede mejorar el desempeño respecto de elegir un único bloque, pero el beneficio depende de la composición y del dominio. En DTD y FMD, seleccionar un subconjunto ofrece resultados competitivos frente a utilizar toda la biblioteca. En CUReT, Completa alcanza los mayores valores; en Outex, la mejor estrategia depende del clasificador: Completa con SVM y GFS con ResMLP. La concatenación completa mejora descriptivamente frente a Individual en tres de los cuatro datasets al promediar los clasificadores, pero pierde desempeño en FMD. Seleccionar bloques ofrece una alternativa de menor dimensión, cuyo resultado depende de su composición. Este patrón es compatible con distintas combinaciones de información complementaria y redundante; el diseño no mide directamente esa redundancia ni identifica un mecanismo causal.
+La comparación muestra que concatenar descriptores puede mejorar el desempeño respecto de elegir un único bloque, pero el beneficio depende de la composición y del dominio. Completa resulta competitiva en CUReT, Outex con SVM, Soil con SVM y KTH-TIPS2-b; GFS o Top-$k$ obtienen el máximo en DTD, FMD, Outex con ResMLP y Soil con ResMLP. Seleccionar bloques ofrece una alternativa de menor dimensión, cuyo resultado depende de su composición. Este patrón es compatible con distintas combinaciones de información complementaria y redundante; el diseño no mide directamente esa redundancia ni identifica un mecanismo causal.
 
-Las pruebas de Friedman, Quade y Holm moderan la interpretación de las ventajas descriptivas de la biblioteca de 21 descriptores. Con cuatro datasets no se obtuvo evidencia suficiente para afirmar una superioridad global. Esto no demuestra igualdad de rendimiento; delimita lo que sostienen los contrastes realizados.
+Tres de las cuatro pruebas globales detectan diferencias entre estrategias con ambos clasificadores; Friedman alineado no rechaza. El ajuste de Holm sobre los pares del Friedman clásico muestra que la evidencia localizada se concentra en GFS frente a Individual con ResMLP; Completa frente a Individual no alcanza significancia con ninguno de los dos clasificadores. La discrepancia entre pruebas globales y los pocos pares significativos es compatible con el bajo número de datasets, sus distintas ponderaciones y la corrección de diez comparaciones. No se demuestra un mecanismo causal de complementariedad.
+
+El bloque BEiTv2 tampoco produce un efecto uniforme. Mejora descriptivamente la concatenación completa en cuatro de seis datasets por clasificador, pero el promedio es cercano a cero y los contrastes pareados no rechazan. En Outex, BEiTv2 reduce especialmente Completa con ResMLP, mientras GFS alcanza el máximo al seleccionar una composición menor que sí incluye BEiTv2. Por tanto, un descriptor fuerte de manera aislada puede aportar dentro de ciertos subconjuntos sin beneficiar la concatenación exhaustiva.
 
 \subsection{Limitaciones}
 
-GFS es una búsqueda local y no garantiza el subconjunto óptimo. Top-$k$ hereda su presupuesto de bloques, por lo que compara composiciones bajo un $k$ compartido. Individual se elige internamente y no representa al descriptor con mejor resultado a posteriori en el test. Las particiones de DTD y FMD reutilizan imágenes, CUReT presenta dos direcciones complementarias y Outex tiene una sola partición. El número de datasets limita la precisión y la generalización de la inferencia multibase. No se realizó un cálculo de tamaño muestral a priori ni se presentan intervalos de confianza de generalización a nuevos datasets. Las desviaciones entre particiones describen la variabilidad observada; no estiman esa incertidumbre tratando folds dependientes como réplicas independientes.
+GFS es una búsqueda local y no garantiza el subconjunto óptimo. Top-$k$ hereda su presupuesto de bloques, por lo que compara composiciones bajo un $k$ compartido. Individual se elige internamente y no representa al descriptor con mejor resultado a posteriori en el test. Las particiones de DTD y FMD reutilizan imágenes, CUReT presenta dos direcciones complementarias y Outex tiene una sola partición. El número de datasets limita la precisión y la generalización de la inferencia multibase. No se realizó un cálculo de tamaño muestral a priori ni se presentan intervalos de confianza de generalización a nuevos datasets. Las desviaciones entre particiones describen la variabilidad observada; no estiman esa incertidumbre tratando folds dependientes como réplicas independientes. La comparación con trabajos publicados es descriptiva porque difieren los clasificadores, la agregación, el ajuste de hiperparámetros y, en algunos casos, la forma de resumir las particiones.
 
 Los descriptores clásicos se calcularon sobre escala de grises, mientras las redes y RGB Pixel N-grams utilizan RGB; en CUReT las imágenes de origen son grises. Además, los corpus de preentrenamiento de los modelos podrían solaparse con imágenes de los benchmarks; ese solapamiento no fue auditado. El agrupamiento de conteos y la reducción de dimensión pueden perder información. El histograma restringido de LBP-rot también descarta códigos; la comparación incluye esa implementación específica y no permite extraer conclusiones sobre el DRLBP original. Los resultados dependen de la parametrización especificada. No se dispone de mediciones homogéneas de latencia y memoria para atribuir ahorro de cómputo a la reducción dimensional.
 
+Los ensayos preliminares con PCA no cubren la matriz completa de datasets, estrategias, clasificadores y particiones bajo el protocolo confirmatorio común. Por esa razón no se mezclan con los resultados principales ni se utilizan para sostener conclusiones; se conservan únicamente como material exploratorio reproducible del proyecto.
+
 \section{Conclusión}\label{sec:conclusion}
 
-Este trabajo estudió la concatenación de descriptores como una elección entre representaciones individuales, completas y seleccionadas. La evaluación completa reunió 21 descriptores, cuatro datasets y dos clasificadores bajo un protocolo que separa selección interna y evaluación externa. Las cinco estrategias se compararon mediante macro-F1 y exactitud, con rankings de Friedman y Quade y comparaciones por pares ajustadas mediante Holm.
+Este trabajo estudió la concatenación de descriptores como una elección entre representaciones individuales, completas y seleccionadas. La evaluación completa reunió 22 descriptores, seis datasets y dos clasificadores bajo un protocolo que separa selección interna y evaluación externa. Las cinco estrategias se compararon mediante macro-F1 y exactitud, con Friedman, Iman--Davenport, Friedman alineado y Quade, además de comparaciones de Friedman ajustadas con Holm por separado para cada clasificador.
 
-Los resultados muestran beneficios descriptivos de combinar representaciones y reducciones dimensionales al seleccionar subconjuntos. Ninguna estrategia obtiene el mayor desempeño en todos los dominios. Los contrastes principales entre cuatro datasets no permiten afirmar una superioridad estadística general de GFS, Top-$k$, Completa o Homogénea frente a Individual.
+Los resultados muestran beneficios descriptivos de combinar representaciones y reducciones dimensionales al seleccionar subconjuntos. Ninguna estrategia obtiene el mayor desempeño en todos los dominios. Friedman, Iman--Davenport y Quade rechazan la igualdad de estrategias con ambos clasificadores, pero Friedman alineado no; después de Holm sobre los pares de Friedman, GFS supera a Individual con ResMLP, mientras ningún par resulta significativo con SVM. Completa mejora descriptivamente a Individual en cinco de seis datasets con SVM y cuatro de seis con ResMLP, pero Wilcoxon bilateral no establece superioridad. Tampoco se establece un clasificador globalmente superior bajo Completa. Añadir BEiTv2 a la concatenación completa genera mejoras y pérdidas según el dominio, sin efecto global significativo frente a Completa-21.
 
 La elección de una representación debe considerar el desempeño externo y la dimensionalidad bajo un protocolo común. Como siguientes pasos se plantea ampliar la diversidad de datasets, estudiar el efecto de la normalización y medir de forma homogénea el costo de extracción y clasificación.
 
 \clearpage
 \appendix
-\section{Extensión suplementaria: SoilOriginal}\label{app:soiloriginal}
-
-SoilOriginal se recuperó de la versión 1 archivada de
-\texttt{ai4a-lab/comprehensive-soil-classification-datasets}. Se conservaron
-únicamente las imágenes originales, se eliminaron 49 duplicados exactos y se
-formaron grupos conservadores a partir de las familias de nombres. El
-manifiesto resultante contiene 1.140 imágenes de siete clases y 962 grupos. La
-selección interna y los folds externos respetan dichos grupos. Esta extensión
-se informa de forma descriptiva: no se añade a los cuatro bloques del análisis
-inferencial principal ni se reutilizan sus particiones como réplicas
-independientes.
-
-\begin{center}
-\small
-\textbf{Tabla suplementaria.} Macro-F1 medio en SoilOriginal. Individual y
-Completa usan los 15 folds externos; GFS selecciona un subconjunto dentro del
-entrenamiento.\\[0.4em]
-\begin{tabular}{llrrr}
-\toprule
-Clasificador & Estrategia & Macro-F1 & Dimensión media & Folds \\
-\midrule
-SVM lineal & Individual & 0,858 & 768 & 15 \\
-SVM lineal & Completa & \textbf{0,872} & 19.628 & 15 \\
-SVM lineal & GFS & 0,866 & 2.491 & 15 \\
-ResMLP & Individual & 0,854 & 768 & 15 \\
-ResMLP & Completa & 0,862 & 19.628 & 15 \\
-ResMLP & GFS & \textbf{0,870} & 3.881 & 15 \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-En SoilOriginal, GFS supera descriptivamente a Individual en ambos
-clasificadores ($+0,008$ con SVM y $+0,015$ con ResMLP), pero no supera de
-forma consistente a Completa. Frente a 19.628 componentes de Completa, GFS
-reduce la dimensión media en 87,3\% con SVM y 80,2\% con ResMLP. Estos
-resultados se interpretan como evidencia de generalización a fotografías de
-suelos y no como un benchmark controlado intercambiable con DTD, FMD, CUReT u
-Outex.
-
 \section{Trazabilidad de resultados}\label{app:reproducibilidad}
 
-Las tablas principales provienen de las 56 condiciones externas completas de la biblioteca de 21: 28 con SVM y 28 con ResMLP, cada una con Individual, Completa, Top-$k$, GFS y Homogénea (280 resultados). Los CSV de procedencia y las tablas derivadas se conservan junto con sus hashes. Los archivos LaTeX originales de las implementaciones Java se mantienen sin edición; la matriz presentada aplica únicamente el límite superior 1 a los valores $p$ ajustados.
+Las tablas principales provienen de 94 condiciones externas completas de la biblioteca de 22 bloques: 47 con SVM y 47 con ResMLP, cada una con Individual, Completa, Top-$k$, GFS y Homogénea (470 resultados). La matriz fue validada sin claves duplicadas ni métricas obligatorias no finitas. Los CSV de procedencia, las entradas y salidas de SCI2S, los checkpoints y las tablas derivadas se conservan junto con sus hashes. El archivo fuente auditado de Outex tiene SHA-256 \texttt{8d8c6b9d55dccc6302d3a1afb07eb55c}\allowbreak\texttt{aedc622649e1c669a79ecde1bccbc642}; de él se verificaron 1.360 BMP RGB legibles, 68 clases, ausencia de duplicados y la partición oficial 680/680.
 
-Los controles aleatorios y los análisis auxiliares se conservan en los materiales del proyecto con sus configuraciones respectivas.
+Los controles aleatorios y los análisis auxiliares se conservan en los materiales del proyecto con sus configuraciones respectivas. El archivo \texttt{results/primary22\_beitv2/nonparametric/validation.json} registra las claves externas emparejadas de Completa-21 y Completa-22, los hashes SHA-256 de los CSV fuente y el hash de las 470 filas canónicas. La Tabla~\ref{tab:literature-comparison} se genera a partir de promedios por dataset, estrategia y clasificador, antes de identificar el mayor de ellos.
 
 \section*{Disponibilidad de datos y código}
-Los datasets utilizados son de acceso público y permanecen sujetos a las condiciones de sus respectivos distribuidores. El código experimental, los manifiestos de muestras, los hashes de procedencia, los parámetros, el manifiesto de entorno y las tablas derivadas, incluidos los resultados por partición y las dispersiones, se organizan en el repositorio del proyecto. La URL pública y la versión archivada se incorporarán antes del envío del artículo.
+Los datasets utilizados son de acceso público y permanecen sujetos a las condiciones de sus respectivos distribuidores. El \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{repositorio del proyecto} contiene el desarrollo experimental. El código, los manifiestos, las salidas por partición, los resultados estadísticos y sus hashes se preparan para una versión pública verificable antes del envío; los datasets originales y los embeddings se obtienen o regeneran según sus respectivas condiciones de uso. La revisión de este borrador todavía no identifica una versión archivada e inmutable.
 
 \section*{Declaración ética}
 Los experimentos utilizan colecciones públicas de imágenes de texturas y no incorporan reclutamiento de participantes. La declaración ética final queda pendiente de confirmación por los autores.
