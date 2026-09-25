@@ -127,5 +127,5 @@ con `scripts/build_primary22_beitv2_paper.py`; ver
 ## Estado
 
 Bloque experimental de seis datasets y Outex oficial cerrados. El manuscrito
-está en revisión; la versión pública verificable de las salidas de 22
-descriptores y su archivo inmutable siguen pendientes de fijar.
+está en revisión. Las salidas auditables de 22 descriptores ya están versionadas
+en este repositorio; todavía falta depositar una versión archivada e inmutable.

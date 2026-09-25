@@ -121,8 +121,7 @@ java Friedman <entrada.csv> > salida_controltest.tex
 
 ## 8. Evidencia y estado de publicación
 
-El material necesario para auditar las tablas, una vez versionado en un commit
-y comprobado contra una versión pública, incluye:
+El material público necesario para auditar las tablas incluye:
 
 - Los CSV `nested_fold_results.csv` y `topk_individual_control/nested_fold_results.csv`
   de las ocho raíces de 21 y 22 bloques enumeradas en el script.
@@ -131,10 +130,10 @@ y comprobado contra una versión pública, incluye:
   `results/primary22_beitv2/nonparametric/`.
 - El manuscrito y las tablas derivadas en `paper/articulo/borrador_profesor/`.
 
-Un archivo local sin commit no constituye evidencia disponible públicamente.
-Antes del envío, verificar que estos archivos figuren en el commit público,
-anotar su SHA y depositar una versión inmutable. Los datasets y embeddings
-originales se distribuyen o regeneran según las condiciones de sus fuentes.
+Estos archivos se publicaron en el commit `786acbc` de `main`. Antes del envío,
+anotar el SHA completo del commit final y depositar una versión inmutable.
+Los datasets y embeddings originales se distribuyen o regeneran según las
+condiciones de sus fuentes.
 
 ## 9. Qué no se clona
 
