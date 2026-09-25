@@ -45,6 +45,7 @@ FAMILIES = {
     # any gain from the backbone is not confused with a gain from aggregation.
     "beitv2_base_final": "transformer", "beitv2_base_multilayer": "transformer",
     "rgb_ngram_svd": "ngram",
+    "beitv2_base": "transformer", "swinv2_base": "transformer",
 }
 RESULT_FIELDS = [
     "dataset", "classifier", "seed", "outer_fold", "run_mode", "method", "macro_f1",
