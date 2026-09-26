@@ -113,6 +113,25 @@ def load_manifest(output: Path, dataset: str, y: np.ndarray) -> tuple[np.ndarray
     return groups, rows
 
 
+def manifest_groups(rows: list[dict], column: str) -> np.ndarray:
+    """Read an alternative dependency structure from a manifest column.
+
+    The outer partition and the inner cross-validation do not always share the
+    same unit of dependence.  KTH-TIPS2-b is the clear case: its official
+    protocol holds out a whole physical sample, while ``group`` is the
+    per-image SHA-256, so grouping the inner folds by ``group`` leaves images
+    of the same physical sample on both sides of the inner split.  The inner
+    criterion then measures within-sample recognition and saturates, even
+    though the external test measures across-sample generalisation.
+    """
+    if not rows or column not in rows[0]:
+        raise ValueError(f"manifest has no column {column!r}")
+    values = np.asarray([r[column] for r in rows])
+    if any(not v for v in values):
+        raise ValueError(f"empty value in manifest column {column!r}")
+    return values
+
+
 def official_split_indices(rows: list[dict], split_number: int) -> tuple[np.ndarray, np.ndarray]:
     """Use a manifest-defined official train[/val]/test partition."""
     numbered_column = f"split_{split_number}"
@@ -213,6 +232,13 @@ def fit_score_matrix(x, train, test, y, classifier, seed, svm_backend="cpu"):
 
 def inner_score(cache, subset, outer_train, y, groups, classifier, seed, n_splits=4,
                 svm_backend="cpu", ngram_block=None):
+    # A coarse inner grouping can offer fewer groups than the requested folds:
+    # under the KTH-TIPS2-b protocol the outer training half holds three
+    # physical samples, so grouping by sample allows at most three folds
+    # (leave-one-sample-out).  Per-row groupings are unaffected by this cap.
+    n_splits = min(n_splits, len(np.unique(groups[outer_train])))
+    if n_splits < 2:
+        raise ValueError("inner grouping leaves fewer than two folds")
     x = None
     if ngram_block is None or ngram_block.name not in subset:
         x = np.concatenate([cache[name] for name in subset], axis=1)
@@ -300,7 +326,7 @@ def run_condition(repo, output, dataset, classifier, seed, fold, random_b, max_k
                   official_split=None, curet_direction=None, n_jobs=2, embedding_root=None,
                   svm_backend="cpu", include_rgb_ngram=False, ngram_components=256,
                   ngram_hash_bins=8192, invert_official_split=False,
-                  exclude_extractors=(), result_subdir=None):
+                  exclude_extractors=(), result_subdir=None, inner_group_column=None):
     if official_split is not None and curet_direction is not None:
         raise ValueError("official_split and curet_direction are mutually exclusive")
     if curet_direction is not None and dataset != "CUReT":
@@ -315,6 +341,11 @@ def run_condition(repo, output, dataset, classifier, seed, fold, random_b, max_k
     for name in exclude_extractors:
         cache.pop(name)
     groups, manifest_rows = load_manifest(output, dataset, y)
+    # The outer split and its leakage check keep using ``group``; only the
+    # inner folds switch, so selection is validated on the same kind of
+    # generalisation the external test measures.
+    inner_groups = (groups if inner_group_column is None
+                    else manifest_groups(manifest_rows, inner_group_column))
     ngram_block = None
     if include_rgb_ngram:
         from rgb_ngram_descriptor import BLOCK_NAME, RGBNgramSVDBlock, build_count_cache
@@ -354,6 +385,8 @@ def run_condition(repo, output, dataset, classifier, seed, fold, random_b, max_k
     run_mode = "smoke" if smoke else "full"
     split_tag = (f"official{official_split}{'_inverted' if invert_official_split else ''}" if official_split is not None
                  else curet_direction if curet_direction is not None else f"fold{fold}")
+    if inner_group_column is not None:
+        split_tag += f"_innergrp-{inner_group_column}"
     key = f"{dataset}__{classifier}__{seed}__{split_tag}__{run_mode}"
     checkpoint = checkpoint_dir / f"{key}.json"
     if checkpoint.exists():
@@ -370,7 +403,7 @@ def run_condition(repo, output, dataset, classifier, seed, fold, random_b, max_k
         max_k = min(2, max_k)
         random_b = min(3, random_b)
     memo = {}
-    gfs, gfs_inner, history = greedy(cache, candidates, train, y, groups, classifier, seed,
+    gfs, gfs_inner, history = greedy(cache, candidates, train, y, inner_groups, classifier, seed,
                                      max_k, n_jobs=n_jobs, score_cache=memo,
                                      svm_backend=svm_backend, ngram_block=ngram_block)
     best_single = [history[0]["added"]]
@@ -378,7 +411,7 @@ def run_condition(repo, output, dataset, classifier, seed, fold, random_b, max_k
     family_options = []
     for family in sorted(set(FAMILIES.get(e, "other") for e in candidates)):
         members = [e for e in candidates if FAMILIES.get(e, "other") == family]
-        subset, score, hist = greedy(cache, members, train, y, groups, classifier, seed,
+        subset, score, hist = greedy(cache, members, train, y, inner_groups, classifier, seed,
                                      min(len(gfs), max_k), n_jobs=n_jobs, score_cache=memo,
                                      svm_backend=svm_backend, ngram_block=ngram_block)
         family_options.append((score, family, subset, hist))
@@ -455,6 +488,10 @@ def main():
                         help="freeze a historical descriptor library by excluding named embedding files")
     parser.add_argument("--result-subdir", default=None,
                         help="isolated result folder (for example ngram22_beitv2)")
+    parser.add_argument("--inner-group-column", default=None,
+                        help="manifest column grouping the INNER folds; use it when the "
+                             "outer protocol holds out a structure the default per-row "
+                             "group ignores (KTH-TIPS2-b: 'sample')")
     args = parser.parse_args()
     if args.n_jobs < 1:
         parser.error("--n-jobs must be >= 1")
@@ -488,7 +525,8 @@ def main():
                       ngram_hash_bins=args.ngram_hash_bins,
                       invert_official_split=args.invert_official_split,
                       exclude_extractors=args.exclude_extractors,
-                      result_subdir=args.result_subdir)
+                      result_subdir=args.result_subdir,
+                      inner_group_column=args.inner_group_column)
         status, error = "complete", None
     except KeyboardInterrupt:
         status, error = "interrupted", "KeyboardInterrupt()"
@@ -508,6 +546,7 @@ def main():
                   "invert_official_split": args.invert_official_split,
                   "exclude_extractors": args.exclude_extractors,
                   "result_subdir": args.result_subdir,
+                  "inner_group_column": args.inner_group_column,
                   "embedding_root": str(embedding_root) if embedding_root is not None else None,
                   "started_unix": started, "elapsed_seconds": time.time() - started,
                   "command": " ".join(sys.argv), "python": sys.version,
