@@ -1,0 +1,52 @@
+{
+  "status": "exploratory_online_image_to_prediction_validation",
+  "dataset": "CUReT",
+  "outer_protocol": "condition-grouped deterministic halves (a_to_b)",
+  "official_split_number": null,
+  "curet_direction": "a_to_b",
+  "n_images": 50,
+  "train_oof_threshold": 0.9082815028601233,
+  "device": "cuda",
+  "torch_version": "2.12.1+cu126",
+  "timm_version": "1.0.28",
+  "batch_size": 1,
+  "warmup_per_policy": 5,
+  "model_load_and_classifier_fit_excluded": true,
+  "source_paths_exist_and_sha256_match": 50,
+  "adaptive_extra_fraction": 0.44,
+  "agreement_with_precomputed_predictions": {
+    "adaptive_prediction": 1.0,
+    "full_prediction": 1.0,
+    "request_extra": 1.0
+  },
+  "source_vs_embedding_cosine": {
+    "resnet50_min": 0.9999721050262451,
+    "resnet50_median": 0.9999978244304657,
+    "beitv2_final_min": 0.9999746084213257,
+    "beitv2_final_median": 0.9999998509883881
+  },
+  "adaptive": {
+    "mean_ms": 74.38744978018804,
+    "median_ms": 71.37940299980983,
+    "p95_ms": 146.9560176499726
+  },
+  "full": {
+    "mean_ms": 109.78754378025769,
+    "median_ms": 94.37316800176632,
+    "p95_ms": 218.26442549954652
+  },
+  "mean_latency_reduction_fraction": 0.32244180697697145,
+  "limitations": [
+    "The timing subset is used only for latency and representation identity, not external accuracy.",
+    "Model loading and SVM fitting are excluded; both models stay resident.",
+    "Single-image GPU inference is not batched throughput."
+  ],
+  "provenance": {
+    "audit_csv_sha256": "6feae9c01a93bccea62521a495a6720aa6d0b19b5fb7d90441433402863ea331",
+    "manifest_csv_sha256": "42f1af10b02ab55b9ffce3019e318a52b758f6c8ec7d70d4428fa2c397524a34",
+    "resnet50_npy_sha256": "f41315d0f04063862a583f681ae61ac0b61b5bff0d71a78fbb0f09e8e549b9fd",
+    "beitv2_base_final_npy_sha256": "ef66989bd4669dd571acf848a4768c6cba950b6df04b20c795cf77745f74a307",
+    "resnet50_labels_sha256": "4bbb260035bc1344807e928ae5d4c1d50c36b702e0b00b99938567b19b5aeaaa",
+    "beitv2_base_final_labels_sha256": "4bbb260035bc1344807e928ae5d4c1d50c36b702e0b00b99938567b19b5aeaaa"
+  }
+}

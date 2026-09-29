@@ -1,0 +1,66 @@
+{
+  "status": "exploratory_adapted_sample_generalization",
+  "dataset": "CUReT",
+  "outer_protocol": "condition-grouped deterministic halves (a_to_b)",
+  "official_split_number": null,
+  "curet_direction": "a_to_b",
+  "seed": 42,
+  "base_block": "resnet50",
+  "extra_block": "beitv2_base_final",
+  "classifier": "LinearSVC C=1 class_weight=balanced",
+  "target_extra_fraction": 0.5,
+  "threshold_source": "median of 4-fold StratifiedGroupKFold OOF margins from outer training only",
+  "threshold_inner_fold_count": 4,
+  "inner_group_semantics": "condition_id shared across all 61 material classes",
+  "inner_train_class_counts": [
+    61,
+    61,
+    61,
+    61
+  ],
+  "train_oof_margin_threshold": 0.9082815028601233,
+  "n_train": 2806,
+  "n_test": 2806,
+  "n_classes": 61,
+  "base_dimensions": 2048,
+  "full_dimensions": 2816,
+  "train_test_group_intersection": 0,
+  "n_train_groups": 46,
+  "n_test_groups": 46,
+  "source_sha256_validation": {
+    "checked_rows": 5612,
+    "missing": 0,
+    "sha256_mismatches": 0
+  },
+  "adaptive_extra_fraction": 0.4586600142551675,
+  "base_only": {
+    "macro_f1": 0.9571662292928561,
+    "accuracy": 0.9572344975053457
+  },
+  "adaptive": {
+    "macro_f1": 0.9914515057364838,
+    "accuracy": 0.9914468995010691
+  },
+  "random_same_count_mean_macro_f1": 0.9730239616001063,
+  "random_same_count_sd_macro_f1": 0.0017910852480187251,
+  "random_same_count_mean_accuracy": 0.9730399144689951,
+  "full_for_all": {
+    "macro_f1": 0.9914515057364838,
+    "accuracy": 0.9914468995010691
+  },
+  "random_repeats": 200,
+  "provenance": {
+    "audit_csv": "results/confirmatory/data_audit.csv",
+    "audit_csv_sha256": "6feae9c01a93bccea62521a495a6720aa6d0b19b5fb7d90441433402863ea331",
+    "manifest_csv": "results/confirmatory/sample_manifests/CUReT.csv",
+    "manifest_csv_sha256": "42f1af10b02ab55b9ffce3019e318a52b758f6c8ec7d70d4428fa2c397524a34",
+    "resnet50_npy_sha256": "f41315d0f04063862a583f681ae61ac0b61b5bff0d71a78fbb0f09e8e549b9fd",
+    "beitv2_base_final_npy_sha256": "ef66989bd4669dd571acf848a4768c6cba950b6df04b20c795cf77745f74a307",
+    "resnet50_labels_sha256": "4bbb260035bc1344807e928ae5d4c1d50c36b702e0b00b99938567b19b5aeaaa",
+    "beitv2_base_final_labels_sha256": "4bbb260035bc1344807e928ae5d4c1d50c36b702e0b00b99938567b19b5aeaaa"
+  },
+  "limitations": [
+    "Exploratory descriptive evaluation; no inferential claims across overlapping folds.",
+    "The 50% target is approximate because requests are threshold decisions, not quotas."
+  ]
+}

@@ -1,9 +1,6 @@
 % ============================================================
-% Manuscrito completo para revisión con el tutor
+% Artículo sobre selección y concatenación de descriptores de textura.
 % Template: Elsevier CAS Single Column (cas-sc)
-% Reestructurado según los 10 comentarios del tutor (2026-08-11):
-%   §3 método; §4 resultados experimentales; Figuras 1 y 2;
-%   SOTA, análisis estadístico, interpretación tras tablas.
 % ============================================================
 
 \documentclass[a4paper,fleqn]{cas-sc}
@@ -39,6 +36,12 @@
 \let\WriteBookmarks\relax
 \def\floatpagepagefraction{1}
 \def\textpagefraction{.001}
+% El pie de la plantilla CAS incluye por defecto una afirmación de envío a Elsevier.
+% Se conserva únicamente la autoría abreviada mientras no exista un envío formal.
+\ExplSyntaxOn
+\cs_set:Npn \__first_footerline:
+  { \group_begin: \small \sffamily \ifnum\theblind>0\relax\else\__short_authors:\fi \group_end: }
+\ExplSyntaxOff
 
 % --- Titulo y metadata ---
 \shorttitle{Selección y concatenación de descriptores heterogéneos}
@@ -46,13 +49,9 @@
 
 \title[mode=title]{Selección y concatenación de descriptores heterogéneos para la clasificación de texturas}
 
-\tnotemark[1]
-\tnotetext[1]{Borrador de trabajo de Tesis de Grado, Facultad Politécnica, Universidad Nacional de Asunción (UNA-FP). Documento preparado para revisión con el tutor; el bloque experimental primario ha finalizado y permanece sujeto a revisión académica.}
-
 % --- Autores ---
 \author[1]{Carlos Ayala}
 \cormark[1]
-\fnmark[1]
 \ead{carlos.ayala@est.fpuna.edu.py}
 \credit{Conceptualización, Metodología, Software, Experimentación, Análisis formal, Redacción -- borrador original}
 
@@ -63,12 +62,10 @@
             country={Paraguay}}
 
 \author[1]{Joaquín Delgado}
-\fnmark[1]
 \ead{joaquin.delgado@est.fpuna.edu.py}
 \credit{Conceptualización, Metodología, Software, Experimentación, Análisis formal, Redacción -- revisión y edición}
 
 \cortext[1]{Autor de correspondencia}
-\fntext[1]{Ambos autores contribuyeron al diseño y ejecución del estudio. Tutor: Prof. José Vázquez.}
 
 % --- Aspectos destacados ---
 \begin{highlights}[Aspectos destacados]
@@ -346,15 +343,15 @@ La Tabla~\ref{tab:beitv2-effect} aísla el cambio descriptivo de añadir el bloq
 
 La Tabla~\ref{tab:literature-comparison} contrasta descriptivamente el mayor \emph{promedio externo por configuración} del presente estudio con los resultados BEiTv2 publicados por Neshov et al. \citep{neshov2025aggregation} y Scabini et al. \citep{scabini2025survey}. Se promedian primero las particiones externas de cada combinación de estrategia y clasificador; no se toma el mejor resultado de una partición aislada. Frente a Neshov et al., este trabajo presenta mayor exactitud media en DTD y FMD, pero menor en KTH-TIPS2-b. Frente a Scabini et al., presenta valores mayores en los cuatro datasets compartidos. El máximo entre configuraciones propias se identificó después de observar sus tests externos: esta tabla sirve para contextualizar magnitudes, no para elegir un modelo ni demostrar superioridad. Además, los protocolos, clasificadores y formas de agregación son distintos.
 
-El Soil de Neshov et al. no se incluye entre los datasets directamente compartidos: utilizan un corpus con 829 imágenes originales, aumento del entrenamiento y un test fijo de 178 imágenes, mientras que aquí se evalúan 1.140 imágenes originales tras depuración mediante validación cruzada agrupada. Nuestro mejor promedio de exactitud es $0{,}9281$ y el $0{,}9450$ publicado corresponde a otra variante del corpus y otro protocolo; la diferencia numérica no constituye una comparación de desempeño válida.
+El Soil de Neshov et al. no se incluye entre los datasets directamente compartidos: utilizan un corpus con 829 imágenes originales, aumento del entrenamiento y un test fijo de 178 imágenes, mientras que aquí se evalúan 1.140 imágenes originales tras depuración mediante validación cruzada agrupada. El mayor promedio de exactitud obtenido en este estudio es $0{,}9281$ y el $0{,}9450$ publicado corresponde a otra variante del corpus y otro protocolo; la diferencia numérica no constituye una comparación de desempeño válida.
 
 \input{generated/literature_comparison.tex}
 
-Antes de promover BEiTv2-B a la biblioteca común se realizó una ablación en KTH-TIPS2-b. La Tabla~\ref{tab:kth-beit-extension} compara Completa-21 con la capa final y con la concatenación de cuatro capas internas de BEiTv2 sobre las mismas cuatro particiones. La variante final mejoró descriptivamente a Completa-21 con ambos clasificadores; la variante multicapas no mejoró con ResMLP y multiplicó por cuatro la dimensión del bloque. Este resultado negativo motivó conservar únicamente la capa final de 768 dimensiones en el análisis principal de 22 bloques.
+La ablación exploratoria en KTH-TIPS2-b comparó Completa-21 con la capa final y con la concatenación de cuatro capas internas de BEiTv2 sobre las mismas cuatro particiones (Tabla~\ref{tab:kth-beit-extension}). La variante final mejoró descriptivamente a Completa-21 con ambos clasificadores; la variante multicapas no mejoró con ResMLP y multiplicó por cuatro la dimensión del bloque. Se eligió la capa final de 768 dimensiones para la biblioteca de 22 bloques a partir de estos resultados externos de KTH-TIPS2-b.
 
 \input{generated/kth_beit_extension.tex}
 
-En esta ablación exploratoria separada, agregar la capa final eleva el macro-F1 de Completa-21 en $0{,}0038$ con SVM y $0{,}0056$ con ResMLP; la matriz principal de la Tabla~\ref{tab:beitv2-effect}, ejecutada posteriormente con el flujo confirmatorio común, es la fuente autoritativa para la comparación multibase. La variante multicapas aporta $0{,}0034$ con SVM, pero cambia $-0{,}0010$ con ResMLP. Con sólo cuatro particiones, los contrastes exactos unilaterales de la ablación frente a Completa-21 no alcanzan $\alpha=0{,}05$ (capa final: $p=0{,}1250$ con SVM y $p=0{,}1875$ con ResMLP).
+En esta ablación exploratoria separada, agregar la capa final eleva el macro-F1 de Completa-21 en $0{,}0038$ con SVM y $0{,}0056$ con ResMLP. La Tabla~\ref{tab:beitv2-effect}, obtenida posteriormente con el protocolo común de seis datasets, se utiliza para la comparación multibase; su resultado en KTH-TIPS2-b no constituye una evaluación independiente de la elección de capa. La variante multicapas aporta $0{,}0034$ con SVM, pero cambia $-0{,}0010$ con ResMLP. Con sólo cuatro particiones, los contrastes exactos unilaterales de la ablación frente a Completa-21 no alcanzan $\alpha=0{,}05$ (capa final: $p=0{,}1250$ con SVM y $p=0{,}1875$ con ResMLP).
 
 La Tabla~\ref{tab:dimensiones} permite contrastar el desempeño con el tamaño de la representación. La dimensión de Completa es siempre 20.652; los subconjuntos seleccionados son menores y su dimensión puede variar entre folds. La disminución corresponde al vector usado por el clasificador y no implica una reducción proporcional de latencia o memoria de extremo a extremo. Todas las tablas muestran medias; en Outex, al existir un único split oficial, la media coincide con el valor observado.
 
@@ -391,6 +388,8 @@ Los descriptores clásicos se calcularon sobre escala de grises, mientras las re
 
 Los ensayos preliminares con PCA no cubren la matriz completa de datasets, estrategias, clasificadores y particiones bajo el protocolo confirmatorio común. Por esa razón no se mezclan con los resultados principales ni se utilizan para sostener conclusiones; se conservan únicamente como material exploratorio reproducible del proyecto.
 
+La elección de la capa final de BEiTv2 se apoyó en una ablación sobre las particiones externas de KTH-TIPS2-b, dataset incluido después en el análisis de seis bases. Por ello, la comparación del efecto de BEiTv2 en KTH-TIPS2-b y su síntesis multibase deben interpretarse como exploratorias respecto de esta elección de capa.
+
 \section{Conclusión}\label{sec:conclusion}
 
 Este trabajo estudió la concatenación de descriptores como una elección entre representaciones individuales, completas y seleccionadas. La evaluación completa reunió 22 descriptores, seis datasets y dos clasificadores bajo un protocolo que separa selección interna y evaluación externa. Las cinco estrategias se compararon mediante macro-F1 y exactitud, con Friedman, Iman--Davenport, Friedman alineado y Quade, además de comparaciones de Friedman ajustadas con Holm por separado para cada clasificador.
@@ -408,10 +407,10 @@ Las tablas principales provienen de 94 condiciones externas completas de la bibl
 Los controles aleatorios y los análisis auxiliares se conservan en los materiales del proyecto con sus configuraciones respectivas. El archivo \texttt{results/primary22\_beitv2/nonparametric/validation.json} registra las claves externas emparejadas de Completa-21 y Completa-22, los hashes SHA-256 de los CSV fuente y el hash de las 470 filas canónicas. La Tabla~\ref{tab:literature-comparison} se genera a partir de promedios por dataset, estrategia y clasificador, antes de identificar el mayor de ellos.
 
 \section*{Disponibilidad de datos y código}
-Los datasets utilizados son de acceso público y permanecen sujetos a las condiciones de sus respectivos distribuidores. El \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{repositorio del proyecto} contiene el código, los manifiestos, las salidas por partición, los resultados estadísticos y los hashes necesarios para auditar las tablas; los datasets originales y los embeddings se obtienen o regeneran según sus respectivas condiciones de uso. El material público está versionado en Git, aunque este borrador todavía no identifica un depósito archivado con DOI o una versión inmutable independiente del repositorio.
+Los datasets utilizados son de acceso público y permanecen sujetos a las condiciones de sus respectivos distribuidores. El \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{repositorio del proyecto} contiene el código, los manifiestos, las salidas por partición, los resultados estadísticos y los hashes necesarios para auditar las tablas; los datasets originales y los embeddings se obtienen o regeneran según sus respectivas condiciones de uso. El material público está versionado en Git; no se dispone de un depósito archivado con DOI ni de una versión inmutable independiente del repositorio.
 
 \section*{Declaración ética}
-Los experimentos utilizan colecciones públicas de imágenes de texturas y no incorporan reclutamiento de participantes. La declaración ética final queda pendiente de confirmación por los autores.
+Los experimentos utilizan colecciones públicas de imágenes de texturas y no incorporan reclutamiento de participantes.
 
 \section*{Conflicto de intereses}
 Declaración pendiente de confirmación por los autores antes del envío.

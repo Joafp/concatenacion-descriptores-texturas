@@ -1,0 +1,73 @@
+{
+  "dataset": "Outex13Official1360",
+  "protocol": "official1",
+  "seed": 42,
+  "n_train": 680,
+  "n_test": 680,
+  "n_classes": 68,
+  "inner_folds": 4,
+  "inner_train_classes": [
+    68,
+    68,
+    68,
+    68
+  ],
+  "groups_intersection": 0,
+  "threshold_source": "quantiles of 4-fold StratifiedGroupKFold OOF margins on outer train only",
+  "base_only": {
+    "macro_f1": 0.8809149032537305,
+    "accuracy": 0.8852941176470588
+  },
+  "two_blocks_always": {
+    "macro_f1": 0.9100820399930308,
+    "accuracy": 0.913235294117647
+  },
+  "budgets": [
+    {
+      "target_budget": 0.25,
+      "threshold": 0.16769812825227398,
+      "observed_request_fraction": 0.19558823529411765,
+      "adaptive": {
+        "macro_f1": 0.907364417387182,
+        "accuracy": 0.9102941176470588
+      },
+      "random_same_count_mean_macro_f1": 0.8863066705835148,
+      "random_same_count_sd_macro_f1": 0.004584284562945186,
+      "random_same_count_mean_accuracy": 0.8903529411764706,
+      "random_repeats": 100
+    },
+    {
+      "target_budget": 0.5,
+      "threshold": 0.8081292209551532,
+      "observed_request_fraction": 0.43970588235294117,
+      "adaptive": {
+        "macro_f1": 0.9100820399930308,
+        "accuracy": 0.913235294117647
+      },
+      "random_same_count_mean_macro_f1": 0.8936664407122674,
+      "random_same_count_sd_macro_f1": 0.0055636429170282525,
+      "random_same_count_mean_accuracy": 0.8973235294117649,
+      "random_repeats": 100
+    },
+    {
+      "target_budget": 0.75,
+      "threshold": 1.2124439063361063,
+      "observed_request_fraction": 0.6308823529411764,
+      "adaptive": {
+        "macro_f1": 0.9100820399930308,
+        "accuracy": 0.913235294117647
+      },
+      "random_same_count_mean_macro_f1": 0.899590762841068,
+      "random_same_count_sd_macro_f1": 0.0046673329278246155,
+      "random_same_count_mean_accuracy": 0.9029852941176473,
+      "random_repeats": 100
+    }
+  ],
+  "provenance": {
+    "audit_sha256": "39eece9737486943218039b3a362bb13ffb17457470ff66766146c973cfa41ef",
+    "manifest_sha256": "6499321a05630111dda4e3a7421995555553deea4807f23a5b4673a011856447",
+    "resnet50_sha256": "928fea231403ea8b92f998fdd4488c73469f5fa2a503a7b1fe950bd46673ea05",
+    "beitv2_final_sha256": "ea2a2f54c676bf521e603fb27131ef143b2c128bd0b94646a9a273409d03f014"
+  },
+  "latency": "NOT_MEASURED: cached embeddings; no E2E timing implied"
+}

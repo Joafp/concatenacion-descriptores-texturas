@@ -1,0 +1,40 @@
+{
+  "status": "exploratory_online_image_to_prediction_validation",
+  "dataset": "Outex13Official1360",
+  "outer_fold": null,
+  "official_split": 1,
+  "outer_protocol": "manifest-defined official split",
+  "n_images": 50,
+  "budget": 0.5,
+  "train_oof_threshold": 0.8081292209551532,
+  "device": "cuda",
+  "batch_size": 1,
+  "warmup_per_policy": 5,
+  "model_load_and_classifier_fit_excluded": true,
+  "adaptive_extra_fraction": 0.46,
+  "agreement_with_precomputed_pilot": {
+    "adaptive_prediction": 1.0,
+    "full_prediction": 1.0,
+    "request_extra": 1.0
+  },
+  "adaptive": {
+    "mean_ms": 20.19955692019721,
+    "median_ms": 17.24877300148364,
+    "p95_ms": 31.200851550602227,
+    "macro_f1_on_timing_subset": 0.6470588235294118,
+    "accuracy_on_timing_subset": 0.88
+  },
+  "full": {
+    "mean_ms": 29.504813340026885,
+    "median_ms": 27.566444001422497,
+    "p95_ms": 39.678153701061085,
+    "macro_f1_on_timing_subset": 0.6470588235294118,
+    "accuracy_on_timing_subset": 0.88
+  },
+  "mean_latency_reduction_fraction": 0.31538096217019473,
+  "limitations": [
+    "Timing subset is not a new held-out accuracy benchmark.",
+    "Both models stay resident; model loading and classifier fitting are excluded.",
+    "Single-image GPU inference differs from batched throughput."
+  ]
+}

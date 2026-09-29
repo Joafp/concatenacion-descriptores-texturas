@@ -1,0 +1,77 @@
+{
+  "dataset": "CUReT",
+  "protocol": "curet_half_indices:b_to_a",
+  "seed": 42,
+  "n_train": 2806,
+  "n_test": 2806,
+  "n_classes": 61,
+  "inner_folds": 4,
+  "inner_train_classes": [
+    61,
+    61,
+    61,
+    61
+  ],
+  "groups_intersection": 0,
+  "threshold_source": "quantiles of 4-fold StratifiedGroupKFold OOF margins on outer train only",
+  "base_only": {
+    "macro_f1": 0.9678128343334667,
+    "accuracy": 0.9679258731290092
+  },
+  "two_blocks_always": {
+    "macro_f1": 0.9961037064395593,
+    "accuracy": 0.9960798289379901
+  },
+  "budgets": [
+    {
+      "target_budget": 0.25,
+      "threshold": 0.44022495891416635,
+      "observed_request_fraction": 0.18032786885245902,
+      "adaptive": {
+        "macro_f1": 0.9957649013734551,
+        "accuracy": 0.9957234497505346
+      },
+      "random_same_count_mean_macro_f1": 0.9728694249143881,
+      "random_same_count_sd_macro_f1": 0.0011706730933211914,
+      "random_same_count_mean_accuracy": 0.9729116179615112,
+      "random_repeats": 100
+    },
+    {
+      "target_budget": 0.5,
+      "threshold": 0.8744015119801747,
+      "observed_request_fraction": 0.41019244476122596,
+      "adaptive": {
+        "macro_f1": 0.9961037064395593,
+        "accuracy": 0.9960798289379901
+      },
+      "random_same_count_mean_macro_f1": 0.9794955611549931,
+      "random_same_count_sd_macro_f1": 0.0017740255956223401,
+      "random_same_count_mean_accuracy": 0.9794939415538133,
+      "random_repeats": 100
+    },
+    {
+      "target_budget": 0.75,
+      "threshold": 1.404691256756338,
+      "observed_request_fraction": 0.6817533856022808,
+      "adaptive": {
+        "macro_f1": 0.9961037064395593,
+        "accuracy": 0.9960798289379901
+      },
+      "random_same_count_mean_macro_f1": 0.987123410621164,
+      "random_same_count_sd_macro_f1": 0.0014783349887461162,
+      "random_same_count_mean_accuracy": 0.9870919458303632,
+      "random_repeats": 100
+    }
+  ],
+  "provenance": {
+    "audit_sha256": "6feae9c01a93bccea62521a495a6720aa6d0b19b5fb7d90441433402863ea331",
+    "manifest_sha256": "42f1af10b02ab55b9ffce3019e318a52b758f6c8ec7d70d4428fa2c397524a34",
+    "resnet50_sha256": "f41315d0f04063862a583f681ae61ac0b61b5bff0d71a78fbb0f09e8e549b9fd",
+    "beitv2_final_sha256": "ef66989bd4669dd571acf848a4768c6cba950b6df04b20c795cf77745f74a307",
+    "resnet50_labels_sha256": "4bbb260035bc1344807e928ae5d4c1d50c36b702e0b00b99938567b19b5aeaaa",
+    "beitv2_labels_sha256": "4bbb260035bc1344807e928ae5d4c1d50c36b702e0b00b99938567b19b5aeaaa",
+    "runner_sha256": "ccc155f873d5415a8756eae02fcecc0b52cb64a4d34726894cb5b79d9374c09d"
+  },
+  "latency": "NOT_MEASURED: cached embeddings; no E2E timing implied",
+  "duration_seconds": 39.26730544699967
+}

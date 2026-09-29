@@ -1,0 +1,77 @@
+{
+  "dataset": "DTD",
+  "protocol": "official6",
+  "seed": 42,
+  "n_train": 3753,
+  "n_test": 1880,
+  "n_classes": 47,
+  "inner_folds": 4,
+  "inner_train_classes": [
+    47,
+    47,
+    47,
+    47
+  ],
+  "groups_intersection": 0,
+  "threshold_source": "quantiles of 4-fold StratifiedGroupKFold OOF margins on outer train only",
+  "base_only": {
+    "macro_f1": 0.7280329689591245,
+    "accuracy": 0.7313829787234043
+  },
+  "two_blocks_always": {
+    "macro_f1": 0.8213750725363186,
+    "accuracy": 0.823404255319149
+  },
+  "budgets": [
+    {
+      "target_budget": 0.25,
+      "threshold": 0.23288913466624017,
+      "observed_request_fraction": 0.21968085106382979,
+      "adaptive": {
+        "macro_f1": 0.7858436860455494,
+        "accuracy": 0.7882978723404256
+      },
+      "random_same_count_mean_macro_f1": 0.7486259142671589,
+      "random_same_count_sd_macro_f1": 0.003125957486898749,
+      "random_same_count_mean_accuracy": 0.7516170212765958,
+      "random_repeats": 100
+    },
+    {
+      "target_budget": 0.5,
+      "threshold": 0.6268282521163036,
+      "observed_request_fraction": 0.47925531914893615,
+      "adaptive": {
+        "macro_f1": 0.8173978739515632,
+        "accuracy": 0.8196808510638298
+      },
+      "random_same_count_mean_macro_f1": 0.7731729944226751,
+      "random_same_count_sd_macro_f1": 0.004277235308780468,
+      "random_same_count_mean_accuracy": 0.7759308510638299,
+      "random_repeats": 100
+    },
+    {
+      "target_budget": 0.75,
+      "threshold": 1.2384080945162075,
+      "observed_request_fraction": 0.7265957446808511,
+      "adaptive": {
+        "macro_f1": 0.8213750725363186,
+        "accuracy": 0.823404255319149
+      },
+      "random_same_count_mean_macro_f1": 0.7954137099690665,
+      "random_same_count_sd_macro_f1": 0.0035424174277123147,
+      "random_same_count_mean_accuracy": 0.7978031914893617,
+      "random_repeats": 100
+    }
+  ],
+  "provenance": {
+    "audit_sha256": "6feae9c01a93bccea62521a495a6720aa6d0b19b5fb7d90441433402863ea331",
+    "manifest_sha256": "2cf599cd934d8569ded9e73cd8019bef53627878d98260d7c071921bdd635b3b",
+    "resnet50_sha256": "21562f4a42c5893fc29670ffdb2558cc838d17bc93674597ea8bd21d5035f625",
+    "beitv2_final_sha256": "b1fe068b2a8e3642e71f86650f7bdf39585a538b564e0658d9c3b8d9c383ca49",
+    "resnet50_labels_sha256": "a54314e1074f10ec8a5750620de42a0046a2c65c1b1337cabbbfb65af27233de",
+    "beitv2_labels_sha256": "a54314e1074f10ec8a5750620de42a0046a2c65c1b1337cabbbfb65af27233de",
+    "runner_sha256": "ccc155f873d5415a8756eae02fcecc0b52cb64a4d34726894cb5b79d9374c09d"
+  },
+  "latency": "NOT_MEASURED: cached embeddings; no E2E timing implied",
+  "duration_seconds": 75.35216945299908
+}

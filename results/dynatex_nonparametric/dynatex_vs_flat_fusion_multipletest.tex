@@ -1,0 +1,166 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage{lscape}
+\title{Results}
+\author{}
+\date{\today}
+\begin{document}
+\begin{landscape}
+\oddsidemargin 0in \topmargin 0in\maketitle
+\section{Tables of Friedman, Bonferroni-Dunn, Holm, Hochberg and Hommel Tests}
+\begin{table}[!htp]
+\centering
+\caption{Average Rankings of the algorithms
+}\begin{tabular}{c|c}
+Algorithm&Ranking\\
+\hline
+Individual&3.333333333333333\\
+ResMLP-Completa&2.833333333333333\\
+SVM-Completa&1.8333333333333335\\
+DynaTex-MoD&1.9999999999999998\\
+\end{tabular}
+\end{table}
+
+
+Friedman statistic considering reduction performance (distributed according to chi-square with 3 degrees of freedom: 5.399999999999987.
+
+
+P-value computed by Friedman Test: 0.14474357941968286.\newline
+
+Iman and Davenport statistic considering reduction performance (distributed according to F-distribution with 3 and 15 degrees of freedom: 2.1428571428571357.
+
+
+P-value computed by Iman and Daveport Test: 0.137542728917737.\newline
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Hochberg Table for $\alpha=0.05$}
+\begin{tabular}{ccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel\\
+\hline
+3&Individual&2.01246117974981&0.044171344908442725&0.016666666666666666\\
+2&ResMLP-Completa&1.3416407864998732&0.17971249487900012&0.025\\
+1&DynaTex-MoD&0.22360679774997846&0.8230632737581218&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Hochberg Table for $\alpha=0.10$}
+\begin{tabular}{ccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel\\
+\hline
+3&Individual&2.01246117974981&0.044171344908442725&0.03333333333333333\\
+2&ResMLP-Completa&1.3416407864998732&0.17971249487900012&0.05\\
+1&DynaTex-MoD&0.22360679774997846&0.8230632737581218&0.1\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.03333333333333333$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.03333333333333333$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Adjusted $p$-values}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Bonf}$&$p_{Holm}$&$p_{Hoch}$&$p_{Homm}$\\
+\hline
+1&Individual&0.044171344908442725&0.1325140347253282&0.1325140347253282&0.1325140347253282&0.1325140347253282\\
+2&ResMLP-Completa&0.17971249487900012&0.5391374846370004&0.35942498975800025&0.35942498975800025&0.35942498975800025\\
+3&DynaTex-MoD&0.8230632737581218&2.4691898212743655&0.8230632737581218&0.8230632737581218&0.8230632737581218\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Shaffer Table for $\alpha=0.05$}
+\begin{tabular}{cccccc}
+$i$&algorithms&$z=(R_0 - R_i)/SE$&$p$&Holm&Shaffer\\
+\hline
+6&Individual vs. SVM-Completa&2.01246117974981&0.044171344908442725&0.008333333333333333&0.008333333333333333\\
+5&Individual vs. DynaTex-MoD&1.7888543819998317&0.07363827012030265&0.01&0.01\\
+4&ResMLP-Completa vs. SVM-Completa&1.3416407864998732&0.17971249487900012&0.0125&0.0125\\
+3&ResMLP-Completa vs. DynaTex-MoD&1.1180339887498947&0.2635524772829728&0.016666666666666666&0.016666666666666666\\
+2&Individual vs. ResMLP-Completa&0.6708203932499369&0.5023349543605022&0.025&0.025\\
+1&SVM-Completa vs. DynaTex-MoD&0.22360679774997846&0.8230632737581218&0.05&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Nemenyi's procedure rejects those hypotheses that have a p-value $\le0.008333333333333333$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.008333333333333333$.
+
+
+Bergmann's procedure rejects these hypotheses:
+
+
+\begin{itemize}
+
+
+\end{itemize}
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Shaffer Table for $\alpha=0.10$}
+\begin{tabular}{cccccc}
+$i$&algorithms&$z=(R_0 - R_i)/SE$&$p$&Holm&Shaffer\\
+\hline
+6&Individual vs. SVM-Completa&2.01246117974981&0.044171344908442725&0.016666666666666666&0.016666666666666666\\
+5&Individual vs. DynaTex-MoD&1.7888543819998317&0.07363827012030265&0.02&0.02\\
+4&ResMLP-Completa vs. SVM-Completa&1.3416407864998732&0.17971249487900012&0.025&0.025\\
+3&ResMLP-Completa vs. DynaTex-MoD&1.1180339887498947&0.2635524772829728&0.03333333333333333&0.03333333333333333\\
+2&Individual vs. ResMLP-Completa&0.6708203932499369&0.5023349543605022&0.05&0.05\\
+1&SVM-Completa vs. DynaTex-MoD&0.22360679774997846&0.8230632737581218&0.1&0.1\\
+\hline
+\end{tabular}
+\end{table}
+Nemenyi's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+Bergmann's procedure rejects these hypotheses:
+
+
+\begin{itemize}
+
+
+\end{itemize}
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Adjusted $p$-values}
+\begin{tabular}{cccccccc}
+i&hypothesis&unadjusted $p$&$p_{Neme}$&$p_{Holm}$&$p_{Shaf}$&$p_{Berg}$\\
+\hline
+1&Individual vs .SVM-Completa&0.044171344908442725&0.2650280694506564&0.2650280694506564&0.2650280694506564&0.2650280694506564\\
+2&Individual vs .DynaTex-MoD&0.07363827012030265&0.44182962072181586&0.36819135060151326&0.2650280694506564&0.2650280694506564\\
+3&ResMLP-Completa vs .SVM-Completa&0.17971249487900012&1.0782749692740008&0.7188499795160005&0.5391374846370004&0.5391374846370004\\
+4&ResMLP-Completa vs .DynaTex-MoD&0.2635524772829728&1.581314863697837&0.7906574318489185&0.7906574318489185&0.5391374846370004\\
+5&Individual vs .ResMLP-Completa&0.5023349543605022&3.0140097261630134&1.0046699087210045&1.0046699087210045&1.0046699087210045\\
+6&SVM-Completa vs .DynaTex-MoD&0.8230632737581218&4.938379642548731&1.0046699087210045&1.0046699087210045&1.0046699087210045\\
+\hline
+\end{tabular}
+\end{table}
+
+\end{landscape}\end{document}

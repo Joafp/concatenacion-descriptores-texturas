@@ -1,0 +1,38 @@
+{
+  "status": "exploratory_online_image_to_prediction_validation",
+  "dataset": "FMD",
+  "outer_fold": 0,
+  "n_images": 50,
+  "budget": 0.5,
+  "train_oof_threshold": 0.9239355478383218,
+  "device": "cuda",
+  "batch_size": 1,
+  "warmup_per_policy": 5,
+  "model_load_and_classifier_fit_excluded": true,
+  "adaptive_extra_fraction": 0.42,
+  "agreement_with_precomputed_pilot": {
+    "adaptive_prediction": 1.0,
+    "full_prediction": 1.0,
+    "request_extra": 1.0
+  },
+  "adaptive": {
+    "mean_ms": 58.284874939972724,
+    "median_ms": 55.206493000014234,
+    "p95_ms": 92.82879294971734,
+    "macro_f1_on_timing_subset": 0.9116883116883117,
+    "accuracy_on_timing_subset": 0.92
+  },
+  "full": {
+    "mean_ms": 86.69168867997541,
+    "median_ms": 85.21444150005664,
+    "p95_ms": 125.57791075000749,
+    "macro_f1_on_timing_subset": 0.9116883116883117,
+    "accuracy_on_timing_subset": 0.92
+  },
+  "mean_latency_reduction_fraction": 0.32767632252345635,
+  "limitations": [
+    "Timing subset is not a new held-out accuracy benchmark.",
+    "Both models stay resident; model loading and classifier fitting are excluded.",
+    "Single-image GPU inference differs from batched throughput."
+  ]
+}

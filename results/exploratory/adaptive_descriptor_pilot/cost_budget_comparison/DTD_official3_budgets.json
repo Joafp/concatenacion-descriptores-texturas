@@ -1,0 +1,77 @@
+{
+  "dataset": "DTD",
+  "protocol": "official3",
+  "seed": 42,
+  "n_train": 3757,
+  "n_test": 1880,
+  "n_classes": 47,
+  "inner_folds": 4,
+  "inner_train_classes": [
+    47,
+    47,
+    47,
+    47
+  ],
+  "groups_intersection": 0,
+  "threshold_source": "quantiles of 4-fold StratifiedGroupKFold OOF margins on outer train only",
+  "base_only": {
+    "macro_f1": 0.7296026072890102,
+    "accuracy": 0.7319148936170212
+  },
+  "two_blocks_always": {
+    "macro_f1": 0.8137002994537517,
+    "accuracy": 0.8143617021276596
+  },
+  "budgets": [
+    {
+      "target_budget": 0.25,
+      "threshold": 0.23985290820824334,
+      "observed_request_fraction": 0.21170212765957447,
+      "adaptive": {
+        "macro_f1": 0.7787237810284833,
+        "accuracy": 0.7797872340425532
+      },
+      "random_same_count_mean_macro_f1": 0.7478497666974279,
+      "random_same_count_sd_macro_f1": 0.0035833050907477936,
+      "random_same_count_mean_accuracy": 0.7497287234042552,
+      "random_repeats": 100
+    },
+    {
+      "target_budget": 0.5,
+      "threshold": 0.614146544113451,
+      "observed_request_fraction": 0.45797872340425533,
+      "adaptive": {
+        "macro_f1": 0.8099142372320767,
+        "accuracy": 0.8106382978723404
+      },
+      "random_same_count_mean_macro_f1": 0.7692441781388211,
+      "random_same_count_sd_macro_f1": 0.0038582524730098903,
+      "random_same_count_mean_accuracy": 0.7707978723404254,
+      "random_repeats": 100
+    },
+    {
+      "target_budget": 0.75,
+      "threshold": 1.2259659429489869,
+      "observed_request_fraction": 0.7132978723404255,
+      "adaptive": {
+        "macro_f1": 0.8137002994537517,
+        "accuracy": 0.8143617021276596
+      },
+      "random_same_count_mean_macro_f1": 0.7899886377484334,
+      "random_same_count_sd_macro_f1": 0.0037040575855335355,
+      "random_same_count_mean_accuracy": 0.7910797872340425,
+      "random_repeats": 100
+    }
+  ],
+  "provenance": {
+    "audit_sha256": "6feae9c01a93bccea62521a495a6720aa6d0b19b5fb7d90441433402863ea331",
+    "manifest_sha256": "2cf599cd934d8569ded9e73cd8019bef53627878d98260d7c071921bdd635b3b",
+    "resnet50_sha256": "21562f4a42c5893fc29670ffdb2558cc838d17bc93674597ea8bd21d5035f625",
+    "beitv2_final_sha256": "b1fe068b2a8e3642e71f86650f7bdf39585a538b564e0658d9c3b8d9c383ca49",
+    "resnet50_labels_sha256": "a54314e1074f10ec8a5750620de42a0046a2c65c1b1337cabbbfb65af27233de",
+    "beitv2_labels_sha256": "a54314e1074f10ec8a5750620de42a0046a2c65c1b1337cabbbfb65af27233de",
+    "runner_sha256": "ccc155f873d5415a8756eae02fcecc0b52cb64a4d34726894cb5b79d9374c09d"
+  },
+  "latency": "NOT_MEASURED: cached embeddings; no E2E timing implied",
+  "duration_seconds": 145.75896066900168
+}

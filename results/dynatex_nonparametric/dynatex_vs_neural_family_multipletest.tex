@@ -1,0 +1,212 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage{lscape}
+\title{Results}
+\author{}
+\date{\today}
+\begin{document}
+\begin{landscape}
+\oddsidemargin 0in \topmargin 0in\maketitle
+\section{Tables of Friedman, Bonferroni-Dunn, Holm, Hochberg and Hommel Tests}
+\begin{table}[!htp]
+\centering
+\caption{Average Rankings of the algorithms
+}\begin{tabular}{c|c}
+Algorithm&Ranking\\
+\hline
+Individual&5.333333333333334\\
+ResMLP-Completa&3.5\\
+Top-$k$&2.833333333333333\\
+GFS&2.1666666666666665\\
+Homogénea&4.666666666666667\\
+DynaTex-MoD&2.4999999999999996\\
+\end{tabular}
+\end{table}
+
+
+Friedman statistic considering reduction performance (distributed according to chi-square with 5 degrees of freedom: 13.61904761904764.
+
+
+P-value computed by Friedman Test: 0.018219227212787015.\newline
+
+Iman and Davenport statistic considering reduction performance (distributed according to F-distribution with 5 and 25 degrees of freedom: 4.156976744186059.
+
+
+P-value computed by Iman and Daveport Test: 0.006932997682917046.\newline
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Hochberg Table for $\alpha=0.05$}
+\begin{tabular}{ccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel\\
+\hline
+5&Individual&2.9317636492797465&0.00337043144739775&0.01\\
+4&Homogénea&2.3145502494313788&0.020637558243972176&0.0125\\
+3&ResMLP-Completa&1.2344267996967353&0.21704390775694207&0.016666666666666666\\
+2&Top-$k$&0.6172133998483674&0.5370939784426417&0.025\\
+1&DynaTex-MoD&0.3086066999241835&0.7576207236833967&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.01$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Hochberg's procedure rejects those hypotheses that have a p-value $\le0.01$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Hochberg Table for $\alpha=0.10$}
+\begin{tabular}{ccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel\\
+\hline
+5&Individual&2.9317636492797465&0.00337043144739775&0.02\\
+4&Homogénea&2.3145502494313788&0.020637558243972176&0.025\\
+3&ResMLP-Completa&1.2344267996967353&0.21704390775694207&0.03333333333333333\\
+2&Top-$k$&0.6172133998483674&0.5370939784426417&0.05\\
+1&DynaTex-MoD&0.3086066999241835&0.7576207236833967&0.1\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.02$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.03333333333333333$.
+
+
+Hochberg's procedure rejects those hypotheses that have a p-value $\le0.025$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Adjusted $p$-values}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Bonf}$&$p_{Holm}$&$p_{Hoch}$&$p_{Homm}$\\
+\hline
+1&Individual&0.00337043144739775&0.01685215723698875&0.01685215723698875&0.01685215723698875&0.01685215723698875\\
+2&Homogénea&0.020637558243972176&0.10318779121986088&0.0825502329758887&0.0825502329758887&0.0825502329758887\\
+3&ResMLP-Completa&0.21704390775694207&1.0852195387847103&0.6511317232708262&0.6511317232708262&0.6511317232708262\\
+4&Top-$k$&0.5370939784426417&2.6854698922132085&1.0741879568852835&0.7576207236833967&0.7576207236833967\\
+5&DynaTex-MoD&0.7576207236833967&3.788103618416984&1.0741879568852835&0.7576207236833967&0.7576207236833967\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Shaffer Table for $\alpha=0.05$}
+\begin{tabular}{cccccc}
+$i$&algorithms&$z=(R_0 - R_i)/SE$&$p$&Holm&Shaffer\\
+\hline
+15&Individual vs. GFS&2.9317636492797465&0.00337043144739775&0.0033333333333333335&0.0033333333333333335\\
+14&Individual vs. DynaTex-MoD&2.6231569493555633&0.008711912962379548&0.0035714285714285718&0.0035714285714285718\\
+13&Individual vs. Top-$k$&2.314550249431379&0.02063755824397216&0.0038461538461538464&0.0038461538461538464\\
+12&GFS vs. Homogénea&2.3145502494313788&0.020637558243972176&0.004166666666666667&0.004166666666666667\\
+11&Homogénea vs. DynaTex-MoD&2.0059435495071956&0.044862271152914794&0.004545454545454546&0.004545454545454546\\
+10&Individual vs. ResMLP-Completa&1.6973368495830115&0.08963299426788893&0.005&0.005\\
+9&Top-$k$ vs. Homogénea&1.6973368495830115&0.08963299426788893&0.005555555555555556&0.005555555555555556\\
+8&ResMLP-Completa vs. GFS&1.2344267996967353&0.21704390775694207&0.00625&0.00625\\
+7&ResMLP-Completa vs. Homogénea&1.0801234497346435&0.2800872108114974&0.0071428571428571435&0.0071428571428571435\\
+6&ResMLP-Completa vs. DynaTex-MoD&0.9258200997725518&0.3545394797735012&0.008333333333333333&0.008333333333333333\\
+5&Individual vs. Homogénea&0.6172133998483679&0.5370939784426414&0.01&0.01\\
+4&ResMLP-Completa vs. Top-$k$&0.6172133998483679&0.5370939784426414&0.0125&0.0125\\
+3&Top-$k$ vs. GFS&0.6172133998483674&0.5370939784426417&0.016666666666666666&0.016666666666666666\\
+2&Top-$k$ vs. DynaTex-MoD&0.30860669992418394&0.7576207236833963&0.025&0.025\\
+1&GFS vs. DynaTex-MoD&0.3086066999241835&0.7576207236833967&0.05&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Nemenyi's procedure rejects those hypotheses that have a p-value $\le0.0033333333333333335$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.0033333333333333335$.
+
+
+Bergmann's procedure rejects these hypotheses:
+
+
+\begin{itemize}
+
+
+\end{itemize}
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Shaffer Table for $\alpha=0.10$}
+\begin{tabular}{cccccc}
+$i$&algorithms&$z=(R_0 - R_i)/SE$&$p$&Holm&Shaffer\\
+\hline
+15&Individual vs. GFS&2.9317636492797465&0.00337043144739775&0.006666666666666667&0.006666666666666667\\
+14&Individual vs. DynaTex-MoD&2.6231569493555633&0.008711912962379548&0.0071428571428571435&0.01\\
+13&Individual vs. Top-$k$&2.314550249431379&0.02063755824397216&0.007692307692307693&0.01\\
+12&GFS vs. Homogénea&2.3145502494313788&0.020637558243972176&0.008333333333333333&0.01\\
+11&Homogénea vs. DynaTex-MoD&2.0059435495071956&0.044862271152914794&0.009090909090909092&0.01\\
+10&Individual vs. ResMLP-Completa&1.6973368495830115&0.08963299426788893&0.01&0.01\\
+9&Top-$k$ vs. Homogénea&1.6973368495830115&0.08963299426788893&0.011111111111111112&0.011111111111111112\\
+8&ResMLP-Completa vs. GFS&1.2344267996967353&0.21704390775694207&0.0125&0.0125\\
+7&ResMLP-Completa vs. Homogénea&1.0801234497346435&0.2800872108114974&0.014285714285714287&0.014285714285714287\\
+6&ResMLP-Completa vs. DynaTex-MoD&0.9258200997725518&0.3545394797735012&0.016666666666666666&0.016666666666666666\\
+5&Individual vs. Homogénea&0.6172133998483679&0.5370939784426414&0.02&0.02\\
+4&ResMLP-Completa vs. Top-$k$&0.6172133998483679&0.5370939784426414&0.025&0.025\\
+3&Top-$k$ vs. GFS&0.6172133998483674&0.5370939784426417&0.03333333333333333&0.03333333333333333\\
+2&Top-$k$ vs. DynaTex-MoD&0.30860669992418394&0.7576207236833963&0.05&0.05\\
+1&GFS vs. DynaTex-MoD&0.3086066999241835&0.7576207236833967&0.1&0.1\\
+\hline
+\end{tabular}
+\end{table}
+Nemenyi's procedure rejects those hypotheses that have a p-value $\le0.006666666666666667$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.0071428571428571435$.
+
+
+Shaffer's procedure rejects those hypotheses that have a p-value $\le0.006666666666666667$.
+
+
+Bergmann's procedure rejects these hypotheses:
+
+
+\begin{itemize}
+
+
+\item Individual vs. GFS
+\item Individual vs. DynaTex-MoD
+\end{itemize}
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Adjusted $p$-values}
+\begin{tabular}{cccccccc}
+i&hypothesis&unadjusted $p$&$p_{Neme}$&$p_{Holm}$&$p_{Shaf}$&$p_{Berg}$\\
+\hline
+1&Individual vs .GFS&0.00337043144739775&0.05055647171096625&0.05055647171096625&0.05055647171096625&0.05055647171096625\\
+2&Individual vs .DynaTex-MoD&0.008711912962379548&0.13067869443569322&0.12196678147331368&0.08711912962379548&0.08711912962379548\\
+3&Individual vs .Top-$k$&0.02063755824397216&0.30956337365958236&0.26828825717163807&0.2063755824397216&0.14446290770780512\\
+4&GFS vs .Homogénea&0.020637558243972176&0.30956337365958264&0.26828825717163807&0.20637558243972176&0.20637558243972176\\
+5&Homogénea vs .DynaTex-MoD&0.044862271152914794&0.672934067293722&0.49348498268206276&0.44862271152914796&0.26917362691748875\\
+6&Individual vs .ResMLP-Completa&0.08963299426788893&1.344494914018334&0.8963299426788893&0.8963299426788893&0.5377979656073335\\
+7&Top-$k$ vs .Homogénea&0.08963299426788893&1.344494914018334&0.8963299426788893&0.8963299426788893&0.5377979656073335\\
+8&ResMLP-Completa vs .GFS&0.21704390775694207&3.2556586163541312&1.7363512620555366&1.5193073542985944&1.5193073542985944\\
+9&ResMLP-Completa vs .Homogénea&0.2800872108114974&4.201308162172461&1.9606104756804819&1.9606104756804819&1.5193073542985944\\
+10&ResMLP-Completa vs .DynaTex-MoD&0.3545394797735012&5.318092196602518&2.127236878641007&2.127236878641007&1.5193073542985944\\
+11&Individual vs .Homogénea&0.5370939784426414&8.056409676639621&2.6854698922132068&2.1483759137705656&2.1483759137705656\\
+12&ResMLP-Completa vs .Top-$k$&0.5370939784426414&8.056409676639621&2.6854698922132068&2.1483759137705656&2.1483759137705656\\
+13&Top-$k$ vs .GFS&0.5370939784426417&8.056409676639626&2.6854698922132068&2.1483759137705656&2.1483759137705656\\
+14&Top-$k$ vs .DynaTex-MoD&0.7576207236833963&11.364310855250944&2.6854698922132068&2.1483759137705656&2.1483759137705656\\
+15&GFS vs .DynaTex-MoD&0.7576207236833967&11.36431085525095&2.6854698922132068&2.1483759137705656&2.1483759137705656\\
+\hline
+\end{tabular}
+\end{table}
+
+\end{landscape}\end{document}

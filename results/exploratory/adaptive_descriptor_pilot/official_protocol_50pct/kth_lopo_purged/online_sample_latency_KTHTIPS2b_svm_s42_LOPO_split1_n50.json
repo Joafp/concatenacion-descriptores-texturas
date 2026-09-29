@@ -1,0 +1,52 @@
+{
+  "status": "exploratory_online_image_to_prediction_validation",
+  "dataset": "KTHTIPS2b",
+  "outer_protocol": "adapted leave-one-physical-sample-out; inverted official split roles (3 physical samples train, 1 held-out test); not Caputo direction",
+  "official_split_number": 1,
+  "curet_direction": null,
+  "n_images": 50,
+  "train_oof_threshold": 1.1798761374021833,
+  "device": "cuda",
+  "torch_version": "2.12.1+cu126",
+  "timm_version": "1.0.28",
+  "batch_size": 1,
+  "warmup_per_policy": 5,
+  "model_load_and_classifier_fit_excluded": true,
+  "source_paths_exist_and_sha256_match": 50,
+  "adaptive_extra_fraction": 0.32,
+  "agreement_with_precomputed_predictions": {
+    "adaptive_prediction": 1.0,
+    "full_prediction": 1.0,
+    "request_extra": 1.0
+  },
+  "source_vs_embedding_cosine": {
+    "resnet50_min": 0.999980092048645,
+    "resnet50_median": 0.9999979734420776,
+    "beitv2_final_min": 0.9999995827674866,
+    "beitv2_final_median": 1.0
+  },
+  "adaptive": {
+    "mean_ms": 105.58397064021847,
+    "median_ms": 86.42006750051223,
+    "p95_ms": 198.28956460005423
+  },
+  "full": {
+    "mean_ms": 147.49721199994383,
+    "median_ms": 136.12270500016166,
+    "p95_ms": 263.0351342506401
+  },
+  "mean_latency_reduction_fraction": 0.2841629397018116,
+  "limitations": [
+    "The timing subset is used only for latency and representation identity, not external accuracy.",
+    "Model loading and SVM fitting are excluded; both models stay resident.",
+    "Single-image GPU inference is not batched throughput."
+  ],
+  "provenance": {
+    "audit_csv_sha256": "34ec936366f52076e4b48296c01894a64da6dfd7980656648553da3bc03729b0",
+    "manifest_csv_sha256": "df7d23f6681f2d5974d47f33ef5246845f51435d9db539d0522d6de8ab5cb2e7",
+    "resnet50_npy_sha256": "3a0cb05bedecb9cc17db9c82b82c1701f20a3f239bc1beebda4bf508a46caacc",
+    "beitv2_base_final_npy_sha256": "47204c3d400fc327ef18adab6b39df1f473f385e948783c6204acf120734203a",
+    "resnet50_labels_sha256": "11d848bcf4a9a1b09f40f32c9ec15364006b0cb71b808b8878058b409358bdc7",
+    "beitv2_base_final_labels_sha256": "11d848bcf4a9a1b09f40f32c9ec15364006b0cb71b808b8878058b409358bdc7"
+  }
+}

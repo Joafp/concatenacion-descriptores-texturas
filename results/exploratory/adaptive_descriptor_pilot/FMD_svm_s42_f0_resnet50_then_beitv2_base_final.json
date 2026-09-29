@@ -1,0 +1,70 @@
+{
+  "status": "exploratory_precomputed_embedding_simulation",
+  "dataset": "FMD",
+  "seed": 42,
+  "outer_fold": 0,
+  "base_block": "resnet50",
+  "extra_block": "beitv2_base_final",
+  "n_train": 800,
+  "n_test": 200,
+  "n_classes": 10,
+  "base_dimensions": 2048,
+  "full_dimensions": 2816,
+  "base_only": {
+    "macro_f1": 0.8070373956822982,
+    "accuracy": 0.81
+  },
+  "full_for_all": {
+    "macro_f1": 0.919141469558671,
+    "accuracy": 0.92
+  },
+  "budgets": [
+    {
+      "target_extra_fraction": 0.25,
+      "train_oof_margin_threshold": 0.39520901286300136,
+      "test_extra_fraction": 0.26,
+      "test_extra_count": 52,
+      "adaptive": {
+        "macro_f1": 0.9041725495897511,
+        "accuracy": 0.905
+      },
+      "random_same_count_mean_macro_f1": 0.8372299322590976,
+      "random_same_count_sd_macro_f1": 0.01098719454062649,
+      "random_same_count_mean_accuracy": 0.8393250000000001,
+      "random_repeats": 200
+    },
+    {
+      "target_extra_fraction": 0.5,
+      "train_oof_margin_threshold": 0.9239355478383218,
+      "test_extra_fraction": 0.495,
+      "test_extra_count": 99,
+      "adaptive": {
+        "macro_f1": 0.919141469558671,
+        "accuracy": 0.92
+      },
+      "random_same_count_mean_macro_f1": 0.8632150390321395,
+      "random_same_count_sd_macro_f1": 0.01391483307757344,
+      "random_same_count_mean_accuracy": 0.864775,
+      "random_repeats": 200
+    },
+    {
+      "target_extra_fraction": 0.75,
+      "train_oof_margin_threshold": 1.477419414705431,
+      "test_extra_fraction": 0.745,
+      "test_extra_count": 149,
+      "adaptive": {
+        "macro_f1": 0.919141469558671,
+        "accuracy": 0.92
+      },
+      "random_same_count_mean_macro_f1": 0.8898146548506222,
+      "random_same_count_sd_macro_f1": 0.010900489218466355,
+      "random_same_count_mean_accuracy": 0.89095,
+      "random_repeats": 200
+    }
+  ],
+  "limitations": [
+    "Embeddings were precomputed; requested-block fraction is not measured latency.",
+    "One outer fold is a screening pilot, not confirmatory evidence.",
+    "The two blocks were fixed before this pilot; no test-based descriptor search."
+  ]
+}

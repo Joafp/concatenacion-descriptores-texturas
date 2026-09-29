@@ -1,0 +1,80 @@
+{
+  "status": "exploratory_adapted_sample_generalization",
+  "dataset": "KTHTIPS2b",
+  "outer_protocol": "adapted leave-one-physical-sample-out; inverted official split roles (3 physical samples train, 1 held-out test); not Caputo direction",
+  "official_split_number": 4,
+  "curet_direction": null,
+  "seed": 42,
+  "base_block": "resnet50",
+  "extra_block": "beitv2_base_final",
+  "classifier": "LinearSVC C=1 class_weight=balanced",
+  "target_extra_fraction": 0.5,
+  "threshold_source": "median of 3-fold StratifiedGroupKFold OOF margins from outer training only",
+  "threshold_inner_fold_count": 3,
+  "inner_group_semantics": "label::sample (one physical sample per material class)",
+  "inner_train_class_counts": [
+    11,
+    11,
+    11
+  ],
+  "train_oof_margin_threshold": 1.498407062748203,
+  "n_train": 3564,
+  "n_test": 1188,
+  "n_classes": 11,
+  "base_dimensions": 2048,
+  "full_dimensions": 2816,
+  "train_test_group_intersection": 0,
+  "train_test_source_sha256_intersection": 0,
+  "physical_sample_train_test_intersection": 0,
+  "condition_train_test_intersection": null,
+  "purge_audit": {
+    "train_candidate_rows": 3564,
+    "purged_train_rows": 0,
+    "purged_source_sha256_groups": 0,
+    "train_test_source_sha256_intersection": 0,
+    "physical_sample_train_test_intersection": 0,
+    "condition_train_test_intersection": null
+  },
+  "n_train_source_sha_groups": 3564,
+  "n_test_source_sha_groups": 1188,
+  "n_train_physical_sample_groups": 33,
+  "n_test_physical_sample_groups": 11,
+  "n_train_condition_groups": null,
+  "n_test_condition_groups": null,
+  "source_sha256_validation": {
+    "checked_rows": 4752,
+    "missing": 0,
+    "sha256_mismatches": 0
+  },
+  "adaptive_extra_fraction": 0.5984848484848485,
+  "base_only": {
+    "macro_f1": 0.8279897589085418,
+    "accuracy": 0.8358585858585859
+  },
+  "adaptive": {
+    "macro_f1": 0.9184553390483223,
+    "accuracy": 0.9208754208754208
+  },
+  "random_same_count_mean_macro_f1": 0.8833284751135817,
+  "random_same_count_sd_macro_f1": 0.004712523360557594,
+  "random_same_count_mean_accuracy": 0.8871127946127948,
+  "full_for_all": {
+    "macro_f1": 0.9191899681195889,
+    "accuracy": 0.9217171717171717
+  },
+  "random_repeats": 200,
+  "provenance": {
+    "audit_csv": "results/extensions/kth_tips2b/data_audit.csv",
+    "audit_csv_sha256": "34ec936366f52076e4b48296c01894a64da6dfd7980656648553da3bc03729b0",
+    "manifest_csv": "results/extensions/kth_tips2b/sample_manifests/KTHTIPS2b.csv",
+    "manifest_csv_sha256": "df7d23f6681f2d5974d47f33ef5246845f51435d9db539d0522d6de8ab5cb2e7",
+    "resnet50_npy_sha256": "3a0cb05bedecb9cc17db9c82b82c1701f20a3f239bc1beebda4bf508a46caacc",
+    "beitv2_base_final_npy_sha256": "47204c3d400fc327ef18adab6b39df1f473f385e948783c6204acf120734203a",
+    "resnet50_labels_sha256": "11d848bcf4a9a1b09f40f32c9ec15364006b0cb71b808b8878058b409358bdc7",
+    "beitv2_base_final_labels_sha256": "11d848bcf4a9a1b09f40f32c9ec15364006b0cb71b808b8878058b409358bdc7"
+  },
+  "limitations": [
+    "Exploratory descriptive evaluation; no inferential claims across overlapping folds.",
+    "The 50% target is approximate because requests are threshold decisions, not quotas."
+  ]
+}

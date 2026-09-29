@@ -1,0 +1,38 @@
+{
+  "status": "exploratory_online_image_to_prediction_validation",
+  "dataset": "SoilOriginal",
+  "outer_fold": 0,
+  "n_images": 50,
+  "budget": 0.5,
+  "train_oof_threshold": 1.188566130468074,
+  "device": "cuda",
+  "batch_size": 1,
+  "warmup_per_policy": 5,
+  "model_load_and_classifier_fit_excluded": true,
+  "adaptive_extra_fraction": 0.46,
+  "agreement_with_precomputed_pilot": {
+    "adaptive_prediction": 1.0,
+    "full_prediction": 1.0,
+    "request_extra": 1.0
+  },
+  "adaptive": {
+    "mean_ms": 76.02727695993963,
+    "median_ms": 72.32906200010802,
+    "p95_ms": 141.14036429980385,
+    "macro_f1_on_timing_subset": 0.7719328980198545,
+    "accuracy_on_timing_subset": 0.86
+  },
+  "full": {
+    "mean_ms": 104.43723379997209,
+    "median_ms": 95.69663849993049,
+    "p95_ms": 153.05139740005413,
+    "macro_f1_on_timing_subset": 0.7719328980198545,
+    "accuracy_on_timing_subset": 0.86
+  },
+  "mean_latency_reduction_fraction": 0.2720290054258413,
+  "limitations": [
+    "Timing subset is not a new held-out accuracy benchmark.",
+    "Both models stay resident; model loading and classifier fitting are excluded.",
+    "Single-image GPU inference differs from batched throughput."
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "status": "exploratory_precomputed_embedding_simulation",
+  "dataset": "Outex13Official1360",
+  "outer_protocol": "manifest-defined official split",
+  "official_split_number": 1,
+  "seed": 42,
+  "base_block": "resnet50",
+  "extra_block": "beitv2_base_final",
+  "target_extra_fraction": 0.5,
+  "threshold_source": "median of 4-fold grouped OOF margins on official training partition only",
+  "train_oof_margin_threshold": 0.8081292209551532,
+  "n_train": 680,
+  "n_test": 680,
+  "n_classes": 68,
+  "base_dimensions": 2048,
+  "full_dimensions": 2816,
+  "train_test_group_intersection": 0,
+  "inner_train_class_counts_min": 68,
+  "adaptive_extra_fraction": 0.43970588235294117,
+  "base_only": {
+    "macro_f1": 0.8809149032537305,
+    "accuracy": 0.8852941176470588
+  },
+  "adaptive": {
+    "macro_f1": 0.9100820399930308,
+    "accuracy": 0.913235294117647
+  },
+  "random_same_count_mean_macro_f1": 0.8944792404451946,
+  "random_same_count_sd_macro_f1": 0.004800568578938048,
+  "random_same_count_mean_accuracy": 0.8980735294117648,
+  "full_for_all": {
+    "macro_f1": 0.9100820399930308,
+    "accuracy": 0.913235294117647
+  },
+  "random_repeats": 200,
+  "provenance": {
+    "audit_csv": "results/extensions/outex13_official1360/data_audit.csv",
+    "audit_csv_sha256": "39eece9737486943218039b3a362bb13ffb17457470ff66766146c973cfa41ef",
+    "manifest_csv": "results/extensions/outex13_official1360/sample_manifests/Outex13Official1360.csv",
+    "manifest_csv_sha256": "6499321a05630111dda4e3a7421995555553deea4807f23a5b4673a011856447",
+    "resnet50_npy_sha256": "928fea231403ea8b92f998fdd4488c73469f5fa2a503a7b1fe950bd46673ea05",
+    "beitv2_base_final_npy_sha256": "ea2a2f54c676bf521e603fb27131ef143b2c128bd0b94646a9a273409d03f014",
+    "resnet50_labels_sha256": "dd2e0aae92f26e20d79d33abe4ecf65e4046992983f5ded18fef7d7347f396fe",
+    "beitv2_base_final_labels_sha256": "dd2e0aae92f26e20d79d33abe4ecf65e4046992983f5ded18fef7d7347f396fe"
+  },
+  "limitations": [
+    "Precomputed embeddings simulate block requests and do not themselves measure extraction latency.",
+    "This official-split evaluation is not comparable to grouped 5-fold results unless protocol, test rows, and metric match.",
+    "Fold/split estimates are descriptive; no inferential claim is made."
+  ]
+}

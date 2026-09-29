@@ -1,0 +1,347 @@
+{
+  "status": "exploratory_online_extractor_cost_components",
+  "dataset": "Outex13Official1360",
+  "protocol": "official1 test; common deterministic 50-row subset",
+  "rows": [
+    1,
+    27,
+    55,
+    83,
+    111,
+    139,
+    167,
+    195,
+    221,
+    249,
+    277,
+    305,
+    333,
+    361,
+    389,
+    415,
+    443,
+    471,
+    499,
+    527,
+    555,
+    583,
+    609,
+    637,
+    665,
+    693,
+    721,
+    749,
+    777,
+    803,
+    831,
+    859,
+    887,
+    915,
+    943,
+    971,
+    997,
+    1025,
+    1053,
+    1081,
+    1109,
+    1137,
+    1165,
+    1191,
+    1219,
+    1247,
+    1275,
+    1303,
+    1331,
+    1359
+  ],
+  "device": "cuda",
+  "warmup_images_per_descriptor": 2,
+  "load_model_and_svm_fit_excluded": true,
+  "per_descriptor_latency_ms": {
+    "dinov2_large": {
+      "mean": 177.30378403983195,
+      "median": 177.19456749910023,
+      "p95": 181.40399755138787
+    },
+    "beitv2_base_final": {
+      "mean": 12.218954239870072,
+      "median": 11.73470750109118,
+      "p95": 13.484632701874943
+    },
+    "dinov2_small": {
+      "mean": 24.598398539674236,
+      "median": 24.53334700112464,
+      "p95": 25.447394749971863
+    },
+    "dinov2": {
+      "mean": 57.64994204022514,
+      "median": 57.570012999349274,
+      "p95": 59.80598349979118
+    },
+    "convnext_v2_t": {
+      "mean": 15.67568083977676,
+      "median": 13.10483250017569,
+      "p95": 36.583931748646116
+    },
+    "resnet101": {
+      "mean": 21.48922493979626,
+      "median": 19.874728999639046,
+      "p95": 29.71058854873263
+    },
+    "efficientnet_b0": {
+      "mean": 14.393241079596919,
+      "median": 13.690196998140891,
+      "p95": 17.93469470012496
+    },
+    "swin_t": {
+      "mean": 21.415006260285736,
+      "median": 19.531953999830876,
+      "p95": 29.24516405018948
+    },
+    "resnet50": {
+      "mean": 11.938004960102262,
+      "median": 11.649953999949503,
+      "p95": 13.962505398922076
+    },
+    "mae_base": {
+      "mean": 12.758412959956331,
+      "median": 10.756918500192114,
+      "p95": 17.546108298665768
+    },
+    "deit_s": {
+      "mean": 15.377918039812357,
+      "median": 12.4413644989545,
+      "p95": 27.397115501116783
+    },
+    "densenet121": {
+      "mean": 26.70024106009805,
+      "median": 23.750889500661287,
+      "p95": 42.05011040321549
+    },
+    "drlbp": {
+      "mean": 83.33892439979536,
+      "median": 82.04587299951527,
+      "p95": 89.53439304841595
+    },
+    "eva02_base": {
+      "mean": 19.321798980308813,
+      "median": 17.861044501842116,
+      "p95": 29.646432600929973
+    },
+    "gabor": {
+      "mean": 1029.2129600201588,
+      "median": 1027.7220774987654,
+      "p95": 1053.8259940007265
+    },
+    "glcm": {
+      "mean": 41.027432740229415,
+      "median": 40.748222500042175,
+      "p95": 44.38215109930752
+    },
+    "hog": {
+      "mean": 2.29738524001732,
+      "median": 2.2844449995318428,
+      "p95": 2.569993398719816
+    },
+    "lbp": {
+      "mean": 50.61028226016788,
+      "median": 49.73889549910382,
+      "p95": 56.73747314940556
+    },
+    "siglip_base": {
+      "mean": 11.682334919823916,
+      "median": 10.629919999701087,
+      "p95": 15.760358649640688
+    },
+    "vgg16": {
+      "mean": 12.046345700291567,
+      "median": 11.139019499751157,
+      "p95": 11.816666951199295
+    },
+    "vit_b16": {
+      "mean": 14.05091159962467,
+      "median": 11.509515999932773,
+      "p95": 37.18338209873761
+    }
+  },
+  "method_routes": {
+    "Top-k22": {
+      "selected": [
+        "dinov2_large",
+        "beitv2_base_final",
+        "dinov2_small",
+        "dinov2",
+        "convnext_v2_t",
+        "resnet101",
+        "efficientnet_b0",
+        "swin_t"
+      ],
+      "measured_extractors": [
+        "dinov2_large",
+        "beitv2_base_final",
+        "dinov2_small",
+        "dinov2",
+        "convnext_v2_t",
+        "resnet101",
+        "efficientnet_b0",
+        "swin_t"
+      ],
+      "missing": [],
+      "complete_route": true,
+      "mean_image_to_prediction_ms_partial_or_complete": 345.5922767195443,
+      "median_ms": 341.19688250029867,
+      "p95_ms": 374.2788363528234,
+      "prediction_agreement_vs_cached_baseline": 1.0,
+      "extractor_min_cosine": {
+        "dinov2_large": 0.9999998807907104,
+        "beitv2_base_final": 0.9999306201934814,
+        "dinov2_small": 0.9999999403953552,
+        "dinov2": 0.9999998807907104,
+        "convnext_v2_t": 0.9999998807907104,
+        "resnet101": 0.9999849796295166,
+        "efficientnet_b0": 0.9999968409538269,
+        "swin_t": 0.9999998807907104
+      },
+      "baseline_macro_f1": 0.9425743955605469,
+      "baseline_accuracy": 0.9441176470588235,
+      "baseline_selected_k": 8
+    },
+    "GFS": {
+      "selected": [
+        "dinov2_large",
+        "rgb_ngram_svd",
+        "convnext_v2_t",
+        "resnet50",
+        "dinov2_small",
+        "dinov2",
+        "beitv2_base_final",
+        "mae_base"
+      ],
+      "measured_extractors": [
+        "dinov2_large",
+        "convnext_v2_t",
+        "resnet50",
+        "dinov2_small",
+        "dinov2",
+        "beitv2_base_final",
+        "mae_base"
+      ],
+      "missing": [
+        "rgb_ngram_svd"
+      ],
+      "complete_route": false,
+      "mean_image_to_prediction_ms_partial_or_complete": null,
+      "median_ms": null,
+      "p95_ms": null,
+      "prediction_agreement_vs_cached_baseline": null,
+      "extractor_min_cosine": {
+        "dinov2_large": 0.9999998807907104,
+        "convnext_v2_t": 0.9999998807907104,
+        "resnet50": 0.9999570846557617,
+        "dinov2_small": 0.9999999403953552,
+        "dinov2": 0.9999998807907104,
+        "beitv2_base_final": 0.9999306201934814,
+        "mae_base": 0.9938191175460815
+      },
+      "baseline_macro_f1": 0.958883749211004,
+      "baseline_accuracy": 0.9602941176470589,
+      "baseline_selected_k": 8
+    },
+    "full22": {
+      "selected": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "deit_s",
+        "densenet121",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "drlbp",
+        "efficientnet_b0",
+        "eva02_base",
+        "gabor",
+        "glcm",
+        "hog",
+        "lbp",
+        "mae_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vgg16",
+        "vit_b16",
+        "rgb_ngram_svd"
+      ],
+      "measured_extractors": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "deit_s",
+        "densenet121",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "drlbp",
+        "efficientnet_b0",
+        "eva02_base",
+        "gabor",
+        "glcm",
+        "hog",
+        "lbp",
+        "mae_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vgg16",
+        "vit_b16"
+      ],
+      "missing": [
+        "rgb_ngram_svd"
+      ],
+      "complete_route": false,
+      "mean_image_to_prediction_ms_partial_or_complete": null,
+      "median_ms": null,
+      "p95_ms": null,
+      "prediction_agreement_vs_cached_baseline": null,
+      "extractor_min_cosine": {
+        "beitv2_base_final": 0.9999306201934814,
+        "convnext_v2_t": 0.9999998807907104,
+        "deit_s": -0.11549070477485657,
+        "densenet121": 0.9999994039535522,
+        "dinov2": 0.9999998807907104,
+        "dinov2_large": 0.9999998807907104,
+        "dinov2_small": 0.9999999403953552,
+        "drlbp": 0.9999998807907104,
+        "efficientnet_b0": 0.9999968409538269,
+        "eva02_base": 0.9999943375587463,
+        "gabor": 0.9999998807907104,
+        "glcm": 0.9999999403953552,
+        "hog": 0.9999999403953552,
+        "lbp": 0.9999998807907104,
+        "mae_base": 0.9938191175460815,
+        "resnet101": 0.9999849796295166,
+        "resnet50": 0.9999570846557617,
+        "siglip_base": 0.9999920725822449,
+        "swin_t": 0.9999998807907104,
+        "vgg16": 0.9999998807907104,
+        "vit_b16": -0.0802030861377716
+      },
+      "baseline_macro_f1": 0.9655510028364719,
+      "baseline_accuracy": 0.9661764705882353,
+      "baseline_selected_k": 22
+    }
+  },
+  "failed_descriptors": {},
+  "provenance": {
+    "manifest_sha256": "6499321a05630111dda4e3a7421995555553deea4807f23a5b4673a011856447",
+    "audit_sha256": "39eece9737486943218039b3a362bb13ffb17457470ff66766146c973cfa41ef",
+    "topk_csv_sha256": "fa89a052d31931ebf2030c2fdaa52d4acb0b16dfb35a8d3a4633901aefcc3918",
+    "main_csv_sha256": "73114486931e506a343ee520199f4358bf16bafd72c49531b09a4e95fc4eb545",
+    "extractor_script_sha256": "c18c15795a4e0b7e8e146930bb011b80215acf8199fc47539b1f7c6f45bc1e5f"
+  },
+  "limitations": [
+    "Serial per-descriptor image pipelines with model loading excluded; models are not resident simultaneously. Costs sum measured per-descriptor extraction for the same images plus measured SVM prediction.",
+    "rgb_ngram_svd train-fitted count/SVD online path not implemented in this benchmark; any GFS/full22 route containing it is incomplete and must not be treated as full method latency.",
+    "Descriptor cosine checks disclose extractor implementation mismatch; route prediction agreement is required before timing is considered matched."
+  ]
+}

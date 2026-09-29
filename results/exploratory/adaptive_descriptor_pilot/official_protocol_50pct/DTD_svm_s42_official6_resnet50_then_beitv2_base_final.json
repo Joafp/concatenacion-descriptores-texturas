@@ -1,0 +1,51 @@
+{
+  "status": "exploratory_precomputed_embedding_simulation",
+  "dataset": "DTD",
+  "outer_protocol": "manifest-defined official split",
+  "official_split_number": 6,
+  "seed": 42,
+  "base_block": "resnet50",
+  "extra_block": "beitv2_base_final",
+  "target_extra_fraction": 0.5,
+  "threshold_source": "median of 4-fold grouped OOF margins on official training partition only",
+  "train_oof_margin_threshold": 0.6268282521163036,
+  "n_train": 3753,
+  "n_test": 1880,
+  "n_classes": 47,
+  "base_dimensions": 2048,
+  "full_dimensions": 2816,
+  "train_test_group_intersection": 0,
+  "inner_train_class_counts_min": 47,
+  "adaptive_extra_fraction": 0.47925531914893615,
+  "base_only": {
+    "macro_f1": 0.7280329689591245,
+    "accuracy": 0.7313829787234043
+  },
+  "adaptive": {
+    "macro_f1": 0.8173978739515632,
+    "accuracy": 0.8196808510638298
+  },
+  "random_same_count_mean_macro_f1": 0.7731178970808356,
+  "random_same_count_sd_macro_f1": 0.004475343626345812,
+  "random_same_count_mean_accuracy": 0.7758351063829787,
+  "full_for_all": {
+    "macro_f1": 0.8213750725363186,
+    "accuracy": 0.823404255319149
+  },
+  "random_repeats": 200,
+  "provenance": {
+    "audit_csv": "results/confirmatory/data_audit.csv",
+    "audit_csv_sha256": "6feae9c01a93bccea62521a495a6720aa6d0b19b5fb7d90441433402863ea331",
+    "manifest_csv": "results/confirmatory/sample_manifests/DTD.csv",
+    "manifest_csv_sha256": "2cf599cd934d8569ded9e73cd8019bef53627878d98260d7c071921bdd635b3b",
+    "resnet50_npy_sha256": "21562f4a42c5893fc29670ffdb2558cc838d17bc93674597ea8bd21d5035f625",
+    "beitv2_base_final_npy_sha256": "b1fe068b2a8e3642e71f86650f7bdf39585a538b564e0658d9c3b8d9c383ca49",
+    "resnet50_labels_sha256": "a54314e1074f10ec8a5750620de42a0046a2c65c1b1337cabbbfb65af27233de",
+    "beitv2_base_final_labels_sha256": "a54314e1074f10ec8a5750620de42a0046a2c65c1b1337cabbbfb65af27233de"
+  },
+  "limitations": [
+    "Precomputed embeddings simulate block requests and do not themselves measure extraction latency.",
+    "This official-split evaluation is not comparable to grouped 5-fold results unless protocol, test rows, and metric match.",
+    "Fold/split estimates are descriptive; no inferential claim is made."
+  ]
+}
