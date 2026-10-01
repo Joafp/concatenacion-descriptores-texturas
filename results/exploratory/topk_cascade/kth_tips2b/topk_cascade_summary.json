@@ -1,0 +1,68 @@
+{
+  "budget_control": [
+    {
+      "target": 0.25,
+      "requested_image": 0.5608164983164983,
+      "requested_sample": 0.2135942760942761,
+      "abs_error_image": 0.31081649831649827,
+      "abs_error_sample": 0.036405723905723913
+    },
+    {
+      "target": 0.5,
+      "requested_image": 0.7241161616161617,
+      "requested_sample": 0.43834175084175087,
+      "abs_error_image": 0.22411616161616166,
+      "abs_error_sample": 0.061658249158249134
+    },
+    {
+      "target": 0.75,
+      "requested_image": 0.8463804713804715,
+      "requested_sample": 0.6734006734006734,
+      "abs_error_image": 0.09638047138047146,
+      "abs_error_sample": 0.07659932659932656
+    }
+  ],
+  "mean_abs_budget_error": {
+    "imagen": 0.21043771043771045,
+    "muestra": 0.05822109988776653
+  },
+  "effects_sample_grouping": [
+    {
+      "target": 0.25,
+      "requested": 0.2135942760942761,
+      "adaptive": 0.917896094782031,
+      "topk_always": 0.9363800808867749,
+      "random": 0.8762832706471619,
+      "n_partitions": 4,
+      "vs_topk": -0.018483986104743888,
+      "vs_random": 0.04161282413486911
+    },
+    {
+      "target": 0.5,
+      "requested": 0.43834175084175087,
+      "adaptive": 0.9342488163013466,
+      "topk_always": 0.9363800808867749,
+      "random": 0.892997848442101,
+      "n_partitions": 4,
+      "vs_topk": -0.0021312645854283385,
+      "vs_random": 0.041250967859245646
+    },
+    {
+      "target": 0.75,
+      "requested": 0.6734006734006734,
+      "adaptive": 0.9364040279749177,
+      "topk_always": 0.9363800808867749,
+      "random": 0.9110618752025881,
+      "n_partitions": 4,
+      "vs_topk": 2.3947088142795003e-05,
+      "vs_random": 0.02534215277232965
+    }
+  ],
+  "cheap_only_mean_macro_f1": 0.8580366893084822,
+  "mean_abs_reproduction_delta": 0.003651733607699964,
+  "caveats": [
+    "Four partitions of one dataset; descriptive only.",
+    "The Top-k subset was re-derived from the locally available library in three of four partitions because beitv2_base_final is absent, so the composition differs from the manuscript.",
+    "No route cost is reported: the measured 345.59 ms Top-k route belongs to Outex's eight-block subset and does not transfer to these one- and two-block subsets."
+  ]
+}
