@@ -1,0 +1,252 @@
+{
+  "status": "EXPLORATORY_OUTER_TEST_EVALUATION",
+  "dataset": "DTD",
+  "outer_split": 1,
+  "seed": 42,
+  "n_train": 3753,
+  "n_test": 1880,
+  "prespecified_budgets": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "gate": "Ridge(alpha=50) per expansion predicts OOF signed correctness gain from base SVM scores and train-fitted 16-PC base embeddings; choose maximum predicted gain per measured incremental component cost.",
+  "route_component_cost_ms": {
+    "small": 206.53947429993423,
+    "small_beit": 299.37597961987194,
+    "small_base": 710.3469119598594,
+    "small_large": 1535.4428029598057,
+    "small_base_large": 2039.250240619731
+  },
+  "cost_provenance": {
+    "source": "/home/joaquin/tesis_claude/results/exploratory/conditional_acquisition/timing/DTD_official1_n50_components.json",
+    "sha256": "e8d8973170ad28f23c604e741df7e4c691e3c969f25016a3a53866f55be891db",
+    "measurement_dataset": "DTD",
+    "measurement_protocol": "official split 1; deterministic 50-row test subset",
+    "device": "cuda",
+    "model_load_excluded": true,
+    "interpretation": "Sums of measured per-descriptor mean extraction times; not direct routed-system latency. Check measurement_dataset before interpreting dataset-specific costs."
+  },
+  "oof_provenance": {
+    "source": "/home/joaquin/tesis_claude/results/exploratory/conditional_acquisition/feasibility/DTD_official1_seed42.json",
+    "sha256": "de22e53d500c0ce70d2395b167115144073e6fc63f75d18ef2ede611050006a0"
+  },
+  "manifest_sha256": "2cf599cd934d8569ded9e73cd8019bef53627878d98260d7c071921bdd635b3b",
+  "embedding_sha256": {
+    "beitv2_base_final": "b1fe068b2a8e3642e71f86650f7bdf39585a538b564e0658d9c3b8d9c383ca49",
+    "dinov2": "d4c90c40a23b3cc8af40fb3c51d7e9562754a2fa1a9c5d8d992708f998c4c08d",
+    "dinov2_large": "6278830c669490416a00e5448462469df762c09dd91bcfbd73b16afa3adfcacd",
+    "dinov2_small": "650b0587d414626e2cff1f5db89d068e812a9f32df29d8dd2d9cab228f33ddd5"
+  },
+  "fixed_routes": {
+    "small": {
+      "macro_f1": 0.8140720014983486,
+      "accuracy": 0.8159574468085107,
+      "request_fraction": 0.0,
+      "route_counts": {
+        "small": 1880,
+        "small_beit": 0,
+        "small_base": 0,
+        "small_large": 0,
+        "small_base_large": 0
+      },
+      "component_cost_mean_ms": 206.53947429993423
+    },
+    "small_beit": {
+      "macro_f1": 0.842936176034794,
+      "accuracy": 0.8441489361702128,
+      "request_fraction": 1.0,
+      "route_counts": {
+        "small": 0,
+        "small_beit": 1880,
+        "small_base": 0,
+        "small_large": 0,
+        "small_base_large": 0
+      },
+      "component_cost_mean_ms": 299.37597961987194
+    },
+    "small_base": {
+      "macro_f1": 0.8436571512872933,
+      "accuracy": 0.8452127659574468,
+      "request_fraction": 1.0,
+      "route_counts": {
+        "small": 0,
+        "small_beit": 0,
+        "small_base": 1880,
+        "small_large": 0,
+        "small_base_large": 0
+      },
+      "component_cost_mean_ms": 710.3469119598593
+    },
+    "small_large": {
+      "macro_f1": 0.8531342265851375,
+      "accuracy": 0.8547872340425532,
+      "request_fraction": 1.0,
+      "route_counts": {
+        "small": 0,
+        "small_beit": 0,
+        "small_base": 0,
+        "small_large": 1880,
+        "small_base_large": 0
+      },
+      "component_cost_mean_ms": 1535.442802959806
+    },
+    "small_base_large": {
+      "macro_f1": 0.8557295592951362,
+      "accuracy": 0.8574468085106383,
+      "request_fraction": 1.0,
+      "route_counts": {
+        "small": 0,
+        "small_beit": 0,
+        "small_base": 0,
+        "small_large": 0,
+        "small_base_large": 1880
+      },
+      "component_cost_mean_ms": 2039.2502406197307
+    }
+  },
+  "budgets": {
+    "0.25": {
+      "gate": {
+        "macro_f1": 0.843149047601417,
+        "accuracy": 0.8446808510638298,
+        "request_fraction": 0.24893617021276596,
+        "route_counts": {
+          "small": 1412,
+          "small_beit": 468,
+          "small_base": 0,
+          "small_large": 0,
+          "small_base_large": 0
+        },
+        "component_cost_mean_ms": 229.6498383902166
+      },
+      "margin_cascade": {
+        "macro_f1": 0.8411323806211746,
+        "accuracy": 0.8425531914893617,
+        "request_fraction": 0.2393617021276596,
+        "route_counts": {
+          "small": 1430,
+          "small_beit": 450,
+          "small_base": 0,
+          "small_large": 0,
+          "small_base_large": 0
+        },
+        "component_cost_mean_ms": 228.76097823289805
+      },
+      "gate_matched_timing_sample": {
+        "n": 50,
+        "mean_ms": 221.59649399996852,
+        "median_ms": 208.32856700144475,
+        "p95_ms": 297.2547471494181,
+        "interpretation": "Measured component sums on matched timed test images; not routed wall time."
+      },
+      "margin_matched_timing_sample": {
+        "n": 50,
+        "mean_ms": 215.59640011997544,
+        "median_ms": 207.59763500063855,
+        "p95_ms": 292.12995289944956,
+        "interpretation": "Measured component sums on matched timed test images; not routed wall time."
+      },
+      "gate_train_utility_threshold": 0.000607828361354997,
+      "margin_train_threshold": 0.42906395410161435,
+      "margin_route_selected_on_train": "small_beit"
+    },
+    "0.5": {
+      "gate": {
+        "macro_f1": 0.8433920184246245,
+        "accuracy": 0.8446808510638298,
+        "request_fraction": 0.5425531914893617,
+        "route_counts": {
+          "small": 860,
+          "small_beit": 1020,
+          "small_base": 0,
+          "small_large": 0,
+          "small_base_large": 0
+        },
+        "component_cost_mean_ms": 256.90821654798555
+      },
+      "margin_cascade": {
+        "macro_f1": 0.842936176034794,
+        "accuracy": 0.8441489361702128,
+        "request_fraction": 0.47074468085106386,
+        "route_counts": {
+          "small": 995,
+          "small_beit": 885,
+          "small_base": 0,
+          "small_large": 0,
+          "small_base_large": 0
+        },
+        "component_cost_mean_ms": 250.24176536809642
+      },
+      "gate_matched_timing_sample": {
+        "n": 50,
+        "mean_ms": 248.76199445992825,
+        "median_ms": 223.45524599950295,
+        "p95_ms": 316.5695234509257,
+        "interpretation": "Measured component sums on matched timed test images; not routed wall time."
+      },
+      "margin_matched_timing_sample": {
+        "n": 50,
+        "mean_ms": 246.90958397986833,
+        "median_ms": 224.45694849920983,
+        "p95_ms": 314.6575507493253,
+        "interpretation": "Measured component sums on matched timed test images; not routed wall time."
+      },
+      "gate_train_utility_threshold": 0.00020726374736857174,
+      "margin_train_threshold": 0.9744051456965415,
+      "margin_route_selected_on_train": "small_beit"
+    },
+    "0.75": {
+      "gate": {
+        "macro_f1": 0.8435052718359436,
+        "accuracy": 0.8446808510638298,
+        "request_fraction": 0.8026595744680851,
+        "route_counts": {
+          "small": 371,
+          "small_beit": 1374,
+          "small_base": 85,
+          "small_large": 44,
+          "small_base_large": 6
+        },
+        "component_cost_mean_ms": 334.1187304539987
+      },
+      "margin_cascade": {
+        "macro_f1": 0.842936176034794,
+        "accuracy": 0.8441489361702128,
+        "request_fraction": 0.7143617021276596,
+        "route_counts": {
+          "small": 537,
+          "small_beit": 1343,
+          "small_base": 0,
+          "small_large": 0,
+          "small_base_large": 0
+        },
+        "component_cost_mean_ms": 272.85831825986844
+      },
+      "gate_matched_timing_sample": {
+        "n": 50,
+        "mean_ms": 357.39695657990524,
+        "median_ms": 290.1405334996525,
+        "p95_ms": 707.9210575007891,
+        "interpretation": "Measured component sums on matched timed test images; not routed wall time."
+      },
+      "margin_matched_timing_sample": {
+        "n": 50,
+        "mean_ms": 261.95797047977976,
+        "median_ms": 284.7600769982819,
+        "p95_ms": 320.24827569821355,
+        "interpretation": "Measured component sums on matched timed test images; not routed wall time."
+      },
+      "gate_train_utility_threshold": 7.833922527063382e-06,
+      "margin_train_threshold": 1.5761952311866632,
+      "margin_route_selected_on_train": "small_beit"
+    }
+  },
+  "limitations": [
+    "The route library was devised after exploratory work on this repository; this is not a fresh confirmatory test.",
+    "Cached embeddings simulate selective acquisition; actual routed wall time is not measured here.",
+    "Component time is summed from a separate 50-image online benchmark with model load excluded; see cost_provenance for its dataset.",
+    "Only one outer split is evaluated; no significance claim is warranted.",
+    "The gate uses an additive per-image correctness proxy, while macro-F1 is evaluated externally."
+  ]
+}
