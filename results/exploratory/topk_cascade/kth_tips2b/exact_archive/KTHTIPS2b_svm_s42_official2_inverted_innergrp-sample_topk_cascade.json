@@ -1,0 +1,116 @@
+{
+  "dataset": "KTHTIPS2b",
+  "classifier": "svm",
+  "seed": 42,
+  "protocol": "official2_inverted",
+  "inner_group_column": "sample",
+  "excluded_extractors": [],
+  "outer_fold": 1,
+  "n_train": 3564,
+  "n_test": 1188,
+  "n_classes": 11,
+  "inner_folds": 3,
+  "inner_train_classes": [
+    11,
+    11,
+    11
+  ],
+  "groups_intersection": 0,
+  "threshold_source": "quantiles of grouped out-of-fold margins over the outer training rows only",
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "cheap_dimensions": 2048,
+  "expensive_blocks": [
+    "beitv2_base_final"
+  ],
+  "expensive_dimensions": 768,
+  "expensive_subset_derived_locally": false,
+  "archived_topk_macro_f1": 0.9039989015967734,
+  "reproduced_topk_macro_f1": 0.9039989015967734,
+  "reproduction_delta": 0.0,
+  "cheap_only": {
+    "macro_f1": 0.82865670387142,
+    "accuracy": 0.851010101010101
+  },
+  "topk_always": {
+    "macro_f1": 0.9039989015967734,
+    "accuracy": 0.9107744107744108
+  },
+  "topk_always_fit_seconds": 1.688697225999931,
+  "budgets": [
+    {
+      "target_budget": 0.25,
+      "threshold": 0.6256459663329081,
+      "observed_request_fraction": 0.18602693602693604,
+      "n_requested": 221,
+      "adaptive": {
+        "macro_f1": 0.8861977295517971,
+        "accuracy": 0.8897306397306397
+      },
+      "random_same_count_mean_macro_f1": 0.8500221713134043,
+      "random_same_count_sd_macro_f1": 0.005350212532232346,
+      "random_repeats": 100,
+      "gap_to_topk_always": -0.017801172044976332,
+      "cost_model": {
+        "cheap_route_ms": 37.0839134,
+        "expensive_incremental_stage_ms": 33.3281155,
+        "mean_cost_ms": 43.28384061001684,
+        "note": "Every image computes the cheap stage. The optional expensive cost is charged only when escalation occurs; shared descriptor work must not be counted twice."
+      }
+    },
+    {
+      "target_budget": 0.5,
+      "threshold": 1.2769317413408807,
+      "observed_request_fraction": 0.4234006734006734,
+      "n_requested": 503,
+      "adaptive": {
+        "macro_f1": 0.9039989015967734,
+        "accuracy": 0.9107744107744108
+      },
+      "random_same_count_mean_macro_f1": 0.8701476258041949,
+      "random_same_count_sd_macro_f1": 0.004964789303906354,
+      "random_repeats": 100,
+      "gap_to_topk_always": 0.0,
+      "cost_model": {
+        "cheap_route_ms": 37.0839134,
+        "expensive_incremental_stage_ms": 33.3281155,
+        "mean_cost_ms": 51.19505994587542,
+        "note": "Every image computes the cheap stage. The optional expensive cost is charged only when escalation occurs; shared descriptor work must not be counted twice."
+      }
+    },
+    {
+      "target_budget": 0.75,
+      "threshold": 1.9059233089826808,
+      "observed_request_fraction": 0.6523569023569024,
+      "n_requested": 775,
+      "adaptive": {
+        "macro_f1": 0.9039989015967734,
+        "accuracy": 0.9107744107744108
+      },
+      "random_same_count_mean_macro_f1": 0.8865510346874266,
+      "random_same_count_sd_macro_f1": 0.0051376714370656275,
+      "random_repeats": 100,
+      "gap_to_topk_always": 0.0,
+      "cost_model": {
+        "cheap_route_ms": 37.0839134,
+        "expensive_incremental_stage_ms": 33.3281155,
+        "mean_cost_ms": 58.825739588973065,
+        "note": "Every image computes the cheap stage. The optional expensive cost is charged only when escalation occurs; shared descriptor work must not be counted twice."
+      }
+    }
+  ],
+  "latency": "NOT_MEASURED: cached embeddings; cost enters only via --*-cost-ms",
+  "provenance": {
+    "audit_sha256": "34ec936366f52076e4b48296c01894a64da6dfd7980656648553da3bc03729b0",
+    "manifest_sha256": "df7d23f6681f2d5974d47f33ef5246845f51435d9db539d0522d6de8ab5cb2e7",
+    "topk_control_sha256": "c3dce2a317364f584306875dbb1edff6adfe3d44dd3d7539432525714b857e6d",
+    "runner_sha256": "d7e3d5ebfdbc00917a2b491389e36120c211734b881f7bb5414da043f62ceb6d",
+    "blocks_sha256": {
+      "beitv2_base_final": "47204c3d400fc327ef18adab6b39df1f473f385e948783c6204acf120734203a",
+      "resnet50": "3a0cb05bedecb9cc17db9c82b82c1701f20a3f239bc1beebda4bf508a46caacc"
+    },
+    "labels_sha256": "11d848bcf4a9a1b09f40f32c9ec15364006b0cb71b808b8878058b409358bdc7"
+  },
+  "duration_seconds": 10.998928503000116
+}

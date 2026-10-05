@@ -1,0 +1,41 @@
+{
+  "status": "exploratory_online_topk_cascade_validation",
+  "dataset": "KTHTIPS2b",
+  "protocol": "official1_inverted",
+  "budget": 0.5,
+  "n_images": 30,
+  "device": "cuda",
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "expensive_blocks": [
+    "dinov2_large",
+    "beitv2_base_final"
+  ],
+  "model_load_and_classifier_fit_excluded": true,
+  "warmup": 5,
+  "observed_escalation_fraction": 0.3333333333333333,
+  "online_adaptive": {
+    "mean_ms": 231.80708983351602,
+    "median_ms": 35.49320600086503,
+    "p95_ms": 816.4061774000388
+  },
+  "online_topk_always": {
+    "mean_ms": 549.773623966818,
+    "median_ms": 530.211900500035,
+    "p95_ms": 624.7599120005359
+  },
+  "mean_latency_reduction_fraction": 0.5783590195525515,
+  "agreement": {
+    "request_decision": 1.0,
+    "adaptive_prediction": 1.0,
+    "topk_prediction": 1.0,
+    "min_source_cache_cosine": 0.9999938607215881
+  },
+  "limitations": [
+    "One official partition and deterministic timing subset.",
+    "Model loading and classifier fitting are excluded.",
+    "This validates online routing latency, not external accuracy."
+  ],
+  "prior": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/exact_archive/KTHTIPS2b_svm_s42_official1_inverted_innergrp-sample_topk_cascade.json"
+}

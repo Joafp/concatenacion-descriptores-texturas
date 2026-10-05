@@ -1,0 +1,118 @@
+{
+  "dataset": "KTHTIPS2b",
+  "classifier": "svm",
+  "seed": 42,
+  "protocol": "official1_inverted",
+  "inner_group_column": "sample",
+  "excluded_extractors": [],
+  "outer_fold": 0,
+  "n_train": 3564,
+  "n_test": 1188,
+  "n_classes": 11,
+  "inner_folds": 3,
+  "inner_train_classes": [
+    11,
+    11,
+    11
+  ],
+  "groups_intersection": 0,
+  "threshold_source": "quantiles of grouped out-of-fold margins over the outer training rows only",
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "cheap_dimensions": 2048,
+  "expensive_blocks": [
+    "dinov2_large",
+    "beitv2_base_final"
+  ],
+  "expensive_dimensions": 1792,
+  "expensive_subset_derived_locally": false,
+  "archived_topk_macro_f1": 0.9941021143049236,
+  "reproduced_topk_macro_f1": 0.9941021143049237,
+  "reproduction_delta": 1.1102230246251565e-16,
+  "cheap_only": {
+    "macro_f1": 0.8864671636042233,
+    "accuracy": 0.8872053872053872
+  },
+  "topk_always": {
+    "macro_f1": 0.9941021143049237,
+    "accuracy": 0.9941077441077442
+  },
+  "topk_always_fit_seconds": 4.4599289060001865,
+  "budgets": [
+    {
+      "target_budget": 0.25,
+      "threshold": 0.5662757359358588,
+      "observed_request_fraction": 0.1776094276094276,
+      "n_requested": 211,
+      "adaptive": {
+        "macro_f1": 0.9542837621565902,
+        "accuracy": 0.9537037037037037
+      },
+      "random_same_count_mean_macro_f1": 0.9058789948751752,
+      "random_same_count_sd_macro_f1": 0.0034244413973657573,
+      "random_repeats": 100,
+      "gap_to_topk_always": -0.03981835214833351,
+      "cost_model": {
+        "cheap_route_ms": 37.0839134,
+        "expensive_incremental_stage_ms": 509.3670549,
+        "mean_cost_ms": 127.55230446388889,
+        "note": "Every image computes the cheap stage. The optional expensive cost is charged only when escalation occurs; shared descriptor work must not be counted twice."
+      }
+    },
+    {
+      "target_budget": 0.5,
+      "threshold": 1.1992212946265792,
+      "observed_request_fraction": 0.3569023569023569,
+      "n_requested": 424,
+      "adaptive": {
+        "macro_f1": 0.9915957465035117,
+        "accuracy": 0.9915824915824916
+      },
+      "random_same_count_mean_macro_f1": 0.9255611560413758,
+      "random_same_count_sd_macro_f1": 0.004843165610181595,
+      "random_repeats": 100,
+      "gap_to_topk_always": -0.0025063678014120017,
+      "cost_model": {
+        "cheap_route_ms": 37.0839134,
+        "expensive_incremental_stage_ms": 509.3670549,
+        "mean_cost_ms": 218.87821582222222,
+        "note": "Every image computes the cheap stage. The optional expensive cost is charged only when escalation occurs; shared descriptor work must not be counted twice."
+      }
+    },
+    {
+      "target_budget": 0.75,
+      "threshold": 1.830263241156269,
+      "observed_request_fraction": 0.5446127946127947,
+      "n_requested": 647,
+      "adaptive": {
+        "macro_f1": 0.9941021143049237,
+        "accuracy": 0.9941077441077442
+      },
+      "random_same_count_mean_macro_f1": 0.9452811025117478,
+      "random_same_count_sd_macro_f1": 0.0045012485255727964,
+      "random_repeats": 100,
+      "gap_to_topk_always": 0.0,
+      "cost_model": {
+        "cheap_route_ms": 37.0839134,
+        "expensive_incremental_stage_ms": 509.3670549,
+        "mean_cost_ms": 314.49172865277785,
+        "note": "Every image computes the cheap stage. The optional expensive cost is charged only when escalation occurs; shared descriptor work must not be counted twice."
+      }
+    }
+  ],
+  "latency": "NOT_MEASURED: cached embeddings; cost enters only via --*-cost-ms",
+  "provenance": {
+    "audit_sha256": "34ec936366f52076e4b48296c01894a64da6dfd7980656648553da3bc03729b0",
+    "manifest_sha256": "df7d23f6681f2d5974d47f33ef5246845f51435d9db539d0522d6de8ab5cb2e7",
+    "topk_control_sha256": "c3dce2a317364f584306875dbb1edff6adfe3d44dd3d7539432525714b857e6d",
+    "runner_sha256": "d7e3d5ebfdbc00917a2b491389e36120c211734b881f7bb5414da043f62ceb6d",
+    "blocks_sha256": {
+      "beitv2_base_final": "47204c3d400fc327ef18adab6b39df1f473f385e948783c6204acf120734203a",
+      "dinov2_large": "4fb78f3b7e0b6235a8ace580daafb8a6d3d1ee230e8f29642f92a8d5e18cd9c9",
+      "resnet50": "3a0cb05bedecb9cc17db9c82b82c1701f20a3f239bc1beebda4bf508a46caacc"
+    },
+    "labels_sha256": "11d848bcf4a9a1b09f40f32c9ec15364006b0cb71b808b8878058b409358bdc7"
+  },
+  "duration_seconds": 17.948266299000124
+}

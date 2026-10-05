@@ -30,31 +30,57 @@ from run_confirmatory_nested import (  # noqa: E402
 )
 
 
-MODELS = {
+TIMM_MODELS = {
     "resnet50": "resnet50.a1_in1k",
     "beitv2_base_final": "beitv2_base_patch16_224.in1k_ft_in22k_in1k",
+    "dinov2_large": "vit_large_patch14_dinov2.lvd142m",
 }
+HF_MODELS = {"vit_b16": "google/vit-base-patch16-224"}
+MODELS = {**TIMM_MODELS, **HF_MODELS}
 
 
 def measure_one(model_key: str, paths: list[Path], indices: np.ndarray,
-                reference: np.ndarray, device: str, warmup: int) -> dict:
-    model = timm.create_model(MODELS[model_key], pretrained=True, num_classes=0).to(device).eval()
-    cfg = timm.data.resolve_model_data_config(model)
-    transform = transforms.Compose([
-        transforms.Resize(cfg["input_size"][1:]),
-        transforms.CenterCrop(cfg["input_size"][1:]),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=cfg["mean"], std=cfg["std"]),
-    ])
-
-    def extract(path: Path) -> np.ndarray:
-        with Image.open(path) as handle:
-            image = transform(handle.convert("RGB")).unsqueeze(0).to(device)
-        with torch.inference_mode():
-            vector = model(image)
+                reference: np.ndarray, device: str, warmup: int, seed: int) -> dict:
+    if model_key in HF_MODELS:
+        from transformers import AutoImageProcessor, AutoModel
+        # The historical extractor selected ViT's randomly initialised pooler
+        # when that checkpoint lacked pooler weights. Reuse its explicit seed
+        # before loading so the benchmark validates the archived vectors rather
+        # than timing a different random projection.
+        torch.manual_seed(seed)
         if device == "cuda":
-            torch.cuda.synchronize()
-        return vector.cpu().numpy().ravel()
+            torch.cuda.manual_seed_all(seed)
+        processor = AutoImageProcessor.from_pretrained(HF_MODELS[model_key])
+        model = AutoModel.from_pretrained(HF_MODELS[model_key]).to(device).eval()
+
+        def extract(path: Path) -> np.ndarray:
+            with Image.open(path) as handle:
+                inputs = processor(images=handle.convert("RGB"), return_tensors="pt").to(device)
+            with torch.inference_mode():
+                outputs = model(**inputs)
+            if device == "cuda":
+                torch.cuda.synchronize()
+            vector = (outputs.pooler_output if outputs.pooler_output is not None
+                      else outputs.last_hidden_state[:, 0, :])
+            return vector.cpu().numpy().ravel()
+    else:
+        model = timm.create_model(TIMM_MODELS[model_key], pretrained=True, num_classes=0).to(device).eval()
+        cfg = timm.data.resolve_model_data_config(model)
+        transform = transforms.Compose([
+            transforms.Resize(cfg["input_size"][1:]),
+            transforms.CenterCrop(cfg["input_size"][1:]),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=cfg["mean"], std=cfg["std"]),
+        ])
+
+        def extract(path: Path) -> np.ndarray:
+            with Image.open(path) as handle:
+                image = transform(handle.convert("RGB")).unsqueeze(0).to(device)
+            with torch.inference_mode():
+                vector = model(image)
+            if device == "cuda":
+                torch.cuda.synchronize()
+            return vector.cpu().numpy().ravel()
 
     for i in range(warmup):
         extract(paths[i % len(paths)])
@@ -107,7 +133,8 @@ def main() -> None:
     args = parser.parse_args()
     if args.n < 2 or args.warmup < 0:
         parser.error("n must be >= 2 and warmup >= 0")
-    root = args.embedding_root / args.dataset
+    dataset_dir = {"KTHTIPS2b": "KTH-TIPS2-b"}.get(args.dataset, args.dataset)
+    root = args.embedding_root / dataset_dir
     y = canonical_labels(np.load(root / "resnet50_labels.npy", allow_pickle=False))
     groups, rows = load_manifest(args.manifest_root, args.dataset, y)
     if args.official_split is not None:
@@ -141,7 +168,8 @@ def main() -> None:
     }
     for key in MODELS:
         reference = np.load(root / f"{key}.npy", mmap_mode="r")
-        result["blocks"][key] = measure_one(key, paths, indices, reference, device, args.warmup)
+        result["blocks"][key] = measure_one(key, paths, indices, reference, device,
+                                             args.warmup, args.seed)
         print(key, result["blocks"][key]["median_ms"], flush=True)
     args.output.mkdir(parents=True, exist_ok=True)
     split_tag = f"official{args.official_split}" if args.official_split is not None else f"f{args.outer_fold}"

@@ -1,0 +1,47 @@
+{
+  "scope": "KTH-TIPS2-b, SVM, four official inverted partitions",
+  "exact_archived_topk_required": true,
+  "mean_abs_reproduction_delta": 2.7755575615628914e-17,
+  "cheap_only_mean_macro_f1": 0.8576758760862107,
+  "effects_descriptive": [
+    {
+      "target": 0.25,
+      "requested": 0.21296296296296297,
+      "adaptive": 0.920701468524833,
+      "topk_always": 0.9400318144944749,
+      "random": 0.8763192124318596,
+      "estimated_extract_ms": 90.7109189162037,
+      "n_partitions": 4,
+      "vs_topk": -0.019330345969641893,
+      "vs_random": 0.044382256092973416
+    },
+    {
+      "target": 0.5,
+      "requested": 0.4377104377104377,
+      "adaptive": 0.9384401341401984,
+      "topk_always": 0.9400318144944749,
+      "random": 0.8950602239441623,
+      "estimated_extract_ms": 145.2697199659512,
+      "n_partitions": 4,
+      "vs_topk": -0.0015916803542764812,
+      "vs_random": 0.04337991019603615
+    },
+    {
+      "target": 0.75,
+      "requested": 0.6727693602693603,
+      "adaptive": 0.9400589180604253,
+      "topk_always": 0.9400318144944749,
+      "random": 0.9134081845430041,
+      "estimated_extract_ms": 208.54059734029886,
+      "n_partitions": 4,
+      "vs_topk": 2.7103565950370445e-05,
+      "vs_random": 0.0266507335174212
+    }
+  ],
+  "caveats": [
+    "The four KTH-TIPS2-b partitions overlap; means are descriptive, not inferential.",
+    "This is a cached-embedding prediction simulation, not an end-to-end latency measurement.",
+    "All images execute the cheap stage before escalation; timing must measure incremental stage cost.",
+    "The adaptive predictor can exceed the always-Top-k stage because it retains cheap predictions for non-escalated images."
+  ]
+}
