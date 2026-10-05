@@ -1,0 +1,101 @@
+{
+  "dataset": "KTHTIPS2b",
+  "classifier": "svm",
+  "seed": 42,
+  "protocol": "official3_inverted",
+  "inner_group_column": "group",
+  "excluded_extractors": [],
+  "outer_fold": 2,
+  "n_train": 3564,
+  "n_test": 1188,
+  "n_classes": 11,
+  "inner_folds": 4,
+  "inner_train_classes": [
+    11,
+    11,
+    11,
+    11
+  ],
+  "groups_intersection": 0,
+  "threshold_source": "quantiles of grouped out-of-fold margins over the outer training rows only",
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "cheap_dimensions": 2048,
+  "expensive_blocks": [
+    "beitv2_base",
+    "dinov2_large"
+  ],
+  "expensive_dimensions": 1792,
+  "expensive_subset_derived_locally": true,
+  "archived_topk_macro_f1": 0.9884259254768678,
+  "reproduced_topk_macro_f1": 0.9884259254768678,
+  "reproduction_delta": 0.0,
+  "cheap_only": {
+    "macro_f1": 0.8879375211445353,
+    "accuracy": 0.8888888888888888
+  },
+  "topk_always": {
+    "macro_f1": 0.9884259254768678,
+    "accuracy": 0.9882154882154882
+  },
+  "topk_always_fit_seconds": 2.3609989670000004,
+  "budgets": [
+    {
+      "target_budget": 0.25,
+      "threshold": 1.580129706063343,
+      "observed_request_fraction": 0.5084175084175084,
+      "n_requested": 604,
+      "adaptive": {
+        "macro_f1": 0.9851332686291819,
+        "accuracy": 0.9848484848484849
+      },
+      "random_same_count_mean_macro_f1": 0.9398926554580285,
+      "random_same_count_sd_macro_f1": 0.0044193656331985645,
+      "random_repeats": 100,
+      "gap_to_topk_always": -0.003292656847685871
+    },
+    {
+      "target_budget": 0.5,
+      "threshold": 2.0525266289087205,
+      "observed_request_fraction": 0.7003367003367004,
+      "n_requested": 832,
+      "adaptive": {
+        "macro_f1": 0.9876046331848037,
+        "accuracy": 0.9873737373737373
+      },
+      "random_same_count_mean_macro_f1": 0.9596523491796851,
+      "random_same_count_sd_macro_f1": 0.0042141843231393505,
+      "random_repeats": 100,
+      "gap_to_topk_always": -0.0008212922920640686
+    },
+    {
+      "target_budget": 0.75,
+      "threshold": 2.354086040148484,
+      "observed_request_fraction": 0.8358585858585859,
+      "n_requested": 993,
+      "adaptive": {
+        "macro_f1": 0.9884259254768678,
+        "accuracy": 0.9882154882154882
+      },
+      "random_same_count_mean_macro_f1": 0.9726273286755998,
+      "random_same_count_sd_macro_f1": 0.003066448379293802,
+      "random_repeats": 100,
+      "gap_to_topk_always": 0.0
+    }
+  ],
+  "latency": "NOT_MEASURED: cached embeddings; cost enters only via --*-cost-ms",
+  "provenance": {
+    "audit_sha256": "d170e49a2a3bad3e482305afc54d7cf47635f17c21068b60284ed11631fe8057",
+    "manifest_sha256": "e19ee40a26cba7c32f22633aee8c7bbedbfd13d8e96c87fd34b3b6c5498d1eb4",
+    "topk_control_sha256": "c3dce2a317364f584306875dbb1edff6adfe3d44dd3d7539432525714b857e6d",
+    "runner_sha256": "065ce256f977fc229c419dc9d739f501e9cc4a0c2b06e19502c632a6c77d0025",
+    "blocks_sha256": {
+      "beitv2_base": "f60f5a2a4a5714b2374a31c66c6390920b72c8b807f04121d0f574fe4d3b8636",
+      "dinov2_large": "8fba35b0c22d4137180415c5d4fe223a545fbd1c572d411f39edcf95b1f9ea79",
+      "resnet50": "8f1cc6b50ffa04a4a6b0b3826b9628ae8ddae9c96a7ced6bbbbad93a58db3cc9"
+    },
+    "labels_sha256": "11d848bcf4a9a1b09f40f32c9ec15364006b0cb71b808b8878058b409358bdc7"
+  },
+  "duration_seconds": 91.84109564599999
+}

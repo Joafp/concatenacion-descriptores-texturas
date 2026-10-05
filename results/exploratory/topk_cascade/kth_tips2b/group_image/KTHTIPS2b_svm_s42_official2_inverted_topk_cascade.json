@@ -1,0 +1,99 @@
+{
+  "dataset": "KTHTIPS2b",
+  "classifier": "svm",
+  "seed": 42,
+  "protocol": "official2_inverted",
+  "inner_group_column": "group",
+  "excluded_extractors": [],
+  "outer_fold": 1,
+  "n_train": 3564,
+  "n_test": 1188,
+  "n_classes": 11,
+  "inner_folds": 4,
+  "inner_train_classes": [
+    11,
+    11,
+    11,
+    11
+  ],
+  "groups_intersection": 0,
+  "threshold_source": "quantiles of grouped out-of-fold margins over the outer training rows only",
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "cheap_dimensions": 2048,
+  "expensive_blocks": [
+    "beitv2_base"
+  ],
+  "expensive_dimensions": 768,
+  "expensive_subset_derived_locally": true,
+  "archived_topk_macro_f1": 0.9039989015967734,
+  "reproduced_topk_macro_f1": 0.9039989015967734,
+  "reproduction_delta": 0.0,
+  "cheap_only": {
+    "macro_f1": 0.82865670387142,
+    "accuracy": 0.851010101010101
+  },
+  "topk_always": {
+    "macro_f1": 0.9039989015967734,
+    "accuracy": 0.9107744107744108
+  },
+  "topk_always_fit_seconds": 0.847064712999952,
+  "budgets": [
+    {
+      "target_budget": 0.25,
+      "threshold": 1.6708192216440603,
+      "observed_request_fraction": 0.563973063973064,
+      "n_requested": 670,
+      "adaptive": {
+        "macro_f1": 0.9039989015967734,
+        "accuracy": 0.9107744107744108
+      },
+      "random_same_count_mean_macro_f1": 0.8808186923425838,
+      "random_same_count_sd_macro_f1": 0.004687567692427991,
+      "random_repeats": 100,
+      "gap_to_topk_always": 0.0
+    },
+    {
+      "target_budget": 0.5,
+      "threshold": 2.049427701939793,
+      "observed_request_fraction": 0.7112794612794613,
+      "n_requested": 845,
+      "adaptive": {
+        "macro_f1": 0.9039989015967734,
+        "accuracy": 0.9107744107744108
+      },
+      "random_same_count_mean_macro_f1": 0.8895226610746243,
+      "random_same_count_sd_macro_f1": 0.004125723774938656,
+      "random_repeats": 100,
+      "gap_to_topk_always": 0.0
+    },
+    {
+      "target_budget": 0.75,
+      "threshold": 2.353113470211992,
+      "observed_request_fraction": 0.8375420875420876,
+      "n_requested": 995,
+      "adaptive": {
+        "macro_f1": 0.9039989015967734,
+        "accuracy": 0.9107744107744108
+      },
+      "random_same_count_mean_macro_f1": 0.8973063599731376,
+      "random_same_count_sd_macro_f1": 0.0034398574399701815,
+      "random_repeats": 100,
+      "gap_to_topk_always": 0.0
+    }
+  ],
+  "latency": "NOT_MEASURED: cached embeddings; cost enters only via --*-cost-ms",
+  "provenance": {
+    "audit_sha256": "d170e49a2a3bad3e482305afc54d7cf47635f17c21068b60284ed11631fe8057",
+    "manifest_sha256": "e19ee40a26cba7c32f22633aee8c7bbedbfd13d8e96c87fd34b3b6c5498d1eb4",
+    "topk_control_sha256": "c3dce2a317364f584306875dbb1edff6adfe3d44dd3d7539432525714b857e6d",
+    "runner_sha256": "065ce256f977fc229c419dc9d739f501e9cc4a0c2b06e19502c632a6c77d0025",
+    "blocks_sha256": {
+      "beitv2_base": "f60f5a2a4a5714b2374a31c66c6390920b72c8b807f04121d0f574fe4d3b8636",
+      "resnet50": "8f1cc6b50ffa04a4a6b0b3826b9628ae8ddae9c96a7ced6bbbbad93a58db3cc9"
+    },
+    "labels_sha256": "11d848bcf4a9a1b09f40f32c9ec15364006b0cb71b808b8878058b409358bdc7"
+  },
+  "duration_seconds": 88.22931085299999
+}
