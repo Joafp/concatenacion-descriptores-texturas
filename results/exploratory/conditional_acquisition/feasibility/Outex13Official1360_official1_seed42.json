@@ -1,0 +1,123 @@
+{
+  "status": "EXPLORATORY_TRAIN_ONLY",
+  "dataset": "Outex13Official1360",
+  "outer_split": 1,
+  "seed": 42,
+  "inner_folds": 4,
+  "classifier": "LinearSVC(C=1, class_weight=balanced)",
+  "n_outer_train": 680,
+  "n_outer_test_excluded": 680,
+  "manifest_sha256": "6499321a05630111dda4e3a7421995555553deea4807f23a5b4673a011856447",
+  "embedding_sha256": {
+    "beitv2_base_final": "ea2a2f54c676bf521e603fb27131ef143b2c128bd0b94646a9a273409d03f014",
+    "dinov2": "05380c8cad94ce397c26e98ada4c679fa18f1c29b623456921b7def003b5778c",
+    "dinov2_large": "526a327137e342439137b04b75646b8ba0daf86032dc6191162defdbc20966dd",
+    "dinov2_small": "041eaae8376ac8ff91e19f30c540db22ad8631329a8a32e4720cb22613cd8b7a"
+  },
+  "routes": {
+    "small": [
+      "dinov2_small"
+    ],
+    "small_beit": [
+      "dinov2_small",
+      "beitv2_base_final"
+    ],
+    "small_base": [
+      "dinov2_small",
+      "dinov2"
+    ],
+    "small_large": [
+      "dinov2_small",
+      "dinov2_large"
+    ],
+    "small_base_large": [
+      "dinov2_small",
+      "dinov2",
+      "dinov2_large"
+    ]
+  },
+  "fold_audit": [
+    {
+      "fold": 0,
+      "n_fit": 510,
+      "n_validation": 170,
+      "n_fit_groups": 510,
+      "n_validation_groups": 170
+    },
+    {
+      "fold": 1,
+      "n_fit": 510,
+      "n_validation": 170,
+      "n_fit_groups": 510,
+      "n_validation_groups": 170
+    },
+    {
+      "fold": 2,
+      "n_fit": 510,
+      "n_validation": 170,
+      "n_fit_groups": 510,
+      "n_validation_groups": 170
+    },
+    {
+      "fold": 3,
+      "n_fit": 510,
+      "n_validation": 170,
+      "n_fit_groups": 510,
+      "n_validation_groups": 170
+    }
+  ],
+  "fixed_routes": {
+    "small": {
+      "macro_f1": 0.8585245282323455,
+      "accuracy": 0.8647058823529412,
+      "n_correct": 588
+    },
+    "small_beit": {
+      "macro_f1": 0.8919725909544723,
+      "accuracy": 0.8955882352941177,
+      "n_correct": 609
+    },
+    "small_base": {
+      "macro_f1": 0.8840602859009733,
+      "accuracy": 0.888235294117647,
+      "n_correct": 604
+    },
+    "small_large": {
+      "macro_f1": 0.8809587504439456,
+      "accuracy": 0.8867647058823529,
+      "n_correct": 603
+    },
+    "small_base_large": {
+      "macro_f1": 0.8914853073896924,
+      "accuracy": 0.8970588235294118,
+      "n_correct": 610
+    }
+  },
+  "best_fixed_accuracy_route": "small_base_large",
+  "oracle_accuracy": 0.9397058823529412,
+  "oracle_correct": 639,
+  "oracle_gain_vs_best_fixed_accuracy": 0.04264705882352937,
+  "correction_vs_small": {
+    "small": {
+      "fixes_small": 0,
+      "breaks_small": 0
+    },
+    "small_beit": {
+      "fixes_small": 31,
+      "breaks_small": 10
+    },
+    "small_base": {
+      "fixes_small": 26,
+      "breaks_small": 10
+    },
+    "small_large": {
+      "fixes_small": 29,
+      "breaks_small": 14
+    },
+    "small_base_large": {
+      "fixes_small": 34,
+      "breaks_small": 12
+    }
+  },
+  "interpretation_limit": "The label-assisted OOF oracle is retrospective, not a learned gate. It is an accuracy ceiling only for selecting among these fixed OOF predictions; it is not a macro-F1 or external-test ceiling. Cached embeddings do not measure inference latency."
+}

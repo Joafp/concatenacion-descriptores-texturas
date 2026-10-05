@@ -1,0 +1,216 @@
+{
+  "status": "EXPLORATORY_OUTER_TEST_EVALUATION",
+  "dataset": "Outex13Official1360",
+  "outer_split": 1,
+  "seed": 42,
+  "n_train": 680,
+  "n_test": 680,
+  "prespecified_budgets": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "gate": "Ridge(alpha=50) per expansion predicts OOF signed correctness gain from base SVM scores and train-fitted 16-PC base embeddings; choose maximum predicted gain per measured incremental component cost.",
+  "route_component_cost_ms": {
+    "small": 24.598398539674236,
+    "small_beit": 36.81735277954431,
+    "small_base": 82.24834057989938,
+    "small_large": 201.9021825795062,
+    "small_base_large": 259.55212461973133
+  },
+  "cost_provenance": {
+    "source": "/home/joaquin/tesis_claude/results/exploratory/adaptive_descriptor_pilot/cost_budget_comparison/primary22_e2e/Outex_official1_primary22_online_components.json",
+    "sha256": "585a1e5e682847db2936db120ae7af0701add634a855f66e9461704d05743baa",
+    "measurement_dataset": "Outex13Official1360",
+    "measurement_protocol": "official1 test; common deterministic 50-row subset",
+    "device": "cuda",
+    "model_load_excluded": true,
+    "interpretation": "Sums of measured per-descriptor mean extraction times; not direct routed-system latency. Check measurement_dataset before interpreting dataset-specific costs."
+  },
+  "oof_provenance": {
+    "source": "/home/joaquin/tesis_claude/results/exploratory/conditional_acquisition/feasibility/Outex13Official1360_official1_seed42.json",
+    "sha256": "b36b93be46f0afd42ebad47881e3a75f60f151cdc7238ddc1cfec8e2d5dd722f"
+  },
+  "manifest_sha256": "6499321a05630111dda4e3a7421995555553deea4807f23a5b4673a011856447",
+  "embedding_sha256": {
+    "beitv2_base_final": "ea2a2f54c676bf521e603fb27131ef143b2c128bd0b94646a9a273409d03f014",
+    "dinov2": "05380c8cad94ce397c26e98ada4c679fa18f1c29b623456921b7def003b5778c",
+    "dinov2_large": "526a327137e342439137b04b75646b8ba0daf86032dc6191162defdbc20966dd",
+    "dinov2_small": "041eaae8376ac8ff91e19f30c540db22ad8631329a8a32e4720cb22613cd8b7a"
+  },
+  "fixed_routes": {
+    "small": {
+      "macro_f1": 0.9061556082216645,
+      "accuracy": 0.9088235294117647,
+      "request_fraction": 0.0,
+      "route_counts": {
+        "small": 680,
+        "small_beit": 0,
+        "small_base": 0,
+        "small_large": 0,
+        "small_base_large": 0
+      },
+      "component_cost_mean_ms": 24.598398539674236
+    },
+    "small_beit": {
+      "macro_f1": 0.915823783644892,
+      "accuracy": 0.9176470588235294,
+      "request_fraction": 1.0,
+      "route_counts": {
+        "small": 0,
+        "small_beit": 680,
+        "small_base": 0,
+        "small_large": 0,
+        "small_base_large": 0
+      },
+      "component_cost_mean_ms": 36.81735277954431
+    },
+    "small_base": {
+      "macro_f1": 0.9171960931935358,
+      "accuracy": 0.9191176470588235,
+      "request_fraction": 1.0,
+      "route_counts": {
+        "small": 0,
+        "small_beit": 0,
+        "small_base": 680,
+        "small_large": 0,
+        "small_base_large": 0
+      },
+      "component_cost_mean_ms": 82.24834057989938
+    },
+    "small_large": {
+      "macro_f1": 0.9263940269957229,
+      "accuracy": 0.9279411764705883,
+      "request_fraction": 1.0,
+      "route_counts": {
+        "small": 0,
+        "small_beit": 0,
+        "small_base": 0,
+        "small_large": 680,
+        "small_base_large": 0
+      },
+      "component_cost_mean_ms": 201.9021825795062
+    },
+    "small_base_large": {
+      "macro_f1": 0.9312815006936217,
+      "accuracy": 0.9323529411764706,
+      "request_fraction": 1.0,
+      "route_counts": {
+        "small": 0,
+        "small_beit": 0,
+        "small_base": 0,
+        "small_large": 0,
+        "small_base_large": 680
+      },
+      "component_cost_mean_ms": 259.55212461973133
+    }
+  },
+  "budgets": {
+    "0.25": {
+      "gate": {
+        "macro_f1": 0.917306099059096,
+        "accuracy": 0.9191176470588235,
+        "request_fraction": 0.23676470588235293,
+        "route_counts": {
+          "small": 519,
+          "small_beit": 161,
+          "small_base": 0,
+          "small_large": 0,
+          "small_base_large": 0
+        },
+        "component_cost_mean_ms": 27.491415646467004
+      },
+      "margin_cascade": {
+        "macro_f1": 0.9202430314077931,
+        "accuracy": 0.9220588235294118,
+        "request_fraction": 0.20588235294117646,
+        "route_counts": {
+          "small": 540,
+          "small_beit": 140,
+          "small_base": 0,
+          "small_large": 0,
+          "small_base_large": 0
+        },
+        "component_cost_mean_ms": 27.11406558905925
+      },
+      "gate_matched_timing_sample": null,
+      "margin_matched_timing_sample": null,
+      "gate_train_utility_threshold": 0.004598446334745452,
+      "margin_train_threshold": 0.20106563344492784,
+      "margin_route_selected_on_train": "small_beit"
+    },
+    "0.5": {
+      "gate": {
+        "macro_f1": 0.9173203950486242,
+        "accuracy": 0.9191176470588235,
+        "request_fraction": 0.4676470588235294,
+        "route_counts": {
+          "small": 362,
+          "small_beit": 318,
+          "small_base": 0,
+          "small_large": 0,
+          "small_base_large": 0
+        },
+        "component_cost_mean_ms": 30.31255655184877
+      },
+      "margin_cascade": {
+        "macro_f1": 0.915823783644892,
+        "accuracy": 0.9176470588235294,
+        "request_fraction": 0.4264705882352941,
+        "route_counts": {
+          "small": 390,
+          "small_beit": 290,
+          "small_base": 0,
+          "small_large": 0,
+          "small_base_large": 0
+        },
+        "component_cost_mean_ms": 29.809423141971767
+      },
+      "gate_matched_timing_sample": null,
+      "margin_matched_timing_sample": null,
+      "gate_train_utility_threshold": 0.0014339775039231674,
+      "margin_train_threshold": 0.7202298573621458,
+      "margin_route_selected_on_train": "small_beit"
+    },
+    "0.75": {
+      "gate": {
+        "macro_f1": 0.915823783644892,
+        "accuracy": 0.9176470588235294,
+        "request_fraction": 0.7176470588235294,
+        "route_counts": {
+          "small": 192,
+          "small_beit": 442,
+          "small_base": 27,
+          "small_large": 18,
+          "small_base_large": 1
+        },
+        "component_cost_mean_ms": 39.868616257182595
+      },
+      "margin_cascade": {
+        "macro_f1": 0.915823783644892,
+        "accuracy": 0.9176470588235294,
+        "request_fraction": 0.6235294117647059,
+        "route_counts": {
+          "small": 256,
+          "small_beit": 424,
+          "small_base": 0,
+          "small_large": 0,
+          "small_base_large": 0
+        },
+        "component_cost_mean_ms": 32.217275889240284
+      },
+      "gate_matched_timing_sample": null,
+      "margin_matched_timing_sample": null,
+      "gate_train_utility_threshold": 5.841732512528731e-05,
+      "margin_train_threshold": 1.0974726833180668,
+      "margin_route_selected_on_train": "small_beit"
+    }
+  },
+  "limitations": [
+    "The route library was devised after exploratory work on this repository; this is not a fresh confirmatory test.",
+    "Cached embeddings simulate selective acquisition; actual routed wall time is not measured here.",
+    "Component time is summed from a separate 50-image online benchmark with model load excluded; see cost_provenance for its dataset.",
+    "Only one outer split is evaluated; no significance claim is warranted.",
+    "The gate uses an additive per-image correctness proxy, while macro-F1 is evaluated externally."
+  ]
+}
