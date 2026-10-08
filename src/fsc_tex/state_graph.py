@@ -7,7 +7,7 @@ el vector de características phi(S, x) observable por la política.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -106,6 +106,7 @@ class StateGraph:
         margin: float,
         top_scores: np.ndarray,
         remaining_budget: float = 1.0,
+        content_embedding: Optional[np.ndarray] = None,
     ) -> np.ndarray:
         """Construye el vector phi(s, x) observable por la política.
         
@@ -114,6 +115,7 @@ class StateGraph:
         - Margen de certeza del clasificador actual
         - Top-3 scores de separación de clases
         - Fracción de presupuesto restante
+        - Proyección fija de contenido (opcional para representación enriquecida)
         """
         mask = np.zeros(len(self.allowlist), dtype=np.float32)
         for b in state.blocks:
@@ -125,12 +127,15 @@ class StateGraph:
             n_take = min(3, len(top_scores))
             scores_pad[:n_take] = top_scores[:n_take]
 
-        features = np.concatenate([
+        parts = [
             mask,
             np.array([margin, remaining_budget], dtype=np.float32),
             scores_pad,
-        ])
-        return features
+        ]
+        if content_embedding is not None:
+            parts.append(np.asarray(content_embedding, dtype=np.float32).ravel())
+
+        return np.concatenate(parts)
 
     def encode_state_features_batch(
         self,
@@ -138,6 +143,7 @@ class StateGraph:
         margins: np.ndarray,
         decision_functions: np.ndarray,
         remaining_budgets: np.ndarray | float = 1.0,
+        content_embeddings: Optional[np.ndarray] = None,
     ) -> np.ndarray:
         """Construye la matriz de características phi(s, X) para un lote de N muestras."""
         n_samples = len(margins)
@@ -165,5 +171,9 @@ class StateGraph:
             top3 = np.zeros((n_samples, 3), dtype=np.float32)
             top3[:, :n_cols] = sorted_scores[:, :n_cols]
 
-        return np.hstack([mask_batch, margin_col, budget_col, top3])
+        parts = [mask_batch, margin_col, budget_col, top3]
+        if content_embeddings is not None:
+            parts.append(np.asarray(content_embeddings, dtype=np.float32))
+
+        return np.hstack(parts)
 

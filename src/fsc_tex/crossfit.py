@@ -394,11 +394,10 @@ def trace_policy_test_evaluation(
     cost_model: HardwareCostModel,
     target_budget_ms: float,
 ) -> Tuple[np.ndarray, np.ndarray, List[dict]]:
-    """Evalúa la política en T_test paso a paso, registrando trazas y verificando presupuesto decreciente."""
     n_test = len(test_idx)
     base_cost_ms = cost_model.cumulative_cost_ms(graph.initial_state.blocks)
-
-    preds = np.empty(n_test, dtype=object)
+    sample_clf = next(iter(test_clfs.values()))
+    preds = np.empty(n_test, dtype=sample_clf.classes_.dtype)
     latencies = np.empty(n_test, dtype=np.float32)
     trace_events: List[dict] = []
 
