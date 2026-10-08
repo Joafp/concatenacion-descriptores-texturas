@@ -1,0 +1,120 @@
+# FSC-Tex Protocolo Versionado v1.0
+# ==============================================================================
+# Define las condiciones experimentales, métricas, espacios de decisión,
+# clasificadores y salvaguardas metodológicas para la adquisición secuencial.
+
+schema_version: "1.0"
+framework_name: "FSC-Tex"
+date: "2026-10-08"
+
+# 1. Configuración de Semillas
+seeds:
+  default: 42
+  sensitivity_replicates: [42, 123, 2026]
+
+# 2. Datasets y Condiciones Canónicas (27 condiciones externas)
+datasets:
+  DTD:
+    canonical_samples: 5640
+    classes: 47
+    protocol: "official_splits"
+    conditions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    inner_cv_folds: 3
+    inner_group_column: null
+    embedding_dir: "embeddings/DTD"
+    manifest: "results/confirmatory/sample_manifests/DTD.csv"
+
+  FMD:
+    canonical_samples: 1000
+    classes: 10
+    protocol: "stratified_group_kfold"
+    conditions: [0, 1, 2, 3, 4]
+    inner_cv_folds: 4
+    inner_group_column: null
+    embedding_dir: "embeddings_confirmatory/FMD"
+    manifest: "results/confirmatory/sample_manifests/FMD.csv"
+
+  CUReT:
+    canonical_samples: 5612
+    classes: 61
+    protocol: "halves"
+    conditions: ["a_to_b", "b_to_a"]
+    inner_cv_folds: 3
+    inner_group_column: null
+    embedding_dir: "embeddings_confirmatory/CUReT"
+    manifest: "results/confirmatory/sample_manifests/CUReT.csv"
+
+  Outex13Official1360:
+    canonical_samples: 1360
+    classes: 68
+    protocol: "official_splits"
+    conditions: [1]
+    inner_cv_folds: 3
+    inner_group_column: null
+    embedding_dir: "embeddings_extensions/Outex13Official1360"
+    manifest: "results/extensions/outex13_official1360/sample_manifests/Outex13Official1360.csv"
+
+  SoilOriginal:
+    canonical_samples: 1140
+    classes: 7
+    protocol: "stratified_group_kfold"
+    conditions: [0, 1, 2, 3, 4]
+    inner_cv_folds: 4
+    inner_group_column: null
+    embedding_dir: "embeddings_extensions/SoilOriginal"
+    manifest: "results/extensions/soil_original/sample_manifests/SoilOriginal.csv"
+
+  KTHTIPS2b:
+    canonical_samples: 4752
+    classes: 11
+    protocol: "official_splits_inverted_radam"  # 3 physical samples train, 1 test
+    conditions: [1, 2, 3, 4]
+    inner_cv_folds: 3  # Acotado por las 3 muestras físicas de entrenamiento
+    inner_group_column: "sample"  # Agrupamiento físico mandatorio ('a', 'b', 'c', 'd')
+    embedding_dir: "embeddings_extensions/KTH-TIPS2-b"
+    manifest: "results/extensions/kth_tips2b/sample_manifests/KTHTIPS2b.csv"
+
+# 3. Clasificador de Estado
+classifier:
+  type: "LinearSVC"
+  implementation: "sklearn.svm.LinearSVC"
+  class_weight: "balanced"
+  hyperparameter_search:
+    param: "C"
+    grid: [0.1, 1.0, 10.0]
+    selection_criterion: "inner_macro_f1"
+
+# 4. Espacio de Política y Decisión Secuencial
+policy:
+  horizons: [1, 2, 3]
+  action_space:
+    stop_action: "STOP"
+    candidate_library_size: 22
+    state_graph_max_states: 16  # Piloto inicial de ingeniería
+    max_sequential_acquisitions: 3
+  utility:
+    type: "loss_differential"
+    loss_definition: "class_weighted_zero_one_error"
+    formula: "g(x, y, S, a) = L_S(x, y) - L_{S union a}(x, y)"
+    bipolar: true  # Modela tanto corrección (+) como perjuicio (-)
+  cost_regularization:
+    lambdas: [0.0, 0.01, 0.05, 0.1, 0.25]
+    budget_fractions: [0.25, 0.50, 0.75, 1.00]
+  direct_route_rule:
+    evaluate_before_test: true
+    condition: "C(cheap) + q * C(incremental) < C(direct_static)"
+
+# 5. Métricas de Evaluación
+metrics:
+  primary: "macro_f1"
+  secondary: ["accuracy", "mean_latency_ms", "p95_latency_ms", "escalation_fraction"]
+  latency_measurement_modes:
+    - "cached"          # Simulación offline con embeddings
+    - "profile_estimate"# Costo basado en tabla de perfiles de hardware
+    - "online_measured" # Extracción física real imagen->predicción
+
+# 6. Criterio de No Inferioridad y Metas de Rendimiento
+decision_gates:
+  non_inferiority_f1_tolerance: 0.005  # Hasta 0.5 p.p. de pérdida tolerada
+  target_latency_reduction: 0.20       # Al menos 20% de reducción de latencia media
+  cascade_continuation_filter: 0.05    # Al menos 5% de ventaja frente a cascada de dos etapas

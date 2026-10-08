@@ -1,0 +1,376 @@
+{
+  "schema_version": "1.0",
+  "phase": "phase_1_inner_feasibility",
+  "base_extractor": "resnet50",
+  "datasets": {
+    "DTD": {
+      "dataset": "DTD",
+      "split_id": 1,
+      "n_train_samples": 3753,
+      "n_classes": 47,
+      "base_extractor": "resnet50",
+      "base_oof_accuracy": 0.718625099920064,
+      "base_oof_macro_f1": 0.7157053774969179,
+      "oracle_summary": {
+        "n_samples": 3753,
+        "base_accuracy": 0.7186250984668732,
+        "base_error_rate": 0.28137490153312683,
+        "oracle_with_stop_accuracy": 0.9120703414082527,
+        "oracle_with_stop_error_rate": 0.08792965859174728,
+        "oracle_headroom": 0.19344525039196014,
+        "repairable_fraction_of_errors": 0.6875,
+        "any_candidate_harms_fraction": 0.12416733280042633,
+        "per_action_stats": {
+          "beitv2_base_final": {
+            "repair_rate": 0.10818012256861177,
+            "harm_rate": 0.02664535038635758,
+            "net_gain": 0.08153477311134338
+          },
+          "convnext_v2_t": {
+            "repair_rate": 0.0881961097788436,
+            "harm_rate": 0.028244071409539037,
+            "net_gain": 0.059952039271593094
+          },
+          "dinov2": {
+            "repair_rate": 0.13908872901678657,
+            "harm_rate": 0.023714361843858247,
+            "net_gain": 0.1153743639588356
+          },
+          "efficientnet_b0": {
+            "repair_rate": 0.06101785238475886,
+            "harm_rate": 0.03597122302158273,
+            "net_gain": 0.025046629831194878
+          },
+          "eva02_base": {
+            "repair_rate": 0.12017053024247269,
+            "harm_rate": 0.0242472688515854,
+            "net_gain": 0.09592325985431671
+          },
+          "gabor": {
+            "repair_rate": 0.00826005861977085,
+            "harm_rate": 0.005861977084998668,
+            "net_gain": 0.0023980815894901752
+          },
+          "hog": {
+            "repair_rate": 0.02051691979749534,
+            "harm_rate": 0.02664535038635758,
+            "net_gain": -0.006128430366516113
+          },
+          "lbp": {
+            "repair_rate": 0.015187849720223821,
+            "harm_rate": 0.012523314681588063,
+            "net_gain": 0.0026645350735634565
+          },
+          "siglip_base": {
+            "repair_rate": 0.12470023980815348,
+            "harm_rate": 0.016253663735678124,
+            "net_gain": 0.10844657570123672
+          },
+          "vgg16": {
+            "repair_rate": 0.05249134026112443,
+            "harm_rate": 0.03836930455635491,
+            "net_gain": 0.01412203535437584
+          },
+          "vit_b16": {
+            "repair_rate": 0.08419930722088996,
+            "harm_rate": 0.03810285105249134,
+            "net_gain": 0.04609645530581474
+          }
+        }
+      },
+      "candidate_performances": {
+        "hog": {
+          "accuracy": 0.7124966693312017,
+          "macro_f1": 0.7102397011852823
+        },
+        "lbp": {
+          "accuracy": 0.7212896349586997,
+          "macro_f1": 0.7180404386459543
+        },
+        "gabor": {
+          "accuracy": 0.7210231814548361,
+          "macro_f1": 0.7182590210418694
+        },
+        "convnext_v2_t": {
+          "accuracy": 0.7785771382893685,
+          "macro_f1": 0.7762531870765915
+        },
+        "efficientnet_b0": {
+          "accuracy": 0.7436717292832401,
+          "macro_f1": 0.7407599992881407
+        },
+        "vgg16": {
+          "accuracy": 0.7327471356248335,
+          "macro_f1": 0.7303992677680706
+        },
+        "vit_b16": {
+          "accuracy": 0.7647215560884626,
+          "macro_f1": 0.7627166370930171
+        },
+        "eva02_base": {
+          "accuracy": 0.8145483613109512,
+          "macro_f1": 0.8131333078930044
+        },
+        "beitv2_base_final": {
+          "accuracy": 0.8001598721023181,
+          "macro_f1": 0.797479983111574
+        },
+        "dinov2": {
+          "accuracy": 0.8339994670929922,
+          "macro_f1": 0.8313248879586631
+        },
+        "siglip_base": {
+          "accuracy": 0.8270716759925393,
+          "macro_f1": 0.8245713094014537
+        }
+      },
+      "selector_predictive_auc": 0.8404334560975513
+    },
+    "SoilOriginal": {
+      "dataset": "SoilOriginal",
+      "split_id": 0,
+      "n_train_samples": 912,
+      "n_classes": 7,
+      "base_extractor": "resnet50",
+      "base_oof_accuracy": 0.8508771929824561,
+      "base_oof_macro_f1": 0.789095113195916,
+      "oracle_summary": {
+        "n_samples": 912,
+        "base_accuracy": 0.850877195596695,
+        "base_error_rate": 0.14912280440330505,
+        "oracle_with_stop_accuracy": 0.9594298228621483,
+        "oracle_with_stop_error_rate": 0.040570177137851715,
+        "oracle_headroom": 0.10855263471603394,
+        "repairable_fraction_of_errors": 0.7279411764705882,
+        "any_candidate_harms_fraction": 0.08442982456140351,
+        "per_action_stats": {
+          "beitv2_base_final": {
+            "repair_rate": 0.05592105263157895,
+            "harm_rate": 0.01644736842105263,
+            "net_gain": 0.03947368264198303
+          },
+          "convnext_v2_t": {
+            "repair_rate": 0.05701754385964912,
+            "harm_rate": 0.01864035087719298,
+            "net_gain": 0.03837719187140465
+          },
+          "dinov2": {
+            "repair_rate": 0.06469298245614036,
+            "harm_rate": 0.03070175438596491,
+            "net_gain": 0.03399122878909111
+          },
+          "efficientnet_b0": {
+            "repair_rate": 0.05043859649122807,
+            "harm_rate": 0.019736842105263157,
+            "net_gain": 0.030701754614710808
+          },
+          "eva02_base": {
+            "repair_rate": 0.0625,
+            "harm_rate": 0.02412280701754386,
+            "net_gain": 0.03837719187140465
+          },
+          "gabor": {
+            "repair_rate": 0.008771929824561403,
+            "harm_rate": 0.0021929824561403508,
+            "net_gain": 0.00657894741743803
+          },
+          "hog": {
+            "repair_rate": 0.01644736842105263,
+            "harm_rate": 0.013157894736842105,
+            "net_gain": 0.003289473708719015
+          },
+          "lbp": {
+            "repair_rate": 0.008771929824561403,
+            "harm_rate": 0.003289473684210526,
+            "net_gain": 0.0054824561811983585
+          },
+          "siglip_base": {
+            "repair_rate": 0.06359649122807018,
+            "harm_rate": 0.017543859649122806,
+            "net_gain": 0.04605263099074364
+          },
+          "vgg16": {
+            "repair_rate": 0.047149122807017545,
+            "harm_rate": 0.025219298245614034,
+            "net_gain": 0.021929824724793434
+          },
+          "vit_b16": {
+            "repair_rate": 0.05921052631578947,
+            "harm_rate": 0.019736842105263157,
+            "net_gain": 0.03947368264198303
+          }
+        }
+      },
+      "candidate_performances": {
+        "hog": {
+          "accuracy": 0.8541666666666666,
+          "macro_f1": 0.7952165327168011
+        },
+        "lbp": {
+          "accuracy": 0.856359649122807,
+          "macro_f1": 0.7947588006704678
+        },
+        "gabor": {
+          "accuracy": 0.8574561403508771,
+          "macro_f1": 0.7973216333904096
+        },
+        "convnext_v2_t": {
+          "accuracy": 0.8892543859649122,
+          "macro_f1": 0.8464216663128415
+        },
+        "efficientnet_b0": {
+          "accuracy": 0.881578947368421,
+          "macro_f1": 0.8322191539484415
+        },
+        "vgg16": {
+          "accuracy": 0.8728070175438597,
+          "macro_f1": 0.8095252215906662
+        },
+        "vit_b16": {
+          "accuracy": 0.8903508771929824,
+          "macro_f1": 0.8477077633686179
+        },
+        "eva02_base": {
+          "accuracy": 0.8892543859649122,
+          "macro_f1": 0.8358048740440965
+        },
+        "beitv2_base_final": {
+          "accuracy": 0.8903508771929824,
+          "macro_f1": 0.8431065358901193
+        },
+        "dinov2": {
+          "accuracy": 0.8848684210526315,
+          "macro_f1": 0.8005162635512449
+        },
+        "siglip_base": {
+          "accuracy": 0.8969298245614035,
+          "macro_f1": 0.8421100390788684
+        }
+      },
+      "selector_predictive_auc": 0.9046349813507287
+    },
+    "KTHTIPS2b": {
+      "dataset": "KTHTIPS2b",
+      "split_id": 1,
+      "n_train_samples": 3564,
+      "n_classes": 11,
+      "base_extractor": "resnet50",
+      "base_oof_accuracy": 0.7962962962962963,
+      "base_oof_macro_f1": 0.7891685516462374,
+      "oracle_summary": {
+        "n_samples": 3564,
+        "base_accuracy": 0.7962962985038757,
+        "base_error_rate": 0.20370370149612427,
+        "oracle_with_stop_accuracy": 0.9699775539338589,
+        "oracle_with_stop_error_rate": 0.03002244606614113,
+        "oracle_headroom": 0.17368125915527344,
+        "repairable_fraction_of_errors": 0.8526170798898072,
+        "any_candidate_harms_fraction": 0.09960718294051628,
+        "per_action_stats": {
+          "beitv2_base_final": {
+            "repair_rate": 0.12682379349046016,
+            "harm_rate": 0.012626262626262626,
+            "net_gain": 0.11419752985239029
+          },
+          "convnext_v2_t": {
+            "repair_rate": 0.0718294051627385,
+            "harm_rate": 0.02441077441077441,
+            "net_gain": 0.04741863161325455
+          },
+          "dinov2": {
+            "repair_rate": 0.13748597081930417,
+            "harm_rate": 0.027777777777777776,
+            "net_gain": 0.10970818996429443
+          },
+          "efficientnet_b0": {
+            "repair_rate": 0.05387205387205387,
+            "harm_rate": 0.02665544332210999,
+            "net_gain": 0.027216611430048943
+          },
+          "eva02_base": {
+            "repair_rate": 0.09006734006734007,
+            "harm_rate": 0.018799102132435467,
+            "net_gain": 0.0712682381272316
+          },
+          "gabor": {
+            "repair_rate": 0.015993265993265993,
+            "harm_rate": 0.005331088664421998,
+            "net_gain": 0.010662177577614784
+          },
+          "hog": {
+            "repair_rate": 0.01430976430976431,
+            "harm_rate": 0.019079685746352413,
+            "net_gain": -0.00476992130279541
+          },
+          "lbp": {
+            "repair_rate": 0.011503928170594837,
+            "harm_rate": 0.012065095398428732,
+            "net_gain": -0.0005611672531813383
+          },
+          "siglip_base": {
+            "repair_rate": 0.09175084175084175,
+            "harm_rate": 0.008698092031425365,
+            "net_gain": 0.08305274695158005
+          },
+          "vgg16": {
+            "repair_rate": 0.05723905723905724,
+            "harm_rate": 0.025533108866442198,
+            "net_gain": 0.03170594945549965
+          },
+          "vit_b16": {
+            "repair_rate": 0.08922558922558922,
+            "harm_rate": 0.023849607182940515,
+            "net_gain": 0.06537598371505737
+          }
+        }
+      },
+      "candidate_performances": {
+        "hog": {
+          "accuracy": 0.7915263748597082,
+          "macro_f1": 0.783794794463168
+        },
+        "lbp": {
+          "accuracy": 0.7957351290684624,
+          "macro_f1": 0.7871410118070941
+        },
+        "gabor": {
+          "accuracy": 0.8069584736251403,
+          "macro_f1": 0.7997247261990629
+        },
+        "convnext_v2_t": {
+          "accuracy": 0.8437149270482603,
+          "macro_f1": 0.8393002509739392
+        },
+        "efficientnet_b0": {
+          "accuracy": 0.8235129068462402,
+          "macro_f1": 0.8193376659512556
+        },
+        "vgg16": {
+          "accuracy": 0.8280022446689114,
+          "macro_f1": 0.8221012560550993
+        },
+        "vit_b16": {
+          "accuracy": 0.861672278338945,
+          "macro_f1": 0.8592633067524293
+        },
+        "eva02_base": {
+          "accuracy": 0.867564534231201,
+          "macro_f1": 0.8604932310127549
+        },
+        "beitv2_base_final": {
+          "accuracy": 0.9104938271604939,
+          "macro_f1": 0.9076980969523234
+        },
+        "dinov2": {
+          "accuracy": 0.9060044893378226,
+          "macro_f1": 0.8994602939186781
+        },
+        "siglip_base": {
+          "accuracy": 0.8793490460157127,
+          "macro_f1": 0.873918910104598
+        }
+      },
+      "selector_predictive_auc": 0.8735025457596818
+    }
+  }
+}
