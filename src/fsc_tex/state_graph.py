@@ -85,8 +85,11 @@ class StateGraph:
     def get_actions(self, state: State, remaining_budget: float | None = None, cost_model = None) -> List[str]:
         """Devuelve las acciones factibles desde el estado actual."""
         actions = ["STOP"]
-        if len(state) >= self.max_depth:
+        if len(state) >= self.max_depth or (remaining_budget is not None and remaining_budget <= 0):
             return actions
+
+        if remaining_budget is not None and cost_model is None:
+            raise ValueError("Si se proporciona remaining_budget, cost_model debe ser suministrado para comprobar factibilidad.")
 
         for cand in self.candidate_blocks:
             if not state.contains(cand):

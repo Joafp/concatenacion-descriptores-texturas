@@ -30,6 +30,7 @@ DEFAULT_HARDWARE_LATENCY_MS: Dict[str, float] = {
     "resnet101": 21.49,
     "dinov2_small": 24.60,
     "densenet121": 26.70,
+    "vit_b16": 26.85,
     # Medios (30 - 100 ms)
     "glcm": 41.03,
     "lbp": 50.61,
@@ -79,10 +80,27 @@ class HardwareCostModel:
         latencies = {}
         if "per_descriptor_latency_ms" in data:
             for k, v in data["per_descriptor_latency_ms"].items():
-                latencies[k] = float(v.get("median", v.get("mean", 10.0)))
+                if isinstance(v, dict):
+                    val = v.get("median", v.get("mean"))
+                    if val is None:
+                        raise KeyError(f"No se encontró 'median' ni 'mean' para el extractor '{k}' en {path}")
+                    latencies[k] = float(val)
+                else:
+                    latencies[k] = float(v)
         return cls(cost_mode=cost_mode, custom_latencies=latencies, normalize_by=normalize_by)
 
-    def incremental_cost(self, action: str, current_state_blocks: Set[str] | List[str]) -> float:
+    def incremental_cost_ms(self, action: str, current_state_blocks: Set[str] | List[str] | None = None) -> float:
+        """Calcula el costo incremental físico en milisegundos Delta t_ms(a | S)."""
+        if action == "STOP":
+            return 0.0
+        if action not in self.latencies:
+            raise KeyError(
+                f"Latencia desconocida para el extractor '{action}'. "
+                f"No se permite fallback silencioso; registre el extractor en DEFAULT_HARDWARE_LATENCY_MS o custom_latencies."
+            )
+        return self.latencies[action] + self.policy_overhead_ms
+
+    def incremental_cost(self, action: str, current_state_blocks: Set[str] | List[str] | None = None) -> float:
         """Calcula el costo adicional Delta t(a | S) de ejecutar una acción."""
         if action == "STOP":
             return 0.0
@@ -90,9 +108,16 @@ class HardwareCostModel:
             return 1.0
         
         # Modo hardware
-        block_lat = self.latencies.get(action, 20.0) + self.policy_overhead_ms
+        if action not in self.latencies:
+            raise KeyError(
+                f"Latencia desconocida para el extractor '{action}'. "
+                f"No se permite fallback silencioso; registre el extractor en DEFAULT_HARDWARE_LATENCY_MS o custom_latencies."
+            )
+        block_lat = self.latencies[action] + self.policy_overhead_ms
         if self.normalize_by is not None:
-            ref_lat = self.latencies.get(self.normalize_by, 11.94) + self.policy_overhead_ms
+            if self.normalize_by not in self.latencies:
+                raise KeyError(f"Extractor de normalización '{self.normalize_by}' no registrado en latencias.")
+            ref_lat = self.latencies[self.normalize_by] + self.policy_overhead_ms
             return block_lat / ref_lat
         return block_lat
 
@@ -100,15 +125,23 @@ class HardwareCostModel:
         """Calcula el costo acumulado de haber adquirido los bloques en S (en la escala del modelo)."""
         if self.cost_mode == "unit":
             return float(len(state_blocks))
-        total_ms = sum(self.latencies.get(b, 20.0) for b in state_blocks)
+        for b in state_blocks:
+            if b not in self.latencies:
+                raise KeyError(f"Latencia desconocida para el extractor '{b}'. No se permite fallback silencioso.")
+        total_ms = sum(self.latencies[b] for b in state_blocks)
         total_ms += len(state_blocks) * self.policy_overhead_ms
         if self.normalize_by is not None:
-            ref_lat = self.latencies.get(self.normalize_by, 11.94) + self.policy_overhead_ms
+            if self.normalize_by not in self.latencies:
+                raise KeyError(f"Extractor de normalización '{self.normalize_by}' no registrado en latencias.")
+            ref_lat = self.latencies[self.normalize_by] + self.policy_overhead_ms
             return total_ms / ref_lat
         return total_ms
 
     def cumulative_cost_ms(self, state_blocks: Set[str] | List[str]) -> float:
         """Calcula la latencia física total acumulada en milisegundos."""
-        total_ms = sum(self.latencies.get(b, 20.0) for b in state_blocks)
+        for b in state_blocks:
+            if b not in self.latencies:
+                raise KeyError(f"Latencia desconocida para el extractor '{b}'. No se permite fallback silencioso.")
+        total_ms = sum(self.latencies[b] for b in state_blocks)
         total_ms += len(state_blocks) * self.policy_overhead_ms
         return total_ms
