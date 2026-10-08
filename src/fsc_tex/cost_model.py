@@ -93,6 +93,8 @@ class HardwareCostModel:
         """Calcula el costo incremental físico en milisegundos Delta t_ms(a | S)."""
         if action == "STOP":
             return 0.0
+        if self.cost_mode == "unit":
+            return 1.0
         if action not in self.latencies:
             raise KeyError(
                 f"Latencia desconocida para el extractor '{action}'. "
@@ -139,6 +141,8 @@ class HardwareCostModel:
 
     def cumulative_cost_ms(self, state_blocks: Set[str] | List[str]) -> float:
         """Calcula la latencia física total acumulada en milisegundos."""
+        if self.cost_mode == "unit":
+            return float(len(state_blocks))
         for b in state_blocks:
             if b not in self.latencies:
                 raise KeyError(f"Latencia desconocida para el extractor '{b}'. No se permite fallback silencioso.")
