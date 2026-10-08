@@ -1,10 +1,32 @@
 # Propuesta de tesis: fusión secuencial de descriptores de textura con utilidad predictiva y costo real
 
-**Versión:** 1.0 — 7 de octubre de 2026.  
-**Estado:** propuesta de investigación y plan de implementación; método nuevo todavía no implementado ni validado.  
+**Versión:** 1.1 — 8 de octubre de 2026; incorpora auditoría de la primera implementación.
+
+**Estado:** prototipo implementado y 27 condiciones exploratorias guardadas; validación del método multietapa y de eficiencia real pendiente por defectos de implementación/evaluación.
+
 **Nombre de trabajo:** FSC-Tex, *Fusión Secuencial Costo-consciente para Texturas*. Es un identificador interno, no una declaración de novedad.  
 **Alcance de este documento:** elegir una dirección, definir su aporte verificable y preparar tareas para futuros subagentes. No autoriza por sí mismo lanzamientos, publicaciones, cambios de datos ni ejecuciones costosas.  
 **Marco de revisión:** ARS, planificación metodológica y revisión crítica realizadas en esta conversación. No hubo revisión independiente ni certificación de originalidad. Las metas numéricas siguientes son propuestas de diseño, no resultados.
+
+## 0. Actualización operativa: leer antes de continuar
+
+Se auditaron los commits `2bf1604` y `136532c` y los artefactos de `results/exploratory/fsc_tex/phase3_full_suite/`. La auditoría detallada, con fuentes de código, comprobaciones y estadística, está en `docs/fsc_tex/AUDITORIA_FASE3_2026-10-08.md`.
+
+**Qué se verificó:** existen 27 condiciones únicas; macro-F1 y exactitud recalculados desde 459 vectores de predicción coinciden exactamente con las métricas. Las etiquetas externas son compatibles con los manifiestos y particiones reconstruidos. Pasan las nueve pruebas unitarias existentes.
+
+**Qué no se puede concluir:** que la Fase 3 del protocolo original esté completada, que se midió ahorro físico del 83 %, que H2 demostró planificación multietapa, o que el método superó a Completa-22, Top-k22 o GFS.
+
+Hallazgos que cambian el orden de trabajo:
+
+1. El presupuesto por defecto de 1, normalizado por ResNet, deja factible únicamente SigLIP. En inferencia solo se ejecutan las alternativas ResNet o ResNet+SigLIP; no se actualiza presupuesto restante.
+2. Los objetivos futuros usan mínimos de pérdidas reales por muestra, equivalentes a decisiones oraculares retrospectivas, no al riesgo de una continuación desplegable.
+3. «Completa» es una concatenación de seis bloques. RGB N-grams y otros 15 bloques de la biblioteca original están fuera de esta suite.
+4. Los tiempos son sumas de constantes de perfiles anteriores y overhead supuesto. No se cronometró la nueva política imagen→predicción.
+5. La mejor cascada se seleccionó en test; falta la validación interna completa que anuncia el encabezado del evaluador.
+6. H2 lambda=0 obtiene 0,8887 frente a 0,9137 de Completa-6: pierde 2,50 p.p., no satisface el margen práctico de 0,5 p.p. DTD gana 9/10 frente a la cascada retrospectiva, no 10/10; FMD gana F1 pero consume más costo estimado.
+7. H1 y H2 coinciden en las 22 condiciones de cuatro datasets. El contraste unilateral H2>H1 pasa de p=0,0216 al tratar folds como unidades a p=0,25 usando una media por cada uno de los seis datasets. Ambos son cálculos exploratorios, no una confirmación del mecanismo.
+
+**Decisión:** preservar v1 como exploración; corregir y auditar antes de ampliar bases o repetir el barrido. La sección 12.0 define el nuevo camino crítico y tiene prioridad sobre el calendario inicial. No se modificó el código experimental ni se lanzaron entrenamientos durante esta actualización.
 
 ## 1. Decisión: esta es la línea que recomiendo
 
@@ -256,6 +278,59 @@ Estos valores son un punto de partida de desarrollo; cualquier cambio se registr
 
 No se presupone que esa MLP sea mejor que Ridge. Si no mejora con costo total comparable, se conserva Ridge. El objeto de estudio es la adquisición y no hacer más grande la compuerta.
 
+### 5.11. Elección de la base: ni ResNet fija ni «el mejor F1» automáticamente
+
+ResNet-50 es un **control fijo útil**, no la base definitiva. El descriptor con mayor F1 individual también debe ser un control, pero puede ser demasiado costoso para ahorrar después. La base principal se elige por el resultado de la **tubería completa de adquisición**, evaluada dentro del entrenamiento.
+
+Dos bases con igual F1 pueden dejar errores muy distintos: una puede fallar en imágenes que otra ruta corrige fácilmente; la otra puede dejar errores irreparables. Por eso importan costo, incertidumbre utilizable y complementariedad posterior, además de calidad individual.
+
+Protocolo de selección:
+
+1. Auditar los 22 bloques y medir los costos sobre imágenes de entrenamiento y hardware común.
+2. Obtener predicciones OOF de individuales y una frontera interna de calidad–costo. Mantener ResNet como control aunque quede dominada, y el mejor individual de calidad como referencia.
+3. Retener un máximo inicial de tres bases de la frontera para construir políticas; este límite controla cómputo, no excluye bloques por resultados de test. SigLIP, BEiTv2-final y DINOv2-small son candidatos razonables a evaluar, no ganadores ya elegidos.
+4. Entrenar y validar cada combinación base+política+presupuesto en los mismos folds internos, contabilizando base, compuerta, adquisiciones y fallback.
+5. Elegir la configuración de menor costo que cumpla el criterio interno de calidad frente a una referencia fuerte. Si ninguna lo cumple, seleccionar la ruta estática directa y declarar que no hay ahorro aceptable.
+6. Congelar la elección por dataset/partición de entrenamiento y punto operativo antes de test. No escoger retrospectivamente una base distinta según la etiqueta de cada imagen.
+
+Formulación de selección empírica, no garantía estadística:
+
+\[
+(b^*,\pi^*)=\arg\min_{b,\pi}\widehat T_{\mathrm{val}}(b,\pi)
+\quad\text{sujeto a}\quad
+\widehat F_{1,\mathrm{macro,val}}(b,\pi)
+\geq\widehat F_{1,\mathrm{macro,val}}(r)-\epsilon.
+\]
+
+La referencia r se escoge dentro del entrenamiento entre Individual fuerte, Completa-22, Top-k22 y GFS, según el objetivo/presupuesto. Cada uno se sigue reportando por separado en test. Si se usan intervalos para decidir, su cálculo y factibilidad se fijan antes; una desigualdad de estimaciones puntuales no prueba no inferioridad.
+
+**Control crítico de unidades:** al comparar bases, usar presupuestos comunes en milisegundos o normalizados por la misma referencia r. No normalizar cada política por su propia base y mantener `budget=1`, porque eso da límites físicos distintos y reproduce el defecto de v1.
+
+Comparación mínima de bases: ResNet fija; mejor individual por F1 interno; mejor individual bajo costo; base elegida conjuntamente con la política. No adquirir todos los candidatos para decidir qué base era barata.
+
+### 5.12. Estrategia para competir con Completa, Top-k y GFS
+
+Hay dos objetivos diferentes: **preservar calidad ahorrando costo** y **mejorar calidad a costo igual o menor**. El primero no demuestra automáticamente el segundo. La v1 todavía no alcanza ninguno frente a los comparadores principales de 22 bloques.
+
+La ampliación prioritaria del método será una política de **adquisición por corrección residual, con rutas fuertes de respaldo**:
+
+- Base elegida internamente como en 5.11, no una referencia débil para facilitar una ganancia aparente.
+- Estado con scores identificados por clase y proyecciones fijas de los bloques observados, además de margen/máscara/costo. Esto permite distinguir tipos de error, no solo niveles de incertidumbre. Evaluar contra el estado de solo incertidumbre como ablación.
+- Objetivos que modelen tanto corrección como perjuicio al añadir información, con pérdida balanceada y selección interna por macro-F1. El mínimo oracular no se usará como riesgo alcanzable.
+- Candidatos de continuación elegidos por complementariedad interna, conservando elegibilidad de los 22 bloques y RGB N-grams ajustado por fold.
+- Acciones de respaldo a Top-k/GFS u otra ruta fija fuerte: pagar únicamente los bloques faltantes, pero conservar también el costo hundido de la base y los pasos anteriores.
+- Si la base no pertenece al subconjunto de la referencia, la clasificación de respaldo utiliza exactamente los bloques de esa referencia. No añadir la base a su vector y afirmar que se reprodujo el mismo clasificador.
+- Regla de entrada capaz de optar por la referencia directa si el ahorro esperado no compensa base y compuerta. `STOP` se selecciona por validación de calidad, no solo por elevar lambda hasta que el sistema parezca rápido.
+
+**Cómo podría mejorar F1 además de ahorrar:** un subconjunto especializado puede evitar bloques perjudiciales para cierto tipo de imagen y usar información complementaria en otras. Pero esto solo se sostiene si un enrutador puede identificar esos casos sin etiquetas externas. El oráculo muestra margen potencial, no que sea aprendible. Las rutas especializadas deben vencer también a la mejor ruta fija elegida internamente y a un enrutador que ignore el contenido observado.
+
+En el siguiente piloto se fijan dos salidas, sin escoger después la que convenga:
+
+1. Punto de eficiencia: margen de calidad epsilon=0,005 propuesto y ahorro físico objetivo >=20 % frente a r; además, comparación explícita contra la cascada fuerte.
+2. Frontera calidad–costo: comparar los puntos de presupuesto congelados contra todos los controles. Una afirmación de mejora simultánea requiere diferencia de F1 favorable y menor latencia real, con incertidumbre y límites reportados.
+
+No se incorporará todavía destilación, fine-tuning masivo ni una nueva arquitectura de fusión para tapar el problema de adquisición. Si una política válida no puede aprovechar el margen entre rutas, se documentará ese límite antes de abrir otra línea.
+
 ## 6. Entrenamiento y prevención de filtraciones
 
 ### 6.1. Contrato general
@@ -425,7 +500,7 @@ Además se exige una ventaja frente a **la cascada actual**, no solo frente a Co
 
 ## 11. Implementación prevista y contratos de artefactos
 
-**Todas las rutas nuevas de esta sección son propuestas, no archivos ya implementados.** Reutilizar funciones existentes mediante adaptadores pequeños, sin alterar los resultados históricos.
+**Este árbol sigue siendo la arquitectura objetivo, no una certificación de que todo existe.** Al 8 de octubre existen `cost_model.py`, `utility.py`, `state_graph.py`, `policy.py`, registro/protocolo y scripts de fases 1–3; su cumplimiento está limitado por la auditoría de v1. Los módulos restantes y los contratos completos siguen pendientes. Reutilizar lo válido sin alterar resultados históricos.
 
 ```text
 configs/fsc_tex/
@@ -483,6 +558,32 @@ Las trazas pueden contener etiquetas únicamente en el archivo de evaluación es
 10. La paridad online/cacheada se verifica antes de informar ahorro real.
 
 ## 12. Fases, entregables y puertas de continuidad
+
+### 12.0. Camino crítico actualizado tras auditar v1
+
+Estas tareas sustituyen la secuencia «medir online y redactar inmediatamente» sugerida por el reporte de Fase 3. No se ejecutan por el solo hecho de figurar en el plan.
+
+| Orden | Trabajo | Entrega verificable | Puerta de avance |
+| --- | --- | --- | --- |
+| R0 | Preservar v1 y corregir su presentación | Manifiesto de archivo; reporte/generador con costos estimados, Completa-6, 9/10 DTD y selección retrospectiva visibles | Ninguna afirmación de garantía/latencia física respaldada solo por v1 |
+| R1 | Corregir presupuesto, factibilidad y objetivos H2 | Presupuesto explícito decreciente; valor de continuación desplegable; pruebas de regresión | Una prueba alcanza >=2 adquisiciones reales; acciones imposibles no entran en objetivos ni inferencia |
+| R2 | Implementar validación anidada de la tubería y trazabilidad | Configuración efectiva guardada, IDs/grupos, modelos, trazas, hashes y checkpoints compatibles | Selección de base, rutas, q y lambda sin leer test; pruebas de permutación de etiquetas externas |
+| R3 | Comparar bases y controles fuertes | Individuales, base conjunta y referencias Completa/Top-k/GFS; biblioteca explícita | La ventaja no se explica por sustituir ResNet por un mejor descriptor solo |
+| R4 | Piloto de adquisición residual con respaldo | Estado enriquecido, reparación/perjuicio, H1/H2 y ruta directa, con ablaciones | Cumple calidad/costo interno y supera controles; si no, detener expansión |
+| R5 | Benchmark físico pequeño | Extracción bajo demanda, acuerdo de rutas/predicciones y tiempos pareados | La ventaja del simulador persiste contando overhead y fallback |
+| R6 | Nueva suite congelada y análisis | Nuevo directorio `phase3_v2_*`, 27 condiciones; ampliación a 47 según plan previo | Auditoría metodológica y física completa antes de resultados principales |
+
+Pruebas adicionales obligatorias que faltan en v1:
+
+- Regresión del caso real: BEiTv2/DINO deben ser adquiribles cuando el presupuesto físico alcance; al cambiar base no cambia artificialmente el presupuesto permitido.
+- El presupuesto baja en cada paso y también cubre clasificador/selector; no se restablece a 1.
+- Con acciones futuras indistinguibles y aciertos opuestos, el modelo no aprende como alcanzable el error cero del oráculo.
+- La continuación entrenada y la desplegada usan la misma máscara de factibilidad y unidades.
+- `Full_Fusion_6` y `Full_Fusion_22` no pueden etiquetarse igual; bloque ausente/costo desconocido produce error visible, no una constante inventada.
+- Una comparación del selector adaptativo incluye el mejor descriptor solo y la ruta estática ResNet+SigLIP, además de las referencias fuertes.
+- El generador no contiene frases de éxito ni cifras de conclusiones codificadas manualmente; las afirmaciones dependen de resultados y del alcance del protocolo.
+
+Asignación futura: el paquete C se responsabiliza de R1; A y C de R2; D de costos/paridad; E de reporte/estadística. El coordinador aprueba cada puerta antes de lanzar la siguiente. B mantiene la revisión de antecedentes sin certificar novedad por el nombre del método.
 
 ### Fase 0 — Auditoría y cierre del diseño
 
@@ -596,10 +697,10 @@ Las rutas de adquisición ofrecen trazabilidad de decisiones. No son, por sí so
 
 ## 15. Primeros pasos concretos al retomar
 
-1. Revisar estado Git y procesos sin modificar ni cancelar trabajo ajeno.
-2. Ejecutar A y B: auditar datos y cerrar la diferencia frente a los antecedentes más cercanos.
-3. Congelar un piloto pequeño con controles y criterios de continuidad; no arrancar los seis datasets todavía.
-4. Implementar y validar primero el caso miope, luego el multietapa, utilizando entrenamiento interno.
-5. Medir una ruta realmente ejecutada antes de ampliar la propuesta.
+1. Leer la auditoría del 8 de octubre, revisar Git/procesos y preservar `phase3_full_suite` como exploración v1.
+2. Resolver R1 y sus pruebas: presupuesto y valor futuro desplegable. No comenzar cambiando ResNet ni entrenando una red más grande.
+3. Cerrar R2 y seleccionar bases conjuntamente con políticas usando solo validación interna y presupuestos físicos comunes.
+4. Ejecutar un piloto contra individuales fuertes, ruta fija ResNet+SigLIP, cascada, Completa-22, Top-k22 y GFS con bibliotecas/alcance explícitos.
+5. Confirmar adquisición multietapa y costo online antes de un nuevo barrido. No incorporar el reporte v1 al paper como conclusión validada.
 
 **Conclusión de la propuesta:** esta es la dirección que recomiendo porque investiga cuándo adquirir y fusionar información, no solo cómo apilar vectores. Su mérito no dependerá del nombre ni de la complejidad del modelo, sino de demostrar una mejora reproducible frente a la cascada actual y a antecedentes de adquisición activa, o de establecer honestamente por qué esa mejora no se sostiene.

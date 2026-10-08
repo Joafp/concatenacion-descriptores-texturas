@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "archive_label": "phase3_v1_exploratory",
+  "origin_commit": "136532c",
+  "audit_reference": "docs/fsc_tex/AUDITORIA_FASE3_2026-10-08.md",
+  "date_archived": "2026-10-08",
+  "summary_sha256": "d28972a33e9185e049054c579101e70bc1a5f00274d78f1dbf2c9f70d4bfbe19",
+  "total_conditions": 27,
+  "scope_and_known_limitations": {
+    "library": "Completa-6 (ResNet-50 base + SigLIP, BEiTv2-final, DINOv2-base, ConvNeXt V2-T, EVA02-base). No cubre la biblioteca de 22 bloques.",
+    "latency_mode": "Costos estimados por modelo aditivo de hardware (HardwareCostModel), no cronometrados online de extremo a extremo.",
+    "budget_defect_identified": "La omisión de pasar y descontar un presupuesto físico explícito junto con la normalización por ResNet fijó remaining_budget=1.0, restringiendo la factibilidad únicamente a SigLIP y bloqueando el resto de los candidatos y pasos subsecuentes.",
+    "h2_objective_note": "Los objetivos de valor de H2 en v1 se construyeron sobre el mínimo muestral de pérdidas reales, lo cual introduce optimismo oracular en vez del valor esperado de la política desplegable.",
+    "cascade_comparison": "La columna de mejor cascada reportada seleccionó el umbral q retrospectivamente en test, sirviendo como control optimista de referencia.",
+    "dtd_win_rate": "9 victorias y 1 derrota frente a la cascada (split 3 perdió por 0.0016 p.p.)."
+  },
+  "status": "PRESERVED_EXPLORATORY_V1"
+}
