@@ -394,6 +394,19 @@ def run_residual_acquisition_pilot(
         },
     }
 
+    # 8. Registro de predicciones por método para trazabilidad y auditoría
+    predictions_record = {
+        "y_true": [int(x) for x in y_test],
+        "Base_" + base_extractor: [int(x) for x in base_eval["preds"]],
+        "Best_Individual_Internal": [int(x) for x in ind_preds],
+        "Static_Pair_ResNet_SigLIP": [int(x) for x in static_pair_eval["preds"]],
+        "Cascade_TopK_Prospective": [int(x) for x in casc_preds],
+        "FSC_Tex_H1_Myopic": [int(x) for x in h1_preds],
+        "FSC_Tex_H2_Bellman": [int(x) for x in h2_preds],
+        "FSC_Tex_H2_Enriched_State": [int(x) for x in enr_preds],
+        "Full_Fusion_6": [int(x) for x in full6_eval["preds"]],
+    }
+
     return {
         "dataset_name": dataset_name,
         "condition": condition,
@@ -402,5 +415,9 @@ def run_residual_acquisition_pilot(
         "results_table": results_table,
         "gate_assessment": gate_assessment,
         "ablations_summary": ablations_summary,
+        "predictions_record": predictions_record,
+        "trace_events": h2_traces,
+        "graph": graph_std,
+        "cost_model": cost_model_hw,
         "elapsed_seconds": float(time.time() - t0),
     }
