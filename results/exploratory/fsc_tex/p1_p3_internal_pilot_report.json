@@ -1,0 +1,1193 @@
+{
+  "metadata": {
+    "git": {
+      "commit": "17bbf0ab9f8505c01edd955ff7bfa1c570a293dd",
+      "is_dirty": true
+    },
+    "timestamp": "2026-10-10T13:50:18-0300",
+    "candidate_pool": [
+      "resnet50",
+      "siglip_base",
+      "beitv2_base_final",
+      "dinov2",
+      "convnext_v2_t",
+      "eva02_base"
+    ],
+    "candidate_bases": [
+      "resnet50",
+      "siglip_base",
+      "convnext_v2_t"
+    ],
+    "target_budgets_ms": [
+      35.0,
+      45.0,
+      75.0
+    ],
+    "lambda_grid": [
+      0.001,
+      0.01,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "quantile_grid": [
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "guarantees": [
+      "Zero Test Leakage (T_test never accessed)",
+      "Decreasing real hardware budget in ms",
+      "Prospective matched hyperparameter selection",
+      "Nested producer-fold PCA fitting",
+      "Full-pipeline training label permutation verification"
+    ]
+  },
+  "datasets": {
+    "DTD": {
+      "elapsed_seconds": 9241.020981311798,
+      "p1_base_frontier": {
+        "individual_performance": {
+          "resnet50": {
+            "macro_f1": 0.7157053774969179,
+            "accuracy": 0.718625099920064,
+            "latency_ms": 12.389999999999999
+          },
+          "siglip_base": {
+            "macro_f1": 0.8307891929548777,
+            "accuracy": 0.832933653077538,
+            "latency_ms": 12.129999999999999
+          },
+          "beitv2_base_final": {
+            "macro_f1": 0.7921872195928696,
+            "accuracy": 0.7950972555289102,
+            "latency_ms": 12.67
+          },
+          "dinov2": {
+            "macro_f1": 0.8239517598853029,
+            "accuracy": 0.8270716759925393,
+            "latency_ms": 58.1
+          },
+          "convnext_v2_t": {
+            "macro_f1": 0.7541141507625425,
+            "accuracy": 0.7564614974686917,
+            "latency_ms": 16.13
+          },
+          "eva02_base": {
+            "macro_f1": 0.8092999584121142,
+            "accuracy": 0.8110844657607248,
+            "latency_ms": 19.77
+          }
+        },
+        "best_individual": {
+          "extractor": "siglip_base",
+          "macro_f1": 0.8307891929548777,
+          "latency_ms": 12.129999999999999
+        },
+        "base_analysis": {
+          "resnet50": {
+            "base_macro_f1": 0.7157053774969179,
+            "base_accuracy": 0.718625099920064,
+            "base_latency_ms": 12.389999999999999,
+            "oracle_1step_macro_f1": 0.9007103727390535,
+            "oracle_headroom_f1": 0.18500499524213565,
+            "best_static_pair": {
+              "augmentor": "dinov2",
+              "macro_f1": 0.8313248879586631,
+              "latency_ms": 70.49000000000001,
+              "delta_f1_vs_base": 0.11561951046174523
+            },
+            "augmentors": {
+              "siglip_base": {
+                "pair_macro_f1": 0.8245713094014537,
+                "pair_latency_ms": 24.519999999999996,
+                "delta_macro_f1": 0.10886593190453586,
+                "delta_latency_ms": 12.129999999999997,
+                "repaired_count": 468,
+                "harmed_count": 61,
+                "net_repaired": 407,
+                "net_repair_rate": 0.10844657607247535,
+                "efficiency_pts_per_ms": 0.8974932556021096
+              },
+              "beitv2_base_final": {
+                "pair_macro_f1": 0.797479983111574,
+                "pair_latency_ms": 25.06,
+                "delta_macro_f1": 0.0817746056146561,
+                "delta_latency_ms": 12.67,
+                "repaired_count": 406,
+                "harmed_count": 100,
+                "net_repaired": 306,
+                "net_repair_rate": 0.0815347721822542,
+                "efficiency_pts_per_ms": 0.6454191445513504
+              },
+              "dinov2": {
+                "pair_macro_f1": 0.8313248879586631,
+                "pair_latency_ms": 70.49000000000001,
+                "delta_macro_f1": 0.11561951046174523,
+                "delta_latency_ms": 58.10000000000001,
+                "repaired_count": 522,
+                "harmed_count": 89,
+                "net_repaired": 433,
+                "net_repair_rate": 0.11537436717292833,
+                "efficiency_pts_per_ms": 0.19900087859164411
+              },
+              "convnext_v2_t": {
+                "pair_macro_f1": 0.7762531870765915,
+                "pair_latency_ms": 28.519999999999996,
+                "delta_macro_f1": 0.06054780957967365,
+                "delta_latency_ms": 16.129999999999995,
+                "repaired_count": 331,
+                "harmed_count": 106,
+                "net_repaired": 225,
+                "net_repair_rate": 0.05995203836930456,
+                "efficiency_pts_per_ms": 0.3753738969601591
+              },
+              "eva02_base": {
+                "pair_macro_f1": 0.8131333078930044,
+                "pair_latency_ms": 32.16,
+                "delta_macro_f1": 0.09742793039608655,
+                "delta_latency_ms": 19.769999999999996,
+                "repaired_count": 451,
+                "harmed_count": 91,
+                "net_repaired": 360,
+                "net_repair_rate": 0.09592326139088729,
+                "efficiency_pts_per_ms": 0.49280693169492445
+              }
+            }
+          },
+          "siglip_base": {
+            "base_macro_f1": 0.8307891929548777,
+            "base_accuracy": 0.832933653077538,
+            "base_latency_ms": 12.129999999999999,
+            "oracle_1step_macro_f1": 0.9155126747093694,
+            "oracle_headroom_f1": 0.08472348175449163,
+            "best_static_pair": {
+              "augmentor": "dinov2",
+              "macro_f1": 0.8441472836478296,
+              "latency_ms": 70.23,
+              "delta_f1_vs_base": 0.013358090692951907
+            },
+            "augmentors": {
+              "resnet50": {
+                "pair_macro_f1": 0.8245713094014537,
+                "pair_latency_ms": 24.519999999999996,
+                "delta_macro_f1": -0.0062178835534240084,
+                "delta_latency_ms": 12.389999999999997,
+                "repaired_count": 144,
+                "harmed_count": 166,
+                "net_repaired": -22,
+                "net_repair_rate": -0.005861977084998668,
+                "efficiency_pts_per_ms": -0.050184693732235754
+              },
+              "beitv2_base_final": {
+                "pair_macro_f1": 0.8375322780835389,
+                "pair_latency_ms": 24.799999999999997,
+                "delta_macro_f1": 0.006743085128661175,
+                "delta_latency_ms": 12.669999999999998,
+                "repaired_count": 162,
+                "harmed_count": 136,
+                "net_repaired": 26,
+                "net_repair_rate": 0.006927791100452971,
+                "efficiency_pts_per_ms": 0.05322087710071962
+              },
+              "dinov2": {
+                "pair_macro_f1": 0.8441472836478296,
+                "pair_latency_ms": 70.23,
+                "delta_macro_f1": 0.013358090692951907,
+                "delta_latency_ms": 58.10000000000001,
+                "repaired_count": 187,
+                "harmed_count": 134,
+                "net_repaired": 53,
+                "net_repair_rate": 0.014122035704769519,
+                "efficiency_pts_per_ms": 0.022991550246044587
+              },
+              "convnext_v2_t": {
+                "pair_macro_f1": 0.8230142673283994,
+                "pair_latency_ms": 28.259999999999998,
+                "delta_macro_f1": -0.007774925626478302,
+                "delta_latency_ms": 16.13,
+                "repaired_count": 149,
+                "harmed_count": 177,
+                "net_repaired": -28,
+                "net_repair_rate": -0.007460698108180123,
+                "efficiency_pts_per_ms": -0.048201646785358356
+              },
+              "eva02_base": {
+                "pair_macro_f1": 0.8384611007653223,
+                "pair_latency_ms": 31.9,
+                "delta_macro_f1": 0.007671907810444578,
+                "delta_latency_ms": 19.77,
+                "repaired_count": 143,
+                "harmed_count": 117,
+                "net_repaired": 26,
+                "net_repair_rate": 0.006927791100452971,
+                "efficiency_pts_per_ms": 0.03880580581914304
+              }
+            }
+          },
+          "convnext_v2_t": {
+            "base_macro_f1": 0.7541141507625425,
+            "base_accuracy": 0.7564614974686917,
+            "base_latency_ms": 16.13,
+            "oracle_1step_macro_f1": 0.8996793369589074,
+            "oracle_headroom_f1": 0.14556518619636494,
+            "best_static_pair": {
+              "augmentor": "dinov2",
+              "macro_f1": 0.8394138020337946,
+              "latency_ms": 74.23,
+              "delta_f1_vs_base": 0.08529965127125205
+            },
+            "augmentors": {
+              "resnet50": {
+                "pair_macro_f1": 0.7762531870765915,
+                "pair_latency_ms": 28.519999999999996,
+                "delta_macro_f1": 0.02213903631404901,
+                "delta_latency_ms": 12.389999999999997,
+                "repaired_count": 184,
+                "harmed_count": 101,
+                "net_repaired": 83,
+                "net_repair_rate": 0.022115640820676793,
+                "efficiency_pts_per_ms": 0.17868471601330924
+              },
+              "siglip_base": {
+                "pair_macro_f1": 0.8230142673283994,
+                "pair_latency_ms": 28.259999999999998,
+                "delta_macro_f1": 0.06890011656585693,
+                "delta_latency_ms": 12.129999999999999,
+                "repaired_count": 313,
+                "harmed_count": 54,
+                "net_repaired": 259,
+                "net_repair_rate": 0.06901145750066613,
+                "efficiency_pts_per_ms": 0.5680141514085485
+              },
+              "beitv2_base_final": {
+                "pair_macro_f1": 0.7963011821250924,
+                "pair_latency_ms": 28.799999999999997,
+                "delta_macro_f1": 0.042187031362549865,
+                "delta_latency_ms": 12.669999999999998,
+                "repaired_count": 254,
+                "harmed_count": 95,
+                "net_repaired": 159,
+                "net_repair_rate": 0.042366107114308556,
+                "efficiency_pts_per_ms": 0.3329678876286493
+              },
+              "dinov2": {
+                "pair_macro_f1": 0.8394138020337946,
+                "pair_latency_ms": 74.23,
+                "delta_macro_f1": 0.08529965127125205,
+                "delta_latency_ms": 58.10000000000001,
+                "repaired_count": 394,
+                "harmed_count": 73,
+                "net_repaired": 321,
+                "net_repair_rate": 0.08553157474020784,
+                "efficiency_pts_per_ms": 0.1468152345460448
+              },
+              "eva02_base": {
+                "pair_macro_f1": 0.8242448610060359,
+                "pair_latency_ms": 35.9,
+                "delta_macro_f1": 0.07013071024349338,
+                "delta_latency_ms": 19.77,
+                "repaired_count": 343,
+                "harmed_count": 82,
+                "net_repaired": 261,
+                "net_repair_rate": 0.06954436450839328,
+                "efficiency_pts_per_ms": 0.354732980493138
+              }
+            }
+          }
+        }
+      },
+      "p2_budget_sweep_resnet50": {
+        "budget_35ms": {
+          "target_budget_ms": 35.0,
+          "selected_lambda_h1": 0.001,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.4,
+          "selected_cascade_augmentor": "dinov2",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8190858963916767,
+            "latency_ms": 26.68750762939453,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 0,
+              "1_acquisition": 3753,
+              "2_acquisitions": 0,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 0.0
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.8131333078930044,
+            "latency_ms": 32.15621566772461,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 0,
+              "1_acquisition": 3753,
+              "2_acquisitions": 0,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 0.0
+          },
+          "cascade_topk": {
+            "macro_f1": 0.806555082567438,
+            "latency_ms": 32.5926399230957
+          },
+          "delta_f1_h2_minus_h1": -0.0059525884986723065,
+          "delta_cost_h2_minus_h1_ms": 5.468708038330078
+        },
+        "budget_45ms": {
+          "target_budget_ms": 45.0,
+          "selected_lambda_h1": 0.001,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.5,
+          "selected_cascade_augmentor": "dinov2",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8315127207586224,
+            "latency_ms": 40.097373962402344,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 0,
+              "1_acquisition": 649,
+              "2_acquisitions": 3104,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 82.70716759925392
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.830838971940391,
+            "latency_ms": 41.47443389892578,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 0,
+              "1_acquisition": 251,
+              "2_acquisitions": 3502,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 93.31201705302425
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8200125788807953,
+            "latency_ms": 37.654911041259766
+          },
+          "delta_f1_h2_minus_h1": -0.0006737488182313456,
+          "delta_cost_h2_minus_h1_ms": 1.3770599365234375
+        },
+        "budget_75ms": {
+          "target_budget_ms": 75.0,
+          "selected_lambda_h1": 0.001,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.5,
+          "selected_cascade_augmentor": "dinov2",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8307490437673165,
+            "latency_ms": 40.67529296875,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 0,
+              "1_acquisition": 712,
+              "2_acquisitions": 3041,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 81.0285105249134
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.830838971940391,
+            "latency_ms": 41.4797477722168,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 0,
+              "1_acquisition": 250,
+              "2_acquisitions": 3503,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 93.3386624034106
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8200125788807953,
+            "latency_ms": 37.654911041259766
+          },
+          "delta_f1_h2_minus_h1": 8.992817307451606e-05,
+          "delta_cost_h2_minus_h1_ms": 0.8044548034667969
+        }
+      },
+      "p2_budget_sweep_siglip": {
+        "budget_35ms": {
+          "target_budget_ms": 35.0,
+          "selected_lambda_h1": 0.01,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.3,
+          "selected_cascade_augmentor": "dinov2",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8307891929548777,
+            "latency_ms": 12.182822227478027,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 3737,
+              "1_acquisition": 16,
+              "2_acquisitions": 0,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 0.0
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.8318171447547076,
+            "latency_ms": 23.63833999633789,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 1035,
+              "1_acquisition": 2718,
+              "2_acquisitions": 0,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 0.0
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8465933911930046,
+            "latency_ms": 26.217666625976562
+          },
+          "delta_f1_h2_minus_h1": 0.0010279517998298404,
+          "delta_cost_h2_minus_h1_ms": 11.455517768859863
+        },
+        "budget_45ms": {
+          "target_budget_ms": 45.0,
+          "selected_lambda_h1": 0.001,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.3,
+          "selected_cascade_augmentor": "dinov2",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8311971547162216,
+            "latency_ms": 27.075246810913086,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 1021,
+              "1_acquisition": 1629,
+              "2_acquisitions": 1103,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 29.389821476152413
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.8351233322777531,
+            "latency_ms": 31.078441619873047,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 177,
+              "1_acquisition": 3103,
+              "2_acquisitions": 473,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 12.603250732747135
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8465933911930046,
+            "latency_ms": 26.217666625976562
+          },
+          "delta_f1_h2_minus_h1": 0.003926177561531574,
+          "delta_cost_h2_minus_h1_ms": 4.003194808959961
+        },
+        "budget_75ms": {
+          "target_budget_ms": 75.0,
+          "selected_lambda_h1": 0.001,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.3,
+          "selected_cascade_augmentor": "dinov2",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8322032461933907,
+            "latency_ms": 27.50535011291504,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 959,
+              "1_acquisition": 1661,
+              "2_acquisitions": 1133,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 30.18918198774314
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.8381814622813463,
+            "latency_ms": 31.769376754760742,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 125,
+              "1_acquisition": 3091,
+              "2_acquisitions": 537,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 14.308553157474021
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8465933911930046,
+            "latency_ms": 26.217666625976562
+          },
+          "delta_f1_h2_minus_h1": 0.005978216087955568,
+          "delta_cost_h2_minus_h1_ms": 4.264026641845703
+        }
+      },
+      "p3_integrity_and_permutation": {
+        "producer_folds_count": 3,
+        "producer_fold_sizes": [
+          [
+            2501,
+            1252
+          ],
+          [
+            2502,
+            1251
+          ],
+          [
+            2503,
+            1250
+          ]
+        ],
+        "nested_pca_dimension": 16,
+        "permutation_test": {
+          "n_classes": 47,
+          "random_chance_level": 0.02127659574468085,
+          "permuted_base_f1": 0.022324479710202374,
+          "permuted_policy_f1": 0.022324479710202374,
+          "permutation_test_passed": true
+        }
+      },
+      "continuity_gate_45ms": {
+        "gate_1_beats_base": {
+          "passed": true,
+          "f1_h2": 0.830838971940391,
+          "f1_base": 0.7157053774969179,
+          "delta_f1": 0.11513359444347315
+        },
+        "gate_2_beats_or_dominates_best_ind": {
+          "passed": true,
+          "f1_h2": 0.830838971940391,
+          "cost_h2_ms": 41.47443389892578,
+          "best_ind_name": "siglip_base",
+          "f1_best_ind": 0.8307891929548777,
+          "cost_best_ind_ms": 12.129999999999999,
+          "beats_best_ind": true,
+          "cost_dominates_best_ind": false
+        },
+        "gate_3_beats_or_dominates_static_pair": {
+          "passed": true,
+          "f1_h2": 0.830838971940391,
+          "cost_h2_ms": 41.47443389892578,
+          "static_pair_name": "dinov2",
+          "f1_static_pair": 0.8313248879586631,
+          "cost_static_pair_ms": 70.49000000000001
+        },
+        "gate_4_multistep_feasible_observed": {
+          "passed": true,
+          "multistep_pct": 93.31201705302425,
+          "threshold_pct": 5.0
+        },
+        "gate_5_h2_vs_h1_advantage": {
+          "passed": false,
+          "f1_h2": 0.830838971940391,
+          "f1_h1": 0.8315127207586224,
+          "delta_f1": -0.0006737488182313456
+        },
+        "permutation_test_passed": true,
+        "overall_status": "PASS"
+      },
+      "continuity_gate_75ms": {
+        "gate_1_beats_base": {
+          "passed": true,
+          "f1_h2": 0.830838971940391,
+          "f1_base": 0.7157053774969179,
+          "delta_f1": 0.11513359444347315
+        },
+        "gate_2_beats_or_dominates_best_ind": {
+          "passed": true,
+          "f1_h2": 0.830838971940391,
+          "cost_h2_ms": 41.4797477722168,
+          "best_ind_name": "siglip_base",
+          "f1_best_ind": 0.8307891929548777,
+          "cost_best_ind_ms": 12.129999999999999,
+          "beats_best_ind": true,
+          "cost_dominates_best_ind": false
+        },
+        "gate_3_beats_or_dominates_static_pair": {
+          "passed": true,
+          "f1_h2": 0.830838971940391,
+          "cost_h2_ms": 41.4797477722168,
+          "static_pair_name": "dinov2",
+          "f1_static_pair": 0.8313248879586631,
+          "cost_static_pair_ms": 70.49000000000001
+        },
+        "gate_4_multistep_feasible_observed": {
+          "passed": true,
+          "multistep_pct": 93.3386624034106,
+          "threshold_pct": 5.0
+        },
+        "gate_5_h2_vs_h1_advantage": {
+          "passed": true,
+          "f1_h2": 0.830838971940391,
+          "f1_h1": 0.8307490437673165,
+          "delta_f1": 8.992817307451606e-05
+        },
+        "permutation_test_passed": true,
+        "overall_status": "PASS"
+      }
+    },
+    "SoilOriginal": {
+      "elapsed_seconds": 684.0025098323822,
+      "p1_base_frontier": {
+        "individual_performance": {
+          "resnet50": {
+            "macro_f1": 0.768753221111065,
+            "accuracy": 0.8388157894736842,
+            "latency_ms": 12.389999999999999
+          },
+          "siglip_base": {
+            "macro_f1": 0.8437465963017535,
+            "accuracy": 0.8947368421052632,
+            "latency_ms": 12.129999999999999
+          },
+          "beitv2_base_final": {
+            "macro_f1": 0.8420798804129241,
+            "accuracy": 0.8848684210526315,
+            "latency_ms": 12.67
+          },
+          "dinov2": {
+            "macro_f1": 0.7790014011209294,
+            "accuracy": 0.8508771929824561,
+            "latency_ms": 58.1
+          },
+          "convnext_v2_t": {
+            "macro_f1": 0.82209258063248,
+            "accuracy": 0.8717105263157895,
+            "latency_ms": 16.13
+          },
+          "eva02_base": {
+            "macro_f1": 0.8535899022866559,
+            "accuracy": 0.8991228070175439,
+            "latency_ms": 19.77
+          }
+        },
+        "best_individual": {
+          "extractor": "eva02_base",
+          "macro_f1": 0.8535899022866559,
+          "latency_ms": 19.77
+        },
+        "base_analysis": {
+          "resnet50": {
+            "base_macro_f1": 0.768753221111065,
+            "base_accuracy": 0.8388157894736842,
+            "base_latency_ms": 12.389999999999999,
+            "oracle_1step_macro_f1": 0.9112146003641087,
+            "oracle_headroom_f1": 0.1424613792530437,
+            "best_static_pair": {
+              "augmentor": "siglip_base",
+              "macro_f1": 0.8375765760708515,
+              "latency_ms": 24.519999999999996,
+              "delta_f1_vs_base": 0.06882335495978642
+            },
+            "augmentors": {
+              "siglip_base": {
+                "pair_macro_f1": 0.8375765760708515,
+                "pair_latency_ms": 24.519999999999996,
+                "delta_macro_f1": 0.06882335495978642,
+                "delta_latency_ms": 12.129999999999997,
+                "repaired_count": 59,
+                "harmed_count": 7,
+                "net_repaired": 52,
+                "net_repair_rate": 0.05701754385964912,
+                "efficiency_pts_per_ms": 0.5673813269561949
+              },
+              "beitv2_base_final": {
+                "pair_macro_f1": 0.8214948494287508,
+                "pair_latency_ms": 25.06,
+                "delta_macro_f1": 0.05274162831768581,
+                "delta_latency_ms": 12.67,
+                "repaired_count": 64,
+                "harmed_count": 24,
+                "net_repaired": 40,
+                "net_repair_rate": 0.043859649122807015,
+                "efficiency_pts_per_ms": 0.41627173099988796
+              },
+              "dinov2": {
+                "pair_macro_f1": 0.8060869694931488,
+                "pair_latency_ms": 70.49000000000001,
+                "delta_macro_f1": 0.03733374838208381,
+                "delta_latency_ms": 58.10000000000001,
+                "repaired_count": 60,
+                "harmed_count": 21,
+                "net_repaired": 39,
+                "net_repair_rate": 0.04276315789473684,
+                "efficiency_pts_per_ms": 0.06425774248207194
+              },
+              "convnext_v2_t": {
+                "pair_macro_f1": 0.7988228258807386,
+                "pair_latency_ms": 28.519999999999996,
+                "delta_macro_f1": 0.030069604769673575,
+                "delta_latency_ms": 16.129999999999995,
+                "repaired_count": 50,
+                "harmed_count": 21,
+                "net_repaired": 29,
+                "net_repair_rate": 0.03179824561403509,
+                "efficiency_pts_per_ms": 0.18642036435011522
+              },
+              "eva02_base": {
+                "pair_macro_f1": 0.8347459355054083,
+                "pair_latency_ms": 32.16,
+                "delta_macro_f1": 0.06599271439434329,
+                "delta_latency_ms": 19.769999999999996,
+                "repaired_count": 63,
+                "harmed_count": 14,
+                "net_repaired": 49,
+                "net_repair_rate": 0.0537280701754386,
+                "efficiency_pts_per_ms": 0.33380229840335507
+              }
+            }
+          },
+          "siglip_base": {
+            "base_macro_f1": 0.8437465963017535,
+            "base_accuracy": 0.8947368421052632,
+            "base_latency_ms": 12.129999999999999,
+            "oracle_1step_macro_f1": 0.9418005822953912,
+            "oracle_headroom_f1": 0.09805398599363768,
+            "best_static_pair": {
+              "augmentor": "beitv2_base_final",
+              "macro_f1": 0.8737397401195184,
+              "latency_ms": 24.799999999999997,
+              "delta_f1_vs_base": 0.029993143817764856
+            },
+            "augmentors": {
+              "resnet50": {
+                "pair_macro_f1": 0.8375765760708515,
+                "pair_latency_ms": 24.519999999999996,
+                "delta_macro_f1": -0.0061700202309020735,
+                "delta_latency_ms": 12.389999999999997,
+                "repaired_count": 33,
+                "harmed_count": 32,
+                "net_repaired": 1,
+                "net_repair_rate": 0.0010964912280701754,
+                "efficiency_pts_per_ms": -0.049798387658612386
+              },
+              "beitv2_base_final": {
+                "pair_macro_f1": 0.8737397401195184,
+                "pair_latency_ms": 24.799999999999997,
+                "delta_macro_f1": 0.029993143817764856,
+                "delta_latency_ms": 12.669999999999998,
+                "repaired_count": 33,
+                "harmed_count": 19,
+                "net_repaired": 14,
+                "net_repair_rate": 0.015350877192982455,
+                "efficiency_pts_per_ms": 0.236725681276755
+              },
+              "dinov2": {
+                "pair_macro_f1": 0.8347184471679653,
+                "pair_latency_ms": 70.23,
+                "delta_macro_f1": -0.009028149133788244,
+                "delta_latency_ms": 58.10000000000001,
+                "repaired_count": 24,
+                "harmed_count": 27,
+                "net_repaired": -3,
+                "net_repair_rate": -0.003289473684210526,
+                "efficiency_pts_per_ms": -0.015538983018568403
+              },
+              "convnext_v2_t": {
+                "pair_macro_f1": 0.8655290669939567,
+                "pair_latency_ms": 28.259999999999998,
+                "delta_macro_f1": 0.021782470692203182,
+                "delta_latency_ms": 16.13,
+                "repaired_count": 38,
+                "harmed_count": 23,
+                "net_repaired": 15,
+                "net_repair_rate": 0.01644736842105263,
+                "efficiency_pts_per_ms": 0.1350432156987178
+              },
+              "eva02_base": {
+                "pair_macro_f1": 0.862657979002223,
+                "pair_latency_ms": 31.9,
+                "delta_macro_f1": 0.018911382700469437,
+                "delta_latency_ms": 19.77,
+                "repaired_count": 28,
+                "harmed_count": 19,
+                "net_repaired": 9,
+                "net_repair_rate": 0.009868421052631578,
+                "efficiency_pts_per_ms": 0.09565696864172704
+              }
+            }
+          },
+          "convnext_v2_t": {
+            "base_macro_f1": 0.82209258063248,
+            "base_accuracy": 0.8717105263157895,
+            "base_latency_ms": 16.13,
+            "oracle_1step_macro_f1": 0.9220295502275836,
+            "oracle_headroom_f1": 0.09993696959510356,
+            "best_static_pair": {
+              "augmentor": "eva02_base",
+              "macro_f1": 0.8663008718132607,
+              "latency_ms": 35.9,
+              "delta_f1_vs_base": 0.04420829118078062
+            },
+            "augmentors": {
+              "resnet50": {
+                "pair_macro_f1": 0.7988228258807386,
+                "pair_latency_ms": 28.519999999999996,
+                "delta_macro_f1": -0.023269754751741423,
+                "delta_latency_ms": 12.389999999999997,
+                "repaired_count": 28,
+                "harmed_count": 29,
+                "net_repaired": -1,
+                "net_repair_rate": -0.0010964912280701754,
+                "efficiency_pts_per_ms": -0.1878107728147008
+              },
+              "siglip_base": {
+                "pair_macro_f1": 0.8655290669939567,
+                "pair_latency_ms": 28.259999999999998,
+                "delta_macro_f1": 0.04343648636147668,
+                "delta_latency_ms": 12.129999999999999,
+                "repaired_count": 43,
+                "harmed_count": 7,
+                "net_repaired": 36,
+                "net_repair_rate": 0.039473684210526314,
+                "efficiency_pts_per_ms": 0.3580913962199232
+              },
+              "beitv2_base_final": {
+                "pair_macro_f1": 0.8500199734298501,
+                "pair_latency_ms": 28.799999999999997,
+                "delta_macro_f1": 0.02792739279737011,
+                "delta_latency_ms": 12.669999999999998,
+                "repaired_count": 42,
+                "harmed_count": 21,
+                "net_repaired": 21,
+                "net_repair_rate": 0.023026315789473683,
+                "efficiency_pts_per_ms": 0.22042141118682015
+              },
+              "dinov2": {
+                "pair_macro_f1": 0.8471634807692731,
+                "pair_latency_ms": 74.23,
+                "delta_macro_f1": 0.02507090013679303,
+                "delta_latency_ms": 58.10000000000001,
+                "repaired_count": 48,
+                "harmed_count": 20,
+                "net_repaired": 28,
+                "net_repair_rate": 0.03070175438596491,
+                "efficiency_pts_per_ms": 0.04315129111324101
+              },
+              "eva02_base": {
+                "pair_macro_f1": 0.8663008718132607,
+                "pair_latency_ms": 35.9,
+                "delta_macro_f1": 0.04420829118078062,
+                "delta_latency_ms": 19.77,
+                "repaired_count": 51,
+                "harmed_count": 15,
+                "net_repaired": 36,
+                "net_repair_rate": 0.039473684210526314,
+                "efficiency_pts_per_ms": 0.223613005466771
+              }
+            }
+          }
+        }
+      },
+      "p2_budget_sweep_resnet50": {
+        "budget_35ms": {
+          "target_budget_ms": 35.0,
+          "selected_lambda_h1": 0.001,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.5,
+          "selected_cascade_augmentor": "siglip_base",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8291411528090661,
+            "latency_ms": 27.521459579467773,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 41,
+              "1_acquisition": 871,
+              "2_acquisitions": 0,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 0.0
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.8320229400514062,
+            "latency_ms": 28.55745506286621,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 0,
+              "1_acquisition": 912,
+              "2_acquisitions": 0,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 0.0
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8362119340866612,
+            "latency_ms": 17.178157806396484
+          },
+          "delta_f1_h2_minus_h1": 0.002881787242340117,
+          "delta_cost_h2_minus_h1_ms": 1.0359954833984375
+        },
+        "budget_45ms": {
+          "target_budget_ms": 45.0,
+          "selected_lambda_h1": 0.001,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.5,
+          "selected_cascade_augmentor": "siglip_base",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8416336001637912,
+            "latency_ms": 33.70537185668945,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 42,
+              "1_acquisition": 452,
+              "2_acquisitions": 418,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 45.83333333333333
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.8371362383727744,
+            "latency_ms": 37.157928466796875,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 4,
+              "1_acquisition": 223,
+              "2_acquisitions": 685,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 75.10964912280701
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8362119340866612,
+            "latency_ms": 17.178157806396484
+          },
+          "delta_f1_h2_minus_h1": -0.004497361791016785,
+          "delta_cost_h2_minus_h1_ms": 3.452556610107422
+        },
+        "budget_75ms": {
+          "target_budget_ms": 75.0,
+          "selected_lambda_h1": 0.001,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.5,
+          "selected_cascade_augmentor": "siglip_base",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8415707160860182,
+            "latency_ms": 34.28832244873047,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 43,
+              "1_acquisition": 429,
+              "2_acquisitions": 440,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 48.24561403508772
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.8367857045524287,
+            "latency_ms": 37.500728607177734,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 4,
+              "1_acquisition": 218,
+              "2_acquisitions": 690,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 75.6578947368421
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8362119340866612,
+            "latency_ms": 17.178157806396484
+          },
+          "delta_f1_h2_minus_h1": -0.004785011533589456,
+          "delta_cost_h2_minus_h1_ms": 3.2124061584472656
+        }
+      },
+      "p2_budget_sweep_siglip": {
+        "budget_35ms": {
+          "target_budget_ms": 35.0,
+          "selected_lambda_h1": 0.01,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.1,
+          "selected_cascade_augmentor": "eva02_base",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8437465963017535,
+            "latency_ms": 12.21971607208252,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 906,
+              "1_acquisition": 6,
+              "2_acquisitions": 0,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 0.0
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.8491244348020203,
+            "latency_ms": 24.615230560302734,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 83,
+              "1_acquisition": 829,
+              "2_acquisitions": 0,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 0.0
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8685077970081726,
+            "latency_ms": 13.777502059936523
+          },
+          "delta_f1_h2_minus_h1": 0.005377838500266741,
+          "delta_cost_h2_minus_h1_ms": 12.395514488220215
+        },
+        "budget_45ms": {
+          "target_budget_ms": 45.0,
+          "selected_lambda_h1": 0.001,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.1,
+          "selected_cascade_augmentor": "eva02_base",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8414403446970683,
+            "latency_ms": 29.086326599121094,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 151,
+              "1_acquisition": 463,
+              "2_acquisitions": 298,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 32.67543859649123
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.8490125552877456,
+            "latency_ms": 32.25791549682617,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 0,
+              "1_acquisition": 564,
+              "2_acquisitions": 348,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 38.15789473684211
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8685077970081726,
+            "latency_ms": 13.777502059936523
+          },
+          "delta_f1_h2_minus_h1": 0.007572210590677253,
+          "delta_cost_h2_minus_h1_ms": 3.171588897705078
+        },
+        "budget_75ms": {
+          "target_budget_ms": 75.0,
+          "selected_lambda_h1": 0.001,
+          "selected_lambda_h2": 0.001,
+          "selected_cascade_q": 0.1,
+          "selected_cascade_augmentor": "eva02_base",
+          "fsc_tex_h1": {
+            "macro_f1": 0.8447123492128331,
+            "latency_ms": 30.667970657348633,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 147,
+              "1_acquisition": 401,
+              "2_acquisitions": 364,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 39.91228070175439
+          },
+          "fsc_tex_h2": {
+            "macro_f1": 0.8699397236630096,
+            "latency_ms": 34.23027038574219,
+            "steps_distribution": {
+              "0_acquisitions_stop_at_base": 0,
+              "1_acquisition": 507,
+              "2_acquisitions": 405,
+              "3_or_more_acquisitions": 0
+            },
+            "multistep_acquisitions_pct": 44.40789473684211
+          },
+          "cascade_topk": {
+            "macro_f1": 0.8685077970081726,
+            "latency_ms": 13.777502059936523
+          },
+          "delta_f1_h2_minus_h1": 0.025227374450176532,
+          "delta_cost_h2_minus_h1_ms": 3.5622997283935547
+        }
+      },
+      "p3_integrity_and_permutation": {
+        "producer_folds_count": 3,
+        "producer_fold_sizes": [
+          [
+            607,
+            305
+          ],
+          [
+            608,
+            304
+          ],
+          [
+            609,
+            303
+          ]
+        ],
+        "nested_pca_dimension": 16,
+        "permutation_test": {
+          "n_classes": 7,
+          "random_chance_level": 0.14285714285714285,
+          "permuted_base_f1": 0.1324434625611163,
+          "permuted_policy_f1": 0.1324434625611163,
+          "permutation_test_passed": true
+        }
+      },
+      "continuity_gate_45ms": {
+        "gate_1_beats_base": {
+          "passed": true,
+          "f1_h2": 0.8371362383727744,
+          "f1_base": 0.768753221111065,
+          "delta_f1": 0.06838301726170937
+        },
+        "gate_2_beats_or_dominates_best_ind": {
+          "passed": false,
+          "f1_h2": 0.8371362383727744,
+          "cost_h2_ms": 37.157928466796875,
+          "best_ind_name": "eva02_base",
+          "f1_best_ind": 0.8535899022866559,
+          "cost_best_ind_ms": 19.77,
+          "beats_best_ind": false,
+          "cost_dominates_best_ind": false
+        },
+        "gate_3_beats_or_dominates_static_pair": {
+          "passed": false,
+          "f1_h2": 0.8371362383727744,
+          "cost_h2_ms": 37.157928466796875,
+          "static_pair_name": "siglip_base",
+          "f1_static_pair": 0.8375765760708515,
+          "cost_static_pair_ms": 24.519999999999996
+        },
+        "gate_4_multistep_feasible_observed": {
+          "passed": true,
+          "multistep_pct": 75.10964912280701,
+          "threshold_pct": 5.0
+        },
+        "gate_5_h2_vs_h1_advantage": {
+          "passed": false,
+          "f1_h2": 0.8371362383727744,
+          "f1_h1": 0.8416336001637912,
+          "delta_f1": -0.004497361791016785
+        },
+        "permutation_test_passed": true,
+        "overall_status": "CONDITIONAL"
+      },
+      "continuity_gate_75ms": {
+        "gate_1_beats_base": {
+          "passed": true,
+          "f1_h2": 0.8367857045524287,
+          "f1_base": 0.768753221111065,
+          "delta_f1": 0.0680324834413637
+        },
+        "gate_2_beats_or_dominates_best_ind": {
+          "passed": false,
+          "f1_h2": 0.8367857045524287,
+          "cost_h2_ms": 37.500728607177734,
+          "best_ind_name": "eva02_base",
+          "f1_best_ind": 0.8535899022866559,
+          "cost_best_ind_ms": 19.77,
+          "beats_best_ind": false,
+          "cost_dominates_best_ind": false
+        },
+        "gate_3_beats_or_dominates_static_pair": {
+          "passed": false,
+          "f1_h2": 0.8367857045524287,
+          "cost_h2_ms": 37.500728607177734,
+          "static_pair_name": "siglip_base",
+          "f1_static_pair": 0.8375765760708515,
+          "cost_static_pair_ms": 24.519999999999996
+        },
+        "gate_4_multistep_feasible_observed": {
+          "passed": true,
+          "multistep_pct": 75.6578947368421,
+          "threshold_pct": 5.0
+        },
+        "gate_5_h2_vs_h1_advantage": {
+          "passed": false,
+          "f1_h2": 0.8367857045524287,
+          "f1_h1": 0.8415707160860182,
+          "delta_f1": -0.004785011533589456
+        },
+        "permutation_test_passed": true,
+        "overall_status": "CONDITIONAL"
+      }
+    }
+  },
+  "total_elapsed_seconds": 9925.043581485748
+}

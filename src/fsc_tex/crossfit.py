@@ -276,6 +276,8 @@ def select_hyperparameters_prospective(
             graph=graph,
             n_splits=2,
             seed=seed,
+            cost_model=cost_model,
+            target_budget_ms=target_budget_ms,
         )
 
         # 3. Evaluar clasificadores en la partición de validación interna
@@ -284,6 +286,8 @@ def select_hyperparameters_prospective(
             feature_store=feature_store,
             eval_idx=idx_val,
             graph=graph,
+            cost_model=cost_model,
+            target_budget_ms=target_budget_ms,
         )
 
         # 4. Evaluar políticas FSC-Tex en validación interna

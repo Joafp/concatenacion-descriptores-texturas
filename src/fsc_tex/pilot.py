@@ -84,6 +84,8 @@ def run_residual_acquisition_pilot(
         graph=graph_std,
         n_splits=3,
         seed=seed,
+        cost_model=cost_model_hw,
+        target_budget_ms=target_budget_ms,
     )
 
     # Generar también características OOF enriquecidas

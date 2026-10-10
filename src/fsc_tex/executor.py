@@ -145,7 +145,58 @@ class OnlineExtractorRegistry:
                     out = model.get_image_features(**inputs)
                 if self.is_cuda():
                     torch.cuda.synchronize()
-                vec = out.cpu().numpy().ravel()
+                t_out = out.pooler_output if hasattr(out, "pooler_output") and out.pooler_output is not None else (out if isinstance(out, torch.Tensor) else out[0])
+                vec = t_out.cpu().numpy().ravel()
+                norm = np.linalg.norm(vec)
+                return vec / (norm + 1e-12)
+
+            self._extract_fns[name] = extract
+            return extract
+
+        elif name == "convnext_v2_t":
+            import timm
+            model = timm.create_model("convnextv2_tiny.fcmae_ft_in22k_in1k", pretrained=True, num_classes=0).to(self.device).eval()
+            cfg = timm.data.resolve_model_data_config(model)
+            tf = transforms.Compose([
+                transforms.Resize(cfg["input_size"][1:]),
+                transforms.CenterCrop(cfg["input_size"][1:]),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=cfg["mean"], std=cfg["std"]),
+            ])
+
+            def extract(img_input: Any) -> np.ndarray:
+                img = img_input if isinstance(img_input, Image.Image) else Image.open(img_input).convert("RGB")
+                tensor = tf(img).unsqueeze(0).to(self.device)
+                with torch.inference_mode():
+                    feat = model(tensor)
+                if self.is_cuda():
+                    torch.cuda.synchronize()
+                vec = feat.cpu().numpy().ravel()
+                norm = np.linalg.norm(vec)
+                return vec / (norm + 1e-12)
+
+            self._extract_fns[name] = extract
+            return extract
+
+        elif name == "eva02_base":
+            import timm
+            model = timm.create_model("eva02_base_patch14_224", pretrained=True, num_classes=0).to(self.device).eval()
+            cfg = timm.data.resolve_model_data_config(model)
+            tf = transforms.Compose([
+                transforms.Resize(cfg["input_size"][1:]),
+                transforms.CenterCrop(cfg["input_size"][1:]),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=cfg["mean"], std=cfg["std"]),
+            ])
+
+            def extract(img_input: Any) -> np.ndarray:
+                img = img_input if isinstance(img_input, Image.Image) else Image.open(img_input).convert("RGB")
+                tensor = tf(img).unsqueeze(0).to(self.device)
+                with torch.inference_mode():
+                    feat = model(tensor)
+                if self.is_cuda():
+                    torch.cuda.synchronize()
+                vec = feat.cpu().numpy().ravel()
                 norm = np.linalg.norm(vec)
                 return vec / (norm + 1e-12)
 
