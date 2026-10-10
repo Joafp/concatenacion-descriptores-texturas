@@ -87,10 +87,13 @@ def generate_oof_state_data(
     graph: StateGraph,
     n_splits: int = 3,
     seed: int = 42,
+    cost_model: Optional[HardwareCostModel] = None,
+    target_budget_ms: Optional[float] = None,
 ) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray], Dict[str, np.ndarray], Dict[str, np.ndarray], List[Tuple[np.ndarray, np.ndarray]]]:
     """Genera predicciones y características fuera de muestra (OOF) para cada estado dentro de T_train.
     
-    Respeta la agrupación física inner_groups para prevenir filtraciones internas.
+    Respeta la agrupación física inner_groups para prevenir filtraciones internas y
+    asegura coherencia estricta en las unidades del presupuesto restante (Hito P3).
     """
     n_train = len(train_idx)
     classes = np.unique(y_train)
@@ -136,10 +139,17 @@ def generate_oof_state_data(
         oof_preds[state.id] = state_oof_preds
         oof_losses[state.id] = state_oof_losses
         oof_margins[state.id] = state_oof_margins
+
+        if cost_model is not None and target_budget_ms is not None:
+            rem_b = max(0.0, float(target_budget_ms - cost_model.cumulative_cost_ms(state.blocks)))
+        else:
+            rem_b = 1.0
+
         oof_features[state.id] = graph.encode_state_features_batch(
             state=state,
             margins=state_oof_margins,
             decision_functions=state_oof_df,
+            remaining_budgets=rem_b,
         )
 
     return oof_features, oof_losses, oof_margins, oof_preds, prod_folds
@@ -167,6 +177,8 @@ def evaluate_state_classifiers(
     feature_store: ProtectedFeatureStore,
     eval_idx: np.ndarray,
     graph: StateGraph,
+    cost_model: Optional[HardwareCostModel] = None,
+    target_budget_ms: Optional[float] = None,
 ) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray], Dict[str, np.ndarray]]:
     """Genera predicciones, márgenes y características observadas para un conjunto de índices."""
     preds_by_state = {}
@@ -186,10 +198,17 @@ def evaluate_state_classifiers(
 
         preds_by_state[state_id] = preds_eval
         margins_by_state[state_id] = compute_margins(df_eval)
+
+        if cost_model is not None and target_budget_ms is not None:
+            rem_b = max(0.0, float(target_budget_ms - cost_model.cumulative_cost_ms(state_obj.blocks)))
+        else:
+            rem_b = 1.0
+
         feats_by_state[state_id] = graph.encode_state_features_batch(
             state=state_obj,
             margins=margins_by_state[state_id],
             decision_functions=df_pad,
+            remaining_budgets=rem_b,
         )
 
     return preds_by_state, margins_by_state, feats_by_state

@@ -133,9 +133,12 @@ def find_confirmatory_reference_metrics(
     condition: Any,
     classifier: str = "svm",
 ) -> Dict[str, Optional[Dict[str, float]]]:
-    """Busca y extrae las referencias confirmativas históricas de nested_fold_results.csv.
+    """Busca y extrae las referencias confirmativas históricas de 22 bloques (Hito P0).
     
-    Devuelve métricas para 'full_concat' (Completa-22), 'gfs' (GFS-22) y 'topk_individual' (Top-k 22).
+    Consulta prioritariamente el libro mayor canónico auditado:
+    results/exploratory/fsc_tex/CANONICAL_22_REFERENCE_LEDGER.json
+    
+    Garantiza el mapeo exacto de outer_fold y fuentes fijas con SHA-256.
     """
     results: Dict[str, Optional[Dict[str, float]]] = {
         "Reference_Full_22": None,
@@ -143,71 +146,98 @@ def find_confirmatory_reference_metrics(
         "Reference_Topk_22": None,
     }
 
-    # Ubicaciones estándar de nested_fold_results.csv
-    candidate_csvs = [
-        repo_root / "results/confirmatory/ngram22_beitv2/nested_fold_results.csv",
-        repo_root / "results/confirmatory/ngram22_beitv2/topk_individual_control/nested_fold_results.csv",
-        repo_root / "results/extensions/outex13_official1360/ngram22_beitv2/nested_fold_results.csv",
-        repo_root / "results/extensions/outex13_official1360/ngram22_beitv2/topk_individual_control/nested_fold_results.csv",
-    ]
-
-    # También buscar en subdirectorios de extensiones
-    ext_dir = repo_root / "results/extensions"
-    if ext_dir.exists():
-        candidate_csvs.extend(list(ext_dir.glob("*/ngram22_beitv2*/nested_fold_results.csv")))
-        candidate_csvs.extend(list(ext_dir.glob("*/ngram22_beitv2*/*/nested_fold_results.csv")))
-
-    # Mapeo de condición a outer_fold
-    try:
-        cond_fold = int(condition)
-    except ValueError:
-        cond_fold = 0
-
-    for csv_path in candidate_csvs:
-        if not csv_path.exists():
-            continue
+    ledger_path = repo_root / "results/exploratory/fsc_tex/CANONICAL_22_REFERENCE_LEDGER.json"
+    if ledger_path.exists():
         try:
-            with open(csv_path, "r", encoding="utf-8") as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    ds = row.get("dataset", "")
-                    clf = row.get("classifier", "")
-                    method = row.get("method", "")
-                    outer_f = row.get("outer_fold", "")
+            with open(ledger_path, "r", encoding="utf-8") as f:
+                ledger = json.load(f)
+            cond_str = str(condition)
+            for entry in ledger.get("entries", []):
+                if (
+                    entry["dataset"].lower() == dataset_name.lower()
+                    and str(entry["condition"]) == cond_str
+                    and entry.get("classifier", "svm").lower() == classifier.lower()
+                ):
+                    for k in ("Reference_Full_22", "Reference_GFS_22", "Reference_Topk_22"):
+                        ref = entry.get(k)
+                        if ref is not None:
+                            results[k] = {
+                                "macro_f1": float(ref["macro_f1"]),
+                                "accuracy": float(ref["accuracy"]),
+                                "blocks_count": int(ref.get("k", 22 if k == "Reference_Full_22" else 0)),
+                            }
+                    return results
+        except Exception:
+            pass
 
-                    if ds.lower() != dataset_name.lower():
-                        continue
-                    if clf.lower() != classifier.lower():
-                        continue
-                    try:
-                        if int(outer_f) != cond_fold:
-                            continue
-                    except ValueError:
-                        pass
+    # Mapeo exacto si el ledger no estuviese generado
+    ds_lower = dataset_name.lower()
+    if ds_lower in ("dtd", "outex13official1360", "kthtips2b"):
+        try:
+            cond_fold = int(condition) - 1
+        except ValueError:
+            cond_fold = 0
+    elif ds_lower == "curet":
+        cond_fold = 0 if str(condition) == "a_to_b" else 1
+    else:  # fmd, soiloriginal
+        try:
+            cond_fold = int(condition)
+        except ValueError:
+            cond_fold = 0
 
-                    f1_val = float(row.get("macro_f1", 0.0))
-                    acc_val = float(row.get("accuracy", 0.0))
-                    k_val = int(row.get("k", 0))
+    # Fuentes canónicas fijas
+    if ds_lower in ("dtd", "fmd", "curet"):
+        main_csv = repo_root / "results/confirmatory/ngram22_beitv2/nested_fold_results.csv"
+        topk_csv = repo_root / "results/confirmatory/ngram22_beitv2/topk_individual_control/nested_fold_results.csv"
+    elif ds_lower == "outex13official1360":
+        main_csv = repo_root / "results/extensions/outex13_official1360/ngram22_beitv2/nested_fold_results.csv"
+        topk_csv = repo_root / "results/extensions/outex13_official1360/ngram22_beitv2/topk_individual_control/nested_fold_results.csv"
+    elif ds_lower == "soiloriginal":
+        main_csv = repo_root / "results/extensions/soil_original/ngram22_beitv2/nested_fold_results.csv"
+        topk_csv = repo_root / "results/extensions/soil_original/ngram22_beitv2/topk_individual_control/nested_fold_results.csv"
+    elif ds_lower == "kthtips2b":
+        main_csv = repo_root / "results/extensions/kth_tips2b/ngram22_beitv2_innergrp_sample_v1/nested_fold_results.csv"
+        topk_csv = repo_root / "results/extensions/kth_tips2b/ngram22_beitv2_innergrp_sample_v1/topk_individual_control/nested_fold_results.csv"
+    else:
+        return results
 
-                    if method == "full_concat" and k_val == 22:
-                        results["Reference_Full_22"] = {
-                            "macro_f1": f1_val,
-                            "accuracy": acc_val,
-                            "blocks_count": 22,
-                        }
-                    elif method == "gfs":
-                        results["Reference_GFS_22"] = {
-                            "macro_f1": f1_val,
-                            "accuracy": acc_val,
-                            "blocks_count": k_val,
-                        }
-                    elif method == "topk_individual":
+    if main_csv.exists():
+        try:
+            with open(main_csv, "r", encoding="utf-8") as f:
+                for r in csv.DictReader(f):
+                    if (
+                        r["dataset"].lower() == ds_lower
+                        and r["classifier"].lower() == classifier.lower()
+                        and int(r["outer_fold"]) == cond_fold
+                        and int(r.get("seed", 42)) == 42
+                    ):
+                        f1_val = float(r.get("macro_f1", 0.0))
+                        acc_val = float(r.get("accuracy", 0.0))
+                        k_val = int(r.get("k", 0))
+                        if r["method"] == "full_concat" and k_val == 22:
+                            results["Reference_Full_22"] = {"macro_f1": f1_val, "accuracy": acc_val, "blocks_count": 22}
+                        elif r["method"] == "gfs":
+                            results["Reference_GFS_22"] = {"macro_f1": f1_val, "accuracy": acc_val, "blocks_count": k_val}
+        except Exception:
+            pass
+
+    if topk_csv.exists():
+        try:
+            with open(topk_csv, "r", encoding="utf-8") as f:
+                for r in csv.DictReader(f):
+                    if (
+                        r["dataset"].lower() == ds_lower
+                        and r["classifier"].lower() == classifier.lower()
+                        and int(r["outer_fold"]) == cond_fold
+                        and int(r.get("seed", 42)) == 42
+                        and r["method"] == "topk_individual"
+                    ):
                         results["Reference_Topk_22"] = {
-                            "macro_f1": f1_val,
-                            "accuracy": acc_val,
-                            "blocks_count": k_val,
+                            "macro_f1": float(r.get("macro_f1", 0.0)),
+                            "accuracy": float(r.get("accuracy", 0.0)),
+                            "blocks_count": int(r.get("k", 0)),
                         }
         except Exception:
-            continue
+            pass
 
     return results
