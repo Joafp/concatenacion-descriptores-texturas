@@ -1,0 +1,44 @@
+{
+  "dataset": "FMD",
+  "protocol": "stratified_group_kfold5_fold4",
+  "topk_blocks": [
+    "siglip_base",
+    "dinov2_large",
+    "dinov2",
+    "eva02_base",
+    "dinov2_small"
+  ],
+  "allowed_cheap": [
+    "resnet50",
+    "siglip_base",
+    "beitv2_base_final",
+    "convnext_v2_t"
+  ],
+  "topk_direct": {
+    "macro_f1": 0.9699718103890118,
+    "component_ms": 642.8029279501061
+  },
+  "topk_reproduction_delta_vs_archive": 0.0,
+  "selected_cheap_stage": {
+    "macro_f1": 0.9751067631555437,
+    "request_fraction": 0.185,
+    "component_ms": 140.18116648371074,
+    "route": "cascade",
+    "cheap": "siglip_base",
+    "budget": 0.25
+  },
+  "resnet50_only": {
+    "macro_f1": 0.9600485347711964,
+    "request_fraction": 0.495,
+    "component_ms": 342.331004435302,
+    "route": "cascade",
+    "cheap": "resnet50",
+    "budget": 0.5
+  },
+  "seconds": 5.36783179700069,
+  "source_archive": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/fmd/exact_archive/FMD_svm_s42_f4_topk_cascade.json",
+    "sha256": "16b6964a4f6944b42b1f19eb88a09193d1e7d8e83f01f2fc189e3736696a945c"
+  },
+  "cost_profile": "/home/joaquin/tesis_claude/results/exploratory/adaptive_descriptor_pilot/cost_budget_comparison/primary22_e2e/Outex_official1_primary22_online_train_components.json"
+}

@@ -1,0 +1,44 @@
+{
+  "dataset": "CUReT",
+  "protocol": "curet_half_indices:b_to_a",
+  "topk_blocks": [
+    "dinov2_large",
+    "dinov2",
+    "dinov2_small",
+    "beitv2_base_final",
+    "vit_b16"
+  ],
+  "allowed_cheap": [
+    "resnet50",
+    "siglip_base",
+    "beitv2_base_final",
+    "convnext_v2_t"
+  ],
+  "topk_direct": {
+    "macro_f1": 0.9996435787022778,
+    "component_ms": 668.7912998834084
+  },
+  "topk_reproduction_delta_vs_archive": 0.0,
+  "selected_cheap_stage": {
+    "macro_f1": 0.9996435787022778,
+    "request_fraction": 0.17462580185317178,
+    "component_ms": 138.49780620861162,
+    "route": "cascade",
+    "cheap": "beitv2_base_final",
+    "budget": 0.25
+  },
+  "resnet50_only": {
+    "macro_f1": 0.998934486608463,
+    "request_fraction": 0.18032786885245902,
+    "component_ms": 144.74526491504037,
+    "route": "cascade",
+    "cheap": "resnet50",
+    "budget": 0.25
+  },
+  "seconds": 72.95962920199963,
+  "source_archive": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/curet/exact_archive/CUReT_svm_s42_b_to_a_topk_cascade.json",
+    "sha256": "7e89f7e80afa6a364f40072330350d004bf996aa209c7ca788965ad584438b1c"
+  },
+  "cost_profile": "/home/joaquin/tesis_claude/results/exploratory/adaptive_descriptor_pilot/cost_budget_comparison/primary22_e2e/Outex_official1_primary22_online_train_components.json"
+}

@@ -134,6 +134,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=CASCADE / "cheap_stage_selected_primary22")
     parser.add_argument("--dataset", choices=tuple(SOURCES))
     parser.add_argument("--limit", type=int, default=None, help="max conditions per dataset (timing pilot)")
+    parser.add_argument("--force", action="store_true", help="recompute even if result file exists")
     args = parser.parse_args()
 
     kth_costs = component_costs(DEFAULT_KTH_COST)
@@ -157,8 +158,29 @@ def main() -> None:
         if len(paths) != EXPECTED[dataset]:
             raise ValueError(f"{dataset}: expected {EXPECTED[dataset]} archives, found {len(paths)}")
         for path in paths[: args.limit]:
-            t0 = time.perf_counter()
             entry = json.loads(path.read_text(encoding="utf-8"))
+            result_file = args.output / f"{dataset}_{entry['protocol']}_result.json"
+            if not args.force and result_file.exists():
+                rec = json.loads(result_file.read_text(encoding="utf-8"))
+                ev_new = rec["selected_cheap_stage"]
+                ev_res = rec["resnet50_only"]
+                direct_ms = rec["topk_direct"]["component_ms"]
+                topk_f1 = rec["topk_direct"]["macro_f1"]
+                out_rows.append({
+                    "dataset": dataset, "protocol": entry["protocol"],
+                    "new_route": ev_new["route"], "new_cheap": ev_new["cheap"],
+                    "new_budget": ev_new.get("budget"), "new_f1": ev_new["macro_f1"],
+                    "new_ms": ev_new["component_ms"], "resnet_route": ev_res["route"],
+                    "resnet_budget": ev_res.get("budget"), "resnet_f1": ev_res["macro_f1"],
+                    "resnet_ms": ev_res["component_ms"], "topk_f1": topk_f1, "topk_ms": direct_ms,
+                    "topk_repro_delta": rec.get("topk_reproduction_delta_vs_archive", 0.0),
+                    "seconds": rec.get("seconds", 0.0),
+                })
+                print(f"[CACHE HIT] {dataset} {entry['protocol']}: new={ev_new['route']}/{ev_new['cheap']}/q={ev_new.get('budget')} "
+                      f"F1={ev_new['macro_f1']:.4f} {ev_new['component_ms']:.1f}ms", flush=True)
+                continue
+
+            t0 = time.perf_counter()
             topk = entry["expensive_blocks"]
             missing = set(topk) - costs.keys()
             if missing:
@@ -215,6 +237,32 @@ def main() -> None:
         writer = csv.DictWriter(fh, fieldnames=list(out_rows[0]))
         writer.writeheader()
         writer.writerows(out_rows)
+
+    summary_by_dataset = {}
+    for ds in datasets:
+        ds_rows = [r for r in out_rows if r["dataset"] == ds]
+        if ds_rows:
+            summary_by_dataset[ds] = {
+                "conditions": len(ds_rows),
+                "new_mean_f1": float(np.mean([r["new_f1"] for r in ds_rows])),
+                "new_mean_ms": float(np.mean([r["new_ms"] for r in ds_rows])),
+                "resnet_mean_f1": float(np.mean([r["resnet_f1"] for r in ds_rows])),
+                "resnet_mean_ms": float(np.mean([r["resnet_ms"] for r in ds_rows])),
+                "topk_mean_f1": float(np.mean([r["topk_f1"] for r in ds_rows])),
+                "topk_mean_ms": float(np.mean([r["topk_ms"] for r in ds_rows])),
+                "cheap_stages_chosen": {
+                    c: sum(1 for r in ds_rows if r["new_cheap"] == c) for c in CHEAP_CANDIDATES
+                },
+                "routes_chosen": {
+                    "cascade": sum(1 for r in ds_rows if r["new_route"] == "cascade"),
+                    "topk_direct": sum(1 for r in ds_rows if r["new_route"] == "topk_direct"),
+                },
+            }
+    summary_file = args.output / f"summary{suffix}.json"
+    summary_file.write_text(json.dumps(summary_by_dataset, indent=2) + "\n", encoding="utf-8")
+    print("\n=== RESUMEN POR DATASET ===")
+    for ds, s in summary_by_dataset.items():
+        print(f"  [{ds:20s}] N={s['conditions']} | New F1={s['new_mean_f1']:.4f} ({s['new_mean_ms']:.1f}ms) | ResNet F1={s['resnet_mean_f1']:.4f} ({s['resnet_mean_ms']:.1f}ms) | Top-k F1={s['topk_mean_f1']:.4f} ({s['topk_mean_ms']:.1f}ms) | Etapas: {s['cheap_stages_chosen']}")
 
 
 if __name__ == "__main__":
