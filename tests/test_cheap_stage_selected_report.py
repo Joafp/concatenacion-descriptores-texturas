@@ -56,3 +56,20 @@ def test_generate_report_contents(tmp_path):
     assert "# Reporte de Validación Estadística: Cascada Adaptativa Costo-Consciente" in content
     assert "75.5%" in content
     assert "27 condiciones" in content
+
+
+def test_plotting_generation(tmp_path):
+    from scripts.plot_cheap_stage_selected_cascade import (
+        plot_pareto_frontier,
+        plot_routing_efficiency,
+        plot_speedup_accuracy_bars,
+        RESULTS_DIR,
+    )
+    df = pd.read_csv(DEFAULT_ROWS_CSV)
+    plot_pareto_frontier(df, tmp_path)
+    plot_routing_efficiency(RESULTS_DIR, tmp_path)
+    plot_speedup_accuracy_bars(df, tmp_path)
+
+    assert (tmp_path / "pareto_frontier_adaptive_cascade.pdf").exists()
+    assert (tmp_path / "cascade_routing_efficiency.pdf").exists()
+    assert (tmp_path / "multidataset_speedup_accuracy.pdf").exists()
