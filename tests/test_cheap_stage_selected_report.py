@@ -2,6 +2,7 @@
 """Tests unitarios para la generación de reportes estadísticos de la Cascada Adaptativa."""
 
 from pathlib import Path
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -53,9 +54,46 @@ def test_generate_report_contents(tmp_path):
     out_file = tmp_path / "test_report.md"
     content = generate_report(df, out_file)
     assert out_file.exists()
-    assert "# Reporte de Validación Estadística: Cascada Adaptativa Costo-Consciente" in content
+    assert "# Reporte auditado: cascada con etapa económica seleccionada" in content
     assert "75.5%" in content
     assert "27 condiciones" in content
+    assert "N=5 datasets" in content
+    assert "No rechazar no demuestra igualdad" in content
+    assert "Costo proyectado" in content
+    assert "Paridad estadística" not in content
+    assert "equivalencia empírica" not in content
+    assert "horizonte infinito" not in content
+
+
+def test_kth_references_are_not_silently_substituted():
+    df = load_and_merge_data(DEFAULT_ROWS_CSV, DEFAULT_LEDGER_CSV)
+    kth = df[df.dataset == "KTHTIPS2b"]
+    assert kth.topk_reference_status.value_counts().to_dict() == {"missing": 3, "different": 1}
+    assert not kth.inference_eligible.any()
+    assert df.inference_eligible.sum() == 23
+
+
+def test_duplicate_conditions_are_rejected(tmp_path):
+    rows = pd.read_csv(DEFAULT_ROWS_CSV)
+    duplicate = pd.concat([rows, rows.iloc[[0]]])
+    path = tmp_path / "rows.csv"
+    duplicate.to_csv(path, index=False)
+    with pytest.raises(ValueError, match="Duplicate condition"):
+        load_and_merge_data(path, DEFAULT_LEDGER_CSV)
+
+
+def test_bad_metrics_are_rejected(tmp_path):
+    import json
+    rows = pd.read_csv(DEFAULT_ROWS_CSV)
+    row = rows.iloc[0]
+    source = DEFAULT_ROWS_CSV.parent / f"{row.dataset}_{row.protocol}_result.json"
+    record = json.loads(source.read_text())
+    record["selected_cheap_stage"]["macro_f1"] += 0.1
+    (tmp_path / source.name).write_text(json.dumps(record))
+    path = tmp_path / "rows.csv"
+    rows.to_csv(path, index=False)
+    with pytest.raises(ValueError, match="CSV/JSON mismatch"):
+        load_and_merge_data(path, DEFAULT_LEDGER_CSV)
 
 
 def test_plotting_generation(tmp_path):
@@ -73,3 +111,20 @@ def test_plotting_generation(tmp_path):
     assert (tmp_path / "pareto_frontier_adaptive_cascade.pdf").exists()
     assert (tmp_path / "cascade_routing_efficiency.pdf").exists()
     assert (tmp_path / "multidataset_speedup_accuracy.pdf").exists()
+
+
+def test_all_27_predictions_exist_and_reproduce_metrics():
+    import json
+    from sklearn.metrics import f1_score
+    rows = pd.read_csv(DEFAULT_ROWS_CSV)
+    pred_dir = DEFAULT_ROWS_CSV.parent
+    assert len(list(pred_dir.glob("*_predictions.json"))) == 27
+    for _, row in rows.iterrows():
+        pred_file = pred_dir / f"{row.dataset}_{row.protocol}_predictions.json"
+        assert pred_file.exists(), f"Falta {pred_file}"
+        data = json.loads(pred_file.read_text(encoding="utf-8"))
+        y_true = np.array(data["y_true"])
+        y_pred = np.array(data["y_pred_adaptive_cascade"])
+        labels = np.unique(y_true)
+        recalculated_f1 = float(f1_score(y_true, y_pred, labels=labels, average="macro", zero_division=0))
+        assert np.isclose(recalculated_f1, row["new_f1"], rtol=0, atol=1e-12)

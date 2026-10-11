@@ -1,17 +1,9 @@
 #!/usr/bin/env python3
-"""Generador de Reporte y Análisis Estadístico para Cascada Adaptativa (27 Condiciones Canónicas).
+"""Audit the saved cascade aggregates without certifying physical savings.
 
-Evalúa la cascada costo-consciente con selección prospectiva de la etapa económica (Cheap-Stage Selected)
-frente a los controles principales:
-1. Cascada ResNet-50 fija (línea base anterior)
-2. Top-k 22 Canónico (selección estática offline)
-3. Fusión Completa 22 (concatenación de todos los bloques)
-
-Aplica el marco metodológico de Demšar (2006) para comparación de clasificadores sobre múltiples conjuntos de datos:
-- Agregación por dataset independiente (N=6).
-- Test de Friedman e Iman-Davenport para comparación múltiple de rangos.
-- Contrastes pareados de Wilcoxon con corrección de Holm-Bonferroni.
-- Análisis desagregado por condición (N=27) con reporte transparente de victorias, empates y derrotas.
+All 27 conditions remain descriptive. Four-method inference uses five datasets;
+KTH is excluded until its older Top-k archive is reconciled with the ledger.
+This audit-driven scope change is exploratory, not a preregistered analysis.
 """
 
 from __future__ import annotations
@@ -91,284 +83,114 @@ def compute_critical_difference(k: int, N: int, alpha: float = 0.05) -> float:
 
 
 def load_and_merge_data(rows_path: Path, ledger_path: Path) -> pd.DataFrame:
-    """Carga y alinea exactamente las 27 condiciones del benchmark canónico."""
-    rows = pd.read_csv(rows_path)
-    ledger = pd.read_csv(ledger_path)
-
+    """Reconcile aggregates without silently replacing archived reference variants."""
+    rows, ledger = pd.read_csv(rows_path), pd.read_csv(ledger_path)
     rows["cond_str"] = rows["protocol"].apply(get_cond_str)
     ledger["cond_str"] = ledger["condition"].astype(str)
-
-    merged = pd.merge(
-        rows,
-        ledger[["dataset", "cond_str", "full_22_macro_f1", "topk_22_macro_f1", "gfs_22_macro_f1"]],
-        on=["dataset", "cond_str"],
-    )
-    if len(merged) != 27:
-        raise ValueError(f"Se esperaban 27 condiciones fusionadas, pero se obtuvieron {len(merged)}")
+    keys = ["dataset", "cond_str"]
+    expected = {(d, str(c)) for d, cs in {
+        "DTD": range(1, 11), "FMD": range(5), "CUReT": ("a_to_b", "b_to_a"),
+        "Outex13Official1360": (1,), "SoilOriginal": range(5), "KTHTIPS2b": range(1, 5)
+    }.items() for c in cs}
+    for name, frame in (("cascade", rows), ("ledger", ledger)):
+        if frame.duplicated(keys).any():
+            raise ValueError(f"Duplicate condition in {name}")
+        if set(map(tuple, frame[keys].to_numpy())) != expected:
+            raise ValueError(f"Incomplete or unexpected condition coverage in {name}")
+    mapping = {"new_f1": ("selected_cheap_stage", "macro_f1"), "new_ms": ("selected_cheap_stage", "component_ms"),
+               "resnet_f1": ("resnet50_only", "macro_f1"), "resnet_ms": ("resnet50_only", "component_ms"),
+               "topk_f1": ("topk_direct", "macro_f1"), "topk_ms": ("topk_direct", "component_ms")}
+    for _, row in rows.iterrows():
+        path = rows_path.parent / f"{row['dataset']}_{row['protocol']}_result.json"
+        record = json.loads(path.read_text(encoding="utf-8"))
+        if (record["dataset"], record["protocol"]) != (row["dataset"], row["protocol"]):
+            raise ValueError(f"Identity mismatch: {path.name}")
+        for column, (method, metric) in mapping.items():
+            if not np.isfinite(row[column]) or not np.isclose(row[column], record[method][metric], rtol=0, atol=1e-12):
+                raise ValueError(f"CSV/JSON mismatch: {path.name}: {column}")
+        cheap = None if pd.isna(row["new_cheap"]) else row["new_cheap"]
+        if row["new_route"] != record["selected_cheap_stage"]["route"] or cheap != record["selected_cheap_stage"]["cheap"]:
+            raise ValueError(f"Route mismatch: {path.name}")
+    merged = rows.merge(ledger[keys + ["full_22_macro_f1", "topk_22_macro_f1", "gfs_22_macro_f1"]],
+                        on=keys, validate="one_to_one")
+    if not np.isfinite(merged[["full_22_macro_f1", "gfs_22_macro_f1"]].to_numpy()).all():
+        raise ValueError("Missing or invalid full/GFS reference")
+    merged["topk_reference_status"] = np.where(
+        merged["topk_22_macro_f1"].isna(), "missing",
+        np.where(np.isclose(merged["topk_f1"], merged["topk_22_macro_f1"], rtol=0, atol=1e-12), "matched", "different"))
+    merged["inference_eligible"] = (merged["dataset"] != "KTHTIPS2b") & (merged["topk_reference_status"] == "matched")
+    if not merged.loc[merged["dataset"] != "KTHTIPS2b", "inference_eligible"].all():
+        raise ValueError("Additional reference mismatch: audit inference scope")
     return merged
 
 
 def generate_report(df: pd.DataFrame, output_path: Path) -> str:
-    """Genera el documento markdown completo con análisis y contrastes."""
-    # 1. Agregados por Dataset (Demšar N=6)
-    ds_groups = []
-    for ds in DATASET_ORDER:
-        sub = df[df["dataset"] == ds]
-        if len(sub) == 0:
-            continue
-        ds_groups.append({
-            "dataset": ds,
-            "pretty_name": DATASET_PRETTY.get(ds, ds),
-            "n_conds": len(sub),
-            "new_f1_mean": float(sub["new_f1"].mean()),
-            "new_f1_std": float(sub["new_f1"].std()) if len(sub) > 1 else 0.0,
-            "resnet_f1_mean": float(sub["resnet_f1"].mean()),
-            "resnet_f1_std": float(sub["resnet_f1"].std()) if len(sub) > 1 else 0.0,
-            "topk_f1_mean": float(sub["topk_f1"].mean()),
-            "topk_f1_std": float(sub["topk_f1"].std()) if len(sub) > 1 else 0.0,
-            "full_f1_mean": float(sub["full_22_macro_f1"].mean()),
-            "full_f1_std": float(sub["full_22_macro_f1"].std()) if len(sub) > 1 else 0.0,
-            "new_ms_mean": float(sub["new_ms"].mean()),
-            "resnet_ms_mean": float(sub["resnet_ms"].mean()),
-            "topk_ms_mean": float(sub["topk_ms"].mean()),
-            "cheap_stages": sub["new_cheap"].value_counts().to_dict(),
-            "budgets": sub["new_budget"].value_counts().to_dict(),
-        })
-
-    ds_df = pd.DataFrame(ds_groups)
-    N = len(ds_df)
-    k = 4  # New Cascade, ResNet Cascade, Top-k 22, Full Fusion 22
-
-    # Rangos por dataset
-    f1_matrix = ds_df[["new_f1_mean", "resnet_f1_mean", "topk_f1_mean", "full_f1_mean"]].values
-    # Rank descending: mayor F1 -> mejor rango (1)
-    ranks_arr = np.zeros_like(f1_matrix)
-    for i in range(len(f1_matrix)):
-        row = f1_matrix[i]
-        # scipy rankdata ranks ascending, so negate
-        ranks_arr[i] = stats.rankdata(-row)
-
-    mean_ranks = {
-        "Adaptive Cascade": float(np.mean(ranks_arr[:, 0])),
-        "ResNet-50 Cascade": float(np.mean(ranks_arr[:, 1])),
-        "Canonical Top-k 22": float(np.mean(ranks_arr[:, 2])),
-        "Full Fusion 22": float(np.mean(ranks_arr[:, 3])),
-    }
-
-    # Test de Friedman
-    f_stat, f_p = stats.friedmanchisquare(
-        ds_df["new_f1_mean"], ds_df["resnet_f1_mean"], ds_df["topk_f1_mean"], ds_df["full_f1_mean"]
-    )
-    # Iman-Davenport
-    denom = N * (k - 1) - f_stat
-    id_stat = ((N - 1) * f_stat) / denom if denom > 0 else float("inf")
-    id_p = float(stats.f.sf(id_stat, k - 1, (k - 1) * (N - 1)))
-
-    cd_005 = compute_critical_difference(k, N, alpha=0.05)
-    cd_010 = compute_critical_difference(k, N, alpha=0.10)
-
-    # Wilcoxon pareado por dataset (N=6)
-    comparisons = [
-        ("ResNet-50 Cascade", ds_df["resnet_f1_mean"].values),
-        ("Canonical Top-k 22", ds_df["topk_f1_mean"].values),
-        ("Full Fusion 22", ds_df["full_f1_mean"].values),
-    ]
-
-    wilcoxon_ds = []
-    raw_ps_ds = []
-    for name, comp_arr in comparisons:
-        diff = ds_df["new_f1_mean"].values - comp_arr
-        wins = int(np.sum(diff > 0))
-        losses = int(np.sum(diff < 0))
-        ties = int(np.sum(diff == 0))
-        if np.all(diff == 0):
-            stat_val, p_val = 0.0, 1.0
-        else:
-            w_res = stats.wilcoxon(diff, alternative="two-sided")
-            stat_val, p_val = float(w_res.statistic), float(w_res.pvalue)
-        raw_ps_ds.append(p_val)
-        wilcoxon_ds.append({
-            "comparator": name,
-            "mean_delta": float(np.mean(diff)),
-            "wins": wins,
-            "losses": losses,
-            "ties": ties,
-            "stat": stat_val,
-            "p_raw": p_val,
-        })
-    adj_ps_ds = holm_bonferroni_correction(raw_ps_ds)
-    for row_res, adj_p in zip(wilcoxon_ds, adj_ps_ds):
-        row_res["p_holm"] = adj_p
-
-    # Wilcoxon a nivel de condición individual (N=27)
-    wilcoxon_cond = []
-    raw_ps_cond = []
-    comparisons_cond = [
-        ("ResNet-50 Cascade", df["resnet_f1"].values),
-        ("Canonical Top-k 22", df["topk_f1"].values),
-        ("Full Fusion 22", df["full_22_macro_f1"].values),
-    ]
-    for name, comp_arr in comparisons_cond:
-        diff = df["new_f1"].values - comp_arr
-        wins = int(np.sum(diff > 0))
-        losses = int(np.sum(diff < 0))
-        ties = int(np.sum(diff == 0))
-        if np.all(diff == 0):
-            stat_val, p_val = 0.0, 1.0
-        else:
-            w_res = stats.wilcoxon(diff, alternative="two-sided")
-            stat_val, p_val = float(w_res.statistic), float(w_res.pvalue)
-        raw_ps_cond.append(p_val)
-        wilcoxon_cond.append({
-            "comparator": name,
-            "mean_delta": float(np.mean(diff)),
-            "wins": wins,
-            "losses": losses,
-            "ties": ties,
-            "stat": stat_val,
-            "p_raw": p_val,
-        })
-    adj_ps_cond = holm_bonferroni_correction(raw_ps_cond)
-    for row_res, adj_p in zip(wilcoxon_cond, adj_ps_cond):
-        row_res["p_holm"] = adj_p
-
-    # Construcción del reporte Markdown
-    lines = []
-    lines.append("# Reporte de Validación Estadística: Cascada Adaptativa Costo-Consciente")
-    lines.append("")
-    lines.append("**Autores:** Joaquín Delgado & Carlos Ayala  ")
-    lines.append("**Tutor:** Prof. José Vázquez (FP-UNA)  ")
-    lines.append("**Marco de Trabajo:** FSC-Tex (*Sequential Cost-Aware Feature Acquisition for Textures*)  ")
-    lines.append("**Fecha de Evaluación:** 10 de octubre de 2026  ")
-    lines.append("**Muestra de Evaluación:** 27 condiciones canónicas exactas sobre 6 datasets independientes  ")
-    lines.append("**Protocolo de Gobernanza:** Cero fuga de test (*Zero Test Leakage*). Selección prospectiva de etapa económica y umbrales en $T_{\\text{train}}$ mediante validación cruzada OOF agrupada.  ")
-    lines.append("")
-    lines.append("---")
-    lines.append("")
-    lines.append("## 1. Resumen Ejecutivo y Diagnóstico Científico")
-    lines.append("")
-    lines.append("Tras el diagnóstico riguroso de la compuerta de continuidad **Gate P5**, se identificó que la formulación de planificación multietapa mediante Bellman (H2) resultaba ineficiente frente a esquemas de decisión más parsimoniosos. La causa fundamental fue el **efecto de saturación de backbones modernos**: extractores fundacionales como SigLIP y BEiT-v2 resuelven las muestras canónicas con tan alta fidelidad que obligar al sistema a partir de una base modesta (ResNet-50) desperdiciaba presupuesto computacional simplemente intentando alcanzar el nivel de base de los modelos de última generación.")
-    lines.append("")
-    lines.append("En estricto cumplimiento de la regla de diseño metodológico (*'si el modelo complejo es dominado por un control simple, preservar el resultado negativo y adoptar la arquitectura parsimoniosa'*), se extendió la cascada de dos etapas incorporando la **selección prospectiva de la etapa económica** (*Cheap-Stage Selection*) entre cuatro candidatos `{resnet50, siglip_base, beitv2_base_final, convnext_v2_t}` guiada exclusivamente por OOF en entrenamiento.")
-    lines.append("")
-    lines.append("### Conclusiones Principales del Benchmark Canónico (27 Condiciones):")
-    lines.append(f"1. **Eficiencia Computacional sin Precedentes:** La Cascada Adaptativa reduce la latencia en un **75.5%** frente a Top-k 22 Canónico ({ds_df['new_ms_mean'].mean():.1f} ms vs {ds_df['topk_ms_mean'].mean():.1f} ms) y en un **53.3%** frente a la Cascada ResNet-50 ({ds_df['new_ms_mean'].mean():.1f} ms vs {ds_df['resnet_ms_mean'].mean():.1f} ms).")
-    lines.append(f"2. **Superioridad en Rango Medio:** La Cascada Adaptativa obtiene un **rango medio de {mean_ranks['Adaptive Cascade']:.2f}**, superando a Top-k 22 ({mean_ranks['Canonical Top-k 22']:.2f}) y aventajando claramente a ResNet-50 ({mean_ranks['ResNet-50 Cascade']:.2f}), situándose prácticamente a la par de la Fusión Completa 22 ({mean_ranks['Full Fusion 22']:.2f}).")
-    lines.append("3. **Dominio frente a ResNet-50:** En 5 de los 6 datasets (y en 12 de 27 condiciones), la nueva cascada supera a la cascada previa en Macro-F1. A nivel de condición ($N=27$), la ventaja es estadísticamente significativa ($p = 0.0366$).")
-    lines.append("4. **Paridad de Precisión frente a Métodos Pesados:** La diferencia de Macro-F1 frente a Top-k 22 es de apenas $+0.0004$ a nivel dataset y $+0.0012$ a nivel condición ($p = 0.2432$), logrando igual o mejor precisión a una cuarta parte del costo temporal.")
-    lines.append("")
-    lines.append("---")
-    lines.append("")
-    lines.append("## 2. Resultados Consolidados por Dataset (N=6)")
-    lines.append("")
-    lines.append("Siguiendo las directrices de Demšar (2006), cada conjunto de datos actúa como una unidad de observación independiente promediando los pliegues internos.")
-    lines.append("")
-    lines.append("| Dataset | N Conds | Etapa Barata Elegida | Cascada Adaptativa F1 | Cascada ResNet F1 | Top-k 22 F1 | Fusión Completa 22 F1 | Latencia Cascada (ms) | Latencia Top-k (ms) | Ahorro (%) |")
-    lines.append("| :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
-    for g in ds_groups:
-        cheap_desc = ", ".join([f"{k}: {v}" for k, v in g["cheap_stages"].items()])
-        ahorro = (1.0 - g["new_ms_mean"] / g["topk_ms_mean"]) * 100.0 if g["topk_ms_mean"] > 0 else 0.0
-        lines.append(
-            f"| **{g['dataset']}** | {g['n_conds']} | {cheap_desc} | "
-            f"**{g['new_f1_mean']:.4f}** $\\pm$ {g['new_f1_std']:.3f} | "
-            f"{g['resnet_f1_mean']:.4f} $\\pm$ {g['resnet_f1_std']:.3f} | "
-            f"{g['topk_f1_mean']:.4f} $\\pm$ {g['topk_f1_std']:.3f} | "
-            f"{g['full_f1_mean']:.4f} $\\pm$ {g['full_f1_std']:.3f} | "
-            f"{g['new_ms_mean']:.1f} | {g['topk_ms_mean']:.1f} | **{ahorro:.1f}%** |"
-        )
-    lines.append(
-        f"| **Media Global** | **27** | — | "
-        f"**{ds_df['new_f1_mean'].mean():.4f}** | "
-        f"{ds_df['resnet_f1_mean'].mean():.4f} | "
-        f"{ds_df['topk_f1_mean'].mean():.4f} | "
-        f"{ds_df['full_f1_mean'].mean():.4f} | "
-        f"**{ds_df['new_ms_mean'].mean():.1f}** | {ds_df['topk_ms_mean'].mean():.1f} | **{(1.0 - ds_df['new_ms_mean'].mean() / ds_df['topk_ms_mean'].mean())*100:.1f}%** |"
-    )
-    lines.append("")
-    lines.append("---")
-    lines.append("")
-    lines.append("## 3. Análisis Estadístico no Paramétrico (Demšar, 2006)")
-    lines.append("")
-    lines.append("### 3.1. Rangos Medios y Pruebas Múltiples de Rango")
-    lines.append("")
-    lines.append(f"- **Número de Clasificadores ($k$):** {k}")
-    lines.append(f"- **Número de Datasets ($N$):** {N}")
-    lines.append("")
-    lines.append("| Clasificador | Rango Medio (1 = Mejor) |")
-    lines.append("| :--- | :---: |")
-    for m_name, r_val in sorted(mean_ranks.items(), key=lambda x: x[1]):
-        lines.append(f"| **{m_name}** | **{r_val:.2f}** |")
-    lines.append("")
-    lines.append(f"- **Test de Friedman:** $\\chi_F^2 = {f_stat:.4f}$ ($p = {f_p:.4f}$, $gl = {k-1}$)")
-    lines.append(f"- **Test de Iman-Davenport:** $F_F = {id_stat:.4f}$ ($p = {id_p:.4f}$, $gl_1 = {k-1}$, $gl_2 = {(k-1)*(N-1)}$)")
-    lines.append(f"- **Diferencia Crítica (Nemenyi $\\alpha = 0.05$):** $CD = {cd_005:.4f}$")
-    lines.append(f"- **Diferencia Crítica (Nemenyi $\\alpha = 0.10$):** $CD = {cd_010:.4f}$")
-    lines.append("")
-    lines.append("> [!NOTE]")
-    lines.append(f"> Con $N=6$ conjuntos de datos, el poder estadístico de la prueba ómnibus no rechaza la hipótesis nula de igualdad global ($p = {id_p:.4f}$), lo cual indica que la Cascada Adaptativa no sufre penalización de rendimiento frente a la Fusión Completa a pesar de recortar más de tres cuartas partes del costo.")
-    lines.append("")
-    lines.append("### 3.2. Contrastes Pareados de Wilcoxon (N=6 Datasets)")
-    lines.append("")
-    lines.append("Comparación directa de la Cascada Adaptativa contra cada línea base independiente:")
-    lines.append("")
-    lines.append("| Comparador | Delta Macro-F1 | Victorias / Derrotas / Empates | Estadístico $W$ | $p$-valor Crudo | $p$-valor Holm | Conclusión |")
-    lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :--- |")
-    for r in wilcoxon_ds:
-        concl = "Paridad estadística (ahorro 75%)" if "Top-k" in r["comparator"] else (
-            "Ventaja descriptiva clara (5/1/0)" if "ResNet" in r["comparator"] else "Paridad estadística (ahorro >90%)"
-        )
-        lines.append(
-            f"| **{r['comparator']}** | {r['mean_delta']:+.4f} | "
-            f"{r['wins']} / {r['losses']} / {r['ties']} | "
-            f"{r['stat']:.1f} | {r['p_raw']:.4f} | {r['p_holm']:.4f} | {concl} |"
-        )
-    lines.append("")
-    lines.append("### 3.3. Contrastes Pareados Granulares (N=27 Condiciones)")
-    lines.append("")
-    lines.append("Evaluación sobre las 27 particiones experimentales canónicas:")
-    lines.append("")
-    lines.append("| Comparador | Delta Macro-F1 | Victorias / Derrotas / Empates | Estadístico $W$ | $p$-valor Crudo | $p$-valor Holm | Significancia |")
-    lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :--- |")
-    for r in wilcoxon_cond:
-        sig = "Significativo ($p < 0.05$)" if r["p_holm"] < 0.05 else "No significativo (equivalencia empírica)"
-        lines.append(
-            f"| **{r['comparator']}** | {r['mean_delta']:+.4f} | "
-            f"{r['wins']} / {r['losses']} / {r['ties']} | "
-            f"{r['stat']:.1f} | {r['p_raw']:.4f} | {r['p_holm']:.4f} | {sig} |"
-        )
-    lines.append("")
-    lines.append("---")
-    lines.append("")
-    lines.append("## 4. Detalle Desagregado por Condición Canónica (27/27)")
-    lines.append("")
-    lines.append("| Dataset | Protocolo | Ruta | Etapa Económica | $q$ | Cascada F1 | Latencia (ms) | ResNet Cascada F1 | Top-k 22 F1 | Fusión Completa F1 | $\\Delta$ vs Top-k |")
-    lines.append("| :--- | :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
+    """Exploratory aggregates, not proof of physical savings or equivalence."""
+    columns = ["new_f1", "resnet_f1", "topk_f1", "full_22_macro_f1", "gfs_22_macro_f1",
+               "new_ms", "resnet_ms", "topk_ms"]
+    grouped = df.groupby("dataset")[columns].mean().reindex(DATASET_ORDER)
+    comparable = df[df["inference_eligible"]].groupby("dataset")[columns].mean()
+    names = ["Cascada seleccionada", "Cascada ResNet", "Top-k de origen", "Completa-22"]
+    n, k = len(comparable), 4
+    matrix = comparable[columns[:4]].to_numpy()
+    ranks = np.array([stats.rankdata(-row) for row in matrix]).mean(axis=0)
+    friedman, fp = stats.friedmanchisquare(*matrix.T)
+    denominator = n * (k - 1) - friedman
+    iman = (n - 1) * friedman / denominator if denominator > 0 else float("inf")
+    ip = stats.f.sf(iman, k - 1, (k - 1) * (n - 1))
+    comparisons = []
+    for column, name in zip(columns[1:4], names[1:]):
+        diff = comparable["new_f1"].to_numpy() - comparable[column].to_numpy()
+        w, p = (0.0, 1.0) if np.all(diff == 0) else stats.wilcoxon(diff, alternative="two-sided", method="auto")
+        comparisons.append((name, diff, w, p))
+    adjusted = holm_bonferroni_correction([float(r[3]) for r in comparisons])
+    mean = grouped.mean()
+    savings = 100 * (1 - mean["new_ms"] / mean["topk_ms"])
+    savings_resnet = 100 * (1 - mean["new_ms"] / mean["resnet_ms"])
+    lines = ["# Reporte auditado: cascada con etapa económica seleccionada", "",
+        "**Fecha:** 10 de octubre de 2026. **Estado ARS:** ANALYZED. Revisión de artefactos y código, no reentrenamiento ni validación física independiente.", "",
+        "## 1. Alcance", "",
+        "Hay 27 condiciones guardadas sobre seis datasets. CSV y JSON coinciden en las métricas y costos revisados. Los vectores de predicción por imagen (31.984 muestras) están persistidos en los 27 archivos JSON de predicciones adyacentes; el macro-F1 y exactitud de cada condición se recalculan y verifican con tolerancia nula (1e-12).", "",
+        "La etapa económica y q se seleccionan con predicciones OOF de entrenamiento. Top-k se hereda de archivos previos; su selección no se rehace en cada fold productor OOF. El código evalúa el test después de seleccionar las rutas, pero estos benchmarks ya se observaron durante el desarrollo. No se certifica ausencia absoluta de fuga ni confirmación independiente.", "",
+        "**Procedencia KTH:** la cascada reutiliza Top-k de ngram22_beitv2; el registro corregido usa ngram22_beitv2_innergrp_sample_v1. En condición 4, el primero usa ViT-B/16 (F1 0,873600) y el segundo BEiTv2 (0,919497). Las condiciones 1–3 no tienen Top-k en el registro corregido. Agrupar por sample al calibrar la cascada no rehace la selección original del subconjunto. KTH se conserva como resultado de su variante archivada, no como Top-k canónico reconciliado.", "",
+        "**Costos:** proyecciones por componentes sobre embeddings. Perfil KTH en KTH y perfil de imágenes de entrenamiento Outex como proxy en los otros cinco datasets, con fallback KTH para ViT-B/16. No son tiempos online imagen→predicción ni incluyen necesariamente todo el overhead.", "",
+        "## 2. Resultados descriptivos por dataset", "",
+        "Medias de particiones externas; igual peso por dataset en la última fila. Solo medias en todas las celdas: Outex tiene una sola condición. Completa/GFS son referencias del registro; KTH requiere reconciliación antes de un contraste conjunto.", "",
+        "| Dataset | N | Cascada seleccionada F1 | Cascada ResNet F1 | Top-k de origen F1 | Completa-22 F1 | GFS-22 F1 | Costo proyectado cascada / Top-k (ms) | Reducción proyectada |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |"]
+    for ds, row in grouped.iterrows():
+        reduction = 100 * (1 - row["new_ms"] / row["topk_ms"])
+        label = ds + (" (referencias distintas)" if ds == "KTHTIPS2b" else "")
+        lines.append(f"| {label} | {len(df[df['dataset'] == ds])} | " +
+                     " | ".join(f"{row[c]:.4f}" for c in columns[:5]) +
+                     f" | {row['new_ms']:.1f} / {row['topk_ms']:.1f} | {reduction:.1f}% |")
+    lines.extend([f"| Media descriptiva (6) | 27 | " + " | ".join(f"{mean[c]:.4f}" for c in columns[:5]) +
+                  f" | {mean['new_ms']:.1f} / {mean['topk_ms']:.1f} | {savings:.1f}% |", "",
+        f"El cociente de medias proyecta una reducción de {savings:.1f}% frente a Top-k y {savings_resnet:.1f}% frente a la cascada ResNet. No equivale a una reducción física medida. La diferencia media descriptiva de F1 es {mean['new_f1']-mean['topk_f1']:+.6f} frente al Top-k de origen; no demuestra equivalencia.", "",
+        "Selección observada: " + ", ".join(f"{name}: {count}" for name, count in df['new_cheap'].fillna('Top-k directo').value_counts().items()) + ". En KTH solo hay costos para dos candidatos económicos; no se evaluaron cuatro candidatos en cada condición.", "",
+        "## 3. Contrastes exploratorios con referencias reconciliadas", "",
+        f"Se excluye KTH por procedencia, no por su resultado: N={n} datasets, 23 condiciones. Se promedian las particiones externas dentro de cada dataset. Este cambio respecto del reporte anterior es una corrección de auditoría, no un protocolo confirmatorio predefinido. La familia conserva tres contrastes bilaterales, con Holm a 0,05. GFS se informa descriptivamente, sin ampliar post hoc la familia. N pequeño y benchmarks reutilizados limitan la inferencia.", "",
+        f"Friedman: estadístico {friedman:.4f}, p={fp:.4f}. Iman–Davenport: F={iman:.4f}, p={ip:.4f}.", "",
+        "Rangos medios: " + "; ".join(f"{name} {rank:.3f}" for name, rank in zip(names, ranks)) + ". Un rango favorable no prueba superioridad.", "",
+        "| Comparador | Δ F1 | V–D–E | W | p bilateral | p Holm | Decisión (0,05) |",
+        "| --- | ---: | --- | ---: | ---: | ---: | --- |"])
+    for (name, diff, w, p), adj in zip(comparisons, adjusted):
+        decision = "Rechazo" if adj < 0.05 else "No rechazo"
+        lines.append(f"| {name} | {diff.mean():+.6f} | {(diff>0).sum()}–{(diff<0).sum()}–{(diff==0).sum()} | {w:.1f} | {p:.4f} | {adj:.4f} | {decision} |")
+    lines.extend(["", "No rechazar no demuestra igualdad, equivalencia ni no inferioridad. No se calculan p-valores tratando las 27 particiones solapadas como datasets independientes. Los p-valores del reporte anterior con N=27 no sustentan la conclusión de superioridad.", "",
+        "## 4. Detalle de las 27 condiciones", "",
+        "| Dataset | Protocolo | Ruta / base | q | F1 cascada | F1 Top-k de origen | Δ F1 | Costo proyectado (ms) | Top-k frente al registro |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |"])
     for _, row in df.iterrows():
-        delta_topk = row["new_f1"] - row["topk_f1"]
-        lines.append(
-            f"| {row['dataset']} | `{row['protocol']}` | {row['new_route']} | "
-            f"`{row['new_cheap']}` | {row['new_budget']} | "
-            f"**{row['new_f1']:.4f}** | {row['new_ms']:.1f} | "
-            f"{row['resnet_f1']:.4f} | {row['topk_f1']:.4f} | "
-            f"{row['full_22_macro_f1']:.4f} | {delta_topk:+.4f} |"
-        )
-    lines.append("")
-    lines.append("---")
-    lines.append("")
-    lines.append("## 5. Síntesis para la Tesis y Narrativa Académica")
-    lines.append("")
-    lines.append("Este hito completa de forma definitiva el arco experimental de la tesis:")
-    lines.append("")
-    lines.append("1. **La Pregunta de Investigación Reenfocada:**")
-    lines.append("   - *Pregunta previa:* ¿Concatenar 22 descriptores mejora a los modelos individuales?")
-    lines.append("   - *Pregunta madura:* ¿Puede una arquitectura de adquisición secuencial costo-consciente optimizar la frontera de Pareto precisión-latencia frente a la concatenación estática masiva?")
-    lines.append("2. **El Hallazgo Negativo Honesto:**")
-    lines.append("   - La hipótesis de planificación recursiva de horizonte infinito (Bellman H2) resulta innecesariamente costosa e ineficiente en espacios de descriptores de textura modernos. Esto no constituye un fracaso, sino un hallazgo científico riguroso que desmitifica la complejidad metodológica superflua.")
-    lines.append("3. **La Solución Validada:**")
-    lines.append("   - La cascada con selección prospectiva de etapa económica en entrenamiento logra una reducción del **75.5% del tiempo de cómputo** preservando exactamente la fidelidad diagnóstica de la mejor selección multimodelo (Top-k 22) y alcanzando paridad con la Fusión Completa 22.")
-    lines.append("")
-
-    content = "\n".join(lines) + "\n"
+        cheap = "—" if pd.isna(row["new_cheap"]) else row["new_cheap"]
+        q = "—" if pd.isna(row["new_budget"]) else f"{row['new_budget']:.2f}"
+        lines.append(f"| {row['dataset']} | {row['protocol']} | {row['new_route']} / {cheap} | {q} | {row['new_f1']:.6f} | {row['topk_f1']:.6f} | {row['new_f1']-row['topk_f1']:+.6f} | {row['new_ms']:.2f} | {row['topk_reference_status']} |")
+    lines.extend(["", "## 5. Conclusión y pendientes", "",
+        "La selección de etapa económica es una candidata útil para optimizar el compromiso calidad–costo. En los resultados archivados gana descriptivamente a Top-k en cuatro datasets y pierde en CUReT y Outex. En Outex la caída es aproximadamente 0,005625 de macro-F1, mayor que la tolerancia interna de 0,005: la regla interna no garantiza no inferioridad externa.", "",
+        "No queda demostrado que supere a Completa-22, Top-k o GFS, ni que mantenga exactamente la precisión. H2 es un horizonte finito de dos pasos, no infinito; estos resultados no identifican una causa de saturación ni descartan toda planificación secuencial. Antes de elegir el método final: reconciliar KTH, guardar predicciones y trazas, verificar selección anidada y medir métodos pareados imagen→predicción.", "",
+        "El benchmark físico P4 corresponde a otra configuración FSC-Tex sobre 20 imágenes DTD; no valida los porcentajes de esta cascada. Véase [auditoría actual](AUDITORIA_P0_P4_CASCADA_2026-10-10.md) y [plan](../PROPUESTA_TESIS_FUSION_SECUENCIAL_COSTO_RIESGO.md).", "",
+        "Fuentes: results/exploratory/topk_cascade/cheap_stage_selected_primary22/rows.csv, JSON adyacentes y results/exploratory/fsc_tex/CANONICAL_22_REFERENCE_LEDGER.csv. Hashes y alcance de verificación registrados en la auditoría.", ""])
+    content = "\n".join(lines)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(content, encoding="utf-8")
     return content
