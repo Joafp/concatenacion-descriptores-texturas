@@ -75,10 +75,9 @@ la comparación es descriptiva, como ya advierte el manuscrito.
 - Un solo clasificador (SVM) y una sola semilla. Las particiones de CUReT son
   complementarias y dependientes, Outex tiene un único split y las de DTD y FMD
   reutilizan imágenes: no se aplica ningún contraste inferencial.
-- **k=4 se eligió observando esta curva**, que se trazó sobre los tests
-  externos. La afirmación defendible es que la curva se aplana temprano; fijar
-  el k con rigor exige una regla calculada sólo con entrenamiento, por ejemplo
-  el codo de la curva del criterio interno. Ese paso queda pendiente.
+- k=4 se leyó de esta curva, trazada sobre los tests externos. La sección
+  siguiente comprueba si una regla calculada sólo con entrenamiento llega al
+  mismo lugar: no llega, y la constante resulta mejor que toda regla probada.
 - El ranking proviene del criterio interno, cuyo poder predictivo sobre el test
   externo este repositorio ya documentó como limitado
   (`results/exploratory/SELECCION_BUSQUEDA_README.md`).
@@ -104,3 +103,57 @@ El barrido evalúa los prefijos de forma secuencial a propósito: el prefijo con
 alto es la biblioteca entera, y hacerlo en paralelo mantiene varias
 concatenaciones completas en memoria a la vez, lo que agota los 10 GB de WSL en
 DTD y KTH.
+
+## ¿Se puede elegir k sin mirar el test? No, y no hace falta
+
+`src/run_k_sweep_inner.py` puntúa los mismos prefijos en los pliegues internos
+del entrenamiento, de modo que una regla aplicada a esa curva elige k sin
+consultar el test. `src/analyze_k_selection_rules.py` compara las reglas.
+
+**Las dos curvas apenas se parecen.** Spearman entre el criterio interno y el
+macro-F1 externo, por dataset:
+
+| Dataset | ρ | n |
+|---|---:|---:|
+| FMD | +0,727 | 5 |
+| DTD | +0,371 | 10 |
+| CUReT | +0,204 | 2 |
+| KTH-TIPS2-b | +0,076 | 4 |
+| Soil | −0,172 | 5 |
+| Outex13 | −0,336 | 1 |
+| **media** | **+0,254** | 27 |
+
+Positiva en 20 de 27 condiciones, pero débil, y **negativa en dos datasets**.
+
+**Toda regla derivada de la curva interna pierde contra una constante.** Media
+sobre las 27 condiciones:
+
+| Regla | k medio | Macro-F1 | % dims | vs 21 bloques | vs oráculo |
+|---|---:|---:|---:|---:|---:|
+| argmax del criterio interno | 6,6 | 0,9130 | 29 | +0,0026 | −0,0117 |
+| codo τ=0,001 | 2,6 | 0,9115 | 11 | +0,0011 | −0,0132 |
+| codo τ=0,005 | 1,9 | 0,9085 | 8 | −0,0018 | −0,0161 |
+| codo τ=0,01 | 1,6 | 0,9053 | 7 | −0,0051 | −0,0194 |
+| **fijo k=4** | 4,0 | **0,9178** | 16 | **+0,0074** | **−0,0069** |
+| fijo k=6 | 6,0 | 0,9168 | 23 | +0,0065 | −0,0078 |
+| fijo k=3 | 3,0 | 0,9121 | 12 | +0,0018 | −0,0125 |
+
+Referencias: oráculo externo 0,9246 y biblioteca completa 0,9104. El oráculo se
+lee del test y es una cota superior, nunca una selección alcanzable.
+
+Las reglas del codo eligen k entre 1 y 3, demasiado pronto. El argmax interno
+elige 6,6 en promedio y queda por debajo de la constante. **El k fijo en 4 supera
+a todas y es el más cercano al oráculo.**
+
+La lectura es que k no puede elegirse por condición con este criterio, y que no
+conviene intentarlo: una constante justificada por la forma de la curva en seis
+datasets es más simple y rinde mejor. Es la cuarta vez que este repositorio
+mide que el criterio interno predice mal el desempeño externo, junto con SFFS,
+la selección del mejor sorteo por criterio interno y la regla de saturación
+(`results/exploratory/SELECCION_BUSQUEDA_README.md`,
+`results/analysis/policy_under_fix/`).
+
+Los promedios de esta sección son **por condición**, de modo que DTD pesa diez
+veces y Soil y FMD cinco; por eso sus niveles absolutos son menores que los de
+las secciones anteriores, que promedian **por dataset**. La comparación relativa
+entre reglas no depende de esa elección.
