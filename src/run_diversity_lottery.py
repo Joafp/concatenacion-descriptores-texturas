@@ -111,6 +111,9 @@ def main() -> None:
     parser.add_argument("--draws", type=int, default=15)
     parser.add_argument("--lambdas", type=float, nargs="+", default=[0.0, 0.5, 1.0])
     parser.add_argument("--betas", type=float, nargs="+", default=[2.0, 8.0])
+    parser.add_argument("--k", type=int,
+                        help="subset size; defaults to the archived GFS k of the "
+                             "condition, which is what the Top-k control uses")
     parser.add_argument("--n-jobs", type=int, default=10)
     parser.add_argument("--audit-root", type=Path, required=True)
     parser.add_argument("--manifest-root", type=Path, required=True)
@@ -141,9 +144,11 @@ def main() -> None:
     fold = (args.official_split - 1 if args.official_split is not None
             else {"a_to_b": 0, "b_to_a": 1}[args.curet_direction]
             if args.curet_direction is not None else args.fold)
-    k = archived_k((args.results_root or args.audit_root).resolve(), args.dataset,
-                   args.classifier, args.seed, fold, include_rgb_ngram=True,
-                   ngram_result_subdir=args.ngram_result_subdir)
+    k = args.k
+    if k is None:
+        k = archived_k((args.results_root or args.audit_root).resolve(), args.dataset,
+                       args.classifier, args.seed, fold, include_rgb_ngram=True,
+                       ngram_result_subdir=args.ngram_result_subdir)
 
     names = sorted(cache)
     jobs = args.n_jobs if args.classifier == "svm" else 1
