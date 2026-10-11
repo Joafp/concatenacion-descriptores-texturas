@@ -29,26 +29,44 @@ Media sobre los seis datasets, cada uno pesando igual:
 | 21 | 0,9348 | 100 | 99,7 |
 
 Con cuatro bloques y el 15 % de las dimensiones se alcanza el 99,9 % del máximo
-de la curva. El 85 % restante de la representación no aporta: la biblioteca
-completa de 21 bloques queda en 0,9348, por debajo de k=4.
+de esta curva, y la biblioteca de 21 bloques queda en 0,9348, por debajo de
+k=4. Esa biblioteca **no** es la Completa del manuscrito: le falta
+`rgb_ngram_svd` (ver la sección siguiente).
 
-## Un k fijo supera a la concatenación completa
+## k=4 frente a la concatenación completa: depende de cuál
 
-Sin elegir k mirando el test, el mismo k=4 para los seis datasets:
+Sin elegir k mirando el test, el mismo k=4 para los seis datasets, en macro-F1,
+contra los 21 bloques del barrido y contra la Completa de 22 bloques del
+manuscrito en las mismas particiones (semilla 42):
 
-| Dataset | Macro-F1 | Exactitud | % dims | vs 21 bloques |
-|---|---:|---:|---:|---:|
-| CUReT | 0,9986 | 0,9986 | 14 | −0,0005 |
-| DTD | 0,8689 | 0,8703 | 16 | +0,0032 |
-| FMD | 0,9819 | 0,9820 | 16 | +0,0198 |
-| KTH-TIPS2-b | 0,9544 | 0,9575 | 16 | +0,0048 |
-| Outex13 | 0,9288 | 0,9294 | 14 | **−0,0330** |
-| Soil | 0,8876 | 0,9289 | 15 | +0,0168 |
-| **media** | **0,9367** | **0,9444** | **15** | **+0,0018** |
+| Dataset | k=4 | 21 bloques | Completa-22 | k=4 − 21 | k=4 − Completa-22 |
+|---|---:|---:|---:|---:|---:|
+| CUReT | 0,9986 | 0,9991 | 0,9989 | −0,0005 | −0,0004 |
+| DTD | 0,8689 | 0,8657 | 0,8639 | +0,0032 | **+0,0050** |
+| FMD | 0,9819 | 0,9622 | 0,9651 | +0,0198 | **+0,0168** |
+| KTH-TIPS2-b | 0,9544 | 0,9496 | 0,9601 | +0,0048 | −0,0057 |
+| Outex13 | 0,9288 | 0,9618 | 0,9656 | −0,0330 | −0,0368 |
+| Soil | 0,8876 | 0,8708 | 0,8919 | +0,0168 | −0,0043 |
+| **media** | **0,9367** | **0,9348** | **0,9409** | **+0,0018** | **−0,0042** |
 
-**Outex es la excepción y conviene nombrarla, no esconderla:** su óptimo está en
-k=18, con el 99 % de las dimensiones, y a k=4 pierde 0,0330. Es el único dataset
-donde la representación grande se justifica.
+En exactitud el patrón es el mismo: k=4 0,9444, 21 bloques 0,9439, Completa-22
+0,9483.
+
+**k=4 supera a los 21 bloques, pero no a la Completa-22 del manuscrito**, que gana
+en cuatro de seis datasets y en el promedio por 0,0042. La afirmación correcta es
+que cuatro bloques quedan a 0,004 de la concatenación completa con un quinto de
+su tamaño, no que la superen.
+
+La diferencia entre 21 y 22 bloques es un solo descriptor, `rgb_ngram_svd`, de
+color. Pesa: agregarlo a la concatenación completa sube +0,0211 en Soil, +0,0105
+en KTH-TIPS2-b y +0,0038 en Outex13. Nunca entra individualmente en el top 4 de
+ningún dataset y, sin embargo, aporta información que los otros 21 no tienen.
+La prueba pendiente es **top 4 + `rgb_ngram_svd`**, cinco bloques, para ver si
+alcanza a la Completa-22 con un cuarto del tamaño.
+
+**Outex13 es la excepción:** su óptimo en el barrido está en k=18, con el 99 % de
+las dimensiones, y a k=4 pierde 0,0368 contra la Completa-22. Es el dataset
+donde la representación grande más se justifica.
 
 ## Contra la literatura
 

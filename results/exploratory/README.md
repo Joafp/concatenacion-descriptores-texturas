@@ -8,29 +8,52 @@ Rama: `feat/selection-search-experiments`.
 
 ## El resultado
 
-**Cuatro descriptores de veintiuno —el 15 % de las dimensiones— igualan o
-superan a la concatenación completa, y superan al estado del arte.**
+**Cuatro descriptores —un quinto del tamaño de la representación completa—
+superan al estado del arte y quedan a 0,004 de la concatenación completa.** La
+concatenación completa del manuscrito sigue siendo el mejor método en promedio.
 
 Exactitud con un k fijo en 4, el mismo para los seis datasets, sin consultar el
-test para elegirlo:
+test para elegirlo, frente a la Completa de 22 bloques del manuscrito en las
+mismas particiones (semilla 42):
 
-| Dataset | k=4 | 21 bloques | Neshov et al. | Scabini et al. | Supera a |
+| Dataset | k=4 | Completa-22 | Neshov et al. | Scabini et al. | k=4 supera a |
 |---|---:|---:|---:|---:|---|
-| DTD | 0,8703 | 0,8671 | 0,8200 | 0,7910 | ambos |
-| FMD | 0,9820 | 0,9620 | 0,9670 | 0,9090 | ambos |
-| KTH-TIPS2-b | 0,9575 | 0,9516 | 0,9680 | 0,9370 | Scabini |
-| Outex13 | 0,9294 | 0,9618 | — | 0,9160 | Scabini |
-| CUReT | 0,9986 | 0,9991 | — | — | — |
-| Soil | 0,9289 | 0,9219 | — | — | — |
+| DTD | 0,8703 | 0,8654 | 0,8200 | 0,7910 | Completa, Neshov, Scabini |
+| FMD | 0,9820 | 0,9650 | 0,9670 | 0,9090 | Completa, Neshov, Scabini |
+| KTH-TIPS2-b | 0,9575 | 0,9609 | 0,9680 | 0,9370 | Scabini |
+| Outex13 | 0,9294 | 0,9662 | — | 0,9160 | Scabini |
+| CUReT | 0,9986 | 0,9989 | — | — | — |
+| Soil | 0,9289 | 0,9333 | — | — | — |
+| **media** | **0,9444** | **0,9483** | | | |
 
-Todas las cifras de la tabla son **exactitud**, promediada sobre las particiones
-externas de cada dataset.
+Todas las cifras son **exactitud**, promediada sobre las particiones externas de
+cada dataset. En macro-F1 la diferencia media es la misma en signo: k=4 0,9367
+contra Completa-22 0,9409 (−0,0042).
 
-La curva de acierto contra tamaño se aplana en k=4: con el 15 % de las
-dimensiones se alcanza el 99,9 % del máximo, y el 85 % restante no aporta.
+**Lo que se sostiene:** con cuatro bloques se supera a Scabini et al. en los
+cuatro datasets comparables y a Neshov et al. en dos de tres, y se gana a la
+concatenación completa en DTD y FMD. **Lo que no:** que concatenar menos sea mejor
+que concatenar todo. La Completa-22 gana en cuatro de seis datasets y en el
+promedio.
 
-**La excepción es Outex13**, que necesita k=18 y a k=4 pierde 0,0330. Es el
-único dataset donde la representación grande se justifica, y conviene decirlo.
+**La excepción es Outex13**: necesita k=18 y a k=4 pierde 0,0368 contra la
+Completa-22. Es el dataset donde la representación grande más se justifica.
+
+### La diferencia entre 21 y 22 bloques es el color
+
+El barrido de k trabaja con los 21 bloques almacenados; la Completa del
+manuscrito agrega `rgb_ngram_svd`, que se reconstruye por fold desde las
+imágenes. Ese único bloque explica la distancia: contra los 21 bloques, k=4 sí
+queda arriba en promedio (0,9367 contra 0,9348 en macro-F1), pero agregarle el
+N-gram a la concatenación completa sube +0,021 en Soil y +0,011 en KTH-TIPS2-b.
+El descriptor de color nunca entra individualmente en el top 4 y, sin embargo,
+aporta información que los otros 21 no tienen.
+
+La prueba natural pendiente es **top 4 + `rgb_ngram_svd`**: cinco bloques, un
+cuarto del tamaño, para ver si alcanza a la Completa-22.
+
+Con 21 bloques la curva de acierto contra tamaño se aplana en k=4: con el 15 % de
+las dimensiones se alcanza el 99,9 % del máximo de esa curva.
 
 Detalle completo, curva por k y limitaciones: [`k_sweep/README.md`](k_sweep/README.md).
 
