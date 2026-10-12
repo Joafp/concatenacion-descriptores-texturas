@@ -61,19 +61,19 @@ flowchart TD
 
 ### Componentes Matemáticos del Algoritmo:
 
-1. **Margen de Incertidumbre $M(x)$:**
+1. **Margen de Incertidumbre M(x):**
    Sea $p_{(1)}$ la mayor probabilidad asignada por el clasificador de Etapa 1 a una clase, y $p_{(2)}$ la segunda mayor probabilidad. El margen se define como:
    $$M(x) = p_{(1)} - p_{(2)}$$
-   * Si $M(x)$ es grande ($\approx 1$): El clasificador está muy seguro. La predicción es confiable.
-   * Si $M(x)$ es pequeño ($\approx 0$): Hay ambigüedad entre las dos clases más probables. Se requiere mayor poder discriminativo.
+   * Si M(x) es grande (≈ 1): El clasificador está muy seguro. La predicción es confiable.
+   * Si M(x) es pequeño (≈ 0): Hay ambigüedad entre las dos clases más probables. Se requiere mayor poder discriminativo.
 
 2. **Selección Prospectiva Libre de Fuga (Zero Test Leakage):**
-   * **Extractor de Etapa 1 ($e_1$):** Se selecciona dentro del conjunto de entrenamiento considerando el compromiso exactitud/costo de los descriptores individuales. Típicamente el algoritmo selecciona **SigLIP** (en DTD, CUReT, Outex) o **ResNet-50** (en FMD, SoilOriginal, KTH).
-   * **Umbral de Incertidumbre ($\tau$):** Se calibra exclusivamente sobre los pliegues internos de validación (*inner folds*), buscando el punto óptimo de la curva ROC/Pareto que maximiza la parada temprana sin degradar la exactitud global.
-   * **Evaluación Externa Ciega:** El conjunto de prueba (*outer test*) nunca participa en la selección del descriptor base ni del umbral $\tau$.
+   * **Extractor de Etapa 1 (e₁):** Se selecciona dentro del conjunto de entrenamiento considerando el compromiso exactitud/costo de los descriptores individuales. Típicamente el algoritmo selecciona **SigLIP** (en DTD, CUReT, Outex) o **ResNet-50** (en FMD, SoilOriginal, KTH).
+   * **Umbral de Incertidumbre (τ):** Se calibra exclusivamente sobre los pliegues internos de validación (*inner folds*), buscando el punto óptimo de la curva ROC/Pareto que maximiza la parada temprana sin degradar la exactitud global.
+   * **Evaluación Externa Ciega:** El conjunto de prueba (*outer test*) nunca participa en la selección del descriptor base ni del umbral τ.
 
 3. **Parsimonia de 2 Etapas (Justificación Metodológica):**
-   * Exploramos pilotos de horizonte profundo ($H \ge 2$) basados en Procesos de Decisión de Markov (MDP) y ecuaciones de Bellman (adquisición activa de características descriptor por descriptor).
+   * Exploramos pilotos de horizonte profundo (H ≥ 2) basados en Procesos de Decisión de Markov (MDP) y ecuaciones de Bellman (adquisición activa de características descriptor por descriptor).
    * **Hallazgo:** Las políticas multietapa complejas no lograron mejoras significativas sobre la cascada de 2 etapas y añadieron sobrecarga computacional de decisión. La cascada de dos etapas es matemáticamente parsimoniosa, interpretable y computacionalmente eficiente.
 
 ---
@@ -84,33 +84,32 @@ La tesis respalda su propuesta con dos pilares de evidencia: (A) Evaluación ana
 
 ### Pilar A: Evaluación Predictiva Desagregada por Dataset (Macro-F1 en 27 Condiciones)
 
-La siguiente tabla presenta el desempeño predictivo (macro-F1) y el costo analítico proyectado **desglosado por cada uno de los seis conjuntos de datos** evaluados con Linear SVM (Tabla 4.3 de la tesis), comparando la Cascada Adaptativa frente al Top-$k$ de origen y la Concatenación Completa-22:
+La siguiente tabla presenta el desempeño predictivo (macro-F1) y el costo analítico proyectado **desglosado por cada uno de los seis conjuntos de datos** evaluados con Linear SVM (Tabla 4.3 de la tesis), comparando la Cascada Adaptativa frente al Top-k de origen y la Concatenación Completa-22:
 
-| Conjunto de Datos | Particiones ($N$) | Etapa 1 ($e_1$) Predominante | Cascada Adaptativa FSC-Tex | Top-$k$ de Origen | Completa-22 (Todos los Bloques) | Diferencia Cascada vs. Top-$k$ | Costo Proyectado (ms) | Reducción de Costo |
+| Conjunto de Datos | Particiones (N) | Etapa 1 (e₁) Predominante | Cascada Adaptativa FSC-Tex | Top-k de Origen | Completa-22 (Todos los Bloques) | Diferencia Cascada vs. Top-k | Costo Proyectado (ms) | Reducción de Costo |
 | :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **DTD** | 10 | SigLIP | **0,8700** | 0,8700 | 0,8639 | $\mathbf{0{,}0000}$ | 172,0 ms | **74,0%** |
-| **FMD** | 5 | ResNet-50 / SigLIP | **0,9840** | 0,9829 | 0,9651 | $\mathbf{+0{,}0011}$ | 138,7 ms | **76,2%** |
-| **CUReT** | 2 | SigLIP | **0,9982** | 0,9989 | 0,9989 | $-0{,}0007$ | 153,4 ms | **76,6%** |
-| **Outex13** | 1 | SigLIP | **0,9369** | 0,9426 | 0,9656 | $-0{,}0057$ | 165,9 ms | **77,3%** |
-| **SoilOriginal** | 5 | ResNet-50 | **0,8734** | 0,8701 | 0,8919 | $\mathbf{+0{,}0033}$ | 85,2 ms | **68,6%** |
-| *KTH-TIPS-2b\** | 4 | ResNet-50 | **0,9445** | 0,9400 | 0,9601 | $\mathbf{+0{,}0045}$ | 64,9 ms | **76,7%** |
-| \midrule | | | | | | | | |
-| **Media 5 Reconciliados ($N=5$)** | 23 | — | **0,9325** | 0,9329 | 0,9371 | $-0{,}0004$ | 143,0 ms | **75,3%** |
-| **Media Global (6 Datasets)** | 27 | — | **0,9345** | 0,9341 | 0,9409 | $\mathbf{+0{,}0004}$ | 130,0 ms | **75,5%** |
+| **DTD** | 10 | SigLIP | **0,8700** | 0,8700 | 0,8639 | **0,0000** | 172,0 ms | **74,0%** |
+| **FMD** | 5 | ResNet-50 / SigLIP | **0,9840** | 0,9829 | 0,9651 | **+0,0011** | 138,7 ms | **76,2%** |
+| **CUReT** | 2 | SigLIP | **0,9982** | 0,9989 | 0,9989 | -0,0007 | 153,4 ms | **76,6%** |
+| **Outex13** | 1 | SigLIP | **0,9369** | 0,9426 | 0,9656 | -0,0057 | 165,9 ms | **77,3%** |
+| **SoilOriginal** | 5 | ResNet-50 | **0,8734** | 0,8701 | 0,8919 | **+0,0033** | 85,2 ms | **68,6%** |
+| *KTH-TIPS-2b\** | 4 | ResNet-50 | **0,9445** | 0,9400 | 0,9601 | **+0,0045** | 64,9 ms | **76,7%** |
+| **Media 5 Reconciliados (N = 5)** | 23 | — | **0,9325** | 0,9329 | 0,9371 | -0,0004 | 143,0 ms | **75,3%** |
+| **Media Global (6 Datasets)** | 27 | — | **0,9345** | 0,9341 | 0,9409 | **+0,0004** | 130,0 ms | **75,5%** |
 
-*\*Nota sobre KTH-TIPS-2b:* Se reporta conforme a su variante archivada independiente. Para evitar pseudorreplicación y mantener la máxima integridad inferencial, se excluye de los contrastes no paramétricos multiconjunto de Demšar ($N=5$).
+*\*Nota sobre KTH-TIPS-2b:* Se reporta conforme a su variante archivada independiente. Para evitar pseudorreplicación y mantener la máxima integridad inferencial, se excluye de los contrastes no paramétricos multiconjunto de Demšar (N = 5).
 
 #### Contrastes Estadísticos de Demšar sobre los 5 Datasets Reconciliados:
-* **Prueba de Friedman:** Estadístico = $2{,}6327$ ($p = 0{,}4518$; no se rechaza la hipótesis nula de igualdad de rangos).
-* **Prueba de Iman--Davenport:** $F = 0{,}8515$ ($p = 0{,}4922$).
-* **Rangos Medios de Friedman:** Cascada FSC-Tex = **2,200** | Completa-22 = 2,200 | Top-$k$ = 2,300 | Cascada Fija ResNet-50 = 3,300.
-* **Pruebas de Wilcoxon con ajuste de Holm ($\alpha = 0{,}05$):** $p_{\text{Holm}} = 1{,}0000$ (tanto frente a Top-$k$ como frente a Completa).
-* **Lectura Metodológica:** Los datos confirman paridad empírica en la frontera de exactitud. La cascada preserva el macro-F1 de Top-$k$ (diferencia observada de apenas $-0{,}0004$) mientras reduce más del 75% del cómputo.
+* **Prueba de Friedman:** Estadístico = 2,6327 (p = 0,4518; no se rechaza la hipótesis nula de igualdad de rangos).
+* **Prueba de Iman–Davenport:** F = 0,8515 (p = 0,4922).
+* **Rangos Medios de Friedman:** Cascada FSC-Tex = **2,200** | Completa-22 = 2,200 | Top-k = 2,300 | Cascada Fija ResNet-50 = 3,300.
+* **Pruebas de Wilcoxon con ajuste de Holm (α = 0,05):** p_Holm = 1,0000 (tanto frente a Top-k como frente a Completa).
+* **Lectura Metodológica:** Los datos confirman paridad empírica en la frontera de exactitud. La cascada preserva el macro-F1 de Top-k (diferencia observada de apenas -0,0004) mientras reduce más del 75% del cómputo.
 
 #### Contexto de la Fase 1: Macro-F1 de Controles Estáticos por Dataset
 Para mostrar en la reunión cómo se comparan los controles estáticos iniciales con Linear SVM (Tabla 4.1 de la tesis):
 
-| Dataset | Individual (Base) | Completa-22 | Top-$k$ | GFS (Voraz) | Homogénea |
+| Dataset | Individual (Base) | Completa-22 | Top-k | GFS (Voraz) | Homogénea |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **DTD** | 0,8426 | 0,8639 | 0,8700 | **0,8703** | 0,8604 |
 | **FMD** | 0,9726 | 0,9647 | **0,9820** | 0,9766 | 0,9789 |
@@ -126,7 +125,7 @@ Para descartar que el ahorro fuera una simulación abstracta de cachés, se cons
 
 Se midieron **204 imágenes de prueba estratificadas** en los 6 conjuntos, con **3 repeticiones pareadas aleatorizadas** (totalizando **612 mediciones físicas pareadas**):
 
-| Dataset | Protocolo | Clases | Pares Medidos | Cascada (ms) | Top-$k$ (ms) | Aceleración Física | Reducción Latencia | Salida Temprana Etapa 1 |
+| Dataset | Protocolo | Clases | Pares Medidos | Cascada (ms) | Top-k (ms) | Aceleración Física | Reducción Latencia | Salida Temprana Etapa 1 |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **DTD** | `official1` | 47 | 141 | 90,6 ms | 295,6 ms | **3,26×** | **69,4%** | 72,3% (102/141) |
 | **CUReT** | `curet_half_a_to_b` | 61 | 183 | 92,5 ms | 270,6 ms | **2,92×** | **65,8%** | 70,5% (129/183) |
@@ -150,7 +149,7 @@ Se midieron **204 imágenes de prueba estratificadas** en los 6 conjuntos, con *
 | **Paquete Overleaf (ZIP)** | **1,9 MB**, autocontenido y listo para compilar | [`paper/tesis_overleaf.zip`](file:///home/joaquin/tesis_claude/paper/tesis_overleaf.zip) |
 | **Memorando para el Tutor** | Documento ejecutivo de entrega | [`docs/fsc_tex/MEMORANDO_ENTREGA_TUTOR_2026-10-11.md`](file:///home/joaquin/tesis_claude/docs/fsc_tex/MEMORANDO_ENTREGA_TUTOR_2026-10-11.md) |
 | **Suite de Tests** | **60/60 tests aprobados** (100% de cobertura de contratos) | `tests/` |
-| **Predicciones Muestra por Muestra** | 31.984 observaciones persistidas a tolerancia $10^{-12}$ | `results/exploratory/topk_cascade/cheap_stage_selected_primary22/` |
+| **Predicciones Muestra por Muestra** | 31.984 observaciones persistidas a tolerancia 10⁻¹² | `results/exploratory/topk_cascade/cheap_stage_selected_primary22/` |
 | **Registros del Benchmark Físico** | 612 observaciones individuales con hashes SHA-256 | `results/exploratory/fsc_tex/physical_six_20261012/` |
 
 ---
@@ -167,13 +166,13 @@ Se midieron **204 imágenes de prueba estratificadas** en los 6 conjuntos, con *
 ### Preguntas que el Profesor Podría Hacer y Cómo Responderlas:
 
 **Pregunta 1: ¿Por qué dos etapas y no una política secuencial completa descriptor por descriptor (AFA / MDP)?**
-* **Respuesta:** *"Implementamos pilotos exploratorios de horizonte profundo ($H \ge 2$) basados en ecuaciones de Bellman y procesos de Markov. Sin embargo, observamos que debido a que modelos fundacionales como SigLIP ya resuelven el 74% de las imágenes en el primer paso, la complejidad matemática y la sobrecarga de computar políticas dinámicas multietapa no aportaban ganancias consistentes de macro-F1 frente a la decisión binaria por margen. Adoptamos el principio de parsimonia: dos etapas resuelven el cuello de botella físico de forma transparente y robusta."*
+* **Respuesta:** *"Implementamos pilotos exploratorios de horizonte profundo (H ≥ 2) basados en ecuaciones de Bellman y procesos de Markov. Sin embargo, observamos que debido a que modelos fundacionales como SigLIP ya resuelven el 74% de las imágenes en el primer paso, la complejidad matemática y la sobrecarga de computar políticas dinámicas multietapa no aportaban ganancias consistentes de macro-F1 frente a la decisión binaria por margen. Adoptamos el principio de parsimonia: dos etapas resuelven el cuello de botella físico de forma transparente y robusta."*
 
 **Pregunta 2: ¿La cascada le gana a la concatenación Completa de 22 descriptores?**
-* **Respuesta:** *"No afirmamos superioridad predictiva frente a Completa. Completa alcanza 0,9409 y la cascada 0,9345 (diferencia de -0,0046 en los datasets reconciliados, no significativa según Demšar, $p_{\text{Holm}} = 1{,}0000$). La contribución de la tesis no es ganarle en exactitud a un extractor infinito, sino optimizar la frontera calidad--costo: logramos prácticamente el mismo nivel de acierto reduciendo más de dos tercios del tiempo de cómputo."*
+* **Respuesta:** *"No afirmamos superioridad predictiva frente a Completa. Completa alcanza 0,9409 y la cascada 0,9345 (diferencia de -0,0046 en los datasets reconciliados, no significativa según Demšar, p_Holm = 1,0000). La contribución de la tesis no es ganarle en exactitud a un extractor infinito, sino optimizar la frontera calidad--costo: logramos prácticamente el mismo nivel de acierto reduciendo más de dos tercios del tiempo de cómputo."*
 
 **Pregunta 3: ¿Por qué KTH-TIPS-2b se excluye de las pruebas estadísticas de Demšar?**
-* **Respuesta:** *"Por rigor metodológico y para evitar pseudorreplicación. KTH-TIPS-2b se evaluó históricamente con 4 particiones en las que el Top-k previo requería un ajuste específico de agrupación por muestra física. Para no mezclar protocolos inferenciales, KTH se reporta de forma independiente y transparente como resultado descriptivo, manteniendo los contrastes no paramétricos de Demšar estrictamente sobre los cinco conjuntos completamente reconciliados ($N=5$)."*
+* **Respuesta:** *"Por rigor metodológico y para evitar pseudorreplicación. KTH-TIPS-2b se evaluó históricamente con 4 particiones en las que el Top-k previo requería un ajuste específico de agrupación por muestra física. Para no mezclar protocolos inferenciales, KTH se reporta de forma independiente y transparente como resultado descriptivo, manteniendo los contrastes no paramétricos de Demšar estrictamente sobre los cinco conjuntos completamente reconciliados (N = 5)."*
 
 **Pregunta 4: ¿Y qué pasó con VisTex?**
 * **Respuesta:** *"Auditamos los archivos originales de VisTex: verificamos que la colección Reference contiene 167 imágenes en 19 categorías, y la extensión histórica local 140 imágenes con 20 descriptores previos. Decidimos no incorporarla al estudio principal para mantener la homogeneidad estricta del benchmark en los seis conjuntos de referencia con los 22 descriptores y evitar comparaciones cruzadas no homogéneas."*
