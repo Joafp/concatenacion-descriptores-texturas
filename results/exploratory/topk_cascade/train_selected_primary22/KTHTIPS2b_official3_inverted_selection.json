@@ -1,0 +1,86 @@
+{
+  "dataset": "KTHTIPS2b",
+  "protocol": "official3_inverted",
+  "outer_fold": 2,
+  "seed": 42,
+  "classifier": "svm",
+  "n_outer_train": 3564,
+  "n_outer_test": 1188,
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "topk_blocks": [
+    "beitv2_base_final",
+    "dinov2_large"
+  ],
+  "selection": {
+    "selected": {
+      "route": "cascade",
+      "budget": 0.5,
+      "threshold": 1.2680110442755965,
+      "oof_macro_f1": 0.9360747623271343,
+      "oof_request_fraction": 0.5,
+      "projected_component_ms": 291.7674408500223,
+      "eligible": true
+    },
+    "candidates": [
+      {
+        "route": "topk_direct",
+        "budget": null,
+        "threshold": null,
+        "oof_macro_f1": 0.9406502208127372,
+        "oof_request_fraction": 1.0,
+        "projected_component_ms": 509.36705490000804,
+        "eligible": true
+      },
+      {
+        "route": "cascade",
+        "budget": 0.25,
+        "threshold": 0.5859348896778356,
+        "oof_macro_f1": 0.905625326611863,
+        "oof_request_fraction": 0.25,
+        "projected_component_ms": 164.42567712502031,
+        "eligible": false
+      },
+      {
+        "route": "cascade",
+        "budget": 0.5,
+        "threshold": 1.2680110442755965,
+        "oof_macro_f1": 0.9360747623271343,
+        "oof_request_fraction": 0.5,
+        "projected_component_ms": 291.7674408500223,
+        "eligible": true
+      },
+      {
+        "route": "cascade",
+        "budget": 0.75,
+        "threshold": 1.953149394339158,
+        "oof_macro_f1": 0.9404311325938507,
+        "oof_request_fraction": 0.75,
+        "projected_component_ms": 419.1092045750243,
+        "eligible": true
+      }
+    ],
+    "oof_topk_macro_f1": 0.9406502208127372,
+    "oof_cheap_macro_f1": 0.8242086189675857,
+    "f1_tolerance": 0.005,
+    "base_component_ms": 37.0839134000183,
+    "incremental_component_ms": 509.36705490000804,
+    "topk_direct_component_ms": 509.36705490000804
+  },
+  "evaluation": {
+    "outer_test_macro_f1": 0.9793564728657848,
+    "outer_test_topk_macro_f1": 0.9884259254768678,
+    "outer_test_request_fraction": 0.39730639730639733,
+    "outer_test_component_ms": 239.4587028889104,
+    "outer_test_topk_component_ms": 509.36705490000804
+  },
+  "source_archive": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/exact_archive/KTHTIPS2b_svm_s42_official3_inverted_innergrp-sample_topk_cascade.json",
+    "sha256": "4f7e38812c3ae1f586106a7a6817f755c4c19d55a9dc105276fa121fd4fa885e"
+  },
+  "source_per_sample": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/exact_archive/KTHTIPS2b_svm_s42_official3_inverted_innergrp-sample_topk_cascade_per_sample.csv",
+    "sha256": "f3e21132ca74df55029c04769d551d3694d053d11ecbc66201243478c43f8f92"
+  }
+}

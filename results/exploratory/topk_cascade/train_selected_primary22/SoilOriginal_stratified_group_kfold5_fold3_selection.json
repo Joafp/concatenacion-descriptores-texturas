@@ -1,0 +1,89 @@
+{
+  "dataset": "SoilOriginal",
+  "protocol": "stratified_group_kfold5_fold3",
+  "outer_fold": 3,
+  "seed": 42,
+  "classifier": "svm",
+  "n_outer_train": 912,
+  "n_outer_test": 228,
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "topk_blocks": [
+    "eva02_base",
+    "siglip_base",
+    "convnext_v2_t",
+    "swin_t",
+    "beitv2_base_final"
+  ],
+  "selection": {
+    "selected": {
+      "route": "cascade",
+      "budget": 0.5,
+      "threshold": 1.227181631754954,
+      "oof_macro_f1": 0.8603251626376404,
+      "oof_request_fraction": 0.5,
+      "projected_component_ms": 98.13835632496648,
+      "eligible": true
+    },
+    "candidates": [
+      {
+        "route": "topk_direct",
+        "budget": null,
+        "threshold": null,
+        "oof_macro_f1": 0.8625570244339118,
+        "oof_request_fraction": 1.0,
+        "projected_component_ms": 147.98960244993395,
+        "eligible": true
+      },
+      {
+        "route": "cascade",
+        "budget": 0.25,
+        "threshold": 0.5802076637161515,
+        "oof_macro_f1": 0.8533684875546378,
+        "oof_request_fraction": 0.25,
+        "projected_component_ms": 61.14095571248299,
+        "eligible": false
+      },
+      {
+        "route": "cascade",
+        "budget": 0.5,
+        "threshold": 1.227181631754954,
+        "oof_macro_f1": 0.8603251626376404,
+        "oof_request_fraction": 0.5,
+        "projected_component_ms": 98.13835632496648,
+        "eligible": true
+      },
+      {
+        "route": "cascade",
+        "budget": 0.75,
+        "threshold": 1.7597831290362467,
+        "oof_macro_f1": 0.8595474583187557,
+        "oof_request_fraction": 0.75,
+        "projected_component_ms": 135.13575693744997,
+        "eligible": true
+      }
+    ],
+    "oof_topk_macro_f1": 0.8625570244339118,
+    "oof_cheap_macro_f1": 0.7984346886714123,
+    "f1_tolerance": 0.005,
+    "base_component_ms": 24.143555099999503,
+    "incremental_component_ms": 147.98960244993395,
+    "topk_direct_component_ms": 147.98960244993395
+  },
+  "evaluation": {
+    "outer_test_macro_f1": 0.8952473068779165,
+    "outer_test_topk_macro_f1": 0.8952473068779165,
+    "outer_test_request_fraction": 0.5087719298245614,
+    "outer_test_component_ms": 99.43651073242205,
+    "outer_test_topk_component_ms": 147.98960244993395
+  },
+  "source_archive": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/soil_original/exact_archive/SoilOriginal_svm_s42_f3_topk_cascade.json",
+    "sha256": "320ca117b02b57795e1c8147c6b1803b5df76ca75c3c82bb5a3162e6ee146490"
+  },
+  "source_per_sample": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/soil_original/exact_archive/SoilOriginal_svm_s42_f3_topk_cascade_per_sample.csv",
+    "sha256": "48333898360d7be5835a59c56fc87de091cedf78373206cd4f063f6fdeabfd84"
+  }
+}

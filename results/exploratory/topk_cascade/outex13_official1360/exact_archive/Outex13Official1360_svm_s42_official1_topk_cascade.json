@@ -1,0 +1,113 @@
+{
+  "dataset": "Outex13Official1360",
+  "classifier": "svm",
+  "seed": 42,
+  "protocol": "official1",
+  "inner_group_column": "group",
+  "excluded_extractors": [],
+  "outer_fold": 0,
+  "n_train": 680,
+  "n_test": 680,
+  "n_classes": 68,
+  "inner_folds": 4,
+  "inner_train_classes": [
+    68,
+    68,
+    68,
+    68
+  ],
+  "groups_intersection": 0,
+  "threshold_source": "quantiles of grouped out-of-fold margins over the outer training rows only",
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "cheap_dimensions": 2048,
+  "expensive_blocks": [
+    "dinov2_large",
+    "beitv2_base_final",
+    "dinov2_small",
+    "dinov2",
+    "convnext_v2_t",
+    "resnet101",
+    "efficientnet_b0",
+    "swin_t"
+  ],
+  "expensive_dimensions": 7808,
+  "expensive_subset_derived_locally": false,
+  "archived_topk_macro_f1": 0.9425743955605468,
+  "reproduced_topk_macro_f1": 0.9425743955605469,
+  "reproduction_delta": 1.1102230246251565e-16,
+  "cheap_only": {
+    "macro_f1": 0.8809149032537305,
+    "accuracy": 0.8852941176470588
+  },
+  "topk_always": {
+    "macro_f1": 0.9425743955605469,
+    "accuracy": 0.9441176470588235
+  },
+  "topk_always_fit_seconds": 12.725443493000057,
+  "budgets": [
+    {
+      "target_budget": 0.25,
+      "threshold": 0.16769812825227398,
+      "observed_request_fraction": 0.19558823529411765,
+      "n_requested": 133,
+      "adaptive": {
+        "macro_f1": 0.9352681476086969,
+        "accuracy": 0.9367647058823529
+      },
+      "random_same_count_mean_macro_f1": 0.8933734330951739,
+      "random_same_count_sd_macro_f1": 0.004784315702414074,
+      "random_repeats": 100,
+      "gap_to_topk_always": -0.007306247951849976
+    },
+    {
+      "target_budget": 0.5,
+      "threshold": 0.8081292209551532,
+      "observed_request_fraction": 0.43970588235294117,
+      "n_requested": 299,
+      "adaptive": {
+        "macro_f1": 0.9425743955605469,
+        "accuracy": 0.9441176470588235
+      },
+      "random_same_count_mean_macro_f1": 0.9085543155833866,
+      "random_same_count_sd_macro_f1": 0.0066500269834502395,
+      "random_repeats": 100,
+      "gap_to_topk_always": 0.0
+    },
+    {
+      "target_budget": 0.75,
+      "threshold": 1.2124439063361063,
+      "observed_request_fraction": 0.6308823529411764,
+      "n_requested": 429,
+      "adaptive": {
+        "macro_f1": 0.9425743955605469,
+        "accuracy": 0.9441176470588235
+      },
+      "random_same_count_mean_macro_f1": 0.9200161094725487,
+      "random_same_count_sd_macro_f1": 0.00582651622115575,
+      "random_repeats": 100,
+      "gap_to_topk_always": 0.0
+    }
+  ],
+  "latency": "NOT_MEASURED: cached embeddings; cost enters only via --*-cost-ms",
+  "provenance": {
+    "audit_sha256": "39eece9737486943218039b3a362bb13ffb17457470ff66766146c973cfa41ef",
+    "manifest_sha256": "6499321a05630111dda4e3a7421995555553deea4807f23a5b4673a011856447",
+    "topk_control_sha256": "fa89a052d31931ebf2030c2fdaa52d4acb0b16dfb35a8d3a4633901aefcc3918",
+    "runner_sha256": "d7e3d5ebfdbc00917a2b491389e36120c211734b881f7bb5414da043f62ceb6d",
+    "blocks_sha256": {
+      "beitv2_base_final": "ea2a2f54c676bf521e603fb27131ef143b2c128bd0b94646a9a273409d03f014",
+      "convnext_v2_t": "0d583774add8733f87725666ebadac091063051bd589cf1b00dbaf3eef1aa1bc",
+      "dinov2": "05380c8cad94ce397c26e98ada4c679fa18f1c29b623456921b7def003b5778c",
+      "dinov2_large": "526a327137e342439137b04b75646b8ba0daf86032dc6191162defdbc20966dd",
+      "dinov2_small": "041eaae8376ac8ff91e19f30c540db22ad8631329a8a32e4720cb22613cd8b7a",
+      "efficientnet_b0": "51ef86eaa211656908b59df9c606a15a15ff83ca6d2583c6dbf0adc2f181de8e",
+      "resnet101": "db161db20a8e3019bee7cfbcdbae469bf5796e4f9caca4e45baa79d997536144",
+      "resnet50": "928fea231403ea8b92f998fdd4488c73469f5fa2a503a7b1fe950bd46673ea05",
+      "swin_t": "413fc6c56a2a7d6461cba7b5ad43aba0eb3f4bcc9c26e73f6a996b4f222a7f65"
+    },
+    "labels_sha256": "dd2e0aae92f26e20d79d33abe4ecf65e4046992983f5ded18fef7d7347f396fe"
+  },
+  "duration_seconds": 32.872040939000726
+}

@@ -1,5 +1,9 @@
 # Material Passport: cascada adaptativa hacia Top-k
 
+La extensión sensible al costo y la evaluación de los seis datasets están
+documentadas en `docs/AVANCE_CASCADA_COSTO_CONSCIENTE.md`. Este README conserva
+el experimento original de KTH y sus controles online corregidos.
+
 ## Propósito y alcance
 
 Experimento exploratorio de adquisición condicional de descriptores en
@@ -65,47 +69,39 @@ punta a punta.
 
 ## Validación online de la política
 
-La ruta completa imagen→predicción se ejecutó también para la partición oficial
-1 invertida, presupuesto nominal 50%, con 30 imágenes, cinco calentamientos y
-modelos residentes, en tres rondas independientes. Se alternaron por imagen la
-cascada y la ruta Top-k siempre. Antes de aceptar cada ronda, el ejecutor exigió
-concordancia exacta con el artefacto en caché: decisiones de escalamiento,
-predicciones adaptativas y predicciones Top-k coincidieron en el 100% de las
-imágenes; la similitud coseno mínima fuente→embedding fue 0.999994.
+La primera versión del ejecutor calculaba `resnet50` incluso en la ruta
+"Top-k siempre". Esa comparación no era justa y las reducciones anteriores en
+`online/`, `online_round2/`, `online_round3/` y `online_official2..4/`
+quedan supersedidas. El ejecutor corregido salta la etapa barata en Top-k
+directo. Se repitió una ronda de 30 imágenes por cada partición oficial
+invertida, presupuesto nominal 50%, con cinco calentamientos y modelos
+residentes. En las cuatro rondas, decisiones y predicciones coincidieron al
+100% con el experimento en caché; la similitud coseno mínima superó 0.99998.
 
-| Métrica entre rondas | Cascada adaptativa | Top-k siempre |
-|---|---:|---:|
-| Mediana de las medias | 201.59 ms | 535.95 ms |
-| Rango de las medias | 197.07–231.81 ms | 520.81–549.77 ms |
-
-En esta muestra, la reducción media emparejada osciló entre 57.8% y 62.4%
-(mediana: 62.2%) y la fracción observada de escalamiento fue 33.3%. Las trazas
-por ronda están en `kth_tips2b/online/`, `kth_tips2b/online_round2/` y
-`kth_tips2b/online_round3/`.
-
-Se efectuó además una ronda de 30 imágenes en cada una de las otras tres
-particiones, con el mismo control de concordancia exacta. No se promedian las
-cuatro filas porque sus rutas Top-k tienen distinto costo intrínseco.
-
-| Partición | Etapa Top-k | Escalamiento observado | Cascada media | Top-k siempre media | Reducción media |
+| Partición | Top-k | Escalamiento | Cascada media | Top-k directo medio | Ahorro de cascada |
 |---|---|---:|---:|---:|---:|
-| 1 (mediana de 3 rondas) | DINOv2-Large + BEiT | 33.3% | 201.59 ms | 535.95 ms | 62.2% |
-| 2 | BEiT | 36.7% | 49.81 ms | 73.62 ms | 32.3% |
-| 3 | BEiT + DINOv2-Large | 46.7% | 312.58 ms | 566.37 ms | 44.8% |
-| 4 | ViT-B/16 | 70.0% | 70.98 ms | 81.22 ms | 12.6% |
+| 1 | DINOv2-Large + BEiT | 33.3% | 196.03 ms | 447.49 ms | 56.2% |
+| 2 | BEiT | 36.7% | 49.45 ms | 42.61 ms | -16.0% |
+| 3 | BEiT + DINOv2-Large | 46.7% | 238.42 ms | 441.05 ms | 45.9% |
+| 4 | ViT-B/16 | 70.0% | 57.17 ms | 40.07 ms | -42.7% |
 
-Todas las filas tuvieron 100% de concordancia en decisión, predicción adaptativa
-y predicción Top-k. Las trazas están en `kth_tips2b/online_official2/`,
-`online_official3/` y `online_official4/`.
+Las trazas corregidas están en `kth_tips2b/online_fair_topk/`. No se promedian
+las cuatro filas porque las rutas Top-k tienen distinto costo intrínseco.
+En las particiones 2 y 4, el costo fijo de la etapa barata hace que la cascada
+sea más lenta que Top-k directo. La política de costo fijo para `q=0,50`
+permite omitirla en ambas antes de ver las etiquetas externas. Esto **no**
+garantiza que una política con otro presupuesto sea más rápida: el selector
+entrenado eligió `q=0,25` en la partición 4 y su nueva medición online fue
+59,61 ms frente a 45,29 ms de Top-k directo. El análisis completo y sus
+limitaciones están en `docs/AVANCE_CASCADA_COSTO_CONSCIENTE.md`.
 
 ## Limitaciones y siguiente validación
 
 Los resultados de clasificación son una simulación de predicciones con
 embeddings en caché. La validación online cubre extracción, decisión y
-clasificación, pero excluye carga de modelos y ajuste del clasificador; además,
-abarca una partición y una muestra determinista. No debe transformarse todavía
-en una afirmación general de latencia de punta a punta. Falta repetirla en las
-otras particiones y con un muestreo mayor.
+clasificación en cuatro particiones, pero excluye carga de modelos y ajuste del
+clasificador y usa solo 30 imágenes deterministas por partición. No debe
+transformarse en una afirmación general de latencia de punta a punta.
 
 Los JSON por partición en `kth_tips2b/exact_archive/` contienen huellas SHA-256
 de manifiestos, auditoría, control Top-k, ejecutor y embeddings usados.

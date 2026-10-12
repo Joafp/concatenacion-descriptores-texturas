@@ -1,0 +1,57 @@
+{
+  "dataset": "FMD",
+  "protocol": "stratified_group_kfold5_fold0",
+  "indices": [
+    3,
+    196,
+    251,
+    303,
+    418,
+    515,
+    665,
+    791,
+    882,
+    926
+  ],
+  "source_sha256": {
+    "3": "e80109d2e934522b41ee20e111accb461c5eebe5d5b9e6e1490deface1b5cf5c",
+    "196": "8b1a5786d835aa2275e2b1705fdac2a1d84a3233a7af5af4699841e956142b3e",
+    "251": "8ec49bbd6d2b2cba0459ba6094421e72d16fdd57eca7fb3db78971c7a718dc89",
+    "303": "1d95a9147fbcc353a6885f28bd3fefe4298dd04ab29ae62815be6e30f126af7d",
+    "418": "03eeff1fce127cc9d8f616ee409975eb8cb24315eaf917798d5c12328c80a6c2",
+    "515": "60c6e48c469955ff3c52e72b915e4af5d557b8645a831c524da4a3302b34e4d2",
+    "665": "df91e6c362d485ee8de242d361b08a248d64cc6f15bf6234f94d63885c3a1309",
+    "791": "33acb8d0bf95a0bf402e9aa9938a0c5ffc26f562a97cc1efad1c10087676bd42",
+    "882": "03b5bd7eb0b06afea2f36e01a96f9e69229ca8610067677637e00e62aeaa68ae",
+    "926": "e3269d1c53d55967fe7bfb03250add61c39fd6a4cf9df74f0b1e66da8f37c625"
+  },
+  "blocks": [
+    "siglip_base",
+    "dinov2_large",
+    "eva02_base"
+  ],
+  "selection": {
+    "route": "cascade",
+    "cheap": "siglip_base",
+    "budget": 0.25,
+    "threshold": 0.962189577168524,
+    "oof_macro_f1": 0.9799903654394931,
+    "oof_cheap_macro_f1": 0.9737783284239578,
+    "oof_request_fraction": 0.25,
+    "projected_component_ms": 133.96624426243307,
+    "eligible": true
+  },
+  "provenance": {
+    "results/exploratory/topk_cascade/cheap_stage_selected_primary22/FMD_stratified_group_kfold5_fold0_result.json": "66a4a12dae55ae51d28f0357de889c6ea65bd47d8104df7092a8c4da46f90e45",
+    "results/exploratory/topk_cascade/cheap_stage_selected_primary22/FMD_stratified_group_kfold5_fold0_selection_pretest.json": "b96c12ce247c482fcecd037ad8a6691be986b995648c097f1d9d49963200abca",
+    "results/exploratory/topk_cascade/cheap_stage_selected_primary22/FMD_stratified_group_kfold5_fold0_predictions.json": "4cf337d4db0b0767ee7e868ef8f5922c038323d5272342a90fc6cb98bdcb3e6b",
+    "scripts/benchmark_cascade_multidataset.py": "7fc066ccbd753a03c30b19a93445c2bf8befb0e647b7844f50749f306908b86c",
+    "src/01_extract_features.py": "c18c15795a4e0b7e8e146930bb011b80215acf8199fc47539b1f7c6f45bc1e5f",
+    "src/extract_sota_2024.py": "55dee8e0dd31199c312d33c5caa6c27caf829f87d2a7065c3d872cebb377c3a7",
+    "src/fsc_tex/executor.py": "cc4f56600f5692e0d11e55c3047623a34988a5da223f7285589db53f580000f8"
+  },
+  "repetitions": 3,
+  "seed": 42,
+  "timing_scope": "decoded RGB to prediction, resident models",
+  "kth_reference": null
+}

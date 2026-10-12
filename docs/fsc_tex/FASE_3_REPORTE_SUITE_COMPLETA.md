@@ -1,5 +1,7 @@
 # FSC-Tex Fase 3: Reporte de Exploración Preliminar v1 (27 Condiciones Canónicas)
 
+> Documento histórico de v1. Para el estado vigente y los avances posteriores, consultar la [auditoría v2 del 10 de octubre](AUDITORIA_FASE3_V2_2026-10-10.md) y el [plan de trabajo 1.2](../PROPUESTA_TESIS_FUSION_SECUENCIAL_COSTO_RIESGO.md). Los próximos pasos de este archivo corresponden a su fecha original.
+
 **Fecha:** 8 de Octubre de 2026  
 **Autores:** Joaquín Delgado & Carlos Ayala  
 **Tutor:** Prof. José Vázquez (FP-UNA)  

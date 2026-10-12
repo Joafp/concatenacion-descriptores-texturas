@@ -33,7 +33,7 @@ Top-$k$ controla la composición bajo el mismo número de bloques que GFS, aunqu
 
 \section{Espacio de descriptores}
 
-La biblioteca contiene 21 descriptores, agrupados según el tipo de representación. Cada uno constituye un bloque candidato sujeto al mismo criterio de selección. Las
+La biblioteca contiene 22 descriptores, agrupados según el tipo de representación (6 clásicos y 16 modelos aprendidos profundos y fundacionales). Cada uno constituye un bloque candidato sujeto al mismo criterio de selección. Las
 Tablas~\ref{tab:extractores-clasicos} y~\ref{tab:extractores-aprendidos}
 identifican la parametrización, los checkpoints y la dimensionalidad de cada
 bloque. Las redes preentrenadas se ejecutaron en modo evaluación y sin
@@ -73,7 +73,7 @@ N-gramas & ventana vertical $2\times1$; cuantización RGB por 12; 8.192 bins; SV
 
 \begin{table}[!ht]
 \centering
-\caption{Quince representaciones aprendidas congeladas incluidas en la biblioteca. ``Preclas.'' designa la salida inmediatamente anterior al clasificador del backbone.}
+\caption{Representaciones aprendidas congeladas incluidas en la biblioteca (16 extractores profundos y de modelos fundacionales). ``Preclas.'' designa la salida inmediatamente anterior al clasificador del backbone.}
 \label{tab:extractores-aprendidos}
 \fontsize{9}{11}\selectfont
 \begin{tabular}{@{}llp{6.5cm}lr@{}}
@@ -91,6 +91,7 @@ Transformer & ViT-B/16 & \texttt{google/vit-base-patch16-224} & pooler/CLS & 768
  & DeiT-S & \texttt{facebook/deit-small-patch16-224} & pooler/CLS & 384 \\
  & Swin-T & \texttt{microsoft/swin-tiny-patch4-window7-224} & pooler & 768 \\
  & EVA-02 base & \texttt{eva02\_base\_patch14\_224} & preclas. & 768 \\
+ & BEiT-v2-B$^\dagger$ & \texttt{beitv2\_base\_patch16\_224} & pooler/CLS & 768 \\
 \midrule
 Autosup./multimodal & DINOv2-S & \texttt{vit\_small\_patch14\_dinov2.lvd142m} & preclas. & 384 \\
  & DINOv2-B & \texttt{vit\_base\_patch14\_dinov2.lvd142m} & preclas. & 768 \\
@@ -98,10 +99,13 @@ Autosup./multimodal & DINOv2-S & \texttt{vit\_small\_patch14\_dinov2.lvd142m} & 
  & MAE-B & \texttt{facebook/vit-mae-base} & pooler/CLS & 768 \\
  & SigLIP-B & \texttt{google/siglip-base-patch16-224} & pooler/CLS & 768 \\
 \bottomrule
+\multicolumn{5}{l}{\footnotesize $^\dagger$BEiT-v2-B (768d) consolida la biblioteca en 22 extractores (20.652 dimensiones conjuntas).}
 \end{tabular}
 \end{table}
 
-Los descriptores clásicos se calcularon en escala de grises con la implementación de scikit-image: LBP, LBP-rot, Gabor y GLCM sobre imágenes redimensionadas a $256\times256$, y HOG sobre $128\times128$. LBP-rot designa la implementación propia registrada como \texttt{drlbp} en los archivos experimentales: aplica LBP con mapeo \texttt{ror} a ocho rotaciones y concatena diez bins por rotación en el intervalo $[0,10]$. Los códigos fuera de ese intervalo se descartan; por tanto, es un histograma restringido, no una reproducción del DRLBP de Mehta y Egiazarian \citep{mehta2016drlbp}. Los 21 vectores concatenados suman 19.884 dimensiones. Las características fijas y los conteos por imagen se almacenaron junto con etiquetas, orden de muestras y hashes de procedencia; las transformaciones aprendidas se ajustaron dentro de cada partición de entrenamiento. El estudio evalúa la selección y concatenación de bloques con extractores de imagen congelados y transformaciones ajustadas dentro del entrenamiento; no compara estrategias de \emph{fine-tuning}.
+Los descriptores clásicos se calcularon en escala de grises con la implementación de scikit-image: LBP, LBP-rot, Gabor y GLCM sobre imágenes redimensionadas a $256\times256$, y HOG sobre $128\times128$. LBP-rot designa la implementación propia registrada como \texttt{drlbp} en los archivos experimentales: aplica LBP con mapeo \texttt{ror} a ocho rotaciones y concatena diez bins por rotación en el intervalo $[0,10]$. Los códigos fuera de ese intervalo se descartan; por tanto, es un histograma restringido, no una reproducción del DRLBP de Mehta y Egiazarian \citep{mehta2016drlbp}.
+
+La biblioteca consolidada del estudio comprende 22 descriptores (6 clásicos y 16 aprendidos), cuyos vectores concatenados suman 20.652 dimensiones (19.884 dimensiones correspondientes al conjunto preliminar de 21 descriptores más 768 componentes aportadas por BEiT-v2-B). Las características fijas y los conteos por imagen se almacenaron junto con etiquetas, orden de muestras y hashes de procedencia; las transformaciones aprendidas se ajustaron dentro de cada partición de entrenamiento. El estudio evalúa la selección y concatenación de bloques con extractores de imagen congelados y transformaciones ajustadas dentro del entrenamiento; no compara estrategias de \emph{fine-tuning}.
 
 RGB Pixel N-grams \citep{paiva2023rgb} utiliza ventanas verticales de $2\times1$ píxeles con paso 1 sobre la imagen RGB en su resolución original. Cada canal se cuantiza mediante $q(v)=\lfloor v/12\rfloor$; los seis valores se codifican en base 22, recorriendo las dos posiciones de R, G y B. Los conteos se agrupan por el resto del código dividido por 8.192 y se comprimen mediante TruncatedSVD aleatorizado (256 componentes, cinco iteraciones y semilla de la condición). SVD se ajusta exclusivamente con el entrenamiento de cada partición interna y se reajusta sobre el entrenamiento externo para la evaluación final. El vector se normaliza con $L_2$ antes de concatenarlo. Esta parametrización comprimida se identifica como N-gramas + SVD y constituye una familia propia para la selección Homogénea.
 
@@ -137,7 +141,7 @@ La Tabla~\ref{tab:config-gfs} concentra los parámetros de búsqueda, comunes a 
 Elemento & Configuración \\
 \midrule
 Unidad de selección & Bloque completo generado por un extractor \\
-Candidatos & 21 bloques \\
+Candidatos & Hasta 22 bloques candidatos \\
 Criterio interno & Macro-F1 medio en cuatro folds estratificados y agrupados \\
 Presupuesto & Hasta $k=8$ bloques \\
 Parada & Dos mejoras consecutivas menores que 0,001; se devuelve el mejor paso histórico \\
@@ -151,15 +155,19 @@ Información excluida & Test externo y sus etiquetas durante toda la selección 
 
 \section{Conjuntos de datos y control de integridad}
 
-Antes del análisis se construyó un manifiesto por dataset y se verificaron etiquetas, orden de muestras, dimensiones, valores finitos y grupos de dependencia. Se utilizaron DTD, FMD, CUReT y Outex. Sus particiones se describen a continuación; los cuatro datasets integran el análisis estadístico principal.
+Antes del análisis se construyó un manifiesto por dataset y se verificaron etiquetas, orden de muestras, dimensiones, valores finitos y grupos de dependencia. El estudio evalúa seis conjuntos de datos de textura: DTD, FMD, CUReT, Outex, SoilOriginal y KTH-TIPS-2b. Para la concatenación estática se analizan 47 condiciones externas por clasificador; para la cascada adaptativa se evalúa el espacio canónico de 27 condiciones.
 
 DTD contiene 5.640 imágenes de texturas en condiciones no controladas y proporciona diez particiones oficiales de entrenamiento, validación y prueba \citep{cimpoi2014dtd}. En cada partición se unieron entrenamiento y validación para ejecutar la selección interna, mientras que el test oficial se reservó para una única evaluación. Los duplicados byte-idénticos que cruzaban roles fueron retirados del conjunto de entrenamiento, conservando intacta la evaluación.
 
-FMD reúne 1.000 fotografías de diez categorías de materiales \citep{sharan2013fmd}. Las características fijas y los conteos por imagen se obtuvieron desde las imágenes oficiales en un orden canónico. Cada imagen presentó un hash único y se utilizó como unidad de agrupación. La evaluación externa empleó cinco folds estratificados y agrupados, repetidos con semillas 42, 123 y 2026.
+FMD reúne 1.000 fotografías de diez categorías de materiales \citep{sharan2013fmd}. Las características fijas y los conteos por imagen se obtuvieron desde las imágenes oficiales en un orden canónico. Cada imagen presentó un hash único y se utilizó como unidad de agrupación. En la concatenación estática, la evaluación externa empleó cinco folds estratificados y agrupados repetidos con semillas 42, 123 y 2026 (15 condiciones externas); en la cascada adaptativa, se evalúan los cinco pliegues canónicos.
 
-Outex contiene 1.360 BMP RGB de $128\times128$ píxeles, organizados en 68 clases balanceadas. La auditoría verificó archivos legibles, IDs continuos 000000--001359, ausencia de duplicados y la partición oficial de 680 imágenes de entrenamiento y 680 de prueba, con diez muestras de cada clase en cada lado \citep{ojala2002outex}. Todos los bloques respetan el orden de las 1.360 muestras del manifiesto oficial. Este es el único conjunto Outex utilizado en los resultados del artículo.
+Outex contiene 1.360 BMP RGB de $128\times128$ píxeles, organizados en 68 clases balanceadas (suite Outex-TC-00013). La auditoría verificó archivos legibles, IDs continuos 000000--001359, ausencia de duplicados y la partición oficial de 680 imágenes de entrenamiento y 680 de prueba, con diez muestras de cada clase en cada lado \citep{ojala2002outex}. Todos los bloques respetan el orden de las 1.360 muestras del manifiesto oficial.
 
-Para CUReT se utilizó la distribución gris recortada de 61 materiales, con 92 condiciones compartidas por clase \citep{varma2003filter}. Cada condición constituye un grupo para impedir que la misma configuración de adquisición aparezca a ambos lados de una partición. Se definieron dos mitades complementarias deterministas de 46 condiciones: A para selección y entrenamiento con B como test, y la dirección inversa. Esta asignación reproduce de manera transparente el tamaño 46/46 publicado, pero no se presenta como el split histórico exacto. Debido a que las dos direcciones son complementarias y dependientes, sus resultados se interpretarán descriptivamente.
+Para CUReT se utilizó la distribución gris recortada de 61 materiales, con 92 condiciones compartidas por clase \citep{varma2003filter}. Cada condición constituye un grupo para impedir que la misma configuración de adquisición aparezca a ambos lados de una partición. Se definieron dos mitades complementarias deterministas de 46 condiciones: A para selección y entrenamiento con B como test, y la dirección inversa. Esta asignación reproduce de manera transparente el tamaño 46/46 publicado, pero no se presenta como el split histórico exacto. Debido a que las dos direcciones son complementarias y dependientes, sus resultados se interpretan descriptivamente.
+
+SoilOriginal comprende 1.140 imágenes originales de textura de suelos agrícolas tras deduplicación exacta, clasificadas en siete clases texturales estándar y evaluadas bajo cinco pliegues estratificados canónicos (228 imágenes de prueba por pliegue, $N=5$ condiciones).
+
+KTH-TIPS-2b contiene imágenes de 11 clases de materiales capturadas bajo cuatro muestras físicas independientes (\emph{sample\_a}, \emph{sample\_b}, \emph{sample\_c}, \emph{sample\_d}) variando pose, escala e iluminación ($N=4$ condiciones). Para mantener la trazabilidad con los experimentos archivados del proyecto, sus resultados se reportan de forma puramente descriptiva; no obstante, debido a diferencias en su historial de selección previa y particionamiento, se excluye formalmente del conjunto de datos sometido a los contrastes inferenciales no paramétricos conjuntos de Demšar, los cuales se restringen a los cinco conjuntos metodológicamente reconciliados (DTD, FMD, CUReT, Outex13 y SoilOriginal, $N=5$, 23 condiciones).
 
 \section{Clasificadores}
 
@@ -175,10 +183,55 @@ La selección interna utiliza cuatro folds estratificados y agrupados. En DTD se
 
 \section{Análisis estadístico}\label{sec:analisis-estadistico}
 
-El análisis utiliza rankings de Friedman y Quade, contrastes globales y comparaciones por pares con ajuste de Holm, siguiendo una organización empleada en clasificación de texturas \citep{paiva2023rgb}. Los cálculos se realizaron con los paquetes Java ControlTest y MultipleTest distribuidos con el tutorial de pruebas no paramétricas \citep{derrac2011practical}.
+El análisis inferencial sigue las recomendaciones metodológicas para comparación de clasificadores sobre múltiples conjuntos de datos \citep{demsar2006statistical,derrac2011practical,garcia2008extension}. Los cálculos se realizaron con los paquetes Java ControlTest y MultipleTest distribuidos con el tutorial de pruebas no paramétricas \citep{derrac2011practical}.
 
 La exactitud es la proporción de imágenes clasificadas correctamente. Macro-F1 promedia el F1 de las $C$ clases con igual peso: $\mathrm{macro\mbox{-}F1}=C^{-1}\sum_{c=1}^{C}2TP_c/(2TP_c+FP_c+FN_c)$, donde $TP_c$, $FP_c$ y $FN_c$ son los verdaderos positivos, falsos positivos y falsos negativos de la clase $c$. Esta media evita que la contribución de una clase dependa directamente de su número de muestras.
 
-Macro-F1 es la métrica primaria. Para cada dataset se promedian primero las condiciones externas de cada clasificador y después los dos clasificadores con igual peso. Así se obtienen cuatro bloques, uno por dataset, y cinco estrategias. No se tratan las particiones repetidas ni los dos clasificadores de una misma base como problemas independientes. Se adopta $\alpha=0{,}05$ y Holm se aplica a la familia de diez pares posibles mediante comparaciones de rangos basadas en Friedman; estos valores no son contrastes post hoc de Quade. Se reportan todas las comparaciones, incluidas las que no rechazan la hipótesis nula. Los valores ajustados se acotan a 1 para su presentación.
+Macro-F1 es la métrica primaria del estudio. Para la evaluación de la concatenación estática sobre la biblioteca consolidada de 22 descriptores, los contrastes no paramétricos se ejecutan de forma desagregada por clasificador (Linear SVM y ResMLP), definiendo un bloque por conjunto de datos ($N=6$ conjuntos: DTD, FMD, CUReT, Outex, SoilOriginal y KTH-TIPS-2b). En cada bloque se promedian previamente las particiones externas dependientes. Se calculan los rankings de Friedman, Friedman alineado y Quade, y los contrastes por pares aplican el ajuste secuencial de Holm ($\alpha=0{,}05$) sobre la familia de diez comparaciones posibles. Esta separación por clasificador respeta los sesgos inductivos disímiles de cada modelo y evita el problema de pseudorreplicación derivado de tratar evaluaciones dependientes sobre las mismas imágenes como problemas independientes.
 
-La exactitud se reporta como métrica descriptiva secundaria sobre las mismas condiciones. La media y la desviación estándar entre particiones describen la variación observada, pero no convierten las particiones dependientes en réplicas independientes. La ausencia de significancia no demuestra equivalencia entre estrategias.
+Para la evaluación de la Cascada Adaptativa Costo-Consciente, se aplican los contrastes de Demšar sobre los cinco conjuntos de datos metodológicamente reconciliados ($N=5$, 23 condiciones canónicas), contrastando la cascada frente a la concatenación Top-$k$ de origen y la Concatenación Completa-22 mediante pruebas pareadas de Wilcoxon con ajuste de Holm.
+
+En todos los casos, la ausencia de significancia estadística ($p_{\text{Holm}}>0{,}05$) representa la imposibilidad de rechazar la hipótesis nula de igualdad de rangos bajo la muestra disponible; es metodológicamente fundamental reconocer que no constituye una demostración de equivalencia matemática ni de no inferioridad formal entre estrategias. Se informan con rigor las diferencias empíricas observadas junto con los valores de significancia.
+
+\section[Cascada Adaptativa Costo-Consciente]{Fusión secuencial y cascada adaptativa de dos etapas}\label{sec:cascada-adaptativa}
+
+La concatenación estática descrita en la Sección~\ref{sec:metodo} presenta una limitación operativa fundamental: para cada imagen del conjunto de prueba, obliga a calcular la totalidad de los descriptores seleccionados, incurriendo en un costo computacional masivo y constante sin importar si el patrón textural es trivial o altamente complejo.
+
+Para abordar este compromiso calidad--costo, se formuló una estrategia de adquisición condicional en dos etapas denominada \emph{Cascada Adaptativa Costo-Consciente}. En lugar de evaluar todos los bloques de entrada de forma homogénea, el sistema procesa la imagen de manera progresiva guiado por la incertidumbre predictiva del clasificador.
+
+\subsection{Formulación y Regla de Decisión}
+
+Sea $\mathcal{B} = \{\phi_1, \dots, \phi_M\}$ la biblioteca de extractores disponibles ($M=22$) y $x$ una imagen de entrada. La inferencia en cascada opera en dos etapas:
+
+\begin{enumerate}
+\item \textbf{Etapa 1 (Económica):} Se extrae un único descriptor inicial liviano $\phi_{\text{cheap}} \in \mathcal{B}$. El clasificador lineal ajustado sobre este descriptor produce un vector de puntuaciones de decisión $\mathbf{s} = [s_1, \dots, s_C]$. El margen de confianza $m(x)$ se define como la diferencia entre la puntuación de la clase más probable y la segunda más probable:
+\begin{equation}
+m(x) = s_{(1)} - s_{(2)}.
+\label{eq:margin}
+\end{equation}
+Si el margen supera un umbral prospectivo $\tau$ ($m(x) > \tau$), la predicción de la Etapa 1 se considera suficientemente certera, el proceso se detiene inmediatamente (\emph{early exit}) y no se adquieren descriptores adicionales.
+
+\item \textbf{Etapa 2 (Escalamiento a Concatenación Densa):} Si $m(x) \le \tau$, la muestra se identifica como ambigua. En este caso, el sistema escala selectivamente y adquiere los extractores complementarios seleccionados mediante Top-$k$ ($\mathcal{B}_{\text{Top-}k}$). La predicción final se obtiene evaluando el modelo conjunto entrenado sobre la concatenación normalizada de todos los bloques adquiridos:
+\begin{equation}
+\hat{y}(x) = 
+\begin{cases} 
+\hat{y}_{\text{cheap}}(x), & \text{si } m(x) > \tau, \\
+\hat{y}_{\text{Top-}k}(x), & \text{si } m(x) \le \tau.
+\end{cases}
+\label{eq:decision-rule}
+\end{equation}
+\end{enumerate}
+
+\subsection{Selección prospectiva en entrenamiento (OOF)}
+
+Para prevenir sesgos optimistas o fuga de información hacia el conjunto de prueba, tanto la elección del descriptor económico inicial $\phi_{\text{cheap}}$ como el umbral de confianza $\tau$ se optimizan de forma estrictamente prospectiva en el conjunto de entrenamiento $T_{\text{train}}$ mediante validación cruzada interna fuera de pliegue (\emph{Out-of-Fold}, OOF).
+
+Los candidatos económicos considerados en la búsqueda interna corresponden a ResNet-50, SigLIP-B, BEiT-v2-B y ConvNeXt~V2-T, evaluados bajo una grilla de presupuestos relativos de escalamiento $B \in \{0{,}25; 0{,}50; 0{,}75\}$. Para cada candidato y presupuesto, el umbral $\tau$ se fija como el percentil $B$ de los márgenes OOF observados en entrenamiento. La ruta seleccionada es aquella que minimiza el costo computacional proyectado garantizando que el macro-F1 OOF se mantenga dentro de un margen de tolerancia estricto ($\Delta \le 0{,}005$) respecto a la concatenación directa. Si ningún candidato económico satisface el criterio de calidad en entrenamiento, el sistema selecciona automáticamente la ruta directa sin escalamiento (\texttt{topk\_direct}). El subconjunto denso Top-$k$ de la Etapa 2 se hereda de las selecciones internas realizadas en el entrenamiento.
+
+\subsection{Protocolo de Medición Física de Latencia en GPU}
+
+Como comprobación local del costo de ejecución, se realizó un piloto de medición física pareada en una GPU NVIDIA GeForce RTX 4060 (8~GB VRAM), limitado a la partición DTD official1 (47 imágenes, una por clase). Este piloto no valida físicamente la proyección analítica en los demás conjuntos ni descarta discrepancias para otras rutas o configuraciones.
+
+Se usó tamaño de lote unitario y los modelos permanecieron residentes en memoria de video; por ello, la medición no incluye su inicialización ni carga desde disco. El cronometraje comenzó después de decodificar cada imagen RGB con PIL y se usaron sincronizaciones explícitas de CUDA (\texttt{torch.cuda.synchronize()}) alrededor de la medición con reloj de pared. Para cada imagen se registró una ejecución de la cascada y una de Top-$k$, siempre en ese orden y sin repeticiones aleatorizadas. La correspondencia por imagen permite una comparación pareada descriptiva, pero el orden fijo y la ausencia de repeticiones impiden estimar la variabilidad entre ejecuciones o descartar efectos de calentamiento y contención.
+
+

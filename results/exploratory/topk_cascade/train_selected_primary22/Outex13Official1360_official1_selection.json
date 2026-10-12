@@ -1,0 +1,92 @@
+{
+  "dataset": "Outex13Official1360",
+  "protocol": "official1",
+  "outer_fold": 0,
+  "seed": 42,
+  "classifier": "svm",
+  "n_outer_train": 680,
+  "n_outer_test": 680,
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "topk_blocks": [
+    "dinov2_large",
+    "beitv2_base_final",
+    "dinov2_small",
+    "dinov2",
+    "convnext_v2_t",
+    "resnet101",
+    "efficientnet_b0",
+    "swin_t"
+  ],
+  "selection": {
+    "selected": {
+      "route": "cascade",
+      "budget": 0.5,
+      "threshold": 0.8081292209551532,
+      "oof_macro_f1": 0.9126688702480017,
+      "oof_request_fraction": 0.5,
+      "projected_component_ms": 388.88414587497664,
+      "eligible": true
+    },
+    "candidates": [
+      {
+        "route": "topk_direct",
+        "budget": null,
+        "threshold": null,
+        "oof_macro_f1": 0.9126688702480017,
+        "oof_request_fraction": 1.0,
+        "projected_component_ms": 729.4811815499543,
+        "eligible": true
+      },
+      {
+        "route": "cascade",
+        "budget": 0.25,
+        "threshold": 0.16769812825227398,
+        "oof_macro_f1": 0.9003486733802745,
+        "oof_request_fraction": 0.25,
+        "projected_component_ms": 206.51385048748807,
+        "eligible": false
+      },
+      {
+        "route": "cascade",
+        "budget": 0.5,
+        "threshold": 0.8081292209551532,
+        "oof_macro_f1": 0.9126688702480017,
+        "oof_request_fraction": 0.5,
+        "projected_component_ms": 388.88414587497664,
+        "eligible": true
+      },
+      {
+        "route": "cascade",
+        "budget": 0.75,
+        "threshold": 1.2124439063361063,
+        "oof_macro_f1": 0.9126688702480017,
+        "oof_request_fraction": 0.75,
+        "projected_component_ms": 571.2544412624652,
+        "eligible": true
+      }
+    ],
+    "oof_topk_macro_f1": 0.9126688702480017,
+    "oof_cheap_macro_f1": 0.8175685619924414,
+    "f1_tolerance": 0.005,
+    "base_component_ms": 24.143555099999503,
+    "incremental_component_ms": 729.4811815499543,
+    "topk_direct_component_ms": 729.4811815499543
+  },
+  "evaluation": {
+    "outer_test_macro_f1": 0.9425743955605469,
+    "outer_test_topk_macro_f1": 0.9425743955605469,
+    "outer_test_request_fraction": 0.43970588235294117,
+    "outer_test_component_ms": 344.90072169328823,
+    "outer_test_topk_component_ms": 729.4811815499543
+  },
+  "source_archive": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/outex13_official1360/exact_archive/Outex13Official1360_svm_s42_official1_topk_cascade.json",
+    "sha256": "953aaa71dd5fc8ab4e49ef999ae89fc75236ec026ef8d952611d1e64f2811bbe"
+  },
+  "source_per_sample": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/outex13_official1360/exact_archive/Outex13Official1360_svm_s42_official1_topk_cascade_per_sample.csv",
+    "sha256": "b30f6ad8234b28756ae2c0352959364eeceb4556ecd2202e117e9cff6c052fec"
+  }
+}

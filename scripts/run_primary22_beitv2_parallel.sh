@@ -56,7 +56,7 @@ emit_queue() {
     done
   done
   for split in {1..4}; do
-    printf 'KTHTIPS2b\t%s\t42\t0\tresults/extensions/kth_tips2b\tKTH_%s_s%s\t--official-split\t%s\t--invert-official-split\t--embedding-root\tembeddings_extensions\t--exclude-extractors\tbeitv2_base_multilayer\n' \
+    printf 'KTHTIPS2b\t%s\t42\t0\tresults/extensions/kth_tips2b\tKTH_%s_s%s\t--official-split\t%s\t--invert-official-split\t--inner-group-column\tsample\t--embedding-root\tembeddings_extensions\t--exclude-extractors\tbeitv2_base_multilayer\n' \
       "$classifier" "$classifier" "$split" "$split"
   done
 }

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import importlib.util
 import json
 import sys
 import time
@@ -32,12 +33,40 @@ from run_topk_individual_control import outer_indices  # noqa: E402
 TIMM = {
     "resnet50": "resnet50.a1_in1k",
     "beitv2_base_final": "beitv2_base_patch16_224.in1k_ft_in22k_in1k",
+    "dinov2_small": "vit_small_patch14_dinov2.lvd142m",
+    "dinov2": "vit_base_patch14_dinov2.lvd142m",
     "dinov2_large": "vit_large_patch14_dinov2.lvd142m",
 }
 HF = {"vit_b16": "google/vit-base-patch16-224"}
+SOTA = {"eva02_base", "mae_base", "siglip_base"}
 
 
 def load_extractor(name: str, device: str, seed: int):
+    if name in SOTA:
+        spec = importlib.util.spec_from_file_location(
+            "sota_online_extractors", REPO / "src" / "extract_sota_2024.py")
+        if spec is None or spec.loader is None:
+            raise RuntimeError("cannot load SOTA extractor implementation")
+        sota = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(sota)
+        sota.DEVICE = device
+        model, transform, kind = sota.load_model_and_transform(name)
+
+        def extract(path: Path) -> np.ndarray:
+            with Image.open(path) as handle:
+                tensor = transform(handle.convert("RGB")).unsqueeze(0).to(device)
+            with torch.inference_mode():
+                if kind == "timm":
+                    vector = model(tensor)
+                else:
+                    result = model(pixel_values=tensor)
+                    vector = (result.pooler_output if getattr(result, "pooler_output", None)
+                              is not None else result.last_hidden_state[:, 0])
+            if device == "cuda":
+                torch.cuda.synchronize()
+            return vector.cpu().numpy()
+        return model, extract
+
     if name in HF:
         from transformers import AutoImageProcessor, AutoModel
         # Historical vectors use the checkpoint's randomly initialised pooler.
@@ -101,12 +130,28 @@ def main() -> None:
 
     prior_path = args.prior_json.resolve()
     prior = json.loads(prior_path.read_text(encoding="utf-8"))
-    if prior.get("dataset") != "KTHTIPS2b" or prior.get("expensive_subset_derived_locally"):
-        raise ValueError("requires an exact, non-derived KTHTIPS2b cascade artifact")
+    if prior.get("dataset") not in {"KTHTIPS2b", "CUReT", "FMD", "DTD", "SoilOriginal", "Outex13Official1360"} or prior.get("expensive_subset_derived_locally"):
+        raise ValueError("requires an exact, non-derived primary22 cascade artifact")
+    dataset = prior["dataset"]
     protocol = str(prior["protocol"])
-    if not protocol.startswith("official") or "_inverted" not in protocol:
-        raise ValueError("requires an inverted official KTH-TIPS2-b partition")
-    split = int(protocol.removeprefix("official").split("_")[0])
+    if dataset == "KTHTIPS2b":
+        if not protocol.startswith("official") or "_inverted" not in protocol:
+            raise ValueError("requires an inverted official KTH-TIPS2-b partition")
+        split = int(protocol.removeprefix("official").split("_")[0])
+        direction = None
+    elif dataset == "CUReT":
+        if not protocol.startswith("curet_half_indices:"):
+            raise ValueError("requires a CUReT half-direction partition")
+        split = None
+        direction = protocol.split(":", 1)[1]
+    elif protocol.startswith("official"):
+        split = int(protocol.removeprefix("official").split("_")[0])
+        direction = None
+    elif protocol.startswith("stratified_group_kfold5_fold"):
+        split = None
+        direction = None
+    else:
+        raise ValueError(f"unsupported external protocol: {protocol}")
     budget_row = next((row for row in prior["budgets"]
                        if float(row["target_budget"]) == args.budget), None)
     if budget_row is None:
@@ -114,13 +159,16 @@ def main() -> None:
 
     audit_root, manifest_root, embedding_root = (x.resolve() for x in
         (args.audit_root, args.manifest_root, args.embedding_root))
-    audit_gate(audit_root, "KTHTIPS2b")
-    cache, y = load_dataset(REPO, "KTHTIPS2b", embedding_root=embedding_root)
-    groups, rows = load_manifest(manifest_root, "KTHTIPS2b", y)
-    train, test = outer_indices("KTHTIPS2b", int(prior["seed"]), int(prior["outer_fold"]),
-                                y, groups, rows, split, None, True)
+    audit_gate(audit_root, dataset)
+    cache, y = load_dataset(REPO, dataset, embedding_root=embedding_root)
+    groups, rows = load_manifest(manifest_root, dataset, y)
+    train, test = outer_indices(dataset, int(prior["seed"]), int(prior["outer_fold"]),
+                                y, groups, rows, split, direction, dataset == "KTHTIPS2b")
     cheap = prior["cheap_blocks"]
     expensive = prior["expensive_blocks"]
+    unsupported = (set(cheap) | set(expensive)) - (TIMM.keys() | HF.keys() | SOTA)
+    if unsupported:
+        raise ValueError(f"online extractor not yet implemented: {sorted(unsupported)}")
     base_x = np.concatenate([cache[n] for n in cheap], axis=1)
     topk_x = np.concatenate([cache[n] for n in expensive], axis=1)
     base_clf, topk_clf = make_model(prior["classifier"], int(prior["seed"])), make_model(prior["classifier"], int(prior["seed"]))
@@ -153,11 +201,15 @@ def main() -> None:
         if device == "cuda":
             torch.cuda.synchronize()
         began = time.perf_counter()
-        base_vectors = [l2(extractors[name](path)) for name in cheap]
-        online_base = np.concatenate(base_vectors, axis=1)
+        # A standalone Top-k baseline must not pay for the cheap classifier.
+        # Otherwise the measured saving of the cascade is overstated.
+        base_vectors = [] if force_topk else [l2(extractors[name](path)) for name in cheap]
+        base_by_name = {} if force_topk else dict(zip(cheap, base_vectors, strict=True))
+        online_base = None if force_topk else np.concatenate(base_vectors, axis=1)
         request = force_topk or bool(margin(base_clf, online_base)[0] <= threshold)
         if request:
-            topk_vectors = [l2(extractors[name](path)) for name in expensive]
+            topk_vectors = [base_by_name[name] if name in base_by_name
+                            else l2(extractors[name](path)) for name in expensive]
             online_topk = np.concatenate(topk_vectors, axis=1)
             pred = int(topk_clf.predict(online_topk)[0])
         else:
@@ -169,6 +221,7 @@ def main() -> None:
 
     adaptive_latencies, full_latencies = [], []
     request_flags, prediction_match, full_match, vector_cosines, observed_requests, sample_rows = [], [], [], [], [], []
+    request_disagreements = []
     for position, (idx, path) in enumerate(zip(indices, paths, strict=True)):
         order = (("adaptive", False), ("full", True)) if position % 2 == 0 else (("full", True), ("adaptive", False))
         measured = {name: route(path, force) for name, force in order}
@@ -177,6 +230,11 @@ def main() -> None:
         adaptive_latencies.append(latency); full_latencies.append(full_latency); observed_requests.append(request)
         ref = reference[(args.budget, int(idx))]
         request_flags.append(request == bool(int(ref["request_extra"])))
+        if not request_flags[-1]:
+            request_disagreements.append({"row_id": int(idx),
+                                          "cached_margin": float(ref["margin"]),
+                                          "threshold": threshold,
+                                          "online_margin": float(margin(base_clf, np.concatenate(base_vectors, axis=1))[0])})
         prediction_match.append(pred == int(ref["adaptive_pred"]))
         full_match.append(full_pred == int(ref["topk_pred"]))
         sample_rows.extend([
@@ -185,7 +243,7 @@ def main() -> None:
             {"row_id": int(idx), "route": "topk_always", "latency_ms": full_latency,
              "prediction": full_pred, "request_extra": 1},
         ])
-        for name, vector in zip(cheap, full_base, strict=True):
+        for name, vector in zip(cheap, base_vectors, strict=True):
             vector_cosines.append(float(np.sum(vector[0] * cache[name][int(idx)])))
         for name, vector in zip(expensive, full_topk, strict=True):
             vector_cosines.append(float(np.sum(vector[0] * cache[name][int(idx)])))
@@ -194,17 +252,20 @@ def main() -> None:
                  "adaptive_prediction": float(np.mean(prediction_match)),
                  "topk_prediction": float(np.mean(full_match)),
                  "min_source_cache_cosine": float(np.min(vector_cosines))}
-    if any(agreement[key] != 1.0 for key in ("request_decision", "adaptive_prediction", "topk_prediction")):
-        raise RuntimeError(f"online agreement failed: {agreement}")
-    result = {"status": "exploratory_online_topk_cascade_validation", "dataset": "KTHTIPS2b",
+    if (any(agreement[key] != 1.0 for key in
+            ("request_decision", "adaptive_prediction", "topk_prediction"))
+            or agreement["min_source_cache_cosine"] < 0.999):
+        raise RuntimeError(f"online agreement failed: {agreement}; request disagreements: {request_disagreements}")
+    result = {"status": "exploratory_online_topk_cascade_validation", "dataset": dataset,
               "protocol": protocol, "budget": args.budget, "n_images": len(indices), "device": device,
               "cheap_blocks": cheap, "expensive_blocks": expensive,
+              "topk_always_baseline": "standalone Top-k extraction; cheap stage skipped",
               "model_load_and_classifier_fit_excluded": True, "warmup": args.warmup,
               "observed_escalation_fraction": float(np.mean(observed_requests)),
               "online_adaptive": stats(adaptive_latencies), "online_topk_always": stats(full_latencies),
               "mean_latency_reduction_fraction": float(1 - np.mean(adaptive_latencies) / np.mean(full_latencies)),
               "agreement": agreement,
-              "limitations": ["One official partition and deterministic timing subset.",
+              "limitations": ["One external partition and deterministic timing subset.",
                               "Model loading and classifier fitting are excluded.",
                               "This validates online routing latency, not external accuracy."],
               "prior": str(prior_path)}

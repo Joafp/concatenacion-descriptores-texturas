@@ -1,0 +1,71 @@
+{
+  "status": "EXPLORATORY_TRAIN_SELECTED_COST_PROXY_NOT_ONLINE_LATENCY",
+  "selection_rule": "lowest projected OOF component cost among q=.25,.5,.75 and direct Top-k with OOF macro-F1 >= OOF Top-k minus 0.005",
+  "f1_tolerance": 0.005,
+  "selection_uses_outer_test_data": false,
+  "posthoc_tolerance_warning": "0.005 was fixed after earlier outer-test exploratory analysis; this is not independent confirmation",
+  "kth_cost_source": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/timing/latency_KTHTIPS2b_s42_official1_n30.json",
+    "sha256": "24ad9e611be70e841d12374f00e92b49628b747ce0b97885592d53b420e78b74"
+  },
+  "proxy_cost_source": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/adaptive_descriptor_pilot/cost_budget_comparison/primary22_e2e/Outex_official1_primary22_online_train_components.json",
+    "sha256": "001b0cec11890856f46422cdec009c0982040882d96408e4730abbda0aa172b6"
+  },
+  "summaries": [
+    {
+      "dataset": "DTD",
+      "conditions": 10,
+      "cascade_selections": 10,
+      "mean_macro_f1": 0.8694138069606051,
+      "mean_topk_macro_f1": 0.8700193592604325,
+      "mean_component_ms": 498.70057196353093,
+      "mean_topk_component_ms": 661.8248885050662
+    },
+    {
+      "dataset": "FMD",
+      "conditions": 5,
+      "cascade_selections": 5,
+      "mean_macro_f1": 0.9789411095441786,
+      "mean_topk_macro_f1": 0.9829263900586108,
+      "mean_component_ms": 371.59064565892635,
+      "mean_topk_component_ms": 583.4169273500538
+    },
+    {
+      "dataset": "CUReT",
+      "conditions": 2,
+      "cascade_selections": 2,
+      "mean_macro_f1": 0.9978632856430261,
+      "mean_topk_macro_f1": 0.9989307361068334,
+      "mean_component_ms": 156.5698204166568,
+      "mean_topk_component_ms": 655.6399382084313
+    },
+    {
+      "dataset": "Outex13Official1360",
+      "conditions": 1,
+      "cascade_selections": 1,
+      "mean_macro_f1": 0.9425743955605469,
+      "mean_topk_macro_f1": 0.9425743955605469,
+      "mean_component_ms": 344.90072169328823,
+      "mean_topk_component_ms": 729.4811815499543
+    },
+    {
+      "dataset": "SoilOriginal",
+      "conditions": 5,
+      "cascade_selections": 5,
+      "mean_macro_f1": 0.8663403338447278,
+      "mean_topk_macro_f1": 0.8700611624107596,
+      "mean_component_ms": 138.12839195207175,
+      "mean_topk_component_ms": 271.27959829992506
+    },
+    {
+      "dataset": "KTHTIPS2b",
+      "conditions": 4,
+      "cascade_selections": 3,
+      "mean_macro_f1": 0.9380669268874128,
+      "mean_topk_macro_f1": 0.9400318144944749,
+      "mean_component_ms": 160.46807243975297,
+      "mean_topk_component_ms": 278.04566995000454
+    }
+  ]
+}

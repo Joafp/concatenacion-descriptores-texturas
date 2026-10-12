@@ -1,0 +1,42 @@
+{
+  "status": "exploratory_online_topk_cascade_validation",
+  "dataset": "KTHTIPS2b",
+  "protocol": "official3_inverted",
+  "budget": 0.5,
+  "n_images": 30,
+  "device": "cuda",
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "expensive_blocks": [
+    "beitv2_base_final",
+    "dinov2_large"
+  ],
+  "topk_always_baseline": "standalone Top-k extraction; cheap stage skipped",
+  "model_load_and_classifier_fit_excluded": true,
+  "warmup": 5,
+  "observed_escalation_fraction": 0.4666666666666667,
+  "online_adaptive": {
+    "mean_ms": 238.4236340000522,
+    "median_ms": 78.66330150000067,
+    "p95_ms": 514.9253317501006
+  },
+  "online_topk_always": {
+    "mean_ms": 441.0517399665575,
+    "median_ms": 442.6032669998676,
+    "p95_ms": 470.4119362000256
+  },
+  "mean_latency_reduction_fraction": 0.4594202620805202,
+  "agreement": {
+    "request_decision": 1.0,
+    "adaptive_prediction": 1.0,
+    "topk_prediction": 1.0,
+    "min_source_cache_cosine": 0.9999906420707703
+  },
+  "limitations": [
+    "One official partition and deterministic timing subset.",
+    "Model loading and classifier fitting are excluded.",
+    "This validates online routing latency, not external accuracy."
+  ],
+  "prior": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/exact_archive/KTHTIPS2b_svm_s42_official3_inverted_innergrp-sample_topk_cascade.json"
+}

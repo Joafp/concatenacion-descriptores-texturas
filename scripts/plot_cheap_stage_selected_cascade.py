@@ -2,7 +2,7 @@
 """Generación de Figuras de Publicación para la Cascada Adaptativa Costo-Consciente.
 
 Genera tres figuras clave para el manuscrito y la defensa de tesis:
-1. `pareto_frontier_adaptive_cascade`: Frontera de Pareto (Macro-F1 vs Latencia en ms)
+1. `pareto_frontier_adaptive_cascade`: Frontera de Pareto (Macro-F1 vs costo proyectado en ms)
 2. `cascade_routing_efficiency`: Eficiencia de enrutamiento (% resuelto en Etapa 1 vs Etapa 2)
 3. `multidataset_speedup_accuracy`: Comparativa de ganancia en velocidad y preservación de F1
 """
@@ -38,7 +38,7 @@ PRETTY_NAMES = {
     "CUReT": "CUReT",
     "Outex13Official1360": "Outex-13",
     "SoilOriginal": "Soil",
-    "KTHTIPS2b": "KTH-TIPS-2b",
+    "KTHTIPS2b": "KTH-TIPS-2b (Top-k previo)",
 }
 
 # Estilo profesional de publicación
@@ -85,7 +85,7 @@ def plot_pareto_frontier(rows: pd.DataFrame, out_dir: Path) -> None:
 
         ax.scatter(*p_adapt, color=colors["Adaptive Cascade"], marker=markers["Adaptive Cascade"], s=130, label="Cascada Adaptativa", zorder=5)
         ax.scatter(*p_resnet, color=colors["ResNet-50 Cascade"], marker=markers["ResNet-50 Cascade"], s=110, label="Cascada ResNet-50", zorder=4)
-        ax.scatter(*p_topk, color=colors["Canonical Top-k 22"], marker=markers["Canonical Top-k 22"], s=110, label="Top-k 22 Canónico", zorder=4)
+        ax.scatter(*p_topk, color=colors["Canonical Top-k 22"], marker=markers["Canonical Top-k 22"], s=110, label="Top-k de origen", zorder=4)
 
         # Flecha de aceleración desde Top-k hasta Adaptativa
         ax.annotate(
@@ -96,9 +96,10 @@ def plot_pareto_frontier(rows: pd.DataFrame, out_dir: Path) -> None:
         )
         ahorro = (1.0 - d_sub["new_ms"] / d_sub["topk_ms"]) * 100.0
         ax.text(
-            (p_adapt[0] + p_topk[0]) / 2,
-            min(p_adapt[1], p_topk[1]) - 0.003,
-            f"-{ahorro:.1f}% ms",
+            0.5,
+            0.10,
+            f"-{ahorro:.1f}% costo proyectado",
+            transform=ax.transAxes,
             color="#1f77b4",
             fontweight="bold",
             fontsize=9.5,
@@ -106,12 +107,12 @@ def plot_pareto_frontier(rows: pd.DataFrame, out_dir: Path) -> None:
         )
 
         ax.set_title(PRETTY_NAMES.get(ds, ds), fontweight="bold")
-        ax.set_xlabel("Latencia media (ms)")
+        ax.set_xlabel("Costo proyectado medio (ms)")
         ax.set_ylabel("Macro-F1")
 
         # Margen dinámico
         f1_vals = [p_adapt[1], p_resnet[1], p_topk[1]]
-        ax.set_ylim(min(f1_vals) - 0.015, max(f1_vals) + 0.012)
+        ax.set_ylim(max(0, min(f1_vals) - 0.015), min(1, max(f1_vals) + 0.012))
 
     # Leyenda única
     handles, labels = axes[0].get_legend_handles_labels()
@@ -125,54 +126,44 @@ def plot_pareto_frontier(rows: pd.DataFrame, out_dir: Path) -> None:
 
 
 def plot_routing_efficiency(res_dir: Path, out_dir: Path) -> None:
-    """Grafica el porcentaje de muestras resueltas en Etapa 1 vs escaladas a Etapa 2."""
-    by_ds: dict[str, list[float]] = {}
-    for p in res_dir.glob("*_result.json"):
-        data = json.loads(p.read_text(encoding="utf-8"))
-        ds = data["dataset"]
-        frac = data["selected_cheap_stage"].get("request_fraction", 0.0)
-        by_ds.setdefault(ds, []).append(frac)
-
-    labels = [PRETTY_NAMES[d] for d in DATASET_ORDER]
-    stage1_pcts = []
-    stage2_pcts = []
-
-    for d in DATASET_ORDER:
-        mean_stage2 = float(np.mean(by_ds[d])) * 100.0
-        stage2_pcts.append(mean_stage2)
-        stage1_pcts.append(100.0 - mean_stage2)
-
-    fig, ax = plt.subplots(figsize=(10, 5.5), constrained_layout=True)
-
-    y_pos = np.arange(len(labels))
-    height = 0.55
-
-    p1 = ax.barh(y_pos, stage1_pcts, height, label="Etapa 1: Resuelto con Extractor Económico", color="#2ca02c", alpha=0.85)
-    p2 = ax.barh(y_pos, stage2_pcts, height, left=stage1_pcts, label="Etapa 2: Escalado a Bloques Top-k", color="#d62728", alpha=0.85)
-
-    # Etiquetas de porcentaje dentro de las barras
-    for idx, (s1, s2) in enumerate(zip(stage1_pcts, stage2_pcts)):
-        if s1 > 15:
-            ax.text(s1 / 2, idx, f"{s1:.1f}%", ha="center", va="center", color="white", fontweight="bold", fontsize=10.5)
-        if s2 > 10:
-            ax.text(s1 + s2 / 2, idx, f"{s2:.1f}%", ha="center", va="center", color="white", fontweight="bold", fontsize=10.5)
-
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(labels, fontweight="bold")
-    ax.set_xlabel("Proporción de Muestras de Test Evaluadas (%)", fontsize=12)
-    ax.set_title("Mecanismo de Ahorro: Tasa de Resolución Temprana en Etapa 1", fontsize=13, fontweight="bold")
+    """Unweighted condition means; classify direct Top-k separately from escalation."""
+    by_ds = {}
+    for path in res_dir.glob("*_result.json"):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        selected = data["selected_cheap_stage"]
+        if selected["route"] == "topk_direct":
+            fractions = (0.0, 0.0, 1.0)
+        else:
+            frac = selected["request_fraction"]
+            fractions = (1.0 - frac, frac, 0.0)
+        by_ds.setdefault(data["dataset"], []).append(fractions)
+    values = np.array([np.mean(by_ds[ds], axis=0) * 100 for ds in DATASET_ORDER])
+    fig, ax = plt.subplots(figsize=(11, 6), constrained_layout=True)
+    y = np.arange(len(DATASET_ORDER))
+    left = np.zeros(len(y))
+    for index, (label, color) in enumerate([
+        ("Salida económica (no implica acierto)", "#2ca02c"),
+        ("Escalamiento a Top-k", "#d62728"),
+        ("Top-k directo, sin etapa económica", "#7f7f7f"),
+    ]):
+        width = values[:, index]
+        ax.barh(y, width, 0.55, left=left, label=label, color=color, alpha=0.85)
+        for j, v in enumerate(width):
+            if v > 10:
+                ax.text(left[j] + v/2, j, f"{v:.1f}%", ha="center", va="center", color="white")
+        left += width
+    ax.set_yticks(y, [PRETTY_NAMES[d] for d in DATASET_ORDER])
+    ax.set_xlabel("Fracción de test simulada; media por condición (%)")
+    ax.set_title("Rutas seleccionadas sobre embeddings")
     ax.set_xlim(0, 100)
-    ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.22), ncol=2, frameon=True)
-
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.14), ncol=1)
     for ext in ("pdf", "png"):
-        p = out_dir / f"cascade_routing_efficiency.{ext}"
-        fig.savefig(p, dpi=300, bbox_inches="tight")
-        print(f"Guardado: {p}")
+        fig.savefig(out_dir / f"cascade_routing_efficiency.{ext}", dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
 def plot_speedup_accuracy_bars(rows: pd.DataFrame, out_dir: Path) -> None:
-    """Grafica la aceleración (Speedup X) y delta F1 frente a Top-k 22 Canónico."""
+    """Grafica la aceleración (Speedup X) y delta F1 frente a Top-k de origen."""
     agg = rows.groupby("dataset")[["new_f1", "topk_f1", "new_ms", "topk_ms"]].mean()
 
     labels = [PRETTY_NAMES[d] for d in DATASET_ORDER]
@@ -185,8 +176,8 @@ def plot_speedup_accuracy_bars(rows: pd.DataFrame, out_dir: Path) -> None:
     colors_spd = ["#1f77b4" if s > 1.0 else "#7f7f7f" for s in speedups]
     bars1 = ax1.bar(labels, speedups, color=colors_spd, width=0.55, alpha=0.9)
     ax1.axhline(1.0, color="gray", linestyle="--", linewidth=1.2)
-    ax1.set_ylabel("Factor de Aceleración ($x$ veces más rápido)", fontweight="bold")
-    ax1.set_title("Aceleración frente a Top-k 22 Canónico", fontweight="bold")
+    ax1.set_ylabel("Razón de costos proyectados", fontweight="bold")
+    ax1.set_title("Costo relativo: Top-k de origen / cascada", fontweight="bold")
     for bar in bars1:
         yval = bar.get_height()
         ax1.text(bar.get_x() + bar.get_width() / 2, yval + 0.1, f"{yval:.2f}x", ha="center", va="bottom", fontweight="bold")
@@ -199,7 +190,7 @@ def plot_speedup_accuracy_bars(rows: pd.DataFrame, out_dir: Path) -> None:
     bars2 = ax2.bar(labels, delta_f1s, color=colors_f1, width=0.55, alpha=0.9)
     ax2.axhline(0.0, color="black", linestyle="-", linewidth=1.0)
     ax2.set_ylabel(r"$\Delta$ Macro-F1 (puntos porcentuales)", fontweight="bold")
-    ax2.set_title("Preservación de Precisión frente a Top-k 22 Canónico", fontweight="bold")
+    ax2.set_title("Cambio de Macro-F1 frente a Top-k de origen", fontweight="bold")
     for bar in bars2:
         yval = bar.get_height()
         offset = 0.06 if yval >= 0 else -0.15

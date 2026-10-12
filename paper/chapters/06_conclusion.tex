@@ -1,7 +1,27 @@
-\chapter{Conclusión}\label{sec:conclusion}
+\chapter{Conclusiones y Trabajo Futuro}\label{sec:conclusion}
 
-Este trabajo estudió la concatenación de descriptores como una elección entre representaciones individuales, completas y seleccionadas. La evaluación completa reunió 21 descriptores, cuatro datasets y dos clasificadores bajo un protocolo que separa selección interna y evaluación externa. Las cinco estrategias se compararon mediante macro-F1 y exactitud, con rankings de Friedman y Quade y comparaciones por pares ajustadas mediante Holm.
+\section{Conclusiones}
 
-Los resultados muestran beneficios descriptivos de combinar representaciones y reducciones dimensionales al seleccionar subconjuntos. Ninguna estrategia obtiene el mayor desempeño en todos los dominios. Los contrastes principales entre cuatro datasets no permiten afirmar una superioridad estadística general de GFS, Top-$k$, Completa o Homogénea frente a Individual.
+Esta tesis investigó la combinación de representaciones heterogéneas para la clasificación de texturas, transitando desde la evaluación anidada de la concatenación estática de bloques hacia la formulación de un marco de \emph{fusión secuencial costo-consciente}. A través de un diseño experimental desacoplado y prospectivo evaluado en dos fases sucesivas sobre seis conjuntos de datos de referencia, se extraen las siguientes conclusiones principales:
 
-La elección de una representación debe considerar el desempeño externo y la dimensionalidad bajo un protocolo común. Como siguientes pasos se plantea ampliar la diversidad de datasets, estudiar el efecto de la normalización y medir de forma homogénea el costo de extracción y clasificación.
+\begin{enumerate}
+\item \textbf{La concatenación estática presenta rendimientos decrecientes y saturación dimensional:} En la evaluación sistemática de la biblioteca consolidada de 22 descriptores (20.652 dimensiones) sobre seis conjuntos de datos con Linear SVM y ResMLP, la combinación de múltiples bloques supera descriptivamente a un descriptor individual aislado. Sin embargo, las ganancias predictivas saturan con pocos extractores de alto orden; la selección secuencial GFS logra una mejora estadísticamente significativa sobre Individual en ResMLP ($p_{\text{Holm}}=0{,}0191$), mientras que en Linear SVM GFS registra $p_{\text{Holm}}=0{,}8028$ y ninguna comparación por pares alcanza significancia tras el ajuste de Holm ($p_{\text{Holm}}=0{,}0617$ para Top-$k$ y Completa frente a Individual). Dicha significancia bajo ResMLP no reviste carácter confirmatorio estricto, dado que decisiones metodológicas clave (como la incorporación de BEiT-v2) estuvieron apoyadas en la observación de evaluaciones externas previas. Asimismo, evaluar la unión de todos los bloques seleccionados para el 100\% de las imágenes impone una sobrecarga computacional severa que dificulta el despliegue práctico.
+
+\item \textbf{La adquisición adaptativa muestra un compromiso calidad--costo en las condiciones evaluadas:} En 27 condiciones canónicas de seis conjuntos, la cascada registra un macro-F1 medio descriptivo de 0{,}9345, frente a 0{,}9341 para Top-$k$ de origen y 0{,}9409 para Completa-22. En los cinco conjuntos reconciliados, la diferencia media es $-0{,}0004$ frente a Top-$k$ y $-0{,}0046$ frente a Completa-22. Los contrastes por rangos no rechazan igualdad ($p_{\text{Holm}}=1{,}0000$), pero no demuestran equivalencia ni no inferioridad. La reducción analítica de costo proyectada es 75{,}5\%; no debe interpretarse como reducción física en todos los conjuntos.
+
+\item \textbf{Validación física de latencia en los seis conjuntos de datos:} En el benchmark pareado evaluando 204 imágenes estratificadas con tres repeticiones aleatorizadas por par (612 mediciones pareadas) en una GPU NVIDIA GeForce RTX 4060 con sincronización CUDA, la cascada redujo un \textbf{69{,}0\% la latencia de reloj de pared} frente a Top-$k$ (90{,}25~ms frente a 291{,}21~ms), con una aceleración física agregada de \textbf{3{,}23$\times$} (oscilando entre 2{,}60$\times$ en SoilOriginal y 16{,}00$\times$ en FMD) y un 74{,}0\% de salida temprana en la Etapa 1 económica, con un 100{,}0\% de coincidencia en predicciones y rutas frente al caché fuera de línea.
+
+\item \textbf{Parsimonia de dos etapas frente a la exploración multietapa:} Las exploraciones piloto de políticas de decisión secuencial no miope de horizonte profundo ($H \ge 2$), inspiradas en marcos formales de MDP y recurrencias de Bellman, no exhibieron mejoras consistentes sobre una cascada parsimoniosa de dos etapas, al tiempo que introdujeron una sobrecarga de decisión computacional no despreciable. La cascada de dos etapas se consolida como la solución preferida, reportando con transparencia los resultados de dicha exploración.
+
+\item \textbf{Trazabilidad y auditoría muestra por muestra:} Se conservaron las predicciones de las 31.984 observaciones de prueba evaluadas en las 27 condiciones canónicas. Estos artefactos permiten recalcular las métricas con tolerancia numérica de $10^{-12}$ y facilitan su verificación y auditoría; no sustituyen la documentación de configuración, dependencias y entorno necesaria para una reproducción independiente.
+\end{enumerate}
+
+\section{Trabajo Futuro}
+
+A partir de los hallazgos y de los límites metodológicos establecidos en este trabajo, se identifican las siguientes líneas prioritarias de investigación futura:
+
+\begin{enumerate}
+\item \textbf{Fusión Temprana a Nivel de Tokens (\emph{Early Token Fusion}):} Explorar adaptadores de atención cruzada liviana entre parches intermedios de modelos fundacionales antes de la cabeza clasificadora, con el propósito de capturar interacciones de segundo orden sin incurrir en la evaluación completa de modelos adicionales.
+\item \textbf{Evaluación en Dispositivos de Borde (\emph{Edge AI}) y Eficiencia Energética:} Trasladar la Cascada Adaptativa a plataformas embebidas de bajo consumo (tales como NVIDIA Jetson Orin Nano y Raspberry Pi 5), cuantificando el consumo energético real en vatios-hora por inferencia bajo restricciones de batería.
+\item \textbf{Extensión a Segmentación Semántica de Texturas:} Adaptar la regla de adquisición condicionada por margen a nivel de vóxeles o parches espaciales densos, extrayendo descriptores costosos únicamente en bordes o regiones de ambigüedad morfológica.
+\end{enumerate}

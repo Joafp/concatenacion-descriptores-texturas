@@ -229,6 +229,32 @@ class OnlineExtractorRegistry:
             self._extract_fns[name] = extract
             return extract
 
+        elif name in {"vit_b16", "swin_t"}:
+            import timm
+            timm_name = "vit_base_patch16_224" if name == "vit_b16" else "swin_tiny_patch4_window7_224"
+            model = timm.create_model(timm_name, pretrained=True, num_classes=0).to(self.device).eval()
+            cfg = timm.data.resolve_model_data_config(model)
+            tf = transforms.Compose([
+                transforms.Resize(cfg["input_size"][1:]),
+                transforms.CenterCrop(cfg["input_size"][1:]),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=cfg["mean"], std=cfg["std"]),
+            ])
+
+            def extract(img_input: Any) -> np.ndarray:
+                img = img_input if isinstance(img_input, Image.Image) else Image.open(img_input).convert("RGB")
+                tensor = tf(img).unsqueeze(0).to(self.device)
+                with torch.inference_mode():
+                    feat = model(tensor)
+                if self.is_cuda():
+                    torch.cuda.synchronize()
+                vec = feat.cpu().numpy().ravel()
+                norm = np.linalg.norm(vec)
+                return vec / (norm + 1e-12)
+
+            self._extract_fns[name] = extract
+            return extract
+
         else:
             raise KeyError(f"Extractor '{name}' no tiene implementación online registrada en OnlineExtractorRegistry.")
 

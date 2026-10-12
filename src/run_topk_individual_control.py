@@ -1,8 +1,9 @@
 """Control anidado: concatenar los k mejores descriptores individuales.
 
 El ranking y k se determinan sin consultar el test externo. k se toma del GFS
-ya archivado para la misma condición; cada singleton se puntúa en los cuatro
-folds internos y los k primeros se concatenan para una única evaluación externa.
+ya archivado para la misma condición; cada singleton se puntúa en los folds
+internos (tres al agrupar las muestras físicas de KTH-TIPS2-b) y los k
+primeros se concatenan para una única evaluación externa.
 """
 
 import argparse
@@ -22,6 +23,7 @@ from run_confirmatory_nested import (
     inner_score,
     load_dataset,
     load_manifest,
+    manifest_groups,
     official_split_indices,
 )
 
@@ -79,6 +81,8 @@ def main():
     parser.add_argument("--ngram-hash-bins", type=int, default=8192)
     parser.add_argument("--ngram-result-subdir", default="ngram21")
     parser.add_argument("--invert-official-split", action="store_true")
+    parser.add_argument("--inner-group-column", default=None,
+                        help="manifest column used only for inner cross-validation groups")
     parser.add_argument("--exclude-extractors", nargs="*", default=[])
     args = parser.parse_args()
     if args.svm_backend == "cuml" and args.classifier != "svm":
@@ -98,6 +102,8 @@ def main():
     for name in args.exclude_extractors:
         cache.pop(name)
     groups, manifest_rows = load_manifest(output, args.dataset, y)
+    inner_groups = (groups if args.inner_group_column is None
+                    else manifest_groups(manifest_rows, args.inner_group_column))
     ngram_block = None
     if args.include_rgb_ngram:
         from rgb_ngram_descriptor import RGBNgramSVDBlock, build_count_cache
@@ -127,7 +133,9 @@ def main():
         control = output / (f"{args.ngram_result_subdir}/topk_individual_control"
                             if args.include_rgb_ngram else "topk_individual_control")
     control.mkdir(parents=True, exist_ok=True)
-    key = f"{args.dataset}__{args.classifier}__{args.seed}__{fold}"
+    group_tag = (f"__innergrp-{args.inner_group_column}"
+                 if args.inner_group_column is not None else "")
+    key = f"{args.dataset}__{args.classifier}__{args.seed}__{fold}{group_tag}"
     checkpoint = control / f"{key}.json"
     if checkpoint.exists():
         print(f"RESUME skip completed {key}")
@@ -140,7 +148,7 @@ def main():
         names.append(ngram_block.name)
     def score_one(name):
         return (
-            inner_score(cache, [name], train, y, groups, args.classifier, args.seed,
+            inner_score(cache, [name], train, y, inner_groups, args.classifier, args.seed,
                         svm_backend=args.svm_backend, ngram_block=ngram_block),
             name,
         )
@@ -174,7 +182,9 @@ def main():
         "inner_f1": mean_inner,
     }
     append_rows(control / "nested_fold_results.csv", [row])
-    checkpoint.write_text(json.dumps({"status": "complete", **row}, indent=2))
+    checkpoint.write_text(json.dumps({
+        "status": "complete", "inner_group_column": args.inner_group_column, **row
+    }, indent=2))
     print(json.dumps(row, indent=2))
 
 

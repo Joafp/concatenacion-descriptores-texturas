@@ -27,9 +27,10 @@ def module_from_file(name,path):
 def gpu_sync():
  if torch.cuda.is_available():torch.cuda.synchronize()
 def main():
- p=argparse.ArgumentParser();p.add_argument('--audit-root',type=Path,required=True);p.add_argument('--manifest-root',type=Path,required=True);p.add_argument('--embedding-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--n',type=int,default=50);a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--audit-root',type=Path,required=True);p.add_argument('--manifest-root',type=Path,required=True);p.add_argument('--embedding-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--n',type=int,default=50);p.add_argument('--timing-partition',choices=('train','test'),default='test');a=p.parse_args()
  audit,manifest,emb,out=[x.resolve() for x in (a.audit_root,a.manifest_root,a.embedding_root,a.output)];ds='Outex13Official1360';audit_gate(audit,ds);cache,y=load_dataset(REPO,ds,embedding_root=emb);groups,rows=load_manifest(manifest,ds,y);train,test=official_split_indices(rows,1)
- indices=test[np.linspace(0,len(test)-1,min(a.n,len(test)),dtype=int)];paths=[];source_hashes=[]
+ timing_pool=train if a.timing_partition=='train' else test
+ indices=timing_pool[np.linspace(0,len(timing_pool)-1,min(a.n,len(timing_pool)),dtype=int)];paths=[];source_hashes=[]
  for idx in indices:
   q=Path(rows[int(idx)].get('source_path') or rows[int(idx)]['path']);q=q if q.is_absolute() else REPO/q
   if not q.is_file():raise FileNotFoundError(q)
@@ -116,12 +117,13 @@ def main():
   if available:
    feats=np.concatenate([extracted[n] for n in available],axis=1)
    pred=[]; clf=models.get(method)
-   if clf is not None:
+   if clf is not None and not missing:
     for i in range(len(indices)):
      gpu_sync();t=time.perf_counter();pred.append(int(clf.predict(feats[i:i+1])[0]));predms=(time.perf_counter()-t)*1000
      route_ms.append(sum(timings[n][i] for n in available)+predms)
     pred_agreement=[int(pred[i])==int(clf.predict(np.concatenate([cache[n][indices[i:i+1]] for n in names],axis=1))[0]) for i in range(len(indices))]
   method_results[method]={'selected':names,'measured_extractors':available,'missing':missing,'complete_route':not missing,'mean_image_to_prediction_ms_partial_or_complete':float(np.mean(route_ms)) if route_ms else None,'median_ms':float(np.median(route_ms)) if route_ms else None,'p95_ms':float(np.percentile(route_ms,95)) if route_ms else None,'prediction_agreement_vs_cached_baseline':float(np.mean(pred_agreement)) if pred_agreement else None,'extractor_min_cosine':cosmin,'baseline_macro_f1':float(baselines[method]['macro_f1']),'baseline_accuracy':float(baselines[method]['accuracy']),'baseline_selected_k':int(baselines[method]['k'])}
- out.mkdir(parents=True,exist_ok=True);result={'status':'exploratory_online_extractor_cost_components','dataset':ds,'protocol':'official1 test; common deterministic 50-row subset','rows':indices.tolist(),'source_sha256':source_hashes,'device':device,'warmup_images_per_descriptor':2,'load_model_and_svm_fit_excluded':True,'per_descriptor_latency_ms':{k:{'mean':float(np.mean(v)),'median':float(np.median(v)),'p95':float(np.percentile(v,95))} for k,v in timings.items()},'method_routes':method_results,'failed_descriptors':failed,'provenance':{'manifest_sha256':sh(manifest/'sample_manifests'/f'{ds}.csv'),'audit_sha256':sh(audit/'data_audit.csv'),'topk_csv_sha256':sh(topk_csv),'main_csv_sha256':sh(main_csv),'extractor_script_sha256':sh(REPO/'src'/'01_extract_features.py'),'rgb_ngram_count_metadata_sha256':sh(REPO/'results/extensions/outex13_official1360/rgb_ngram_count_cache/Outex13Official1360/rgb_ngram_impl1/metadata.json')},'limitations':['Serial per-descriptor image pipelines with model loading excluded; models are not resident simultaneously. Costs sum measured per-descriptor extraction for the same images plus measured SVM prediction.','Descriptor cosine checks disclose extractor implementation mismatch; route prediction agreement is required before timing is considered matched.']}
- (out/'Outex_official1_primary22_online_components.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
+ out.mkdir(parents=True,exist_ok=True);result={'status':'exploratory_online_extractor_cost_components','dataset':ds,'protocol':f'official1 {a.timing_partition}; common deterministic {len(indices)}-row subset','timing_partition':a.timing_partition,'rows':indices.tolist(),'source_sha256':source_hashes,'device':device,'warmup_images_per_descriptor':2,'load_model_and_svm_fit_excluded':True,'per_descriptor_latency_ms':{k:{'mean':float(np.mean(v)),'median':float(np.median(v)),'p95':float(np.percentile(v,95))} for k,v in timings.items()},'method_routes':method_results,'failed_descriptors':failed,'provenance':{'manifest_sha256':sh(manifest/'sample_manifests'/f'{ds}.csv'),'audit_sha256':sh(audit/'data_audit.csv'),'topk_csv_sha256':sh(topk_csv),'main_csv_sha256':sh(main_csv),'extractor_script_sha256':sh(REPO/'src'/'01_extract_features.py'),'rgb_ngram_count_metadata_sha256':sh(REPO/'results/extensions/outex13_official1360/rgb_ngram_count_cache/Outex13Official1360/rgb_ngram_impl1/metadata.json')},'limitations':['Serial per-descriptor image pipelines with model loading excluded; models are not resident simultaneously. Costs sum measured per-descriptor extraction for the same images plus measured SVM prediction.','Descriptor cosine checks disclose extractor implementation mismatch; route prediction agreement is required before timing is considered matched.']}
+ suffix='_train' if a.timing_partition=='train' else ''
+ (out/f'Outex_official1_primary22_online{suffix}_components.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
 if __name__=='__main__':main()

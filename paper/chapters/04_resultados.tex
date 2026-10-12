@@ -1,25 +1,132 @@
-\chapter{Resultados del estudio anidado}\label{sec:resultados-experimentales}
+\chapter{Resultados experimentales}\label{sec:resultados-experimentales}
 
-\section{Resultados principales: desempeño y descriptor individual}
+Este capítulo presenta la evidencia experimental organizada en dos partes complementarias: la Sección~\ref{sec:resultados-fase1} y la Sección~\ref{sec:rankings-clasificador} evalúan la concatenación estática de bloques en la biblioteca consolidada de 22 descriptores (20.652 dimensiones) sobre seis conjuntos de datos con Linear SVM y ResMLP; la Sección~\ref{sec:resultados-cascada} evalúa la Cascada Adaptativa Costo-Consciente sobre 27 condiciones canónicas en los mismos seis conjuntos de datos con Linear SVM, complementada por la validación física pareada en GPU (Sección~\ref{sec:resultados-gpu}) y la auditoría de trazabilidad (Sección~\ref{sec:trazabilidad}).
 
-La Tabla~\ref{tab:resultados-confirmatorios} compara las cinco estrategias con la biblioteca de 21 descriptores. Individual corresponde a una política de selección interna: el descriptor elegido puede cambiar entre particiones. El panel B identifica esos descriptores y sus frecuencias, evitando atribuir la media a un único extractor cuando hubo varios. La Tabla~\ref{tab:accuracy} presenta la exactitud bajo el mismo protocolo.
+% =========================================================================
+% PARTE 1: CONCATENACIÓN ESTÁTICA
+% =========================================================================
+\section[Desempeño y dimensionalidad]{Desempeño y dimensionalidad de\\ la concatenación estática}\label{sec:resultados-fase1}
+
+La evaluación sistemática de la concatenación estática analiza la biblioteca consolidada de 22 descriptores (20.652 dimensiones) sobre seis conjuntos de datos de referencia (DTD, FMD, CUReT, Outex, SoilOriginal y KTH-TIPS-2b) empleando dos clasificadores con sesgos inductivos distintos: Linear SVM y ResMLP (12 configuraciones experimentales). La Tabla~\ref{tab:resultados-confirmatorios} compara las cinco estrategias de selección de bloques (Individual, Completa, Top-$k$, GFS y Homogénea) en términos de macro-F1 medio entre particiones externas. La estrategia Individual corresponde a una selección interna prospectiva (el extractor elegido puede variar entre particiones). La Tabla~\ref{tab:accuracy} reporta la exactitud bajo el mismo diseño anidado.
 
 \input{articulo/borrador_profesor/generated/baseline_f1.tex}
 \input{articulo/borrador_profesor/generated/baseline_accuracy.tex}
 \input{articulo/borrador_profesor/generated/dimensions_primary.tex}
 
-GFS obtiene mayor macro-F1 medio que Individual en las ocho configuraciones, pero el método con mayor desempeño depende del dataset. Completa alcanza los mayores valores en CUReT y en Outex con SVM; GFS obtiene el mayor valor en Outex con ResMLP. En DTD destaca GFS, mientras que en FMD destacan Top-$k$ con SVM y GFS con ResMLP. Esta comparación describe las medias externas y no implica que cada diferencia sea estadísticamente significativa.
+En términos de macro-F1 medio, la combinación de descriptores supera a Individual en las doce configuraciones evaluadas (seis conjuntos por dos clasificadores), si bien la estrategia con mayor desempeño absoluto varía según el dominio textural. Completa alcanza las puntuaciones más altas en CUReT ($0{,}9989$ con SVM y $0{,}9991$ con ResMLP), en Soil con SVM ($0{,}8816$) y en KTH-TIPS-2b ($0{,}9601$ con SVM y $0{,}9487$ con ResMLP); GFS obtiene el mayor valor en DTD con SVM ($0{,}8703$), en Outex con ResMLP ($0{,}9715$) y en Soil con ResMLP ($0{,}8691$); mientras que Top-$k$ sobresale en FMD con SVM ($0{,}9820$) y en DTD con ResMLP ($0{,}8643$). Esta comparación describe las medias externas observadas y no implica significancia estadística individual en cada contraste.
 
-La Tabla~\ref{tab:dimensiones} permite contrastar el desempeño con el tamaño de la representación en las cinco estrategias. La dimensión media de GFS por configuración dataset--clasificador se sitúa entre 2.909,3 y 5.632 componentes, una reducción de entre 71,7\% y 85,4\% respecto de los 19.884 de Completa. Este rango compara las ocho medias, no los extremos de las particiones individuales. La disminución corresponde al vector almacenado y utilizado por el clasificador. No se midió una reducción proporcional de latencia o memoria de extremo a extremo.
+La Tabla~\ref{tab:dimensiones} contrasta el desempeño predictivo con el tamaño efectivo del vector de entrada. Mientras que Completa utiliza siempre las 20.652 dimensiones de la biblioteca conjunta, la dimensión media seleccionada por GFS se sitúa entre 960 y 6.784 componentes entre configuraciones, lo que representa una reducción de entre 67{,}1\% y 95{,}3\% en la dimensionalidad del espacio de entrada. Esta reducción alivia la carga de memoria y almacenamiento del clasificador, pero no disminuye proporcionalmente la latencia de inferencia de extremo a extremo en un esquema estático, dado que todos los extractores seleccionados deben ejecutarse de forma invariable para cada imagen.
 
-\section{Rankings y comparaciones estadísticas}\label{sec:replica-paiva}
+\section{Rankings y contrastes estadísticos no paramétricos por clasificador}\label{sec:rankings-clasificador}
 
-Las Tablas~\ref{tab:rankings-comparison} y~\ref{tab:global-tests-comparison} presentan los rankings y los contrastes de la biblioteca de 21 descriptores bajo las dos formas de agregación.
+Siguiendo las recomendaciones metodológicas no paramétricas \citep{demsar2006statistical,derrac2011practical}, las evaluaciones de macro-F1 con la biblioteca de 22 descriptores se analizan de forma desagregada para Linear SVM y ResMLP sobre los seis conjuntos de datos ($N=6$ bloques independientes por clasificador). La Tabla~\ref{tab:classifier-rankings} presenta los rankings medios según las pruebas de Friedman, Friedman alineado y Quade.
 
-\input{articulo/borrador_profesor/generated/rankings_comparison.tex}
-\input{articulo/borrador_profesor/generated/global_tests_comparison.tex}
-\input{articulo/borrador_profesor/generated/vs_individual_comparison.tex}
+\input{articulo/borrador_profesor/generated/classifier_rankings.tex}
+\input{articulo/borrador_profesor/generated/classifier_global.tex}
+\input{articulo/borrador_profesor/generated/classifier_holm.tex}
 
-La Tabla~\ref{tab:vs-individual-comparison} presenta las mismas cuatro comparaciones frente a Individual en paralelo. Al promediar SVM y ResMLP por dataset, los valores ajustados con Holm son 0,2281 para GFS y 0,1391 para Top-$k$; al mantener separados los clasificadores, ambos alcanzan 0,0157. Completa y Homogénea obtienen 0,2149 y 0,5739 en la segunda organización. Como magnitud descriptiva, las diferencias absolutas de macro-F1 de GFS frente a Individual, promediando ambos clasificadores, son 0,0277 en DTD, 0,0066 en FMD, 0,0024 en CUReT y 0,0392 en Outex.
+Como refleja la Tabla~\ref{tab:classifier-rankings}, el ordenamiento relativo de las estrategias difiere notablemente según el clasificador empleado. Con Linear SVM, Completa y Top-$k$ obtienen el mejor ranking medio de Friedman ($2{,}000$), seguidas por GFS ($3{,}000$), Homogénea ($3{,}500$) e Individual ($4{,}500$). Con ResMLP, en cambio, la selección secuencial GFS logra el primer puesto con un ranking medio de $1{,}667$, superando a Top-$k$ ($2{,}167$), Completa ($2{,}833$), Homogénea ($3{,}833$) e Individual ($4{,}500$).
 
-Las dos organizaciones responden a preguntas distintas: la primera resume el comportamiento medio por dataset y la segunda permite observar si el efecto se mantiene por clasificador. Las ocho filas desagregadas reutilizan los mismos datasets e imágenes, por lo que sus resultados deben interpretarse junto con la estructura de dependencia del protocolo. Los procedimientos adicionales y sus salidas Java se conservan en los materiales de reproducibilidad.
+La Tabla~\ref{tab:classifier-global} resume las pruebas globales de hipótesis a nivel nominal $\alpha=0{,}05$. Para ambos clasificadores, las pruebas de Friedman e Iman--Davenport rechazan la hipótesis nula de igualdad global de rangos entre estrategias ($p=0{,}0289$ e $p=0{,}0139$ para Linear SVM; $p=0{,}0110$ e $p=0{,}0025$ para ResMLP), confirmando la presencia de diferencias sistemáticas entre métodos.
+
+La Tabla~\ref{tab:classifier-holm} detalla las comparaciones por pares frente a todos los rivales aplicando la corrección secuencial de Holm sobre los diez pares posibles dentro de cada clasificador:
+\begin{itemize}
+\item \textbf{ResMLP:} GFS obtiene una mejora estadísticamente significativa frente al control prospectivo Individual ($p_{\text{sin ajustar}}=0{,}0019$, $p_{\text{Holm}}=0{,}0191$). La comparación Individual vs. Top-$k$ arroja $p_{\text{Holm}}=0{,}0953$, mientras que Completa no se diferencia significativamente de Individual ($p_{\text{Holm}}=0{,}4752$).
+\item \textbf{Linear SVM:} Aunque Individual vs. Top-$k$ e Individual vs. Completa exhiben $p$ sin ajustar de $0{,}0062$, tras la corrección de Holm sobre los diez contrastes el valor ajustado se sitúa en $p_{\text{Holm}}=0{,}0617$, no alcanzando significancia formal al nivel $\alpha=0{,}05$. Por su parte, Individual vs. GFS registra $p_{\text{Holm}}=0{,}8028$.
+\end{itemize}
+
+Es metodológicamente instructivo contrastar este análisis formal por clasificador con la aproximación preliminar explorada en la literatura de texturas sobre cuatro conjuntos de datos, donde se agruparon las ocho combinaciones dataset--clasificador como si fueran ocho observaciones pareadas independientes ($N=8$, arrojando un valor nominal $p_{\text{Holm}}=0{,}0157$ para GFS y Top-$k$ frente a Individual). Dicho agrupamiento adolece de dependencia intrínseca: las ocho filas reutilizan las mismas imágenes y conjuntos de datos, lo que infla artificialmente los grados de libertad del contraste. Más aún, encubre el comportamiento diferenciado de los modelos: la ventaja de GFS sobre Individual resulta estadísticamente significativa en este análisis bajo ResMLP ($p_{\text{Holm}}=0{,}0191$), pero no bajo Linear SVM, donde GFS registra $p_{\text{Holm}}=0{,}8028$ (mientras que Top-$k$ y Completa obtienen $p_{\text{Holm}}=0{,}0617$). Es fundamental subrayar que alcanzar significancia estadística ($p<0{,}05$) en este benchmark no convierte al resultado en confirmatorio: el estudio documenta decisiones metodológicas informadas por la observación previa de resultados externos, tal como la incorporación de BEiT-v2 guiada por evaluaciones previas que incluyeron KTH-TIPS-2b. Esa limitación debe conservarse con rigor, reconociendo el carácter observacional del análisis y evitando atribuirle el estatus de prueba confirmatoria pre-registrada.
+
+% =========================================================================
+% PARTE 2: CASCADA ADAPTATIVA COSTO-CONSCIENTE
+% =========================================================================
+\section[Cascada adaptativa en 27 condiciones]{Evaluación de la cascada adaptativa en 27 condiciones}\label{sec:resultados-cascada}
+
+La evaluación de la inferencia dinámica aborda directamente la limitación operativa de la concatenación estática evaluando la Cascada Adaptativa Costo-Consciente sobre la biblioteca extendida de 22 descriptores (20.652 dimensiones) con clasificador Linear SVM. La evaluación abarca 27 condiciones canónicas distribuidas en seis conjuntos de datos: DTD (10 particiones oficiales), FMD (5 particiones), CUReT (2 particiones), Outex13 (1 partición), SoilOriginal (5 particiones) y KTH-TIPS-2b (4 particiones).
+
+En cada condición, la selección del descriptor económico de la Etapa 1 y el umbral de confianza $\tau$ se optimizaron de forma estrictamente prospectiva mediante validación cruzada interna fuera de pliegue (OOF) sobre $T_{\text{train}}$. Las selecciones registradas reflejan la conveniencia de adaptación al dominio textural: \texttt{siglip\_base} fue seleccionado en 20 condiciones, \texttt{beitv2\_base\_final} en 5 condiciones, \texttt{resnet50} en 1 condición y la ruta directa \texttt{topk\_direct} en 1 condición.
+
+La Tabla~\ref{tab:cascada-multidataset} resume el desempeño predictivo (macro-F1) y el costo computacional proyectado por conjunto de datos, promediando las condiciones externas correspondientes.
+
+\begin{table}[!htbp]
+\centering
+\caption{Resultados comparativos de macro-F1 y costo computacional en las 27 condiciones canónicas. KTH-TIPS-2b se reporta de forma descriptiva conforme a su variante archivada.}
+\label{tab:cascada-multidataset}
+\fontsize{8}{10}\selectfont
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccccrc@{}}
+\toprule
+Dataset & $N$ & Cascada & Top-$k$ Origen & Completa-22 & Costo (ms) & Reducción \\
+\midrule
+DTD & 10 & 0{,}8700 & 0{,}8700 & 0{,}8639 & 172{,}0 & 74{,}0\% \\
+FMD & 5  & 0{,}9840 & 0{,}9829 & 0{,}9651 & 138{,}7 & 76{,}2\% \\
+CUReT & 2 & 0{,}9982 & 0{,}9989 & 0{,}9989 & 153{,}4 & 76{,}6\% \\
+Outex13 & 1 & 0{,}9369 & 0{,}9426 & 0{,}9656 & 165{,}9 & 77{,}3\% \\
+SoilOriginal & 5 & 0{,}8734 & 0{,}8701 & 0{,}8919 & 85{,}2 & 68{,}6\% \\
+\midrule
+KTH-TIPS-2b & 4 & 0{,}9445 & 0{,}9400 & 0{,}9601 & 64{,}9 & 76{,}7\% \\
+\midrule
+\textbf{Media Global (6)} & 27 & \textbf{0{,}9345} & 0{,}9341 & 0{,}9409 & \textbf{130{,}0} & \textbf{75{,}5\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A nivel agregado sobre las 27 condiciones canónicas, la Cascada Adaptativa registra un macro-F1 medio de \textbf{0{,}9345}, frente a 0{,}9341 de la concatenación Top-$k$ de origen (diferencia observada de $+0{,}0004$) y 0{,}9409 de la Concatenación Completa-22 (diferencia de $-0{,}0064$). En el subconjunto de cinco bases reconciliadas metodológicamente ($N=5$, 23 condiciones), las medias observadas son de 0{,}9325 para la Cascada, 0{,}9329 para Top-$k$ ($-0{,}0004$) y 0{,}9371 para Completa-22 ($-0{,}0046$). El modelo analítico de costos proyectados indica una reducción media del \textbf{75{,}5\%} en tiempo de cómputo estimado frente a la extracción indiscriminada de todos los bloques seleccionados.
+
+\subsection{Contrastes no paramétricos e hipótesis de costo y calidad}
+
+Las 27 condiciones incluyen particiones repetidas de seis conjuntos de datos y no constituyen 27 unidades independientes. Por ello, los contrastes de Wilcoxon previamente calculados sobre esas filas ($p=4{,}15\times10^{-6}$ para costo y $p=0{,}2432$ para macro-F1) no se utilizan como evidencia inferencial y no permiten concluir significancia del ahorro ni paridad o conservación del rendimiento. La reducción del costo analítico se informa de forma descriptiva como una proyección del 75{,}5\% frente a Top-$k$ en las condiciones archivadas. Para calidad predictiva, el análisis por rangos se limita a los cinco conjuntos reconciliados ($N=5$), excluyendo KTH-TIPS-2b por la procedencia de su referencia Top-$k$: Friedman ($p=0{,}4518$) e Iman--Davenport ($p=0{,}4922$) no rechazan la igualdad de rangos; las comparaciones pareadas con Holm tampoco la rechazan ($p_{\text{Holm}}=1{,}0000$). Con $N=5$, estos no rechazos no demuestran equivalencia ni no inferioridad.
+
+Siguiendo el protocolo no paramétrico de Demšar \citep{demsar2006statistical}, se realizaron además contrastes multiconjunto sobre las cinco bases reconciliadas ($N=5$, 23 condiciones), excluyendo KTH-TIPS-2b por su procedencia archivada independiente.
+
+La prueba global de Friedman obtuvo un estadístico de 2{,}6327 ($p = 0{,}4518$) y la prueba de Iman--Davenport arrojó $F = 0{,}8515$ ($p = 0{,}4922$), no rechazando la hipótesis nula de igualdad de rangos entre métodos. Los rangos medios registrados fueron: Cascada Adaptativa: \textbf{2{,}200}; Completa-22: 2{,}200; Top-$k$ de origen: 2{,}300; y Cascada fija con ResNet-50: 3{,}300. En las pruebas pareadas de rangos con signo de Wilcoxon con ajuste de Holm ($\alpha = 0{,}05$), ninguna comparación resultó estadísticamente significativa ($p_{\text{Holm}} = 1{,}0000$ tanto frente a Top-$k$ como frente a Completa). 
+
+Es metodológicamente indispensable enfatizar que el no rechazo de la hipótesis nula ($p_{\text{Holm}} > 0{,}05$) bajo la muestra evaluada ($N=5$) refleja que no existe evidencia estadística para descartar igualdad de rangos bajo la potencia del test, pero \textbf{no} constituye una demostración matemática de equivalencia ni de no inferioridad formal entre la cascada y los esquemas estáticos. La evidencia empírica documenta que la reducción sustancial de cómputo analítico (75{,}5\%) se alcanza con variaciones numéricas medias acotadas en las condiciones evaluadas ($-0{,}0004$ frente a Top-$k$ y $-0{,}0046$ frente a Completa-22 en los cinco conjuntos reconciliados), las cuales deben interpretarse con cautela según los requerimientos de precisión y latencia de cada aplicación.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.88\textwidth]{figures/pareto_frontier_adaptive_cascade.pdf}
+\caption{Frontera de Pareto calidad--costo comparando la Cascada Adaptativa frente a controles estáticos e individuales en los conjuntos de datos evaluados. La cascada adaptativa se posiciona favorablemente en el compromiso calidad--costo en los regímenes evaluados.}
+\label{fig:pareto-cascade}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.88\textwidth]{figures/cascade_routing_efficiency.pdf}
+\caption{Eficiencia de enrutamiento y tasa de salida temprana en la Etapa 1 económica en función de la incertidumbre predictiva por dominio textural.}
+\label{fig:routing-efficiency}
+\end{figure}
+
+\section[Medición física pareada en los seis datasets]{Medición física pareada en GPU en los seis conjuntos de datos}\label{sec:resultados-gpu}
+
+Para contrastar la reducción analítica de costos con la latencia física de reloj de pared en hardware de inferencia, se ejecutó un benchmark pareado en una GPU NVIDIA GeForce RTX 4060 sobre los seis conjuntos de datos de referencia (DTD, CUReT, KTH-TIPS-2b, Outex13, SoilOriginal y FMD). Siguiendo un protocolo prospectivo estricto, se evaluó una condición fija por dataset con una muestra balanceada estratificada de una imagen por clase (semilla 42) y tres repeticiones pareadas con orden aleatorizado en cada par (Cascada frente a Top-$k$), acumulando 204 imágenes de prueba únicas y 612 parejas de inferencia medidas. Las imágenes se mantuvieron decodificadas en memoria y los modelos residentes en GPU, con sincronización CUDA explícita (\texttt{torch.cuda.synchronize()}) antes y después de cada inferencia. Cada medición individual se persistió con ruta de imagen, hash SHA-256, repetición, orden de ejecución, latencia, ruta tomada y predicción emitida.
+
+\begin{table}[!htbp]
+\centering
+\caption{Benchmark físico pareado en GPU NVIDIA GeForce RTX 4060 sobre los seis conjuntos de datos (204 imágenes, 3 repeticiones aleatorizadas, 612 mediciones pareadas).}
+\label{tab:gpu-benchmark}
+\fontsize{7.5}{9.5}\selectfont
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}llccrcrcc@{}}
+\toprule
+Dataset & Protocolo & Clases & Pares & Cascada (ms) & Top-$k$ (ms) & Aceleración & Reducción & Salida Et. 1 \\
+\midrule
+DTD & \texttt{official1} & 47 & 141 & 90{,}6 $\pm$ 124{,}7 & 295{,}6 $\pm$ 12{,}6 & 3{,}26$\times$ & 69{,}4\% & 72{,}3\% \\
+CUReT & \texttt{half\_indices:a\_to\_b} & 61 & 183 & 92{,}5 $\pm$ 124{,}3 & 270{,}6 $\pm$ 8{,}8 & 2{,}92$\times$ & 65{,}8\% & 70{,}5\% \\
+KTHTIPS2b & \texttt{official1\_inv} & 11 & 33 & 46{,}1 $\pm$ 68{,}8 & 188{,}3 $\pm$ 4{,}9 & 4{,}09$\times$ & 75{,}5\% & 81{,}8\% \\
+Outex13 & \texttt{official1} & 68 & 204 & 111{,}5 $\pm$ 148{,}6 & 354{,}3 $\pm$ 30{,}7 & 3{,}18$\times$ & 68{,}5\% & 76{,}5\% \\
+SoilOriginal & \texttt{strat\_fold0} & 7 & 21 & 42{,}0 $\pm$ 38{,}7 & 109{,}1 $\pm$ 20{,}4 & 2{,}60$\times$ & 61{,}5\% & 71{,}4\% \\
+FMD & \texttt{strat\_fold0} & 10 & 30 & 13{,}0 $\pm$ 3{,}1 & 208{,}1 $\pm$ 8{,}5 & 16{,}00$\times$ & 93{,}7\% & 100{,}0\% \\
+\midrule
+\textbf{Global Agregado} & — & \textbf{204} & \textbf{612} & \textbf{90{,}25 ms} & \textbf{291{,}21 ms} & \textbf{3{,}23$\times$} & \textbf{69{,}0\%} & \textbf{74{,}0\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Como muestra la Tabla~\ref{tab:gpu-benchmark}, la reducción de latencia física se confirma de manera sistemática en los seis dominios texturales evaluados, oscilando el ahorro de reloj de pared entre 61{,}5\% (SoilOriginal) y 93{,}7\% (FMD). A nivel agregado sobre las 612 mediciones pareadas, la Cascada Adaptativa reduce un \textbf{69{,}0\% la latencia de reloj de pared} (90{,}25~ms frente a 291{,}21~ms de Top-$k$), alcanzando una aceleración física agregada de \textbf{3{,}23$\times$}.
+
+En las 612 inferencias evaluadas, la coincidencia con las rutas y predicciones cacheadas fuera de línea fue del \textbf{100{,}0\%} (\texttt{route\_matches\_cache} = 1{,}0, \texttt{cascade\_matches\_cache} = 1{,}0 y \texttt{topk\_matches\_cache} = 1{,}0), confirmando la estricta fidelidad funcional del clasificador en línea. Asimismo, el 74{,}0\% de las muestras (453 de 612) se resolvieron tempranamente en la Etapa 1 económica sin invocar la etapa densa. En CUReT y SoilOriginal, variaciones numéricas puntuales en el descriptor secundario ViT-B/16 (debidas a la inicialización de la capa \texttt{pooler} en HuggingFace frente a la extracción original) no alteraron la paridad de las rutas ni las predicciones emitidas. Este benchmark en seis conjuntos descarta que la ventaja de la cascada sea un artefacto circunscrito a DTD, demostrando la reproducibilidad física del compromiso calidad--latencia en hardware real.
+
+\section{Trazabilidad y auditoría muestra por muestra}\label{sec:trazabilidad}
+
+Se conservaron en el repositorio los 27 archivos de predicciones (\texttt{predictions.json}), que contienen las 31.984 observaciones de prueba evaluadas (\texttt{y\_true}, \texttt{y\_pred}, rutas de escalamiento e índices). Las métricas de macro-F1 y exactitud reportadas pueden recalcularse desde esos vectores con tolerancia numérica de $10^{-12}$. Estos artefactos facilitan la verificación y auditoría de las métricas, pero no bastan por sí solos para garantizar una reproducción independiente del estudio.

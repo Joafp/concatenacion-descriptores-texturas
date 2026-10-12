@@ -1,0 +1,347 @@
+{
+  "status": "EXPLORATORY_COMPONENT_COST_MODEL_NOT_ONLINE_LATENCY",
+  "selection_rule": "cascade iff cheap_cost + target_training_budget * incremental_topk_cost < standalone_topk_cost",
+  "selection_uses_outer_test_labels_or_observed_request_fraction": false,
+  "kth_component_timing": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/timing/latency_KTHTIPS2b_s42_official1_n30.json",
+    "sha256": "24ad9e611be70e841d12374f00e92b49628b747ce0b97885592d53b420e78b74"
+  },
+  "other_dataset_component_timing_proxy": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/adaptive_descriptor_pilot/cost_budget_comparison/primary22_e2e/Outex_official1_primary22_online_train_components.json",
+    "sha256": "001b0cec11890856f46422cdec009c0982040882d96408e4730abbda0aa172b6"
+  },
+  "limitations": [
+    "The cost-aware route is selected using a preset training budget, not test labels; the observed test request fraction evaluates cost only.",
+    "Costs are sums of measured extraction components, not end-to-end routed latency; model loading and fitting are excluded.",
+    "KTH timings use KTH images; all other datasets use an Outex-measured hardware proxy, not dataset-specific timing.",
+    "ViT-B/16 uses the KTH measurement across datasets because the Outex extractor did not reproduce its archived embedding.",
+    "The Outex timing source samples its official training partition; applying these timings to other image domains is still an exploratory hardware proxy.",
+    "Means across overlapping outer partitions are descriptive; no independent-fold statistical test is implied."
+  ],
+  "summaries": [
+    {
+      "dataset": "DTD",
+      "target_budget": 0.25,
+      "conditions": 10,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.8136155947987236,
+      "mean_topk_macro_f1": 0.8700193592604325,
+      "mean_plain_cascade_macro_f1": 0.8136155947987236,
+      "mean_component_cost_ms": 174.9653868456662,
+      "mean_topk_component_cost_ms": 661.8248885050662
+    },
+    {
+      "dataset": "DTD",
+      "target_budget": 0.5,
+      "conditions": 10,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.8581976730247611,
+      "mean_topk_macro_f1": 0.8700193592604325,
+      "mean_plain_cascade_macro_f1": 0.8581976730247611,
+      "mean_component_cost_ms": 335.9110222934429,
+      "mean_topk_component_cost_ms": 661.8248885050662
+    },
+    {
+      "dataset": "DTD",
+      "target_budget": 0.75,
+      "conditions": 10,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.8694138069606051,
+      "mean_topk_macro_f1": 0.8700193592604325,
+      "mean_plain_cascade_macro_f1": 0.8694138069606051,
+      "mean_component_cost_ms": 498.70057196353093,
+      "mean_topk_component_cost_ms": 661.8248885050662
+    },
+    {
+      "dataset": "FMD",
+      "target_budget": 0.25,
+      "conditions": 5,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.9421021192924947,
+      "mean_topk_macro_f1": 0.9829263900586108,
+      "mean_plain_cascade_macro_f1": 0.9421021192924947,
+      "mean_component_cost_ms": 155.73670680366104,
+      "mean_topk_component_cost_ms": 583.4169273500538
+    },
+    {
+      "dataset": "FMD",
+      "target_budget": 0.5,
+      "conditions": 5,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.9759397600165132,
+      "mean_topk_macro_f1": 0.9829263900586108,
+      "mean_plain_cascade_macro_f1": 0.9759397600165132,
+      "mean_component_cost_ms": 292.9514094524238,
+      "mean_topk_component_cost_ms": 583.4169273500538
+    },
+    {
+      "dataset": "FMD",
+      "target_budget": 0.75,
+      "conditions": 5,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.9819263900586108,
+      "mean_topk_macro_f1": 0.9829263900586108,
+      "mean_plain_cascade_macro_f1": 0.9819263900586108,
+      "mean_component_cost_ms": 433.2997267421365,
+      "mean_topk_component_cost_ms": 583.4169273500538
+    },
+    {
+      "dataset": "CUReT",
+      "target_budget": 0.25,
+      "conditions": 2,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.9978632856430261,
+      "mean_topk_macro_f1": 0.9989307361068334,
+      "mean_plain_cascade_macro_f1": 0.9978632856430261,
+      "mean_component_cost_ms": 156.5698204166568,
+      "mean_topk_component_cost_ms": 655.6399382084313
+    },
+    {
+      "dataset": "CUReT",
+      "target_budget": 0.5,
+      "conditions": 2,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.9989307361068334,
+      "mean_topk_macro_f1": 0.9989307361068334,
+      "mean_plain_cascade_macro_f1": 0.9989307361068334,
+      "mean_component_cost_ms": 308.65203410291446,
+      "mean_topk_component_cost_ms": 655.6399382084313
+    },
+    {
+      "dataset": "CUReT",
+      "target_budget": 0.75,
+      "conditions": 2,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.9989307361068334,
+      "mean_topk_macro_f1": 0.9989307361068334,
+      "mean_plain_cascade_macro_f1": 0.9989307361068334,
+      "mean_component_cost_ms": 480.7450240975527,
+      "mean_topk_component_cost_ms": 655.6399382084313
+    },
+    {
+      "dataset": "Outex13Official1360",
+      "target_budget": 0.25,
+      "conditions": 1,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.9352681476086969,
+      "mean_topk_macro_f1": 0.9425743955605469,
+      "mean_plain_cascade_macro_f1": 0.9352681476086969,
+      "mean_component_cost_ms": 166.8214920796229,
+      "mean_topk_component_cost_ms": 729.4811815499543
+    },
+    {
+      "dataset": "Outex13Official1360",
+      "target_budget": 0.5,
+      "conditions": 1,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.9425743955605469,
+      "mean_topk_macro_f1": 0.9425743955605469,
+      "mean_plain_cascade_macro_f1": 0.9425743955605469,
+      "mean_component_cost_ms": 344.90072169328823,
+      "mean_topk_component_cost_ms": 729.4811815499543
+    },
+    {
+      "dataset": "Outex13Official1360",
+      "target_budget": 0.75,
+      "conditions": 1,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.9425743955605469,
+      "mean_topk_macro_f1": 0.9425743955605469,
+      "mean_plain_cascade_macro_f1": 0.9425743955605469,
+      "mean_component_cost_ms": 484.36035934254414,
+      "mean_topk_component_cost_ms": 729.4811815499543
+    },
+    {
+      "dataset": "SoilOriginal",
+      "target_budget": 0.25,
+      "conditions": 5,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.8574699058882599,
+      "mean_topk_macro_f1": 0.8700611624107596,
+      "mean_plain_cascade_macro_f1": 0.8574699058882599,
+      "mean_component_cost_ms": 83.39947079099112,
+      "mean_topk_component_cost_ms": 271.27959829992506
+    },
+    {
+      "dataset": "SoilOriginal",
+      "target_budget": 0.5,
+      "conditions": 5,
+      "direct_fallbacks": 0,
+      "mean_macro_f1": 0.8657518357150321,
+      "mean_topk_macro_f1": 0.8700611624107596,
+      "mean_plain_cascade_macro_f1": 0.8657518357150321,
+      "mean_component_cost_ms": 139.0913434720423,
+      "mean_topk_component_cost_ms": 271.27959829992506
+    },
+    {
+      "dataset": "SoilOriginal",
+      "target_budget": 0.75,
+      "conditions": 5,
+      "direct_fallbacks": 1,
+      "mean_macro_f1": 0.8700611624107596,
+      "mean_topk_macro_f1": 0.8700611624107596,
+      "mean_plain_cascade_macro_f1": 0.8700611624107596,
+      "mean_component_cost_ms": 212.22824056374512,
+      "mean_topk_component_cost_ms": 271.27959829992506
+    },
+    {
+      "dataset": "KTHTIPS2b",
+      "target_budget": 0.25,
+      "conditions": 4,
+      "direct_fallbacks": 1,
+      "mean_macro_f1": 0.9251517615360771,
+      "mean_topk_macro_f1": 0.9400318144944749,
+      "mean_plain_cascade_macro_f1": 0.920701468524833,
+      "mean_component_cost_ms": 88.22198763280738,
+      "mean_topk_component_cost_ms": 278.04566995000454
+    },
+    {
+      "dataset": "KTHTIPS2b",
+      "target_budget": 0.5,
+      "conditions": 4,
+      "direct_fallbacks": 2,
+      "mean_macro_f1": 0.9371378593913512,
+      "mean_topk_macro_f1": 0.9400318144944749,
+      "mean_plain_cascade_macro_f1": 0.9384401341401984,
+      "mean_component_cost_ms": 137.94637217778896,
+      "mean_topk_component_cost_ms": 278.04566995000454
+    },
+    {
+      "dataset": "KTHTIPS2b",
+      "target_budget": 0.75,
+      "conditions": 4,
+      "direct_fallbacks": 2,
+      "mean_macro_f1": 0.9396208738143148,
+      "mean_topk_macro_f1": 0.9400318144944749,
+      "mean_plain_cascade_macro_f1": 0.9400589180604253,
+      "mean_component_cost_ms": 195.40023190556764,
+      "mean_topk_component_cost_ms": 278.04566995000454
+    }
+  ],
+  "source_artifacts": [
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/dtd/exact_archive/DTD_svm_s42_official10_topk_cascade.json",
+      "sha256": "f729305aeeed7658e9386040df96ace58e87672b5ea38b9f0b9c11465c885b5b"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/dtd/exact_archive/DTD_svm_s42_official1_topk_cascade.json",
+      "sha256": "bf0c52270fa8e574fcea9da8e4939db211dfd2896f737f48d837a2a0657a7437"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/dtd/exact_archive/DTD_svm_s42_official2_topk_cascade.json",
+      "sha256": "d31fede86e92cf8e7ecd4f1310d059456f7a24f570c3d2bfd68dbea034a62061"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/dtd/exact_archive/DTD_svm_s42_official3_topk_cascade.json",
+      "sha256": "3e811cace321ff20db0bad52c9c61f174d99c83f35265655d1015d753c5f6574"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/dtd/exact_archive/DTD_svm_s42_official4_topk_cascade.json",
+      "sha256": "3329b0e29b45cba68168dbf76dc3adff3a354d8be115b99497a7ce4dc3e4703d"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/dtd/exact_archive/DTD_svm_s42_official5_topk_cascade.json",
+      "sha256": "160843601215b96d4c17bd95546531b49b75a59e39d94f2975a328872bddc13b"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/dtd/exact_archive/DTD_svm_s42_official6_topk_cascade.json",
+      "sha256": "72e93f9aa072e83a3dce045ce2b6589cbe5cbabd1b04c7ba6eb86fc34594577f"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/dtd/exact_archive/DTD_svm_s42_official7_topk_cascade.json",
+      "sha256": "8b8f98dc415c054b89f0964be5150a2d054e5d3402762493182d79ffe4f723bf"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/dtd/exact_archive/DTD_svm_s42_official8_topk_cascade.json",
+      "sha256": "a193125351093f9657051596d1cf31e759074913b49a19029a1eb3fbaf258d76"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/dtd/exact_archive/DTD_svm_s42_official9_topk_cascade.json",
+      "sha256": "36bb3c9f5342ef0e0adbaec976dd8a549b5ee401ec643cda6a992d6916f6842e"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/fmd/exact_archive/FMD_svm_s42_f0_topk_cascade.json",
+      "sha256": "541cb02e713d05265f16a74c9e7a322f0108fca8d944d80b3ce9d674c17a6fcd"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/fmd/exact_archive/FMD_svm_s42_f1_topk_cascade.json",
+      "sha256": "dec0da170c1a3134064e769b063fa01ca69af263d855c57f40326004d577642e"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/fmd/exact_archive/FMD_svm_s42_f2_topk_cascade.json",
+      "sha256": "35332624abae9e6cedee7f7c6379c9727840162150b17cf4a44c52a19fdf918e"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/fmd/exact_archive/FMD_svm_s42_f3_topk_cascade.json",
+      "sha256": "92acd4a3adbaf39319beda297b85446d0a76a03b2ca1e12d406a98b87b22d2cb"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/fmd/exact_archive/FMD_svm_s42_f4_topk_cascade.json",
+      "sha256": "16b6964a4f6944b42b1f19eb88a09193d1e7d8e83f01f2fc189e3736696a945c"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/curet/exact_archive/CUReT_svm_s42_a_to_b_topk_cascade.json",
+      "sha256": "4cf0e09391d6f87d1f7baca1ca7fdc49391a1cb5f98b9c07bd7595a055f4e983"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/curet/exact_archive/CUReT_svm_s42_b_to_a_topk_cascade.json",
+      "sha256": "7e89f7e80afa6a364f40072330350d004bf996aa209c7ca788965ad584438b1c"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/outex13_official1360/exact_archive/Outex13Official1360_svm_s42_official1_topk_cascade.json",
+      "sha256": "953aaa71dd5fc8ab4e49ef999ae89fc75236ec026ef8d952611d1e64f2811bbe"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/soil_original/exact_archive/SoilOriginal_svm_s42_f0_topk_cascade.json",
+      "sha256": "b4aaf33f1071e6f5adb083fc1610e5ec4749372c70779d90e6a9cd118dccdb8e"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/soil_original/exact_archive/SoilOriginal_svm_s42_f1_topk_cascade.json",
+      "sha256": "11f0138abfa9f4fad4a4a15d6770bf40eca8bc8bca23450b1a36a036b692ef0f"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/soil_original/exact_archive/SoilOriginal_svm_s42_f2_topk_cascade.json",
+      "sha256": "17c7803a53f2bf728edaea42d27873792bcccde2e86f7a2e5913b8f9148db5e4"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/soil_original/exact_archive/SoilOriginal_svm_s42_f3_topk_cascade.json",
+      "sha256": "320ca117b02b57795e1c8147c6b1803b5df76ca75c3c82bb5a3162e6ee146490"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/soil_original/exact_archive/SoilOriginal_svm_s42_f4_topk_cascade.json",
+      "sha256": "d514d8d155b65e13c007fff366685840e6a9bc2db2028aebf40c857858de25ad"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/online_fair_topk/online_KTHTIPS2b_svm_s42_official1_inverted_innergrp-sample_topk_cascade_q0.50_n30.json",
+      "sha256": "f3434df0869c2ebdfcf39813d8e9c88f4dd67a1a757dd284ba0606e5a928ea3e"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/exact_archive/KTHTIPS2b_svm_s42_official1_inverted_innergrp-sample_topk_cascade.json",
+      "sha256": "4be2d1afbbd415bbc98f7a172478a0325ffcf8ca17ec2b8e2131402529ee1856"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/online_fair_topk/online_KTHTIPS2b_svm_s42_official2_inverted_innergrp-sample_topk_cascade_q0.50_n30.json",
+      "sha256": "44a7515a91b5cb21cf0c628b9861acd59f87f1729381bf8ae159ee479698c796"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/exact_archive/KTHTIPS2b_svm_s42_official2_inverted_innergrp-sample_topk_cascade.json",
+      "sha256": "c77c261face8dc7fc2233dc9fbf6b02df328a9ec6d86ae5918c2d01f9301adcf"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/online_fair_topk/online_KTHTIPS2b_svm_s42_official3_inverted_innergrp-sample_topk_cascade_q0.50_n30.json",
+      "sha256": "0fd93df648b422b0b116d9e03b11ec4b86642b0d1f89f02b2e6f5d2dccdfcb17"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/exact_archive/KTHTIPS2b_svm_s42_official3_inverted_innergrp-sample_topk_cascade.json",
+      "sha256": "4f7e38812c3ae1f586106a7a6817f755c4c19d55a9dc105276fa121fd4fa885e"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/online_fair_topk/online_KTHTIPS2b_svm_s42_official4_inverted_innergrp-sample_topk_cascade_q0.50_n30.json",
+      "sha256": "434f6c04e2565da12df4bdf4c56621eef5c84d76516e585e09428ad2726cf6d2"
+    },
+    {
+      "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/exact_archive/KTHTIPS2b_svm_s42_official4_inverted_innergrp-sample_topk_cascade.json",
+      "sha256": "854f6633f7e4c16c7d0a6aba846c7d54413cd188033679f0182f98ff8fec42e9"
+    }
+  ]
+}

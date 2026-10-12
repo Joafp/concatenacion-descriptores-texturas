@@ -31,10 +31,10 @@
 \setlength{\tabcolsep}{5pt}
 
 % Título
-\title{\textbf{Concatenación sistemática de descriptores visuales clásicos y modernos para clasificación de texturas} \\
-\large Evaluación anidada de estrategias de concatenación de 21 descriptores}
+\title{\textbf{Concatenación sistemática y fusión adaptativa costo-consciente de descriptores visuales para clasificación de texturas} \\
+\large De la selección anidada de bloques a la adquisición secuencial guiada por incertidumbre}
 \author{Carlos Ayala \and Joaquín Delgado}
-\date{Septiembre 2026}
+\date{Octubre 2026}
 
 \begin{document}
 
@@ -50,16 +50,16 @@
 \vspace{0.3cm}
 {\large Facultad Politécnica} \\
 \vspace{2cm}
-{\Huge \textbf{Concatenación sistemática de descriptores visuales clásicos y modernos para clasificación de texturas}} \\
+{\Huge \textbf{Concatenación sistemática y fusión adaptativa costo-consciente de descriptores visuales para clasificación de texturas}} \\
 \vspace{0.5cm}
-{\large Evaluación anidada de estrategias de concatenación de 21 descriptores} \\
+{\large De la selección anidada de bloques a la adquisición secuencial guiada por incertidumbre} \\
 \vspace{3cm}
 {\large \textbf{Carlos Ayala} \\
 \textbf{Joaquín Delgado}} \\
 \vspace{1cm}
 {\large Tutor: José Vázquez} \\
 \vspace{2cm}
-{\large Septiembre 2026}
+{\large Octubre 2026}
 \end{center}
 \end{titlepage}
 
@@ -76,15 +76,15 @@ A nuestras familias, por el apoyo incondicional.
 % ============================================================
 \chapter*{Resumen}
 
-Este trabajo evalúa la concatenación de descriptores heterogéneos para clasificar texturas. Se comparan cinco estrategias: Individual, Completa, Top-$k$, Greedy Forward Selection (GFS) y Homogénea. La biblioteca evaluada reúne 21 descriptores sobre DTD, FMD, CUReT y Outex con SVM lineal y ResMLP. La selección se realiza dentro del entrenamiento y el desempeño se mide mediante macro-F1 y exactitud en 56 condiciones externas en total. GFS obtiene mayor macro-F1 medio que Individual en las ocho configuraciones dataset--clasificador, pero el método con mayor desempeño varía entre dominios y clasificadores. Con un bloque por dataset, Friedman ($p=0{,}1074$) y Quade ($p=0{,}0705$) no rechazan la hipótesis global, y ninguna comparación por pares resulta significativa tras Holm a $\alpha=0{,}05$. GFS reduce la dimensión media entre 71,7\% y 85,4\% respecto de la concatenación completa. Los resultados respaldan evaluar la composición y el costo dimensional según el dominio, sin establecer una estrategia universalmente superior.
+Este trabajo investiga la combinación de descriptores heterogéneos para clasificación de texturas, desde la concatenación estática de bloques hasta una cascada adaptativa costo-consciente. Se evalúa una biblioteca de 22 descriptores (20.652 dimensiones) sobre seis conjuntos de datos (DTD, FMD, CUReT, Outex, SoilOriginal y KTH-TIPS-2b). La cascada adquiere representaciones de manera condicional mediante una regla de salida temprana basada en el margen de incertidumbre de una etapa económica seleccionada en entrenamiento. En las 27 condiciones canónicas, el macro-F1 medio descriptivo es 0{,}9345 para la cascada, 0{,}9341 para Top-$k$ de origen y 0{,}9409 para Completa-22. En la comparación por rangos sobre los cinco conjuntos reconciliados, ninguna diferencia pareada alcanza significancia tras el ajuste de Holm ($p_{\text{Holm}}=1$); este resultado no demuestra equivalencia ni no inferioridad. La reducción analítica de costo proyectada es del 75{,}5\%. En la evaluación física pareada sobre una GPU NVIDIA RTX 4060 evaluando 204 imágenes estratificadas en los seis conjuntos de datos con tres repeticiones aleatorizadas por par (612 mediciones pareadas con registros individuales persistidos), la cascada redujo un 69{,}0\% la latencia de reloj de pared frente a Top-$k$ (90{,}25~ms frente a 291{,}21~ms; aceleración agregada de 3{,}23$\times$), resolviendo el 74{,}0\% de las inferencias en la Etapa 1 económica con un 100{,}0\% de coincidencia en predicciones y rutas frente al cómputo fuera de línea. Estos resultados confirman la viabilidad práctica y la generalización física del compromiso calidad--latencia en hardware real.
 
-\textbf{Palabras clave:} clasificación de texturas, concatenación de descriptores, selección de bloques, GFS, evaluación anidada.
+\textbf{Palabras clave:} clasificación de texturas, concatenación de descriptores, cascada adaptativa, modelos fundacionales, inferencia costo-consciente, evaluación anidada.
 
 \chapter*{Abstract}
 
-This thesis compares five descriptor selection and concatenation strategies using 21 descriptors. The complete evaluation covers DTD, FMD, CUReT and Outex with linear SVM and a residual MLP, using 56 external conditions. GFS obtains higher mean macro-F1 than the internally selected individual descriptor in all eight dataset--classifier configurations. With one block per dataset, Friedman (p=0.1074) and Quade (p=0.0705) do not reject their global null hypotheses; no pairwise comparison is significant after Holm adjustment at 0.05. These results support evaluating concatenation by domain, performance and representation size, without establishing universal superiority.
+This thesis investigates heterogeneous visual descriptor combination for texture classification, from static block concatenation to a cost-aware adaptive cascade. A library of 22 descriptors (20,652 dimensions) is evaluated across six datasets (DTD, FMD, CUReT, Outex, SoilOriginal, and KTH-TIPS-2b). The cascade acquires representations conditionally using an uncertainty-margin stopping rule on an economical stage selected during training. Across 27 canonical conditions, descriptive mean macro-F1 is 0.9345 for the cascade, 0.9341 for source Top-$k$, and 0.9409 for Full-22. In the rank comparison over the five reconciled datasets, no paired difference is significant after Holm adjustment ($p_{\text{Holm}}=1$); this does not establish equivalence or non-inferiority. The projected analytical cost reduction is 75.5\%. In a physical paired benchmark on an NVIDIA RTX 4060 evaluating 204 stratified test images across all six datasets with three randomized repetitions per pair (612 paired measurements with persisted individual records), the cascade reduced wall-clock latency by 69.0\% versus Top-$k$ (90.25~ms vs. 291.21~ms; aggregate speedup of 3.23$\times$), resolving 74.0\% of inferences in the economical Stage 1 with 100.0\% agreement in predictions and routes against the offline cache. These results demonstrate the practical viability and physical generalization of the quality--latency trade-off on real hardware.
 
-\textbf{Keywords:} texture classification, descriptor concatenation, block selection, GFS, nested evaluation.
+\textbf{Keywords:} texture classification, descriptor concatenation, adaptive cascade, foundation models, cost-aware inference, nested evaluation.
 
 % ============================================================
 % ÍNDICE

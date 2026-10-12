@@ -1,0 +1,85 @@
+{
+  "dataset": "KTHTIPS2b",
+  "protocol": "official2_inverted",
+  "outer_fold": 1,
+  "seed": 42,
+  "classifier": "svm",
+  "n_outer_train": 3564,
+  "n_outer_test": 1188,
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "topk_blocks": [
+    "beitv2_base_final"
+  ],
+  "selection": {
+    "selected": {
+      "route": "topk_direct",
+      "budget": null,
+      "threshold": null,
+      "oof_macro_f1": 0.9077174495002613,
+      "oof_request_fraction": 1.0,
+      "projected_component_ms": 33.32811546666411,
+      "eligible": true
+    },
+    "candidates": [
+      {
+        "route": "topk_direct",
+        "budget": null,
+        "threshold": null,
+        "oof_macro_f1": 0.9077174495002613,
+        "oof_request_fraction": 1.0,
+        "projected_component_ms": 33.32811546666411,
+        "eligible": true
+      },
+      {
+        "route": "cascade",
+        "budget": 0.25,
+        "threshold": 0.6256459663329081,
+        "oof_macro_f1": 0.8943681223164789,
+        "oof_request_fraction": 0.25,
+        "projected_component_ms": 45.415942266684326,
+        "eligible": false
+      },
+      {
+        "route": "cascade",
+        "budget": 0.5,
+        "threshold": 1.2769317413408807,
+        "oof_macro_f1": 0.905902180338742,
+        "oof_request_fraction": 0.5,
+        "projected_component_ms": 53.74797113335035,
+        "eligible": true
+      },
+      {
+        "route": "cascade",
+        "budget": 0.75,
+        "threshold": 1.9059233089826808,
+        "oof_macro_f1": 0.9077174495002613,
+        "oof_request_fraction": 0.75,
+        "projected_component_ms": 62.080000000016376,
+        "eligible": true
+      }
+    ],
+    "oof_topk_macro_f1": 0.9077174495002613,
+    "oof_cheap_macro_f1": 0.8378381939041457,
+    "f1_tolerance": 0.005,
+    "base_component_ms": 37.0839134000183,
+    "incremental_component_ms": 33.32811546666411,
+    "topk_direct_component_ms": 33.32811546666411
+  },
+  "evaluation": {
+    "outer_test_macro_f1": 0.9039989015967734,
+    "outer_test_topk_macro_f1": 0.9039989015967734,
+    "outer_test_request_fraction": 1.0,
+    "outer_test_component_ms": 33.32811546666411,
+    "outer_test_topk_component_ms": 33.32811546666411
+  },
+  "source_archive": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/exact_archive/KTHTIPS2b_svm_s42_official2_inverted_innergrp-sample_topk_cascade.json",
+    "sha256": "c77c261face8dc7fc2233dc9fbf6b02df328a9ec6d86ae5918c2d01f9301adcf"
+  },
+  "source_per_sample": {
+    "path": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/kth_tips2b/exact_archive/KTHTIPS2b_svm_s42_official2_inverted_innergrp-sample_topk_cascade_per_sample.csv",
+    "sha256": "db084aee185d7bc5334eb9824642d71707025a3d1b3ed372db1fd3b909275e48"
+  }
+}

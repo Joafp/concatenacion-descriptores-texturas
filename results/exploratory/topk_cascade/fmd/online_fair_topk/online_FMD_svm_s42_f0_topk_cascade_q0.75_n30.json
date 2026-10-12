@@ -1,0 +1,43 @@
+{
+  "status": "exploratory_online_topk_cascade_validation",
+  "dataset": "FMD",
+  "protocol": "stratified_group_kfold5_fold0",
+  "budget": 0.75,
+  "n_images": 30,
+  "device": "cuda",
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "expensive_blocks": [
+    "siglip_base",
+    "dinov2_large",
+    "eva02_base"
+  ],
+  "topk_always_baseline": "standalone Top-k extraction; cheap stage skipped",
+  "model_load_and_classifier_fit_excluded": true,
+  "warmup": 5,
+  "observed_escalation_fraction": 0.7666666666666667,
+  "online_adaptive": {
+    "mean_ms": 513.7549972331423,
+    "median_ms": 574.9979749980412,
+    "p95_ms": 831.8496743506329
+  },
+  "online_topk_always": {
+    "mean_ms": 566.2355789663707,
+    "median_ms": 545.0080120008352,
+    "p95_ms": 761.1461077509374
+  },
+  "mean_latency_reduction_fraction": 0.09268329946526599,
+  "agreement": {
+    "request_decision": 1.0,
+    "adaptive_prediction": 1.0,
+    "topk_prediction": 1.0,
+    "min_source_cache_cosine": 0.9999923706054688
+  },
+  "limitations": [
+    "One external partition and deterministic timing subset.",
+    "Model loading and classifier fitting are excluded.",
+    "This validates online routing latency, not external accuracy."
+  ],
+  "prior": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/fmd/exact_archive/FMD_svm_s42_f0_topk_cascade.json"
+}

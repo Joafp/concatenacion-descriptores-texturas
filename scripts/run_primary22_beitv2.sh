@@ -53,6 +53,7 @@ for classifier in svm resmlp; do
   for split in {1..4}; do
     run_pair KTHTIPS2b "$classifier" 42 0 results/extensions/kth_tips2b \
       --official-split "$split" --invert-official-split \
+      --inner-group-column sample \
       --embedding-root embeddings_extensions \
       --exclude-extractors beitv2_base_multilayer
   done

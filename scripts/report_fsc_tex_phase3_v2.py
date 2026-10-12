@@ -10,7 +10,7 @@ Genera:
 3. Contrastes de hipótesis no paramétricos según directrices de Demšar (2006):
    - Contrastes pareados por dataset (N=6 agregados independientes).
    - Corrección de multiplicidad de Holm-Bonferroni.
-   - Evaluación formal de no-inferioridad (margen epsilon = 0.005) y ganancia de eficiencia (>= 20%).
+   - Diagnóstico descriptivo de margen de calidad; no es una prueba de no inferioridad.
 4. Divulgación honesta de alcances: Full_Fusion_6 vs Canonical_22, victorias y derrotas.
 """
 
@@ -24,6 +24,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy import stats
+from sklearn.metrics import accuracy_score, f1_score
 
 REPO = Path(__file__).resolve().parents[1]
 RESULTS_DIR = REPO / "results/exploratory/fsc_tex/phase3_v2_suite"
@@ -51,9 +52,9 @@ CORE_METHODS = [
 
 METHOD_PRETTY_NAMES = {
     "Base_resnet50": "Base (ResNet-50)",
-    "Best_Individual_Internal": "Mejor Indiv. Prospectivo",
+    "Best_Individual_Internal": "Mejor individual interno (6 candidatos)",
     "Static_Pair_ResNet_SigLIP": "Par Estático (ResNet+SigLIP)",
-    "Cascade_TopK_Prospective": "Cascada Top-K Prospectiva",
+    "Cascade_TopK_Prospective": "Cascada base + 1 aumentador",
     "FSC_Tex_H1_Myopic": "FSC-Tex H1 (Miope)",
     "FSC_Tex_H2_Bellman": "FSC-Tex H2 (Bellman)",
     "FSC_Tex_H2_Enriched_State": "FSC-Tex H2 (Enriquecido)",
@@ -92,10 +93,22 @@ def load_all_suite_results(results_dir: Path) -> List[Dict[str, Any]]:
                 continue
             metrics_file = cond_path / "metrics.json"
             if not metrics_file.exists():
-                continue
+                raise ValueError(f"Condición incompleta: {cond_path}")
             try:
+                for artifact in ("run_manifest.json", "splits.json", "state_graph.json", "traces.jsonl", "predictions.json", "audit.json"):
+                    if not (cond_path / artifact).is_file() or (cond_path / artifact).stat().st_size == 0:
+                        raise ValueError(f"Falta artefacto no vacío: {cond_path / artifact}")
                 with open(metrics_file, "r", encoding="utf-8") as f:
                     metrics_data = json.load(f)
+                predictions = json.loads((cond_path / "predictions.json").read_text(encoding="utf-8"))
+                manifest = json.loads((cond_path / "run_manifest.json").read_text(encoding="utf-8"))
+                for method in CORE_METHODS:
+                    for metric, value in (
+                        ("macro_f1", f1_score(predictions["y_true"], predictions[method], average="macro")),
+                        ("accuracy", accuracy_score(predictions["y_true"], predictions[method])),
+                    ):
+                        if not np.isclose(value, metrics_data[method][metric], rtol=0, atol=1e-12):
+                            raise ValueError(f"Métrica no reproducible: {cond_path}, {method}, {metric}")
                 cond_val = cond_path.name.replace("condition_", "")
                 
                 # Cargar ablaciones y gate assessment si existen
@@ -122,9 +135,10 @@ def load_all_suite_results(results_dir: Path) -> List[Dict[str, Any]]:
                     "ablations": ablations,
                     "gate": gate,
                     "audit": audit,
+                    "manifest": manifest,
                 })
             except Exception as e:
-                print(f"Error al cargar {metrics_file}: {e}")
+                raise ValueError(f"No se puede reportar {cond_path}: {e}") from e
 
     return all_runs
 
@@ -165,9 +179,9 @@ def compute_statistics_and_report(
     # es el dataset, no los pliegues de validación cruzada.
     comparisons = [
         ("Base_resnet50", "Base (ResNet-50)"),
-        ("Best_Individual_Internal", "Mejor Individual Prospectivo"),
+        ("Best_Individual_Internal", "Mejor individual interno (6)"),
         ("Static_Pair_ResNet_SigLIP", "Par Estático (ResNet+SigLIP)"),
-        ("Cascade_TopK_Prospective", "Cascada Top-K Prospectiva"),
+        ("Cascade_TopK_Prospective", "Cascada base + 1 aumentador"),
         ("FSC_Tex_H1_Myopic", "FSC-Tex H1 (Miope)"),
         ("Full_Fusion_6", "Fusión Completa-6"),
     ]
@@ -211,11 +225,8 @@ def compute_statistics_and_report(
         if np.all(diffs_f1 == 0):
             p_val = 1.0
         else:
-            try:
-                res_w = stats.wilcoxon(diffs_f1, alternative="two-sided")
-                p_val = float(res_w.pvalue)
-            except Exception:
-                p_val = 1.0
+            res_w = stats.wilcoxon(diffs_f1, alternative="two-sided")
+            p_val = float(res_w.pvalue)
 
         raw_p_values.append(p_val)
         stat_results.append({
@@ -237,31 +248,38 @@ def compute_statistics_and_report(
 
     # 3. Construcción del Documento Markdown
     md = []
-    md.append("# FSC-Tex Fase 3 v2: Reporte de la Suite Completa de Evaluación (27 Condiciones Canónicas)")
+    md.append(f"# FSC-Tex Fase 3 v2: reporte exploratorio ({len(runs)} condiciones)")
     md.append("")
-    md.append("**Fecha:** Octubre 2026  ")
+    md.append("**Revisión del reporte:** 10 de octubre de 2026. Resultados de las corridas originales conservados.")
+    md.append("")
     md.append("**Autores:** Joaquín Delgado & Carlos Ayala  ")
     md.append("**Tutor:** Prof. José Vázquez (FP-UNA)  ")
     md.append("**Marco de Trabajo:** FSC-Tex (*Sequential Cost-Aware Feature Acquisition for Textures*)  ")
-    md.append("**Directorio de Artefactos Auditados:** [`results/exploratory/fsc_tex/phase3_v2_suite/`](file:///home/joaquin/tesis_claude/results/exploratory/fsc_tex/phase3_v2_suite/)  ")
+    md.append("**Artefactos:** `results/exploratory/fsc_tex/phase3_v2_suite/`. Métricas recalculadas desde predicciones; no se reentrenaron los modelos.")
+    md.append("")
+    md.append("**Estado ARS: ANALYZED**, no reproducción integral ni revisión independiente. Véase [auditoría del 10 de octubre](AUDITORIA_FASE3_V2_2026-10-10.md).")
     md.append("")
     md.append("---")
     md.append("")
-    md.append("## 1. Resumen Metodológico y Auditoría ARS")
+    md.append("## 1. Alcance y limitaciones")
     md.append("")
-    md.append("Este reporte presenta los resultados consolidados de la **Suite Congelada Fase 3 v2**, ejecutada tras la subsanación integral de las limitaciones identificadas en la versión preliminar (Hitos R0 a R5):")
+    md.append("La v2 incorpora correcciones de presupuesto, objetivos de continuación y selección interna. Los hitos R0–R6 no están íntegramente cerrados: completar archivos no demuestra todas las hipótesis del plan.")
     md.append("")
-    md.append("1. **Cero Filtración Externa (Zero Test Leakage):** Todos los hiperparámetros de penalización de costo ($\\lambda^*$), umbrales de cascada ($q^*$) y selección del mejor aumentador fueron optimizados exclusivamente en validación anidada sobre $T_{\\text{train}}$. Las particiones de $T_{\\text{test}}$ no fueron consultadas.")
-    md.append("2. **Presupuesto Físico Decreciente:** Cada acción de adquisición descuenta estrictamente el costo físico en hardware ($\\Delta t_{\\text{ms}}$) del presupuesto restante, impidiendo restablecimientos artificiales a 1.0.")
-    md.append("3. **Bellman No Miope Desplegable:** El objetivo de inducción hacia atrás calcula $\\hat{V}_{h-1}(s') = \\min(\\hat{R}_{\\text{stop}}, \\min_{a'} \\hat{Q}_{h-1})$ utilizando únicamente las predicciones de los modelos de estado desplegables, eliminando el optimismo oracular previo.")
-    md.append("4. **Controles Fuertes Equitativos:** Se comparan tanto la base barata fija (`resnet50`) como el mejor descriptor individual prospectivo, la ruta estática de dos bloques (`resnet50 + siglip_base` a 24.52 ms), y la cascada adaptativa prospectiva.")
-    md.append("5. **Diferenciación Explícita de Bibliotecas:** Se rotula con precisión la `Fusión Completa-6` (conjunto de desarrollo de 6 bloques) frente a las referencias confirmativas canónicas de la biblioteca auditada de 22 extractores (`Completa-22`, `GFS-22`, `Topk-22`).")
+    md.append("1. **Selección interna:** el código ajusta lambda, q y aumentador dentro de entrenamiento. Los benchmarks ya se observaron durante el desarrollo; esto no es generalización ciega. Los booleanos de `audit.json` no certifican por sí solos ausencia de filtración de toda la tubería.")
+    md.append("2. **Costos estimados:** todos los ms y ahorros de las tablas provienen de sumas de constantes de `HardwareCostModel`, incluido overhead supuesto de 0.45 ms por bloque. No son latencias end-to-end medidas de FSC-Tex; el p95 guardado también es de costos modelados.")
+    budgets = sorted({r["manifest"]["prospective_tuning"]["target_budget_ms"] for r in runs})
+    md.append(f"3. **Presupuestos guardados:** {budgets} ms modelados. Con base ResNet y los cinco candidatos de esta suite, la ruta mínima con dos adquisiciones adicionales cuesta 37.19 ms. A 35 ms no es factible: H1/H2 no aísla planificación multietapa, aunque el objetivo H2 ya utiliza valores predichos en lugar del mínimo de pérdidas futuras reales.")
+    md.append("4. **Controles:** mejor individual entre seis bloques, par fijo ResNet+SigLIP y cascada ResNet más un aumentador. El identificador histórico `Cascade_TopK_Prospective` no representa Top-k22. La cascada se calibra por costo medio y puede exceder 35 ms por imagen; H2 restringe cada ruta. No son presupuestos duros equiparables.")
+    md.append("5. **Referencias históricas de v2 en cuarentena:** el importador usado para estos artefactos confundía `condition` con `outer_fold` y las direcciones CUReT. P0 corrigió después el código y generó un registro trazable (Completa/GFS 27/27; Top-k 24/27). Eso no reescribe las referencias antiguas guardadas en v2 ni las convierte en controles validados de esta tabla.")
+    md.append("6. **Online:** después de v2 apareció P4 sobre 20 imágenes DTD, con límites de representatividad, paridad y temporización. No es un benchmark físico pareado de esta suite que respalde sus porcentajes. Véase [auditoría posterior P0–P4/cascada](AUDITORIA_P0_P4_CASCADA_2026-10-10.md).")
     md.append("")
     md.append("---")
     md.append("")
     md.append("## 2. Tabla Consolidada por Dataset (Medias en Particiones Externas)")
     md.append("")
-    md.append("| Dataset | Folds | Base (`resnet50`) | Mejor Indiv. Train | Par Estático (24.5ms) | Cascada Top-K | FSC-Tex H2 (Bellman) | Fusión Completa-6 |")
+    md.append("Cada celda indica macro-F1 y costo **estimado** medio en ms. El promedio final da el mismo peso a cada dataset; las condiciones no son réplicas independientes. Un mayor F1 no implica significancia.")
+    md.append("")
+    md.append("| Dataset | Condiciones | Base (`resnet50`) | Mejor individual (6) | Par estático | Cascada base + 1 | FSC-Tex H2 | Completa-6 |")
     md.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
 
     for ds in datasets_present:
@@ -271,13 +289,12 @@ def compute_statistics_and_report(
         ind_f1 = f"{m['Best_Individual_Internal']['macro_f1']:.4f} ({m['Best_Individual_Internal']['mean_latency_ms']:.1f}ms)" if "Best_Individual_Internal" in m else "N/A"
         pair_f1 = f"{m['Static_Pair_ResNet_SigLIP']['macro_f1']:.4f} ({m['Static_Pair_ResNet_SigLIP']['mean_latency_ms']:.1f}ms)" if "Static_Pair_ResNet_SigLIP" in m else "N/A"
         casc_f1 = f"{m['Cascade_TopK_Prospective']['macro_f1']:.4f} ({m['Cascade_TopK_Prospective']['mean_latency_ms']:.1f}ms)" if "Cascade_TopK_Prospective" in m else "N/A"
-        h2_f1 = f"**{m['FSC_Tex_H2_Bellman']['macro_f1']:.4f}** ({m['FSC_Tex_H2_Bellman']['mean_latency_ms']:.1f}ms)" if "FSC_Tex_H2_Bellman" in m else "N/A"
+        h2_f1 = f"{m['FSC_Tex_H2_Bellman']['macro_f1']:.4f} ({m['FSC_Tex_H2_Bellman']['mean_latency_ms']:.1f}ms)" if "FSC_Tex_H2_Bellman" in m else "N/A"
         f6_f1 = f"{m['Full_Fusion_6']['macro_f1']:.4f} ({m['Full_Fusion_6']['mean_latency_ms']:.1f}ms)" if "Full_Fusion_6" in m else "N/A"
 
         md.append(f"| **{ds}** | {n_cond} | {b_f1} | {ind_f1} | {pair_f1} | {casc_f1} | {h2_f1} | {f6_f1} |")
 
     # Fila de promedio global
-    md.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
     mean_b_f1 = np.mean([ds_summaries[d]["Base_resnet50"]["macro_f1"] for d in datasets_present if "Base_resnet50" in ds_summaries[d]])
     mean_b_lat = np.mean([ds_summaries[d]["Base_resnet50"]["mean_latency_ms"] for d in datasets_present if "Base_resnet50" in ds_summaries[d]])
     mean_ind_f1 = np.mean([ds_summaries[d]["Best_Individual_Internal"]["macro_f1"] for d in datasets_present if "Best_Individual_Internal" in ds_summaries[d]])
@@ -297,7 +314,7 @@ def compute_statistics_and_report(
         f"{mean_ind_f1:.4f} ({mean_ind_lat:.1f}ms) | "
         f"{mean_pair_f1:.4f} ({mean_pair_lat:.1f}ms) | "
         f"{mean_casc_f1:.4f} ({mean_casc_lat:.1f}ms) | "
-        f"**{mean_h2_f1:.4f}** ({mean_h2_lat:.1f}ms) | "
+        f"{mean_h2_f1:.4f} ({mean_h2_lat:.1f}ms) | "
         f"{mean_f6_f1:.4f} ({mean_f6_lat:.1f}ms) |"
     )
     md.append("")
@@ -305,9 +322,9 @@ def compute_statistics_and_report(
     md.append("")
     md.append("## 3. Contrastes Estadísticos No Paramétricos Pareados (Demšar, 2006)")
     md.append("")
-    md.append("Para evitar inflar artificialmente la muestra tratando particiones dependientes como independientes, las pruebas de significancia se evalúan sobre los **promedios independientes de cada dataset** ($N=6$):")
+    md.append(f"Wilcoxon bilateral sobre una media por dataset (N={len(datasets_present)}), con Holm sobre los seis contrastes mostrados. No se tratan folds como datasets independientes. Análisis exploratorio de baja potencia; no significancia no implica equivalencia. La familia de contrastes es la del reporte v2, sin afirmar prerregistro.")
     md.append("")
-    md.append("| Contraste Pareado (FSC-Tex H2 vs.) | Datasets | W-L-T | $\\Delta$ Macro-F1 Promedio | Ahorro Latencia | $p$-valor Crudo | $p$-valor Ajustado (Holm) | Veredicto $(\\alpha=0.05)$ |")
+    md.append("| Contraste (H2 vs.) | Datasets | Victorias-Derrotas-Empates | Delta macro-F1 | Ahorro estimado | p crudo | p Holm | Decisión (0.05) |")
     md.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
 
     for s in stat_results:
@@ -325,11 +342,12 @@ def compute_statistics_and_report(
     md.append("")
     md.append("---")
     md.append("")
-    md.append("## 4. Evaluación Formal del Criterio de No Inferioridad y Eficiencia")
+    md.append("## 4. Diagnóstico descriptivo de calidad y costo")
     md.append("")
-    md.append("Siguiendo el protocolo auditado (Sección 10.2):")
+    md.append("Se comprueba el margen práctico del plan sobre estimaciones puntuales. **No se ha ejecutado una prueba formal de no inferioridad ni calculado su intervalo de confianza.** La eficiencia física queda pendiente.")
+    md.append("")
     md.append("- **Margen de no inferioridad:** $\\epsilon = 0.005$ (pérdida máxima admisible de 0.5 puntos porcentuales de Macro-F1).")
-    md.append("- **Meta de eficiencia:** Ahorro de al menos 20% en latencia física media respecto a la referencia estática.")
+    md.append("- **Meta futura:** ahorro de al menos 20% en latencia real frente a una referencia equiparable. El cálculo actual solo es una proyección del modelo de costos.")
     md.append("")
     
     # Evaluar frente a Fusión Completa-6
@@ -344,16 +362,16 @@ def compute_statistics_and_report(
 
     md.append(f"- **FSC-Tex H2 frente a Fusión Completa-6:**")
     md.append(f"  - $\\Delta$ Macro-F1: `{delta_f1_vs_f6:+.4f}` (Margen $\\ge -0.005$: **{'CUMPLE' if non_inf_f6 else 'NO CUMPLE'}**)")
-    md.append(f"  - Ahorro de Latencia: `{lat_savings_vs_f6:.1f}%` (Meta $\\ge 20%$ : **{'CUMPLE' if eff_f6 else 'NO CUMPLE'}**)")
-    md.append(f"- **FSC-Tex H2 frente a Cascada Top-K Prospectiva:**")
+    md.append(f"  - Ahorro **estimado**: `{lat_savings_vs_f6:.1f}%`. No demuestra cumplimiento de la meta física.")
+    md.append(f"- **FSC-Tex H2 frente a cascada base + 1 aumentador:**")
     md.append(f"  - $\\Delta$ Macro-F1: `{delta_f1_vs_casc:+.4f}`")
-    md.append(f"  - Diferencia de Latencia: `{lat_savings_vs_casc:+.1f}%`")
+    md.append(f"  - Ahorro estimado relativo: `{lat_savings_vs_casc:+.1f}%`")
     md.append("")
     md.append("---")
     md.append("")
     md.append("## 5. Resumen de Ablaciones del Marco FSC-Tex")
     md.append("")
-    md.append("Se evaluaron las 3 ablaciones directas para aislar los mecanismos del rendimiento:")
+    md.append("Comparaciones descriptivas: H1 y el estado enriquecido reutilizan lambda seleccionado para H2; no tienen ajuste independiente equivalente. Las cifras siguientes son costos estimados, no cronometraje físico.")
     md.append("")
     
     mean_h1_f1 = np.mean([ds_summaries[d]["FSC_Tex_H1_Myopic"]["macro_f1"] for d in datasets_present if "FSC_Tex_H1_Myopic" in ds_summaries[d]])
@@ -361,34 +379,32 @@ def compute_statistics_and_report(
     mean_enr_f1 = np.mean([ds_summaries[d]["FSC_Tex_H2_Enriched_State"]["macro_f1"] for d in datasets_present if "FSC_Tex_H2_Enriched_State" in ds_summaries[d]])
     mean_enr_lat = np.mean([ds_summaries[d]["FSC_Tex_H2_Enriched_State"]["mean_latency_ms"] for d in datasets_present if "FSC_Tex_H2_Enriched_State" in ds_summaries[d]])
 
-    md.append(f"1. **Ablación 1: No Miopía de Bellman (H2 vs H1):**")
+    md.append(f"1. **Comparación H2 vs H1 (no identifica no miopía con este presupuesto):**")
     md.append(f"   - H1 (Miope): Macro-F1 = `{mean_h1_f1:.4f}` | Latencia = `{mean_h1_lat:.2f} ms`")
     md.append(f"   - H2 (Bellman): Macro-F1 = `{mean_h2_f1:.4f}` | Latencia = `{mean_h2_lat:.2f} ms`")
-    md.append(f"   - Ganancia neta por planificación a 2 pasos: `{(mean_h2_f1 - mean_h1_f1):+.4f}` de Macro-F1.")
+    md.append(f"   - Diferencia H2–H1: `{(mean_h2_f1 - mean_h1_f1):+.6f}` de macro-F1; no atribuirla a dos adquisiciones que aquí no son factibles.")
     md.append("")
     md.append(f"2. **Ablación 2: Representación Enriquecida del Estado (Incertidumbre + PCA de Contenido):**")
     md.append(f"   - H2 Incertidumbre: Macro-F1 = `{mean_h2_f1:.4f}` | Latencia = `{mean_h2_lat:.2f} ms`")
     md.append(f"   - H2 Enriquecido: Macro-F1 = `{mean_enr_f1:.4f}` | Latencia = `{mean_enr_lat:.2f} ms`")
     md.append(f"   - Ganancia por proyectar contenido: `{(mean_enr_f1 - mean_h2_f1):+.4f}` de Macro-F1.")
     md.append("")
-    md.append(f"3. **Ablación 3: Política Adaptativa vs. Par Estático de Costo Pareado:**")
+    md.append(f"3. **Política adaptativa vs. par estático (costos no exactamente igualados):**")
     md.append(f"   - Par Estático (`resnet50 + siglip_base`): Macro-F1 = `{mean_pair_f1:.4f}` | Latencia fija = `{mean_pair_lat:.2f} ms`")
     md.append(f"   - FSC-Tex H2: Macro-F1 = `{mean_h2_f1:.4f}` | Latencia adaptativa = `{mean_h2_lat:.2f} ms`")
     md.append(f"   - Ventaja adaptativa: `{(mean_h2_f1 - mean_pair_f1):+.4f}` de Macro-F1.")
     md.append("")
     md.append("---")
     md.append("")
-    md.append("## 6. Conclusión y Veredicto Científico")
+    md.append("## 6. Conclusión y trabajo pendiente")
     md.append("")
-    md.append("Conforme a la taxonomía de conclusiones de la propuesta (Sección 10.4):")
-    if non_inf_f6 and eff_f6:
-        md.append("> **Veredicto: Mejora Calidad-Costo Comprobada con Ahorro Masivo.**  ")
-        md.append("> La adquisición secuencial residual guiada por Bellman satisface plenamente la cota de no inferioridad predictiva frente a la fusión completa estática (pérdida < 0.5 p.p.), logrando al mismo tiempo una reducción superior al 20% en la latencia física de inferencia en hardware GPU, superando sólidamente los controles fijos individuales y pareados.")
-    else:
-        md.append("> **Veredicto: Ventaja Calidad-Costo Delimitada.**  ")
-        md.append("> Se identifican regímenes específicos donde la adquisición secuencial optimiza el compromiso costo-riesgo.")
+    md.append("**Veredicto: evidencia insuficiente para declarar superioridad de la propuesta.** Los archivos permiten reproducir las métricas, pero no cerrar las afirmaciones multietapa, físicas o relativas a la biblioteca de 22 bloques.")
+    md.append("")
+    md.append(f"H2 difiere de Completa-6 en {delta_f1_vs_f6 * 100:+.3f} puntos porcentuales de macro-F1. El margen puntual de 0.5 p.p. {'se satisface' if non_inf_f6 else 'no se satisface'}; ello no constituye una prueba formal. Contrastes con p Holm < 0.05: {sum(s['p_val_holm'] < 0.05 for s in stat_results)}/{len(stat_results)}.")
+    md.append("")
+    md.append("Conservar v2 como exploración, sin sobrescribir sus predicciones. P0 y los pilotos posteriores ya avanzaron respecto de este corte: el estado vigente y los pendientes de KTH, validación interna, puerta y tiempo físico están en la [auditoría P0–P4/cascada](AUDITORIA_P0_P4_CASCADA_2026-10-10.md) y en el plan v1.3.")
 
-    content = "\n".join(md)
+    content = "\n".join(md) + "\n"
     output_md.parent.mkdir(parents=True, exist_ok=True)
     with open(output_md, "w", encoding="utf-8") as f:
         f.write(content)

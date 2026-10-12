@@ -1,0 +1,54 @@
+{
+  "dataset": "SoilOriginal",
+  "protocol": "stratified_group_kfold5_fold0",
+  "indices": [
+    39,
+    323,
+    534,
+    762,
+    894,
+    1070,
+    1126
+  ],
+  "source_sha256": {
+    "39": "0bc9e503add2fae7bd4c1e92c46118ba16de212b10de0b3d89675018025c6988",
+    "323": "52bb4b9f3f0c2297777356e643fa224c6019939dd50396181653f8570e21876d",
+    "534": "4861cfbd4c6894982439712a10ecaa049d189f16cd5e829a51ccda81917a8aa2",
+    "762": "75bede89ac27afc2ba237f9f11c46d6ae19758f9cefbcf2631ad3155fe8dcc2b",
+    "894": "897c7549f54f2a9d1b16b753780c6683d7518a33b9e46b66592144853f9c515f",
+    "1070": "b99f9201c606eda8baf4edac0986aeecc3ad9519ba663416896e985d9a2a1336",
+    "1126": "5d00bea8816b1625cf4da2749f41b08585ff953583d646d231990bfcf8f63461"
+  },
+  "blocks": [
+    "siglip_base",
+    "eva02_base",
+    "beitv2_base_final",
+    "swin_t",
+    "vit_b16",
+    "convnext_v2_t"
+  ],
+  "selection": {
+    "route": "cascade",
+    "cheap": "siglip_base",
+    "budget": 0.25,
+    "threshold": 0.6744518610697223,
+    "oof_macro_f1": 0.8792127058370008,
+    "oof_cheap_macro_f1": 0.8626089952668426,
+    "oof_request_fraction": 0.25,
+    "projected_component_ms": 71.59434689576378,
+    "eligible": true
+  },
+  "provenance": {
+    "results/exploratory/topk_cascade/cheap_stage_selected_primary22/SoilOriginal_stratified_group_kfold5_fold0_result.json": "882bafe22242f0f7535de3e914b50b8ce53490aa2bd6e96a1a592a16f3246e82",
+    "results/exploratory/topk_cascade/cheap_stage_selected_primary22/SoilOriginal_stratified_group_kfold5_fold0_selection_pretest.json": "be0e35c204a215660e5374fd7b600aa9a8e376c5ad04eb232d20bc99d3ec84c0",
+    "results/exploratory/topk_cascade/cheap_stage_selected_primary22/SoilOriginal_stratified_group_kfold5_fold0_predictions.json": "ff0310b53d458b12f7a06b732fbfa0aca34299aa070c82b37401305aa4a552e6",
+    "scripts/benchmark_cascade_multidataset.py": "7fc066ccbd753a03c30b19a93445c2bf8befb0e647b7844f50749f306908b86c",
+    "src/01_extract_features.py": "c18c15795a4e0b7e8e146930bb011b80215acf8199fc47539b1f7c6f45bc1e5f",
+    "src/extract_sota_2024.py": "55dee8e0dd31199c312d33c5caa6c27caf829f87d2a7065c3d872cebb377c3a7",
+    "src/fsc_tex/executor.py": "cc4f56600f5692e0d11e55c3047623a34988a5da223f7285589db53f580000f8"
+  },
+  "repetitions": 3,
+  "seed": 42,
+  "timing_scope": "decoded RGB to prediction, resident models",
+  "kth_reference": null
+}

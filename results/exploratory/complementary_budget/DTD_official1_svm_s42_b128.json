@@ -1,0 +1,825 @@
+{
+  "status": "EXPLORATORY_SINGLE_OUTER_SPLIT",
+  "method": "PCA plus shrinkage-LDA per descriptor; grouped-CV greedy rank allocation",
+  "hypothesis": "A capped, class-discriminative subspace allocation retains complementary information with fewer dimensions than flat concatenation.",
+  "dataset": "DTD",
+  "protocol": "official1",
+  "classifier": "svm",
+  "seed": 42,
+  "outer_fold": 0,
+  "n_train": 3753,
+  "n_test": 1880,
+  "n_classes": 47,
+  "inner_folds": 3,
+  "dimension_budget": 128,
+  "dimensions_used": 104,
+  "rank_choices": [
+    8,
+    16,
+    32
+  ],
+  "min_inner_gain": 0.001,
+  "selected_rank_by_descriptor": {
+    "siglip_base": 32,
+    "dinov2_large": 32,
+    "eva02_base": 32,
+    "beitv2_base_final": 8
+  },
+  "inner_selection_history": [
+    {
+      "step": 1,
+      "descriptor": "siglip_base",
+      "rank": 32,
+      "total_dimensions": 32,
+      "inner_macro_f1": 0.799574474853852,
+      "gain": null
+    },
+    {
+      "step": 2,
+      "descriptor": "dinov2_large",
+      "rank": 32,
+      "total_dimensions": 64,
+      "inner_macro_f1": 0.8176880194289152,
+      "gain": 0.0181135445750632
+    },
+    {
+      "step": 3,
+      "descriptor": "eva02_base",
+      "rank": 32,
+      "total_dimensions": 96,
+      "inner_macro_f1": 0.8293840922153929,
+      "gain": 0.011696072786477663
+    },
+    {
+      "step": 4,
+      "descriptor": "beitv2_base_final",
+      "rank": 8,
+      "total_dimensions": 104,
+      "inner_macro_f1": 0.8316229380332364,
+      "gain": 0.0022388458178435044
+    },
+    {
+      "stopped": "inner_cv_gain_below_threshold",
+      "best_candidate": "resnet50",
+      "candidate_rank": 16,
+      "candidate_macro_f1": 0.832332619901475,
+      "gain": 0.0007096818682386097,
+      "threshold": 0.001
+    }
+  ],
+  "selected_inner_macro_f1": 0.8316229380332364,
+  "outer_macro_f1": 0.839496976507277,
+  "outer_accuracy": 0.8414893617021276,
+  "baseline_rows_same_outer_condition": {
+    "full_concat": {
+      "dataset": "DTD",
+      "classifier": "svm",
+      "seed": 42,
+      "outer_fold": 0,
+      "run_mode": "full",
+      "method": "full_concat",
+      "macro_f1": 0.8662832815271709,
+      "accuracy": 0.8670212765957447,
+      "k": 22,
+      "dimensions": 20652,
+      "fit_seconds": 73.26220239300164,
+      "selected": "beitv2_base_final+convnext_v2_t+deit_s+densenet121+dinov2+dinov2_large+dinov2_small+drlbp+efficientnet_b0+eva02_base+gabor+glcm+hog+lbp+mae_base+resnet101+resnet50+siglip_base+swin_t+vgg16+vit_b16+rgb_ngram_svd",
+      "inner_f1": NaN
+    },
+    "gfs": {
+      "dataset": "DTD",
+      "classifier": "svm",
+      "seed": 42,
+      "outer_fold": 0,
+      "run_mode": "full",
+      "method": "gfs",
+      "macro_f1": 0.8806984863760254,
+      "accuracy": 0.8819148936170212,
+      "k": 5,
+      "dimensions": 4352,
+      "fit_seconds": 12.776482492001378,
+      "selected": "siglip_base+dinov2_large+eva02_base+densenet121+dinov2",
+      "inner_f1": 0.8636808215533234
+    },
+    "best_individual": {
+      "dataset": "DTD",
+      "classifier": "svm",
+      "seed": 42,
+      "outer_fold": 0,
+      "run_mode": "full",
+      "method": "best_individual",
+      "macro_f1": 0.8401804503479369,
+      "accuracy": 0.8425531914893617,
+      "k": 1,
+      "dimensions": 768,
+      "fit_seconds": 4.231779629000812,
+      "selected": "siglip_base",
+      "inner_f1": 0.8323869270612757
+    },
+    "topk_individual": {
+      "dataset": "DTD",
+      "classifier": "svm",
+      "seed": 42,
+      "outer_fold": 0,
+      "run_mode": "full",
+      "method": "topk_individual",
+      "macro_f1": 0.8719645769447979,
+      "accuracy": 0.8734042553191489,
+      "k": 5,
+      "dimensions": 3712,
+      "fit_seconds": 21.04605010500381,
+      "selected": "siglip_base+dinov2_large+dinov2+eva02_base+dinov2_small",
+      "inner_f1": 0.8203577722539999
+    },
+    "source": {
+      "path": "/home/joaquin/tesis_claude/results/confirmatory/ngram22_beitv2/nested_fold_results.csv",
+      "sha256": "473dd378038fdecc6f98faf5e06a7d3039f56a9a56d69b13ed048f385e4408a8",
+      "topk_path": "/home/joaquin/tesis_claude/results/confirmatory/ngram22_beitv2/topk_individual_control/nested_fold_results.csv",
+      "topk_sha256": "9d5188758cadc882aa02495cc135f124dee2f29a67d5000d95d82be6882dfc6a"
+    }
+  },
+  "projections_refit_on_outer_train": {
+    "lbp": {
+      "input_dimensions": 54,
+      "pca_dimensions": 54,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "drlbp": {
+      "input_dimensions": 80,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "gabor": {
+      "input_dimensions": 48,
+      "pca_dimensions": 48,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "glcm": {
+      "input_dimensions": 18,
+      "pca_dimensions": 18,
+      "available_lda_rank": 18,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "hog": {
+      "input_dimensions": 1764,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "resnet50": {
+      "input_dimensions": 2048,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "resnet101": {
+      "input_dimensions": 2048,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "vgg16": {
+      "input_dimensions": 4096,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "densenet121": {
+      "input_dimensions": 1024,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "efficientnet_b0": {
+      "input_dimensions": 1280,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "convnext_v2_t": {
+      "input_dimensions": 768,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "vit_b16": {
+      "input_dimensions": 768,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "deit_s": {
+      "input_dimensions": 384,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "swin_t": {
+      "input_dimensions": 768,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "eva02_base": {
+      "input_dimensions": 768,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "dinov2_small": {
+      "input_dimensions": 384,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "dinov2": {
+      "input_dimensions": 768,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "dinov2_large": {
+      "input_dimensions": 1024,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "mae_base": {
+      "input_dimensions": 768,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "siglip_base": {
+      "input_dimensions": 768,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "beitv2_base_final": {
+      "input_dimensions": 768,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    },
+    "rgb_ngram_svd": {
+      "input_dimensions": 256,
+      "pca_dimensions": 64,
+      "available_lda_rank": 32,
+      "pca_fit_rows": 3753,
+      "labels_used_for_lda": true
+    }
+  },
+  "inner_projection_details": [
+    {
+      "projection": {
+        "lbp": {
+          "input_dimensions": 54,
+          "pca_dimensions": 54,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "drlbp": {
+          "input_dimensions": 80,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "gabor": {
+          "input_dimensions": 48,
+          "pca_dimensions": 48,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "glcm": {
+          "input_dimensions": 18,
+          "pca_dimensions": 18,
+          "available_lda_rank": 18,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "hog": {
+          "input_dimensions": 1764,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "resnet50": {
+          "input_dimensions": 2048,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "resnet101": {
+          "input_dimensions": 2048,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "vgg16": {
+          "input_dimensions": 4096,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "densenet121": {
+          "input_dimensions": 1024,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "efficientnet_b0": {
+          "input_dimensions": 1280,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "convnext_v2_t": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "vit_b16": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "deit_s": {
+          "input_dimensions": 384,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "swin_t": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "eva02_base": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "dinov2_small": {
+          "input_dimensions": 384,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "dinov2": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "dinov2_large": {
+          "input_dimensions": 1024,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "mae_base": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "siglip_base": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "beitv2_base_final": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "rgb_ngram_svd": {
+          "input_dimensions": 256,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        }
+      },
+      "rgb_ngram": {
+        "train_rows": 2502,
+        "evaluation_rows": 1251,
+        "hash_bins": 8192,
+        "components": 256,
+        "fixed_label_free_hashing": true,
+        "svd_from_training_only": true
+      }
+    },
+    {
+      "projection": {
+        "lbp": {
+          "input_dimensions": 54,
+          "pca_dimensions": 54,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "drlbp": {
+          "input_dimensions": 80,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "gabor": {
+          "input_dimensions": 48,
+          "pca_dimensions": 48,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "glcm": {
+          "input_dimensions": 18,
+          "pca_dimensions": 18,
+          "available_lda_rank": 18,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "hog": {
+          "input_dimensions": 1764,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "resnet50": {
+          "input_dimensions": 2048,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "resnet101": {
+          "input_dimensions": 2048,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "vgg16": {
+          "input_dimensions": 4096,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "densenet121": {
+          "input_dimensions": 1024,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "efficientnet_b0": {
+          "input_dimensions": 1280,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "convnext_v2_t": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "vit_b16": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "deit_s": {
+          "input_dimensions": 384,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "swin_t": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "eva02_base": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "dinov2_small": {
+          "input_dimensions": 384,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "dinov2": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "dinov2_large": {
+          "input_dimensions": 1024,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "mae_base": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "siglip_base": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "beitv2_base_final": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "rgb_ngram_svd": {
+          "input_dimensions": 256,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        }
+      },
+      "rgb_ngram": {
+        "train_rows": 2502,
+        "evaluation_rows": 1251,
+        "hash_bins": 8192,
+        "components": 256,
+        "fixed_label_free_hashing": true,
+        "svd_from_training_only": true
+      }
+    },
+    {
+      "projection": {
+        "lbp": {
+          "input_dimensions": 54,
+          "pca_dimensions": 54,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "drlbp": {
+          "input_dimensions": 80,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "gabor": {
+          "input_dimensions": 48,
+          "pca_dimensions": 48,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "glcm": {
+          "input_dimensions": 18,
+          "pca_dimensions": 18,
+          "available_lda_rank": 18,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "hog": {
+          "input_dimensions": 1764,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "resnet50": {
+          "input_dimensions": 2048,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "resnet101": {
+          "input_dimensions": 2048,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "vgg16": {
+          "input_dimensions": 4096,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "densenet121": {
+          "input_dimensions": 1024,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "efficientnet_b0": {
+          "input_dimensions": 1280,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "convnext_v2_t": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "vit_b16": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "deit_s": {
+          "input_dimensions": 384,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "swin_t": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "eva02_base": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "dinov2_small": {
+          "input_dimensions": 384,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "dinov2": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "dinov2_large": {
+          "input_dimensions": 1024,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "mae_base": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "siglip_base": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "beitv2_base_final": {
+          "input_dimensions": 768,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        },
+        "rgb_ngram_svd": {
+          "input_dimensions": 256,
+          "pca_dimensions": 64,
+          "available_lda_rank": 32,
+          "pca_fit_rows": 2502,
+          "labels_used_for_lda": true
+        }
+      },
+      "rgb_ngram": {
+        "train_rows": 2502,
+        "evaluation_rows": 1251,
+        "hash_bins": 8192,
+        "components": 256,
+        "fixed_label_free_hashing": true,
+        "svd_from_training_only": true
+      }
+    }
+  ],
+  "outer_test_predictions": "/home/joaquin/tesis_claude/results/exploratory/complementary_budget/DTD_official1_svm_s42_b128_predictions.csv",
+  "outer_test_used_for_rank_selection": false,
+  "outer_rgb_ngram_projection": {
+    "train_rows": 3753,
+    "evaluation_rows": 1880,
+    "hash_bins": 8192,
+    "components": 256,
+    "fixed_label_free_hashing": true,
+    "svd_from_training_only": true
+  },
+  "limitations": [
+    "one exploratory outer condition; not a confirmatory performance claim",
+    "PCA/LDA projection dimensions are learned from embeddings; this does not reduce the cost of running the frozen image encoders",
+    "the rank search is greedy and its result can depend on the fixed inner folds"
+  ],
+  "provenance": {
+    "audit_sha256": "6feae9c01a93bccea62521a495a6720aa6d0b19b5fb7d90441433402863ea331",
+    "manifest_sha256": "2cf599cd934d8569ded9e73cd8019bef53627878d98260d7c071921bdd635b3b",
+    "runner_sha256": "44e2689e9b28ece4f96f1a8767dbbf97a8cd43edb35b2a8281d51a0d971273f4",
+    "method_sha256": "aa48659bafcb5dfac722c85da2fd671de1c078fbf2441fe324e60088f323e3b0",
+    "baseline": {
+      "path": "/home/joaquin/tesis_claude/results/confirmatory/ngram22_beitv2/nested_fold_results.csv",
+      "sha256": "473dd378038fdecc6f98faf5e06a7d3039f56a9a56d69b13ed048f385e4408a8",
+      "topk_path": "/home/joaquin/tesis_claude/results/confirmatory/ngram22_beitv2/topk_individual_control/nested_fold_results.csv",
+      "topk_sha256": "9d5188758cadc882aa02495cc135f124dee2f29a67d5000d95d82be6882dfc6a"
+    }
+  },
+  "elapsed_seconds": 408.55894525299664
+}

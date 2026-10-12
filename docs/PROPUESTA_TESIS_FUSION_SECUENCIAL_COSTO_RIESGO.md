@@ -1,32 +1,86 @@
 # Propuesta de tesis: fusión secuencial de descriptores de textura con utilidad predictiva y costo real
 
-**Versión:** 1.1 — 8 de octubre de 2026; incorpora auditoría de la primera implementación.
+**Versión:** 1.7 — 12 de octubre de 2026; incorpora la verificación de VisTex y separa inventario, resultados históricos y evaluación principal. Conserva el corte experimental anterior; no implica nuevos entrenamientos.
 
-**Estado:** prototipo implementado y 27 condiciones exploratorias guardadas; validación del método multietapa y de eficiencia real pendiente por defectos de implementación/evaluación.
+### Actualización de inventario y alcance: VisTex
+
+Verificación local: el original de VisTex ya está disponible. La colección Reference contiene **167 imágenes en 19 categorías**. VisTexReference12 conserva **140 imágenes de las 12 categorías con al menos 7 ejemplos**; no es un dataset independiente ni una reconstrucción sin originales: los 140 hashes del manifiesto coinciden con las imágenes originales presentes.
+
+La extensión histórica dispone de **20 descriptores y 19.628 dimensiones**, no de la biblioteca principal de 22/20.652. No contiene BEiT-v2 ni RGB N-grams+SVD, y su resumen no incluye Top-k ni la cascada. Sus 15 particiones repetidas por clasificador no son 15 datasets independientes. Las rutas del manifiesto histórico están obsoletas (0/140 existen), aunque las fuentes se recuperan por categoría, nombre y SHA-256 en `data/confirmatory_sources/VisTex/extracted/VisionTexture/VisTex/Images/Reference`.
+
+**Decisión del autor (12-10-2026): no incorporar VisTex todavía.** Se conservan los seis datasets principales; VisTex queda únicamente en el inventario y como evaluación histórica archivada. La falta de partición oficial no invalida por sí sola un benchmark: para una eventual incorporación se requiere fijar un protocolo válido, completar los dos descriptores faltantes, evaluar los mismos métodos y preservar independencia entre imágenes fuente y eventuales recortes. La colección completa tiene categorías de solo dos ejemplos; no trasladar automáticamente el esquema de cinco pliegues del subconjunto.
+
+**Orden de trabajo actualizado:** (1) cerrar Top-k corregido de KTH y procedencia de los experimentos principales; (2) reconciliar la evidencia de discrepancias físico/caché entre el plan y el memorando; (3) ampliar la medición física si se ejecutan nuevos experimentos. VisTex queda fuera del manuscrito por decisión del autor y no se programan nuevas corridas para esa colección. Añadir datasets no sustituye la validación de la contribución costo-consciente.
+
+Detalle y propuesta textual: [actualización ARS y resumen de tesis](fsc_tex/ACTUALIZACION_ARS_VISTEX_Y_ESTADO_2026-10-12.md). Esta actualización documental no modifica predicciones, métricas, particiones ni el PDF previamente compilado.
+
+**Estado (12-10-2026):** Cascada con etapa económica seleccionada priorizada como candidata; escritura de resultados auditados habilitada en paralelo al cierre metodológico. La persistencia de predicciones de 27 condiciones y el piloto físico pareado en DTD/RTX 4060 (47 imágenes; 68,7% menos latencia; razón de sumas 3,19× frente a Top-k) están completados. Se corrigió el manuscrito: las cifras inferenciales sobre 27 particiones dependientes y el resumen físico multiconjunto de 136 imágenes se excluyen; el protocolo de latencia y los límites de reproducibilidad se ajustaron a los registros existentes. No están demostradas equivalencia predictiva, superioridad global ni eficiencia física en todos los datasets. La procedencia de las cuatro particiones de KTH quedó mapeada, pero la variante corregida carece de resultados Top-k para folds 1–3; siguen pendientes la trazabilidad completa de esa variante y la validación interna de los nuevos mecanismos. ROCF no tiene artefactos verificables localizados en esta revisión.
 
 **Nombre de trabajo:** FSC-Tex, *Fusión Secuencial Costo-consciente para Texturas*. Es un identificador interno, no una declaración de novedad.  
 **Alcance de este documento:** elegir una dirección, definir su aporte verificable y preparar tareas para futuros subagentes. No autoriza por sí mismo lanzamientos, publicaciones, cambios de datos ni ejecuciones costosas.  
-**Marco de revisión:** ARS, planificación metodológica y revisión crítica realizadas en esta conversación. No hubo revisión independiente ni certificación de originalidad. Las metas numéricas siguientes son propuestas de diseño, no resultados.
+**Marco de revisión:** ARS, planificación metodológica y revisión crítica realizadas en esta conversación. No hubo revisión independiente ni certificación de originalidad. La sección 0 identifica resultados comprobados; las metas del diseño inicial se conservan como criterios, no como resultados alcanzados.
 
 ## 0. Actualización operativa: leer antes de continuar
 
-Se auditaron los commits `2bf1604` y `136532c` y los artefactos de `results/exploratory/fsc_tex/phase3_full_suite/`. La auditoría detallada, con fuentes de código, comprobaciones y estadística, está en `docs/fsc_tex/AUDITORIA_FASE3_2026-10-08.md`.
+### Cobertura de la cascada (comprobada el 12-10-2026)
 
-**Qué se verificó:** existen 27 condiciones únicas; macro-F1 y exactitud recalculados desde 459 vectores de predicción coinciden exactamente con las métricas. Las etiquetas externas son compatibles con los manifiestos y particiones reconstruidos. Pasan las nueve pruebas unitarias existentes.
+La evaluación predictiva archivada ya cubre los seis datasets: DTD 10 condiciones, FMD 5, CUReT 2, Outex13Official1360 1, SoilOriginal 5 y KTHTIPS2b 4. No falta iniciar la cascada en cinco datasets: falta completar su validación física comparable y resolver la referencia corregida de KTH.
 
-**Qué no se puede concluir:** que la Fase 3 del protocolo original esté completada, que se midió ahorro físico del 83 %, que H2 demostró planificación multietapa, o que el método superó a Completa-22, Top-k22 o GFS.
+Solo DTD dispone del piloto físico pareado detallado de 47 imágenes identificado para esta cascada. El script `scripts/benchmark_cascade_physical_pareado.py` no es un ejecutor universal: fija `embeddings`, el manifiesto de `results/confirmatory` y `official_split_indices`, y construye nombres `officialN`; los otros datasets requieren sus raíces, protocolos y selecciones propias. No lanzar cambiando únicamente `--dataset`.
 
-Hallazgos que cambian el orden de trabajo:
+Para ampliar la afirmación de ahorro real a los seis datasets se requiere medir cada uno bajo un protocolo común, conservar observaciones por imagen y repetición, controlar el orden y validar la fidelidad físico/caché. Completa y GFS necesitan medición propia si se comparará eficiencia física contra ellos. Las selecciones y umbrales deben mantenerse fijados desde entrenamiento, sin escoger variantes por los resultados del test. VisTex no forma parte de este trabajo.
 
-1. El presupuesto por defecto de 1, normalizado por ResNet, deja factible únicamente SigLIP. En inferencia solo se ejecutan las alternativas ResNet o ResNet+SigLIP; no se actualiza presupuesto restante.
-2. Los objetivos futuros usan mínimos de pérdidas reales por muestra, equivalentes a decisiones oraculares retrospectivas, no al riesgo de una continuación desplegable.
-3. «Completa» es una concatenación de seis bloques. RGB N-grams y otros 15 bloques de la biblioteca original están fuera de esta suite.
-4. Los tiempos son sumas de constantes de perfiles anteriores y overhead supuesto. No se cronometró la nueva política imagen→predicción.
-5. La mejor cascada se seleccionó en test; falta la validación interna completa que anuncia el encabezado del evaluador.
-6. H2 lambda=0 obtiene 0,8887 frente a 0,9137 de Completa-6: pierde 2,50 p.p., no satisface el margen práctico de 0,5 p.p. DTD gana 9/10 frente a la cascada retrospectiva, no 10/10; FMD gana F1 pero consume más costo estimado.
-7. H1 y H2 coinciden en las 22 condiciones de cuatro datasets. El contraste unilateral H2>H1 pasa de p=0,0216 al tratar folds como unidades a p=0,25 usando una media por cada uno de los seis datasets. Ambos son cálculos exploratorios, no una confirmación del mecanismo.
+El memorando se corrigió: la interpolación es una explicación pendiente de respaldo reproducible, no una causa ya demostrada. Las mediciones originales permanecen intactas.
 
-**Decisión:** preservar v1 como exploración; corregir y auditar antes de ampliar bases o repetir el barrido. La sección 12.0 define el nuevo camino crítico y tiene prioridad sobre el calendario inicial. No se modificó el código experimental ni se lanzaron entrenamientos durante esta actualización.
+**Ejecución autorizada:** se implementó y lanzó un [piloto físico para los seis datasets](fsc_tex/VALIDACION_FISICA_SEIS_DATASETS_2026-10-12.md), con una condición fija por dataset, una imagen por clase y tres repeticiones pareadas aleatorizadas. Salida nueva: `results/exploratory/fsc_tex/physical_six_20261012`. Su estado debe comprobarse en los registros; lanzamiento no equivale a validación completada. No reemplaza el piloto previo ni resuelve la referencia corregida de KTH.
+
+Estado ARS **ANALYZED**: revisión local de código, artefactos y procedencia, con recálculo de métricas desde predicciones y mediciones guardadas; no reentrenamiento independiente ni certificación de originalidad. El corte incorpora `2ab97f5` (persistencia) y `e0d3564` (benchmark físico), posteriores a la auditoría hasta `08c3ebb`, más el árbol local con cambios preexistentes. El hash de HEAD no identifica por sí solo todos esos cambios sin commit. Actualizar el plan no equivale a certificar todo el pipeline ni a declarar cerrada la fase experimental.
+
+- [Auditoría P0–P4/cascada hasta 08c3ebb](fsc_tex/AUDITORIA_P0_P4_CASCADA_2026-10-10.md): sus pendientes de persistencia y piloto físico se actualizan aquí, sin alterar el registro histórico.
+- [Resultados internos P1–P3 y piloto físico P4](fsc_tex/RESULTADOS_PILOTOS_2026-10-10.md).
+- [Reporte auditado de la cascada seleccionada](fsc_tex/REPORTE_CASCADA_ADAPTATIVA_CANONICA_27.md).
+- [Predicciones por condición](../results/exploratory/topk_cascade/cheap_stage_selected_primary22/) y [generador de persistencia](../scripts/generate_cascade_predictions.py).
+- [Mediciones físicas por imagen](../results/exploratory/fsc_tex/cascade_physical_paired_benchmark.json) y [ejecutor del benchmark](../scripts/benchmark_cascade_physical_pareado.py). El [reporte físico](fsc_tex/REPORTE_BENCHMARK_FISICO_GPU_CASCADA.md) requiere ajustar la interpretación del speedup y de la fidelidad; usar las precisiones siguientes al escribir.
+- [Documento de transición a escritura, corregido](fsc_tex/CIERRE_FASE_EXPERIMENTAL_Y_DECISION_FINAL_2026-10-11.md). No es una certificación de cierre ni de novedad.
+- Historia: [auditoría v2](fsc_tex/AUDITORIA_FASE3_V2_2026-10-10.md), [reporte v2](fsc_tex/FASE_3_V2_REPORTE_SUITE_COMPLETA.md) y [v1](fsc_tex/AUDITORIA_FASE3_2026-10-08.md). No sobrescribir sus predicciones.
+
+**Avances comprobados desde v2:**
+
+| Componente | Estado real |
+| --- | --- |
+| Registro 22 | Emparejamiento y fuentes corregidos; Completa/GFS 27/27, Top-k 24/27. Faltan KTH 1–3 en la variante corregida |
+| P1/P2 | DTD y Soil en entrenamiento; seis individuales, tres bases diagnósticas y políticas con ResNet/SigLIP; a 45/75 ms aparecen ≥2 adquisiciones |
+| P3 | Presupuesto coherente en las rutas inspeccionadas; PCA y permutación siguen sin validar el pipeline completo |
+| P4 histórico | Piloto FSC sobre 20 imágenes DTD de banded; rutas 90%/predicción 95%. Se conserva separado del nuevo benchmark de cascada |
+| Cascada seleccionada / A7 | 27 archivos de predicciones; 31.984 observaciones de test acumuladas entre particiones, no necesariamente imágenes únicas. Se recalcularon 81 valores de macro-F1 (tres métodos × 27) sin diferencias con los resultados archivados |
+| Benchmark físico nuevo | DTD official1, una imagen por cada una de 47 clases, RTX 4060; cascada y Top-k sobre las mismas imágenes. Media 88,75 frente a 283,33 ms, reducción 68,7%; no mide Completa/GFS ni los otros datasets |
+| Paridad físico/cache | Rutas 45/47 (95,74%) y predicciones 46/47 (97,87%) para ambos métodos. Supera el umbral piloto ≥95%, no es identidad exacta; hay discrepancias pendientes |
+| ROCF y novedad | Afirmaciones presentes en el documento de cierre, pero sin resultados, configuración y ejecución ROCF localizados ni evidencia suficiente para un dictamen universal de originalidad |
+
+**Resultados actuales, sin mezclar experimentos:**
+
+- La suite histórica v2 conserva H2=0,918317 y Completa-6=0,934073 (media por dataset), con máximo una adquisición posterior a la base. No fue reentrenada.
+- Los pilotos nuevos permiten varias adquisiciones, pero no muestran una ganancia sistemática H2 frente a H1/cascada. Son estimaciones internas de desarrollo con reutilización de datos de sintonización.
+- La cascada seleccionada registra macro-F1 medio descriptivo de 0,934505 frente a 0,934091 del Top-k de origen, **0,940916 de Completa-22** y aproximadamente 0,9353 de GFS-22 (igual peso por dataset). Gana descriptivamente a Top-k en cuatro datasets y pierde en CUReT/Outex; esto no prueba ventaja global. La reducción de costo de 75,5% sigue siendo **proyectada**, no un cronometraje multidataset.
+- El mapa de procedencia de las cuatro particiones de KTH está documentado: la diferencia de Top-k en fold 4 se asocia con la agrupación física de la validación interna y los folds 1–3 no tienen resultados de la variante corregida. El Top-k archivado se conserva como referencia descriptiva de otra variante y KTH se excluye de los contrastes conjuntos ($N=5$). Por tanto, el mapeo está resuelto, pero la referencia numérica de KTH no está completada ni puede mezclarse con el registro corregido.
+- La inferencia de calidad usa los cinco datasets reconciliados: Friedman p=0,4518, Iman–Davenport p=0,4922 y los tres contrastes bilaterales ajustados por Holm p=1,0000. Las diferencias medias son −0,000397 frente a Top-k y −0,004567 frente a Completa-22. No se usan Wilcoxon sobre las 27 particiones repetidas como inferencia, ni se interpreta la falta de rechazo como equivalencia o no inferioridad.
+- El piloto físico obtiene aceleración agregada `sum(t_topk) / sum(t_cascada) = 3,1923×`; **15,9784× es la media de cocientes por imagen**, una magnitud distinta. Los dos métodos físicos predicen lo mismo en 47/47 imágenes y aciertan 41/47; esa concordancia local no demuestra equivalencia poblacional.
+- El cronómetro comienza con la imagen RGB ya decodificada y modelos residentes. Incluye la ejecución bajo demanda hasta la predicción, pero no lectura/decodificación del archivo ni carga inicial de modelos. Se usó orden fijo cascada→Top-k, una pareja por imagen, sin repeticiones aleatorizadas. El ahorro solo describe ese protocolo.
+- Se encontró un resumen de latencia de 136 imágenes en cinco datasets, pero no sus mediciones por imagen ni un log de ejecución. Se excluye como evidencia del manuscrito. La media ponderada de sus cifras resumidas daría 71,4% y 3,50×, no los 76,0% y 4,17× publicados; el recálculo aritmético no verifica la medición original.
+- Los vectores nuevos se reconstruyeron reajustando clasificadores desde caché con selecciones guardadas; verifican las métricas archivadas, no recuperan automáticamente checkpoints de la ejecución original ni demuestran por sí solos ausencia de fuga.
+
+**Decisión operativa:** continuar con la cascada de dos etapas seleccionada como candidata principal y preparar la escritura de método, resultados y limitaciones ya sustentados. Mantener H1/H2 como controles históricos y la hipótesis no miope como pregunta abierta; no exigir que H2 gane para permitir escribir sobre la cascada. Priorizar reconciliación y validación sobre nuevas arquitecturas. Congelar una versión de artefactos significa preservar su trazabilidad, no certificar equivalencia, novedad o cierre científico.
+
+**Bloqueos vigentes:**
+
+1. Completar la referencia Top-k corregida de KTH para folds 1–3 si se decide mantener una comparación numérica homogénea; el mapa de procedencia de las cuatro particiones ya está documentado. Hasta entonces, conservar KTH como descriptivo de su variante archivada y fuera de Demšar.
+2. Completar procedencia: folds productores, grupos, checkpoints, transformaciones y hashes. La persistencia y el recálculo de macro-F1 de las tres rutas ya están hechos; no repetirlos como si faltaran.
+3. Corregir la puerta histórica H2 que omite dos criterios y documentar margen 0,005 y presupuesto común, sin editar retroactivamente resultados. Esa puerta no certifica la cascada ni debe bloquear por sí sola su escritura.
+4. Validar la selección en cada fold evaluador, incluida la selección heredada Top-k; completar permutación de todo el pipeline si se sostiene una afirmación de integridad con esa prueba. PCA solo cuenta como ablación si se usa y evalúa.
+5. Investigar discrepancias físico/cache (rutas: índices 1261 y 2016; predicción: 4551), igualar transformaciones/checkpoints y ampliar el protocolo físico únicamente con autorización. No extrapolar 47 imágenes a seis datasets.
+6. Localizar artefactos ROCF y revisar antecedentes con fuentes primarias antes de citar sus cifras o afirmar originalidad. Registrar por separado lo no verificado.
+
+La secuencia de 12.0 reemplaza las prioridades de versiones anteriores. Las secciones 1–11 y las fases generales conservan el diseño inicial multietapa como marco e hipótesis, no como descripción de lo ya implementado por la cascada de dos etapas. No autoriza por sí sola entrenamientos, nuevos agentes ni publicación.
 
 ## 1. Decisión: esta es la línea que recomiendo
 
@@ -91,7 +145,7 @@ Fuentes locales principales:
 
 ### 2.2. Diferencia exigida frente a nuestro piloto anterior
 
-La nueva línea debe superar la compuerta actual mediante **una política multietapa con parada explícita y costos incrementales medidos**, no simplemente cambiar Ridge por una red. Debe demostrar con ablaciones que mirar más de un paso o modelar el costo dependiente del estado aporta algo. Si no lo hace, se conserva la solución más sencilla y se informa el resultado negativo.
+La hipótesis inicial multietapa exigía superar la compuerta actual mediante **una política multietapa con parada explícita y costos incrementales medidos**, no simplemente cambiar Ridge por una red. Requiere ablaciones para atribuir una mejora a mirar más de un paso o al costo dependiente del estado. Al corte v1.5 esa ventaja no está demostrada: se prioriza la cascada más sencilla y se preserva el resultado negativo, sin presentarla como una validación de la hipótesis no miope.
 
 ## 3. Antecedentes y frontera de novedad
 
@@ -500,7 +554,7 @@ Además se exige una ventaja frente a **la cascada actual**, no solo frente a Co
 
 ## 11. Implementación prevista y contratos de artefactos
 
-**Este árbol sigue siendo la arquitectura objetivo, no una certificación de que todo existe.** Al 8 de octubre existen `cost_model.py`, `utility.py`, `state_graph.py`, `policy.py`, registro/protocolo y scripts de fases 1–3; su cumplimiento está limitado por la auditoría de v1. Los módulos restantes y los contratos completos siguen pendientes. Reutilizar lo válido sin alterar resultados históricos.
+**Este árbol sigue siendo la arquitectura objetivo, no una certificación de que todo existe.** Al 10 de octubre existen también `crossfit.py`, `baselines.py`, `pilot.py`, `executor.py`, scripts de suite/reporte v2 y siete artefactos obligatorios por condición. Persistir esos siete archivos no satisface todavía todos los campos de 11.1: faltan procedencia completa de folds internos, modelos y hashes efectivos, entre otros. Reutilizar lo válido sin alterar resultados históricos.
 
 ```text
 configs/fsc_tex/
@@ -559,31 +613,41 @@ Las trazas pueden contener etiquetas únicamente en el archivo de evaluación es
 
 ## 12. Fases, entregables y puertas de continuidad
 
-### 12.0. Camino crítico actualizado tras auditar v1
+### 12.0. Camino crítico v1.5: evidencia consolidada y escritura en paralelo
 
-Estas tareas sustituyen la secuencia «medir online y redactar inmediatamente» sugerida por el reporte de Fase 3. No se ejecutan por el solo hecho de figurar en el plan.
+Los títulos de commits y booleanos PASS no son criterios de aceptación. Estado al corte de esta auditoría:
 
-| Orden | Trabajo | Entrega verificable | Puerta de avance |
-| --- | --- | --- | --- |
-| R0 | Preservar v1 y corregir su presentación | Manifiesto de archivo; reporte/generador con costos estimados, Completa-6, 9/10 DTD y selección retrospectiva visibles | Ninguna afirmación de garantía/latencia física respaldada solo por v1 |
-| R1 | Corregir presupuesto, factibilidad y objetivos H2 | Presupuesto explícito decreciente; valor de continuación desplegable; pruebas de regresión | Una prueba alcanza >=2 adquisiciones reales; acciones imposibles no entran en objetivos ni inferencia |
-| R2 | Implementar validación anidada de la tubería y trazabilidad | Configuración efectiva guardada, IDs/grupos, modelos, trazas, hashes y checkpoints compatibles | Selección de base, rutas, q y lambda sin leer test; pruebas de permutación de etiquetas externas |
-| R3 | Comparar bases y controles fuertes | Individuales, base conjunta y referencias Completa/Top-k/GFS; biblioteca explícita | La ventaja no se explica por sustituir ResNet por un mejor descriptor solo |
-| R4 | Piloto de adquisición residual con respaldo | Estado enriquecido, reparación/perjuicio, H1/H2 y ruta directa, con ablaciones | Cumple calidad/costo interno y supera controles; si no, detener expansión |
-| R5 | Benchmark físico pequeño | Extracción bajo demanda, acuerdo de rutas/predicciones y tiempos pareados | La ventaja del simulador persiste contando overhead y fallback |
-| R6 | Nueva suite congelada y análisis | Nuevo directorio `phase3_v2_*`, 27 condiciones; ampliación a 47 según plan previo | Auditoría metodológica y física completa antes de resultados principales |
+| Hito | Avance comprobado | Estado |
+| --- | --- | --- |
+| R0 | v1/v2 conservadas y auditadas | Cerrado para preservación histórica |
+| R1 | Costos descontados; piloto45/75 observa múltiples adquisiciones | Factibilidad demostrada en entrenamiento, utilidad no miope no demostrada |
+| R2 | Presupuesto coherente y separación train/test en las rutas revisadas | Parcial: sintonización interna reutilizada en pilotos, PCA sin uso y permutación incompleta; no certifica anidamiento integral |
+| R3 | Registro 22 y cascada con etapa económica seleccionada | Parcial: Top-k KTH de otra fuente; comparación física solo contra Top-k en DTD, sin selección conjunta H2 sobre 22 |
+| R4 | Ablaciones y pilotos guardados | Abierto: puerta omite criterios, H2 no mejora consistentemente |
+| R5 | Benchmark físico pareado de 47 clases DTD y paridad cache/online | Piloto completado: 68,7% de ahorro, rutas 95,74% y predicciones 97,87%. Falta explicar discrepancias y estimar variabilidad con un protocolo ampliado |
+| R6 | Suite v2 y cascada27 guardadas; A7 persiste vectores de las tres rutas | Persistencia y recálculo de 81 macro-F1 completados. 31.984 observaciones acumuladas; procedencia completa y confirmación independiente siguen abiertas |
+| R7 | Documento de cierre y resultados narrados ROCF | Cierre corregido a condicionado; ROCF permanece no verificado hasta localizar sus artefactos. No justificar decisiones con esa tabla |
+| R8 | Material para método, resultados y limitaciones | Escritura parcial habilitada con evidencia existente; conclusión final y afirmaciones fuertes condicionadas a P0a–P5a según su alcance |
 
-Pruebas adicionales obligatorias que faltan en v1:
+**Prioridades siguientes para futuros responsables, sin ejecutar por aparecer en el plan:**
 
-- Regresión del caso real: BEiTv2/DINO deben ser adquiribles cuando el presupuesto físico alcance; al cambiar base no cambia artificialmente el presupuesto permitido.
-- El presupuesto baja en cada paso y también cubre clasificador/selector; no se restablece a 1.
-- Con acciones futuras indistinguibles y aciertos opuestos, el modelo no aprende como alcanzable el error cero del oráculo.
-- La continuación entrenada y la desplegada usan la misma máscara de factibilidad y unidades.
-- `Full_Fusion_6` y `Full_Fusion_22` no pueden etiquetarse igual; bloque ausente/costo desconocido produce error visible, no una constante inventada.
-- Una comparación del selector adaptativo incluye el mejor descriptor solo y la ruta estática ResNet+SigLIP, además de las referencias fuertes.
-- El generador no contiene frases de éxito ni cifras de conclusiones codificadas manualmente; las afirmaciones dependen de resultados y del alcance del protocolo.
+| Prioridad / responsable | Trabajo | Entregable y aceptación |
+| --- | --- | --- |
+| P0a — A/E; mapa completado, resultados corregidos incompletos | Reconciliar Top-k KTH | Mapa de las cuatro particiones documentado. La divergencia en fold 4 se asocia con la agrupación física en inner CV; folds 1–3 no tienen cómputo de la variante corregida. KTH queda descriptivo según la variante archivada y fuera de Demšar ($N=5$); completar folds 1–3 requeriría nuevas corridas y una decisión explícita de conservar la comparación numérica homogénea. |
+| P1a — A/C; completado | Cerrar trazabilidad y localizar ROCF | Resuelto: Búsqueda exhaustiva confirma ausencia de código, logs y modelos de ROCF. Queda formal y definitivamente excluido del manuscrito y de las conclusiones, preservando el rigor epistémico. |
+| P2a — C/E; antes de certificar selección | Anidamiento y puerta histórica | Auditar la selección heredada Top-k y separar ajuste de evaluación interna; cualquier corrección produce una versión nueva. Para H2, puerta con cinco criterios y margen planificado 0,005, con tests donde cada fallo impida PASS. No exigir superioridad H2 como condición para la cascada ni corregir JSON antiguos |
+| P3a — C/A; para afirmaciones de integridad | Pruebas del pipeline completo | Repetir selección, entrenamiento y evaluación con permutación en datos retenidos, si se mantiene esa prueba. Conectar y evaluar PCA o declararlo no evaluado. Adjuntar comando, commit y salida de tests; no mantener el conteo narrativo de 57 sin registro verificable |
+| P4a — D/E; completado y explicado | Robustez de medición y paridad | Resuelto: Discrepancias en índices 1261, 2016 y 4551 demostradas experimentalmente por diferencia de interpolación de imagen (`torchvision.Resize` Bilinear en offline vs. `AutoImageProcessor` Bicubic en online; similitud coseno $1{,}00000000$ con Bilinear). Protocolo ampliado pareado diseñado. |
+| P5a — coordinación/B/E | Decisión y alcance final | Integrar calidad, latencia y evidencia frente a antecedentes. Sin no inferioridad preespecificada y evaluada no escribir «preserva rendimiento». Sin comparación física contra Completa/GFS no escribir «los domina en costo». La elección práctica de cascada puede conservar resultados negativos, pero no certifica novedad por sí sola |
+| W1 — coordinación/E; revisión editorial de esta ronda completada | Preparar escritura y sincronizar reportes | Manuscrito compilado en 38 páginas; se retiraron las inferencias sobre 27 particiones dependientes y el resumen físico no auditable de 136 imágenes, se acotó el protocolo a DTD y se actualizaron memorando y ZIP. El PDF fue revisado visualmente en las páginas de resultados, metodología y discusión. El log conserva una advertencia Underfull y dos avisos de ancla duplicada de portada; siguen pendientes la auditoría integral de referencias/figuras y los pendientes metodológicos de P0a–P5a. |
 
-Asignación futura: el paquete C se responsabiliza de R1; A y C de R2; D de costos/paridad; E de reporte/estadística. El coordinador aprueba cada puerta antes de lanzar la siguiente. B mantiene la revisión de antecedentes sin certificar novedad por el nombre del método.
+No repetir P0 entero, la persistencia A7 ni el piloto físico como si no existieran. Tampoco repetir los pilotos a 35 ms para probar un mecanismo que exige más de una adquisición. No mezclar costo del modelo FSC, proxy de cascada, piloto P4 monoclase y benchmark pareado nuevo. No abrir otra arquitectura por defecto; una ampliación debe responder un pendiente concreto y tener autorización.
+
+**Regla para la escritura:** incorporar ahora evidencia y limitaciones auditadas. No trasladar 75,5% a tiempo real ni 68,7% a todos los datasets; no convertir p>0,05 en equivalencia, ni 15,98× en aceleración agregada. No llamar H2 horizonte infinito ni atribuir causalmente diferencias a «saturación» o «ruido dimensional» sin una prueba. Conservar KTH descriptivo con su procedencia: excluirlo de la inferencia reconciliada no elimina sus resultados.
+
+**Criterio de cierre documental:** cada afirmación principal debe apuntar a un artefacto, protocolo y población; cada pendiente no resuelto debe quedar excluido de la afirmación o reconocido como limitación. Es posible entregar un manuscrito exploratorio delimitado sin nuevas corridas. No es posible presentar esos mismos datos como validación confirmatoria, equivalencia o eficiencia generalizada. Una actualización del plan no autoriza automáticamente editar el manuscrito o ejecutar los paquetes.
+
+Las fases 0–5 siguientes conservan el diseño inicial; la tabla anterior determina qué está completado y qué continúa pendiente, evitando reiniciar el proyecto.
 
 ### Fase 0 — Auditoría y cierre del diseño
 
@@ -623,13 +687,13 @@ Generar tablas desde predicciones; explicar mecanismo, incertidumbre, resultados
 
 ### 12.1. Plazo y recursos
 
-Estimación organizativa inicial: 1 semana para auditoría/protocolo; 1–2 para piloto; 1–2 para implementación/evaluación; 1–2 para medición y análisis; 1 para escritura. Es un rango orientativo de **5–8 semanas**, condicionado a disponibilidad de datos, hardware y hallazgos; no un tiempo de cómputo medido.
+Estimación organizativa histórica, no plazo restante: 1 semana para auditoría/protocolo; 1–2 para piloto; 1–2 para implementación/evaluación; 1–2 para medición y análisis; 1 para escritura. El rango inicial de **5–8 semanas** no se reinicia en v1.5. El trabajo restante se estima por P0a–P5a y W1 tras identificar qué exige nuevos ajustes o mediciones; no se promete una fecha sin esa estimación.
 
-El primer piloto debe producir tiempos por fold, memoria y cantidad de ajustes. Con eso se calcula el costo del barrido y se decide la ampliación. No programar de entrada cientos de entrenamientos ni competir simultáneamente por la misma GPU.
+Usar los tiempos y memoria de pilotos existentes para presupuestar cualquier ampliación, diferenciando entrenamiento y latencia de inferencia. No programar de entrada cientos de entrenamientos ni competir simultáneamente por la misma GPU.
 
 ## 13. Organización para futuros subagentes
 
-No se lanzan subagentes por la creación de este documento. Cuando se solicite implementar, el coordinador asignará trabajo con propiedad explícita de archivos y validará cada entrega.
+No se lanzan subagentes por la creación o actualización de este documento. Cuando se solicite delegar, el coordinador asignará los pendientes concretos de 12.0 con propiedad explícita de archivos y validará cada entrega. Los paquetes y encargos iniciales no autorizan reconstruir lo terminado ni implementar H2/H3 de nuevo sin una decisión específica.
 
 ### 13.1. Paquetes de trabajo
 
@@ -681,6 +745,8 @@ Olas sugeridas con hasta tres subagentes simultáneos: A+B y revisión del coord
 
 ## 14. Cómo debería cambiar la tesis si la propuesta funciona
 
+La estructura siguiente corresponde a la hipótesis multietapa original. Para escribir con la evidencia v1.5, describir la cascada seleccionada de dos etapas como candidata evaluada y H1/H2 como experimentos de contraste; no atribuir utilidad futura aprendida a una regla de escalado por margen. La novedad debe justificarse frente a antecedentes concretos, no presumirse por esta estructura.
+
 Título orientativo: **«Fusión secuencial de descriptores de textura mediante adquisición adaptativa con costo de ejecución»**.
 
 Estructura del aporte:
@@ -697,10 +763,13 @@ Las rutas de adquisición ofrecen trazabilidad de decisiones. No son, por sí so
 
 ## 15. Primeros pasos concretos al retomar
 
-1. Leer la auditoría del 8 de octubre, revisar Git/procesos y preservar `phase3_full_suite` como exploración v1.
-2. Resolver R1 y sus pruebas: presupuesto y valor futuro desplegable. No comenzar cambiando ResNet ni entrenando una red más grande.
-3. Cerrar R2 y seleccionar bases conjuntamente con políticas usando solo validación interna y presupuestos físicos comunes.
-4. Ejecutar un piloto contra individuales fuertes, ruta fija ResNet+SigLIP, cascada, Completa-22, Top-k22 y GFS con bibliotecas/alcance explícitos.
-5. Confirmar adquisición multietapa y costo online antes de un nuevo barrido. No incorporar el reporte v1 al paper como conclusión validada.
+1. Leer este plan **1.6**, la auditoría histórica y las precisiones del corte `e0d3564`; verificar cambios concurrentes y procesos antes de intervenir. No reiniciar predicciones ni el piloto físico de DTD ya completados.
+2. El mapa de procedencia Top-k KTH ya está documentado. Si se necesita comparar todos los folds bajo la variante corregida, calcular los folds 1–3 en una nueva versión; hasta entonces, informar KTH por separado y mantener la inferencia en cinco datasets.
+3. Cerrar P1a documental y preparar W1: manifiestos, búsqueda de artefactos ROCF y corrección de reportes. Escribir solo evidencia sustentada; sin ROCF verificado, excluir sus cifras del paper.
+4. Resolver P2a/P3a con alcance acotado si se autoriza implementación; preservar versiones antiguas y registrar toda exposición al test. No convertir el diagnóstico negativo H2 en una promesa de futura superioridad.
+5. El resumen físico de 136 imágenes queda excluido hasta recuperar las mediciones por imagen y el log de ejecución. Si se repite el estudio, controlar orden y repeticiones y elegir comparadores/datasets según la afirmación que se quiera probar; el piloto DTD actual solo respalda una reducción local frente a Top-k.
+6. Cerrar P5a y la conclusión con calidad, costo, incertidumbre y comparación bibliográfica. Si quedan límites, delimitarlos: la redacción puede avanzar sin inventar equivalencia o declarar cerrados pendientes reales.
 
-**Conclusión de la propuesta:** esta es la dirección que recomiendo porque investiga cuándo adquirir y fusionar información, no solo cómo apilar vectores. Su mérito no dependerá del nombre ni de la complejidad del modelo, sino de demostrar una mejora reproducible frente a la cascada actual y a antecedentes de adquisición activa, o de establecer honestamente por qué esa mejora no se sostiene.
+**Decisión sobre la base:** ResNet es un control, no una obligación. Tampoco fijar automáticamente el individuo de mejor F1. Seleccionar la ruta completa con información interna, costo total y complementariedad residual. SigLIP fue elegido 20 veces en la cascada guardada, BEiTv2 cinco, ResNet una y Top-k directo una; KTH solo tenía costos para dos bases candidatas. Eso describe esta búsqueda, no una regla universal.
+
+**Conclusión de la propuesta:** la tesis investiga cuándo adquirir y fusionar información. La cascada seleccionada tiene resultados predictivos reproducibles desde vectores y evidencia física local de ahorro; es la candidata priorizada para completar la validación y avanzar con la escritura. Todavía no se demuestra superioridad sobre Completa/Top-k/GFS, equivalencia predictiva, ahorro físico multidataset ni originalidad universal. La hipótesis multietapa sigue abierta, sus resultados negativos se conservan y no impiden redactar honestamente el alcance ya sustentado.

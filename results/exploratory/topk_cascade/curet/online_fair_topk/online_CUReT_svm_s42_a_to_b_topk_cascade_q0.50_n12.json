@@ -1,0 +1,44 @@
+{
+  "status": "exploratory_online_topk_cascade_validation",
+  "dataset": "CUReT",
+  "protocol": "curet_half_indices:a_to_b",
+  "budget": 0.5,
+  "n_images": 12,
+  "device": "cuda",
+  "cheap_blocks": [
+    "resnet50"
+  ],
+  "expensive_blocks": [
+    "dinov2_large",
+    "dinov2",
+    "dinov2_small",
+    "vit_b16"
+  ],
+  "topk_always_baseline": "standalone Top-k extraction; cheap stage skipped",
+  "model_load_and_classifier_fit_excluded": true,
+  "warmup": 2,
+  "observed_escalation_fraction": 0.5,
+  "online_adaptive": {
+    "mean_ms": 544.9859394169229,
+    "median_ms": 436.98885699996026,
+    "p95_ms": 1224.3346108009064
+  },
+  "online_topk_always": {
+    "mean_ms": 828.8423042504292,
+    "median_ms": 784.4359899991105,
+    "p95_ms": 1246.64180234995
+  },
+  "mean_latency_reduction_fraction": 0.3424733068978837,
+  "agreement": {
+    "request_decision": 1.0,
+    "adaptive_prediction": 1.0,
+    "topk_prediction": 1.0,
+    "min_source_cache_cosine": 0.9999878406524658
+  },
+  "limitations": [
+    "One external partition and deterministic timing subset.",
+    "Model loading and classifier fitting are excluded.",
+    "This validates online routing latency, not external accuracy."
+  ],
+  "prior": "/home/joaquin/tesis_claude/results/exploratory/topk_cascade/curet/exact_archive/CUReT_svm_s42_a_to_b_topk_cascade.json"
+}
