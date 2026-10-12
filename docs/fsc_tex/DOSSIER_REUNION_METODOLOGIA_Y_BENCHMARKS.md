@@ -82,19 +82,42 @@ flowchart TD
 
 La tesis respalda su propuesta con dos pilares de evidencia: (A) Evaluación analítica completa en 27 condiciones, y (B) Benchmark físico pareado en GPU real.
 
-### Pilar A: Evaluación Predictiva Global (27 Condiciones Canónicas, 31.984 observaciones)
-Evaluada sobre los 6 conjuntos de datos de referencia (DTD, FMD, CUReT, Outex13, SoilOriginal y KTH-TIPS-2b) con Linear SVM:
+### Pilar A: Evaluación Predictiva Desagregada por Dataset (Macro-F1 en 27 Condiciones)
 
-| Estrategia de Inferencia | Macro-F1 Medio | Diferencia vs. Top-$k$ | Reducción de Costo Analítico |
-| :--- | :---: | :---: | :---: |
-| **Top-$k$ Estático (Sin Cascada)** | 0,9341 | — | 0,0% (Base) |
-| **Cascada Adaptativa FSC-Tex** | **0,9345** | **+0,0004** | **75,5% de ahorro** |
-| Completa-22 (Indiscriminada) | 0,9409 | +0,0068 | Costo extremo (+300%) |
+La siguiente tabla presenta el desempeño predictivo (macro-F1) y el costo analítico proyectado **desglosado por cada uno de los seis conjuntos de datos** evaluados con Linear SVM (Tabla 4.3 de la tesis), comparando la Cascada Adaptativa frente al Top-$k$ de origen y la Concatenación Completa-22:
 
-* **Contrastes Estadísticos de Demšar ($N=5$ conjuntos reconciliados):**
-  * Prueba de Friedman: $p = 0{,}4518$ (No se rechaza igualdad de rangos).
-  * Wilcoxon con ajuste de Holm: $p_{\text{Holm}} = 1{,}0000$ tanto frente a Top-$k$ como frente a Completa.
-  * **Conclusión Epistémica Rigurosa:** No afirmamos que la cascada "supere matemáticamente" a Completa, sino que **reproduce la exactitud de Top-$k$ eliminando más de dos tercios del costo computacional**.
+| Conjunto de Datos | Particiones ($N$) | Etapa 1 ($e_1$) Predominante | Cascada Adaptativa FSC-Tex | Top-$k$ de Origen | Completa-22 (Todos los Bloques) | Diferencia Cascada vs. Top-$k$ | Costo Proyectado (ms) | Reducción de Costo |
+| :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **DTD** | 10 | SigLIP | **0,8700** | 0,8700 | 0,8639 | $\mathbf{0{,}0000}$ | 172,0 ms | **74,0%** |
+| **FMD** | 5 | ResNet-50 / SigLIP | **0,9840** | 0,9829 | 0,9651 | $\mathbf{+0{,}0011}$ | 138,7 ms | **76,2%** |
+| **CUReT** | 2 | SigLIP | **0,9982** | 0,9989 | 0,9989 | $-0{,}0007$ | 153,4 ms | **76,6%** |
+| **Outex13** | 1 | SigLIP | **0,9369** | 0,9426 | 0,9656 | $-0{,}0057$ | 165,9 ms | **77,3%** |
+| **SoilOriginal** | 5 | ResNet-50 | **0,8734** | 0,8701 | 0,8919 | $\mathbf{+0{,}0033}$ | 85,2 ms | **68,6%** |
+| *KTH-TIPS-2b\** | 4 | ResNet-50 | **0,9445** | 0,9400 | 0,9601 | $\mathbf{+0{,}0045}$ | 64,9 ms | **76,7%** |
+| \midrule | | | | | | | | |
+| **Media 5 Reconciliados ($N=5$)** | 23 | — | **0,9325** | 0,9329 | 0,9371 | $-0{,}0004$ | 143,0 ms | **75,3%** |
+| **Media Global (6 Datasets)** | 27 | — | **0,9345** | 0,9341 | 0,9409 | $\mathbf{+0{,}0004}$ | 130,0 ms | **75,5%** |
+
+*\*Nota sobre KTH-TIPS-2b:* Se reporta conforme a su variante archivada independiente. Para evitar pseudorreplicación y mantener la máxima integridad inferencial, se excluye de los contrastes no paramétricos multiconjunto de Demšar ($N=5$).
+
+#### Contrastes Estadísticos de Demšar sobre los 5 Datasets Reconciliados:
+* **Prueba de Friedman:** Estadístico = $2{,}6327$ ($p = 0{,}4518$; no se rechaza la hipótesis nula de igualdad de rangos).
+* **Prueba de Iman--Davenport:** $F = 0{,}8515$ ($p = 0{,}4922$).
+* **Rangos Medios de Friedman:** Cascada FSC-Tex = **2,200** | Completa-22 = 2,200 | Top-$k$ = 2,300 | Cascada Fija ResNet-50 = 3,300.
+* **Pruebas de Wilcoxon con ajuste de Holm ($\alpha = 0{,}05$):** $p_{\text{Holm}} = 1{,}0000$ (tanto frente a Top-$k$ como frente a Completa).
+* **Lectura Metodológica:** Los datos confirman paridad empírica en la frontera de exactitud. La cascada preserva el macro-F1 de Top-$k$ (diferencia observada de apenas $-0{,}0004$) mientras reduce más del 75% del cómputo.
+
+#### Contexto de la Fase 1: Macro-F1 de Controles Estáticos por Dataset
+Para mostrar en la reunión cómo se comparan los controles estáticos iniciales con Linear SVM (Tabla 4.1 de la tesis):
+
+| Dataset | Individual (Base) | Completa-22 | Top-$k$ | GFS (Voraz) | Homogénea |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **DTD** | 0,8426 | 0,8639 | 0,8700 | **0,8703** | 0,8604 |
+| **FMD** | 0,9726 | 0,9647 | **0,9820** | 0,9766 | 0,9789 |
+| **CUReT** | 0,9948 | **0,9989** | **0,9989** | 0,9988 | **0,9989** |
+| **Outex13** | 0,9066 | **0,9656** | 0,9426 | 0,9589 | 0,9307 |
+| **SoilOriginal** | 0,8578 | **0,8816** | 0,8776 | 0,8671 | 0,8670 |
+| **KTH-TIPS-2b** | 0,9396 | **0,9601** | 0,9400 | 0,9052 | 0,9271 |
 
 ---
 
