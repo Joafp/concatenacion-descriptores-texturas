@@ -363,32 +363,32 @@ m(x) = s_{(1)} - s_{(2)}
 % =========================================================================
 % DIAPOSITIVA 11: RESULTADOS EN 27 CONDICIONES CANÓNICAS
 % =========================================================================
-\begin{frame}{9. Evaluación Predictiva en 27 Condiciones Canónicas (Linear SVM)}
+\begin{frame}{9. Desempeño Macro-F1 y Ahorro Físico Real por Dataset}
 \begin{table}
 \centering
 \scriptsize
-\caption{Desempeño macro-F1 y costo analítico proyectado por conjunto de datos (27 condiciones)}
-\begin{tabular}{@{}lccccccc@{}}
+\caption{Macro-F1 (27 condiciones) y ahorro físico real medido en GPU RTX 4060 en los 6 datasets}
+\begin{tabular}{@{}lccccrrcc@{}}
 \toprule
-Conjunto de Datos & Cond. ($N$) & Cascada Adaptativa & Top-$k$ Origen & Completa-22 & Dif. vs. Top-$k$ & Costo Proy. (ms) & Ahorro Proy. \\
+Dataset & Cond. & Cascada F1 & Top-$k$ F1 & Completa-22 & GPU Casc. & GPU Top-$k$ & \textbf{Ahorro Real GPU} & Ahorro Analít. \\
 \midrule
-\textbf{DTD} & 10 & \textbf{0,8700} & 0,8700 & 0,8639 & \textbf{0,0000} & 172,0 ms & \textbf{74,0\%} \\
-\textbf{FMD} & 5  & \textbf{0,9840} & 0,9829 & 0,9651 & \textbf{+0,0011} & 138,7 ms & \textbf{76,2\%} \\
-\textbf{CUReT} & 2 & \textbf{0,9982} & 0,9989 & 0,9989 & $-0,0007$ & 153,4 ms & \textbf{76,6\%} \\
-\textbf{Outex13} & 1 & \textbf{0,9369} & 0,9426 & 0,9656 & $-0,0057$ & 165,9 ms & \textbf{77,3\%} \\
-\textbf{SoilOriginal} & 5 & \textbf{0,8734} & 0,8701 & 0,8919 & \textbf{+0,0033} & 85,2 ms & \textbf{68,6\%} \\
+\textbf{DTD} & 10 & \textbf{0,8700} & 0,8700 & 0,8639 & 90,6 ms & 295,6 ms & \textbf{69,4\% (3,26$\times$)} & 74,0\% \\
+\textbf{FMD} & 5  & \textbf{0,9840} & 0,9829 & 0,9651 & 13,0 ms & 208,1 ms & \textbf{93,7\% (16,00$\times$)} & 76,2\% \\
+\textbf{CUReT} & 2 & \textbf{0,9982} & 0,9989 & 0,9989 & 92,5 ms & 270,6 ms & \textbf{65,8\% (2,92$\times$)} & 76,6\% \\
+\textbf{Outex13} & 1 & \textbf{0,9369} & 0,9426 & 0,9656 & 111,5 ms & 354,3 ms & \textbf{68,5\% (3,18$\times$)} & 77,3\% \\
+\textbf{SoilOriginal} & 5 & \textbf{0,8734} & 0,8701 & 0,8919 & 42,0 ms & 109,1 ms & \textbf{61,5\% (2,60$\times$)} & 68,6\% \\
 \midrule
-\emph{KTH-TIPS-2b*} & 4 & \textbf{0,9445} & 0,9400 (0,9445*) & 0,9601 & \textbf{+0,0045} (0,0000*) & 64,9 ms & \textbf{76,7\%} \\
+\emph{KTH-TIPS-2b*} & 4 & \textbf{0,9445} & 0,9400 (0,9445*) & 0,9601 & 46,1 ms & 188,3 ms & \textbf{75,5\% (4,09$\times$)} & 76,7\% \\
 \midrule
-\textbf{Media 5 Reconciliados ($N=5$)} & 23 & \textbf{0,9325} & 0,9329 & 0,9371 & $-0,0004$ & 143,0 ms & \textbf{75,3\%} \\
-\textbf{Media Global (6 Datasets)} & 27 & \textbf{0,9345} & 0,9341 & 0,9409 & \textbf{+0,0004} & \textbf{130,0 ms} & \textbf{75,5\%} \\
+\textbf{Media 5 Reconc. ($N=5$)} & 23 & \textbf{0,9325} & 0,9329 & 0,9371 & — & — & — & \textbf{75,3\%} \\
+\textbf{Global (6 Datasets)} & \textbf{27} & \textbf{0,9345} & \textbf{0,9341} & \textbf{0,9409} & \textbf{90,25 ms} & \textbf{291,21 ms} & \textbf{69,0\% (3,23$\times$)} & \textbf{75,5\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
 \vspace{-0.4em}
 \begin{itemize}\scriptsize
 \item \textbf{Contrastes de Demšar ($N=5$ conjuntos reconciliados):} Friedman $\chi^2_F = 2{,}6327$ ($p = 0{,}4518$), Iman--Davenport $F = 0{,}8515$ ($p = 0{,}4922$). Rangos medios: \textbf{Cascada = 2,200}, Completa-22 = 2,200, Top-$k$ = 2,300, Cascada Fija ResNet-50 = 3,300. Wilcoxon con ajuste de Holm: $p_{\text{Holm}} = 1{,}0000$.
-\item \textbf{Rigor inferencial:} No rechazar $H_0$ refleja ausencias de diferencias significativas de rango con $N=5$ (diferencia empírica media de apenas $-0{,}0004$ frente a Top-$k$), documentando un compromiso calidad--costo altamente favorable.
+\item \textbf{Ahorro físico real comprobado en los 6 datasets:} reducción real en GPU del \textbf{69,0\%} (aceleración de \textbf{3,23$\times$}) y proyectada en las 27 condiciones del \textbf{75,5\%}.
 \end{itemize}
 \end{frame}
 

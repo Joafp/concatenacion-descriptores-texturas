@@ -86,16 +86,16 @@ La tesis respalda su propuesta con dos pilares de evidencia: (A) Evaluación ana
 
 La siguiente tabla presenta el desempeño predictivo (macro-F1) y el costo analítico proyectado **desglosado por cada uno de los seis conjuntos de datos** evaluados con Linear SVM (Tabla 4.3 de la tesis), comparando la Cascada Adaptativa frente al Top-k de origen y la Concatenación Completa-22:
 
-| Conjunto de Datos | Particiones (N) | Etapa 1 (e₁) Predominante | Cascada Adaptativa FSC-Tex | Top-k de Origen | Completa-22 (Todos los Bloques) | Diferencia Cascada vs. Top-k | Costo Proyectado (ms) | Reducción de Costo |
-| :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **DTD** | 10 | SigLIP | **0,8700** | 0,8700 | 0,8639 | **0,0000** | 172,0 ms | **74,0%** |
-| **FMD** | 5 | ResNet-50 / SigLIP | **0,9840** | 0,9829 | 0,9651 | **+0,0011** | 138,7 ms | **76,2%** |
-| **CUReT** | 2 | SigLIP | **0,9982** | 0,9989 | 0,9989 | -0,0007 | 153,4 ms | **76,6%** |
-| **Outex13** | 1 | SigLIP | **0,9369** | 0,9426 | 0,9656 | -0,0057 | 165,9 ms | **77,3%** |
-| **SoilOriginal** | 5 | ResNet-50 | **0,8734** | 0,8701 | 0,8919 | **+0,0033** | 85,2 ms | **68,6%** |
-| *KTH-TIPS-2b\** | 4 | ResNet-50 | **0,9445** | 0,9400 | 0,9601 | **+0,0045** | 64,9 ms | **76,7%** |
-| **Media 5 Reconciliados (N = 5)** | 23 | — | **0,9325** | 0,9329 | 0,9371 | -0,0004 | 143,0 ms | **75,3%** |
-| **Media Global (6 Datasets)** | 27 | — | **0,9345** | 0,9341 | 0,9409 | **+0,0004** | 130,0 ms | **75,5%** |
+| Conjunto de Datos | Cond. (N) | Etapa 1 (e₁) | Cascada F1 | Top-k F1 | Completa-22 F1 | Dif. vs. Top-k | GPU Cascada vs. Top-k | **Ahorro Físico REAL (GPU)** | Ahorro Analítico |
+| :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **DTD** | 10 | SigLIP | **0,8700** | 0,8700 | 0,8639 | **0,0000** | 90,6 vs. 295,6 ms | **69,4% (3,26×)** | 74,0% |
+| **FMD** | 5 | ResNet-50 / SigLIP | **0,9840** | 0,9829 | 0,9651 | **+0,0011** | 13,0 vs. 208,1 ms | **93,7% (16,00×)** | 76,2% |
+| **CUReT** | 2 | SigLIP | **0,9982** | 0,9989 | 0,9989 | -0,0007 | 92,5 vs. 270,6 ms | **65,8% (2,92×)** | 76,6% |
+| **Outex13** | 1 | SigLIP | **0,9369** | 0,9426 | 0,9656 | -0,0057 | 111,5 vs. 354,3 ms | **68,5% (3,18×)** | 77,3% |
+| **SoilOriginal** | 5 | ResNet-50 | **0,8734** | 0,8701 | 0,8919 | **+0,0033** | 42,0 vs. 109,1 ms | **61,5% (2,60×)** | 68,6% |
+| *KTH-TIPS-2b\** | 4 | ResNet-50 | **0,9445** | 0,9400 (0,9445\*) | 0,9601 | **+0,0045** (0,0000\*) | 46,1 vs. 188,3 ms | **75,5% (4,09×)** | 76,7% |
+| **Media 5 Reconciliados (N = 5)** | 23 | — | **0,9325** | 0,9329 | 0,9371 | -0,0004 | — | — | **75,3%** |
+| **Global Agregado (6 Datasets)** | 27 | — | **0,9345** | 0,9341 | 0,9409 | **+0,0004** | **90,25 vs. 291,21 ms** | **69,0% REAL (3,23×)** | **75,5%** |
 
 *\*Nota sobre KTH-TIPS-2b:* En la tabla se reporta la referencia Top-k de origen empleada al construir la cascada archivada (0,9400). Adicionalmente, al completar las cuatro particiones del control Top-k bajo agrupación interna por muestra física (`innergrp-sample`: 0,9814, 0,9044, 0,9726 y 0,9195), la media de Top-k corregido en KTH es **0,9445** (idéntica al 0,9445 de la cascada). Para evitar mezclar cortes de archivo y mantener la máxima integridad inferencial, el análisis primario de Demšar se conserva sobre los cinco conjuntos reconciliados desde el archivo original (N = 5).
 

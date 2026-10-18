@@ -50,23 +50,23 @@ La Tabla~\ref{tab:cascada-multidataset} resume el desempeño predictivo (macro-F
 
 \begin{table}[!htbp]
 \centering
-\caption{Resultados comparativos de macro-F1 y costo computacional en las 27 condiciones canónicas. KTH-TIPS-2b se reporta de forma descriptiva conforme a su variante archivada.}
+\caption{Resultados comparativos por conjunto de datos: macro-F1 en las 27 condiciones canónicas, latencia física real medida en GPU NVIDIA RTX 4060 (Cascada frente a Top-$k$) y ahorro analítico.}
 \label{tab:cascada-multidataset}
-\fontsize{8}{10}\selectfont
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccccrc@{}}
+\fontsize{7.5}{9.5}\selectfont
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lccccrrcc@{}}
 \toprule
-Dataset & $N$ & Cascada & Top-$k$ Origen & Completa-22 & Costo (ms) & Reducción \\
+Dataset & $N$ & Cascada F1 & Top-$k$ F1 & Completa-22 F1 & GPU Casc. (ms) & GPU Top-$k$ (ms) & \textbf{Ahorro Real GPU} & Ahorro Analítico \\
 \midrule
-DTD & 10 & 0{,}8700 & 0{,}8700 & 0{,}8639 & 172{,}0 & 74{,}0\% \\
-FMD & 5  & 0{,}9840 & 0{,}9829 & 0{,}9651 & 138{,}7 & 76{,}2\% \\
-CUReT & 2 & 0{,}9982 & 0{,}9989 & 0{,}9989 & 153{,}4 & 76{,}6\% \\
-Outex13 & 1 & 0{,}9369 & 0{,}9426 & 0{,}9656 & 165{,}9 & 77{,}3\% \\
-SoilOriginal & 5 & 0{,}8734 & 0{,}8701 & 0{,}8919 & 85{,}2 & 68{,}6\% \\
+DTD & 10 & \textbf{0{,}8700} & 0{,}8700 & 0{,}8639 & 90{,}6 & 295{,}6 & \textbf{69{,}4\% (3{,}26$\times$)} & 74{,}0\% \\
+FMD & 5  & \textbf{0{,}9840} & 0{,}9829 & 0{,}9651 & 13{,}0 & 208{,}1 & \textbf{93{,}7\% (16{,}00$\times$)} & 76{,}2\% \\
+CUReT & 2 & \textbf{0{,}9982} & 0{,}9989 & 0{,}9989 & 92{,}5 & 270{,}6 & \textbf{65{,}8\% (2{,}92$\times$)} & 76{,}6\% \\
+Outex13 & 1 & \textbf{0{,}9369} & 0{,}9426 & 0{,}9656 & 111{,}5 & 354{,}3 & \textbf{68{,}5\% (3{,}18$\times$)} & 77{,}3\% \\
+SoilOriginal & 5 & \textbf{0{,}8734} & 0{,}8701 & 0{,}8919 & 42{,}0 & 109{,}1 & \textbf{61{,}5\% (2{,}60$\times$)} & 68{,}6\% \\
 \midrule
-KTH-TIPS-2b & 4 & 0{,}9445 & 0{,}9400 & 0{,}9601 & 64{,}9 & 76{,}7\% \\
+KTH-TIPS-2b & 4 & \textbf{0{,}9445} & 0{,}9400* & 0{,}9601 & 46{,}1 & 188{,}3 & \textbf{75{,}5\% (4{,}09$\times$)} & 76{,}7\% \\
 \midrule
-\textbf{Media Global (6)} & 27 & \textbf{0{,}9345} & 0{,}9341 & 0{,}9409 & \textbf{130{,}0} & \textbf{75{,}5\%} \\
+\textbf{Global (6)} & \textbf{27} & \textbf{0{,}9345} & \textbf{0{,}9341} & \textbf{0{,}9409} & \textbf{90{,}25} & \textbf{291{,}21} & \textbf{69{,}0\% (3{,}23$\times$)} & \textbf{75{,}5\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
