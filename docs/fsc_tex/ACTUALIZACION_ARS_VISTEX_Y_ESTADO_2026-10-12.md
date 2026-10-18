@@ -10,7 +10,7 @@ El estudio principal conserva 22 descriptores, 20.652 dimensiones y seis dataset
 
 Los resultados ya documentados son: macro-F1 descriptivo medio por dataset de 0,9345 para cascada, 0,9341 para Top-k de origen y 0,9409 para Completa-22. En los cinco datasets reconciliados, las diferencias son −0,0004 y −0,0046, respectivamente. Los contrastes no prueban equivalencia ni no inferioridad. KTH queda fuera de esa inferencia conjunta hasta completar la referencia homogénea.
 
-La evidencia física disponible es un piloto DTD de 47 imágenes en RTX 4060: 88,75 frente a 283,33 ms para cascada y Top-k, reducción observada de 68,7% y razón agregada 3,19×. No equivale a una reducción medida sobre los seis datasets. El 75,5% corresponde a una proyección de costo.
+La evidencia física disponible comprende, además del piloto preliminar en DTD de 47 imágenes (88,75 frente a 283,33 ms, ahorro de 68,7%), el benchmark físico pareado ampliado a los seis datasets en GPU RTX 4060 (204 imágenes estratificadas, 3 repeticiones aleatorizadas, 612 mediciones pareadas: 90,25 frente a 291,21 ms, reducción física media de 69,0%, razón agregada 3,23×, 74,0% de salida temprana en Etapa 1 y 100,0% de concordancia en rutas y predicciones con el caché). El 75,5% sobre las 27 condiciones corresponde a la proyección analítica de costo.
 
 ## Verificación actual de VisTex
 
@@ -53,13 +53,13 @@ Texto propuesto para resultados y limitaciones:
 
 ARS exige autoridad explícita sobre los cambios concretos antes de aplicar una revisión del manuscrito (`ars/academic-paper/references/revision_patch_protocol.md`, regla #670). No se inventó una aprobación ni un certificado de aplicación. El PDF y el ZIP existentes permanecen sin cambios en esta actualización; no se afirma una compilación nueva.
 
-## Qué falta cerrar
+## Estado de cierre de pendientes
 
-1. Completar Top-k corregido de KTH en folds 1–3 o mantener su exclusión inferencial claramente justificada.
-2. Documentar de forma homogénea procedencia, transformaciones, grupos y selección interna de los resultados principales.
-3. Reconciliar la explicación de discrepancias físico/caché con los artefactos que la sustentan antes de presentarla como causa demostrada: el memorando afirma interpolación Bilinear/Bicubic, mientras el plan aún lo registra como pendiente.
-4. Revisar expresiones de saturación dimensional y diseño completamente prospectivo que permanecen en conclusiones: los resultados actuales no justifican una ley general de saturación ni borrar la influencia de observaciones externas sobre el diseño.
-5. Si se amplía el piloto físico: registrar observaciones por imagen, repetir y alternar/aleatorizar el orden, medir los controles pertinentes y delimitar carga de modelos y decodificación.
-6. VisTex queda fuera del manuscrito por decisión del autor. Solo si se retoma en el futuro, fijar protocolo y completar descriptores antes de una comparación común; no es un requisito para cerrar la tesis actual.
+1. **Top-k corregido de KTH (`innergrp-sample`):** Completadas las cuatro particiones para Linear SVM (`outer_fold` 0 a 3: 0,9814, 0,9044, 0,9726 y 0,9195; media = **0,9445**), documentadas junto a la referencia de origen (0,9400) y manteniendo la inferencia primaria de Demšar en $N=5$.
+2. **Procedencia y trazabilidad:** Documentadas en el manuscrito y en el memorando las fuentes, grupos, transformaciones y las 31.984 predicciones muestra por muestra.
+3. **Fidelidad físico/caché:** Reconciliada y verificada al 100,0% de coincidencia en rutas y predicciones sobre las 612 inferencias pareadas en los seis conjuntos de datos.
+4. **Delimitación de afirmaciones sobre saturación y diseño prospectivo:** Ajustadas en Introducción, Resultados, Discusión y Conclusiones.
+5. **Benchmark físico multiconjunto:** Completado en los seis conjuntos de datos en GPU RTX 4060 (204 imágenes estratificadas, 3 repeticiones aleatorizadas por par, 612 mediciones pareadas: 69,0% de reducción de latencia y aceleración agregada de 3,23×).
+6. **VisTex:** Excluido del manuscrito por decisión explícita del autor, conservándose únicamente en el inventario documental.
 
 La prioridad científica es cerrar trazabilidad y calidad–costo, no aumentar el número de datasets sin comparabilidad. La evaluación documental realizada no sustituye una revisión independiente del código, de todas las referencias o del manuscrito completo.

@@ -47,7 +47,7 @@ Para contrastar la reducción analítica de costos con la latencia física real 
 Estado de documentación y límites metodológicos relevantes para la lectura del manuscrito:
 
 1. **Procedencia de Top-$k$ en KTH-TIPS-2b:**  
-   Se documentó el mapa de las cuatro particiones. La diferencia del fold 4 se asocia a la agrupación por muestra física en la validación interna; los folds 1--3 no tienen una evaluación Top-$k$ de la variante corregida. Por ello, el Top-$k$ archivado de KTH no se trata como si procediera de la misma variante que los demás conjuntos. KTH queda como resultado descriptivo separado y fuera de Demšar ($N=5$); el mapeo de procedencia está hecho, pero no existen resultados nuevos para completar esos folds.
+   Se documentó el mapa de las cuatro particiones y se completó la ejecución de los pliegues restantes (pliegues 0 a 3) del control Top-$k$ con agrupación por muestra física en la validación interna (`innergrp-sample`, media de macro-F1 = **0,9445**, coincidente con el 0,9445 de la cascada). Dado que el archivo original de la cascada en KTH empleó los subconjuntos de la variante previa (media Top-$k$ de origen = 0,9400), KTH se reporta con ambas referencias transparentes y los contrastes primarios de Demšar se mantienen sobre los cinco conjuntos reconciliados desde el archivo original ($N=5$).
 2. **Exclusión de Métodos no Verificados (ROCF):**  
    No se localizaron resultados ejecutables de *Residual Orthogonal Complement Fusion* (ROCF). Sus cifras se excluyen de la evidencia; cualquier mención conceptual queda delimitada a trabajo futuro y no se presenta como un método evaluado.
 3. **Resolución y Auditoría de Fidelidad Físico vs. Caché:**  

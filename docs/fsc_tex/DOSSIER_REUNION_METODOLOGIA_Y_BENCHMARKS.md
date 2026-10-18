@@ -97,7 +97,7 @@ La siguiente tabla presenta el desempeño predictivo (macro-F1) y el costo anal�
 | **Media 5 Reconciliados (N = 5)** | 23 | — | **0,9325** | 0,9329 | 0,9371 | -0,0004 | 143,0 ms | **75,3%** |
 | **Media Global (6 Datasets)** | 27 | — | **0,9345** | 0,9341 | 0,9409 | **+0,0004** | 130,0 ms | **75,5%** |
 
-*\*Nota sobre KTH-TIPS-2b:* Se reporta conforme a su variante archivada independiente. Para evitar pseudorreplicación y mantener la máxima integridad inferencial, se excluye de los contrastes no paramétricos multiconjunto de Demšar (N = 5).
+*\*Nota sobre KTH-TIPS-2b:* En la tabla se reporta la referencia Top-k de origen empleada al construir la cascada archivada (0,9400). Adicionalmente, al completar las cuatro particiones del control Top-k bajo agrupación interna por muestra física (`innergrp-sample`: 0,9814, 0,9044, 0,9726 y 0,9195), la media de Top-k corregido en KTH es **0,9445** (idéntica al 0,9445 de la cascada). Para evitar mezclar cortes de archivo y mantener la máxima integridad inferencial, el análisis primario de Demšar se conserva sobre los cinco conjuntos reconciliados desde el archivo original (N = 5).
 
 #### Contrastes Estadísticos de Demšar sobre los 5 Datasets Reconciliados:
 * **Prueba de Friedman:** Estadístico = 2,6327 (p = 0,4518; no se rechaza la hipótesis nula de igualdad de rangos).
