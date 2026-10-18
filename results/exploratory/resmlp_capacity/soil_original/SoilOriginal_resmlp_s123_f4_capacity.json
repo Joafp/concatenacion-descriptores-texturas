@@ -1,0 +1,70 @@
+{
+  "dataset": "SoilOriginal",
+  "classifier": "resmlp",
+  "seed": 123,
+  "outer_fold": 4,
+  "k": 4,
+  "subset": [
+    "siglip_base",
+    "eva02_base",
+    "vit_b16",
+    "beitv2_base_final"
+  ],
+  "pca_components": 911,
+  "pca_explained_variance": 1.000000238418579,
+  "regularized": {
+    "dropout": 0.3,
+    "weight_decay": 0.01
+  },
+  "variants": {
+    "top4": {
+      "test": {
+        "macro_f1": 0.8658738021456852,
+        "accuracy": 0.9254385964912281
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 3072,
+      "parameters": 1185799
+    },
+    "all21": {
+      "test": {
+        "macro_f1": 0.910768592000965,
+        "accuracy": 0.9473684210526315
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 20396,
+      "parameters": 5620743
+    },
+    "all21_pca": {
+      "test": {
+        "macro_f1": 0.9083676378478021,
+        "accuracy": 0.9473684210526315
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 911,
+      "parameters": 632583
+    },
+    "all21_regularized": {
+      "test": {
+        "macro_f1": 0.8761178124650096,
+        "accuracy": 0.9342105263157895
+      },
+      "train": {
+        "macro_f1": 0.9977751886081221,
+        "accuracy": 0.9989035087719298
+      },
+      "dimensions": 20396,
+      "parameters": 5620743
+    }
+  },
+  "duration_seconds": 43.41189166499953
+}
