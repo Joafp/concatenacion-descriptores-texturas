@@ -1,0 +1,182 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage{lscape}
+\title{Results}
+\author{}
+\date{\today}
+\begin{document}
+\begin{landscape}
+\oddsidemargin 0in \topmargin 0in\maketitle
+\section{Tables of Friedman, Bonferroni-Dunn, Holm, Hochberg and Hommel Tests}
+\begin{table}[!htp]
+\centering
+\caption{Average Rankings of the algorithms
+}\begin{tabular}{c|c}
+Algorithm&Ranking\\
+\hline
+Ens-diversidad&1.9999999999999998\\
+Ens-tombola&2.666666666666667\\
+Ens-bagging&4.0\\
+Ens-semillas&3.0\\
+Top-4&3.333333333333333\\
+\end{tabular}
+\end{table}
+
+
+Friedman statistic considering reduction performance (distributed according to chi-square with 4 degrees of freedom: 5.333333333333331.
+
+
+P-value computed by Friedman Test: 0.25477265449441266.\newline
+
+Iman and Davenport statistic considering reduction performance (distributed according to F-distribution with 4 and 20 degrees of freedom: 1.428571428571428.
+
+
+P-value computed by Iman and Daveport Test: 0.2610422440499947.\newline
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Hochberg Table for $\alpha=0.05$}
+\begin{tabular}{ccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel\\
+\hline
+4&Ens-bagging&2.1908902300206643&0.028459736916310614&0.0125\\
+3&Top-4&1.4605934866804429&0.14412703481601533&0.016666666666666666\\
+2&Ens-semillas&1.0954451150103324&0.27332167829229803&0.025\\
+1&Ens-tombola&0.730296743340222&0.46520881845214135&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Hochberg Table for $\alpha=0.10$}
+\begin{tabular}{ccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel\\
+\hline
+4&Ens-bagging&2.1908902300206643&0.028459736916310614&0.025\\
+3&Top-4&1.4605934866804429&0.14412703481601533&0.03333333333333333\\
+2&Ens-semillas&1.0954451150103324&0.27332167829229803&0.05\\
+1&Ens-tombola&0.730296743340222&0.46520881845214135&0.1\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.025$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.025$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Adjusted $p$-values}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Bonf}$&$p_{Holm}$&$p_{Hoch}$&$p_{Homm}$\\
+\hline
+1&Ens-bagging&0.028459736916310614&0.11383894766524245&0.11383894766524245&0.11383894766524245&0.11383894766524245\\
+2&Top-4&0.14412703481601533&0.5765081392640613&0.432381104448046&0.432381104448046&0.40998251743844705\\
+3&Ens-semillas&0.27332167829229803&1.0932867131691921&0.5466433565845961&0.46520881845214135&0.46520881845214135\\
+4&Ens-tombola&0.46520881845214135&1.8608352738085654&0.5466433565845961&0.46520881845214135&0.46520881845214135\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Shaffer Table for $\alpha=0.05$}
+\begin{tabular}{cccccc}
+$i$&algorithms&$z=(R_0 - R_i)/SE$&$p$&Holm&Shaffer\\
+\hline
+10&Ens-diversidad vs. Ens-bagging&2.1908902300206643&0.028459736916310614&0.005&0.005\\
+9&Ens-diversidad vs. Top-4&1.4605934866804429&0.14412703481601533&0.005555555555555556&0.005555555555555556\\
+8&Ens-tombola vs. Ens-bagging&1.4605934866804426&0.14412703481601538&0.00625&0.00625\\
+7&Ens-diversidad vs. Ens-semillas&1.0954451150103324&0.27332167829229803&0.0071428571428571435&0.0071428571428571435\\
+6&Ens-bagging vs. Ens-semillas&1.0954451150103321&0.2733216782922982&0.008333333333333333&0.008333333333333333\\
+5&Ens-diversidad vs. Ens-tombola&0.730296743340222&0.46520881845214135&0.01&0.01\\
+4&Ens-bagging vs. Top-4&0.7302967433402218&0.4652088184521416&0.0125&0.0125\\
+3&Ens-tombola vs. Top-4&0.7302967433402208&0.46520881845214224&0.016666666666666666&0.016666666666666666\\
+2&Ens-tombola vs. Ens-semillas&0.3651483716701104&0.7150006546880895&0.025&0.025\\
+1&Ens-semillas vs. Top-4&0.3651483716701104&0.7150006546880895&0.05&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Nemenyi's procedure rejects those hypotheses that have a p-value $\le0.005$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.005$.
+
+
+Bergmann's procedure rejects these hypotheses:
+
+
+\begin{itemize}
+
+
+\end{itemize}
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Holm / Shaffer Table for $\alpha=0.10$}
+\begin{tabular}{cccccc}
+$i$&algorithms&$z=(R_0 - R_i)/SE$&$p$&Holm&Shaffer\\
+\hline
+10&Ens-diversidad vs. Ens-bagging&2.1908902300206643&0.028459736916310614&0.01&0.01\\
+9&Ens-diversidad vs. Top-4&1.4605934866804429&0.14412703481601533&0.011111111111111112&0.011111111111111112\\
+8&Ens-tombola vs. Ens-bagging&1.4605934866804426&0.14412703481601538&0.0125&0.0125\\
+7&Ens-diversidad vs. Ens-semillas&1.0954451150103324&0.27332167829229803&0.014285714285714287&0.014285714285714287\\
+6&Ens-bagging vs. Ens-semillas&1.0954451150103321&0.2733216782922982&0.016666666666666666&0.016666666666666666\\
+5&Ens-diversidad vs. Ens-tombola&0.730296743340222&0.46520881845214135&0.02&0.02\\
+4&Ens-bagging vs. Top-4&0.7302967433402218&0.4652088184521416&0.025&0.025\\
+3&Ens-tombola vs. Top-4&0.7302967433402208&0.46520881845214224&0.03333333333333333&0.03333333333333333\\
+2&Ens-tombola vs. Ens-semillas&0.3651483716701104&0.7150006546880895&0.05&0.05\\
+1&Ens-semillas vs. Top-4&0.3651483716701104&0.7150006546880895&0.1&0.1\\
+\hline
+\end{tabular}
+\end{table}
+Nemenyi's procedure rejects those hypotheses that have a p-value $\le0.01$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.01$.
+
+
+Bergmann's procedure rejects these hypotheses:
+
+
+\begin{itemize}
+
+
+\end{itemize}
+
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Adjusted $p$-values}
+\begin{tabular}{cccccccc}
+i&hypothesis&unadjusted $p$&$p_{Neme}$&$p_{Holm}$&$p_{Shaf}$&$p_{Berg}$\\
+\hline
+1&Ens-diversidad vs .Ens-bagging&0.028459736916310614&0.28459736916310613&0.28459736916310613&0.28459736916310613&0.28459736916310613\\
+2&Ens-diversidad vs .Top-4&0.14412703481601533&1.4412703481601532&1.297143313344138&0.864762208896092&0.864762208896092\\
+3&Ens-tombola vs .Ens-bagging&0.14412703481601538&1.4412703481601539&1.297143313344138&0.8647622088960922&0.8647622088960922\\
+4&Ens-diversidad vs .Ens-semillas&0.27332167829229803&2.7332167829229803&1.9132517480460862&1.6399300697537882&1.0932867131691921\\
+5&Ens-bagging vs .Ens-semillas&0.2733216782922982&2.733216782922982&1.9132517480460862&1.639930069753789&1.0932867131691928\\
+6&Ens-diversidad vs .Ens-tombola&0.46520881845214135&4.652088184521413&2.3260440922607066&1.8608352738085654&1.0932867131691928\\
+7&Ens-bagging vs .Top-4&0.4652088184521416&4.652088184521416&2.3260440922607066&1.8608352738085665&1.0932867131691928\\
+8&Ens-tombola vs .Top-4&0.46520881845214224&4.652088184521422&2.3260440922607066&1.8608352738085665&1.3956264553564268\\
+9&Ens-tombola vs .Ens-semillas&0.7150006546880895&7.150006546880895&2.3260440922607066&1.8608352738085665&1.3956264553564268\\
+10&Ens-semillas vs .Top-4&0.7150006546880895&7.150006546880895&2.3260440922607066&1.8608352738085665&1.3956264553564268\\
+\hline
+\end{tabular}
+\end{table}
+
+\end{landscape}\end{document}
