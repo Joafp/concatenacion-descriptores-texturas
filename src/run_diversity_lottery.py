@@ -43,6 +43,7 @@ from run_confirmatory_nested import (  # noqa: E402
     make_model, manifest_groups,
 )
 from run_topk_individual_control import archived_k, outer_indices  # noqa: E402
+from singleton_ranking import condition_key, ranked_singletons  # noqa: E402
 from analyze_block_redundancy import linear_cka  # noqa: E402
 
 REPO = SRC.parent
@@ -55,7 +56,12 @@ def metrics(y_true, y_pred, labels) -> dict:
 
 
 def decision_scores(model, x) -> np.ndarray:
-    scores = np.asarray(model.decision_function(x))
+    # The SVM exposes margins; ResMLP only class probabilities, whose logarithm
+    # plays the same role in the soft ensemble.
+    if hasattr(model, "decision_function"):
+        scores = np.asarray(model.decision_function(x))
+    else:
+        scores = np.log(np.clip(np.asarray(model.predict_proba(x)), 1e-12, None))
     if scores.ndim == 1:
         scores = np.column_stack([-scores, scores])
     sd = scores.std()
@@ -152,10 +158,8 @@ def main() -> None:
 
     names = sorted(cache)
     jobs = args.n_jobs if args.classifier == "svm" else 1
-    scores = Parallel(n_jobs=jobs, prefer="threads")(
-        delayed(inner_score)(cache, [n], train, y, inner_groups,
-                             args.classifier, args.seed) for n in names)
-    singles = dict(zip(names, scores))
+    singles = ranked_singletons(cache, train, y, inner_groups, args.classifier,
+                                args.seed, condition_key(args), n_jobs=jobs)
     # Relevance on [0, 1] so lambda trades against CKA on a comparable scale.
     lo, hi = min(singles.values()), max(singles.values())
     span = (hi - lo) or 1.0
