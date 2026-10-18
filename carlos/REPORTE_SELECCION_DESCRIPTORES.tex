@@ -1,0 +1,828 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{float}
+\usepackage[colorlinks=true,linkcolor=azulosc,urlcolor=azulosc]{hyperref}
+
+\definecolor{azulosc}{RGB}{20,60,110}
+\definecolor{grisclaro}{RGB}{245,245,245}
+\definecolor{resalte}{RGB}{246,227,211}
+\definecolor{bien}{RGB}{30,90,140}
+\definecolor{mal}{RGB}{160,70,20}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small\textcolor{azulosc}{Cuántos descriptores hacen falta}}
+\lhead{\small\textcolor{azulosc}{Reporte de resultados}}
+\rfoot{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\captionsetup{font=small,labelfont=bf,skip=6pt}
+\renewcommand{\arraystretch}{1.18}
+
+\newcommand{\pos}[1]{\textcolor{bien}{$+$#1}}
+\newcommand{\negv}[1]{\textcolor{mal}{$-$#1}}
+
+\title{\textbf{¿Cuántos descriptores hacen falta?}\\[0.3em]
+\large Resultados de la selección de subconjuntos de descriptores}
+\author{Carlos Ayala \and Joaquín Delgado}
+\date{18 de octubre de 2026}
+
+\begin{document}
+\maketitle
+
+\noindent\fcolorbox{azulosc}{grisclaro}{%
+\begin{minipage}{0.97\textwidth}
+\small
+\textbf{Base común.} Seis datasets (DTD, FMD, CUReT, Outex13, Soil,
+KTH-TIPS2-b) y las 47 condiciones externas por clasificador del manuscrito
+(FMD y Soil con tres semillas), con SVM lineal y ResMLP. La selección usa solo
+el entrenamiento; el test se usa una vez. Medias calculadas primero por dataset
+y después entre datasets.
+
+\smallskip
+\textbf{Nombres.} \emph{Completa-22}: concatenación completa del manuscrito, 22
+bloques y 20.652 dimensiones, con el bloque de color \texttt{rgb\_ngram\_svd}.
+\emph{21 bloques}: la misma concatenación sin ese bloque. \emph{Top-4}: los
+cuatro bloques con mejor macro-F1 individual interno. \emph{Ensambles}: 15
+subconjuntos de 4 bloques sorteados, cuyas predicciones se promedian.
+\emph{Controles}: 15 modelos sobre el mismo Top-4, variando la semilla o las
+imágenes de entrenamiento.
+
+\smallskip
+\textbf{Alcance.} Pruebas estadísticas como en el manuscrito, sobre una media
+por dataset (Sección~\ref{sec:stats}). $k=4$ se fijó a partir de la curva
+externa de SVM. Las configuraciones de ensamble ($\beta=8$; $\lambda=0{,}25$)
+se eligieron con SVM y se aplicaron sin cambios a ResMLP. Completa-22, Top-$k$,
+GFS, Homogénea e Individual provienen del manuscrito; Top-4, 21 bloques y los
+ensambles se corrieron en otro equipo, lo que con ResMLP introduce una
+variación propia del dispositivo. Los métodos de selección no tienen acceso al
+bloque de color. La comparación con la literatura es descriptiva.
+\end{minipage}}
+
+\vspace{1em}
+
+%======================================================================
+\section{Cuántos bloques alcanzan}
+
+\begin{table}[H]
+\centering
+\caption{Macro-F1 según la cantidad de bloques concatenados, agregados en el
+orden del ranking interno de cada clasificador.}
+\label{tab:curva}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+ & & \multicolumn{2}{c}{SVM} & \multicolumn{2}{c}{ResMLP} \\
+\cmidrule(lr){3-4}\cmidrule(l){5-6}
+Bloques ($k$) & \% dims & Macro-F1 & \% del máx. & Macro-F1 & \% del máx. \\
+\midrule
+1 & 4 & 0,9174 & 97,9 & 0,9171 & 98,1 \\
+2 & 8 & 0,9299 & 99,3 & 0,9324 & 99,7 \\
+3 & 12 & 0,9339 & 99,7 & 0,9337 & 99,8 \\
+\rowcolor{resalte} 4 & 15 & 0,9366 & 100,0 & 0,9331 & 99,8 \\
+6 & 24 & 0,9348 & 99,8 & 0,9296 & 99,4 \\
+10 & 46 & 0,9368 & 100,0 & 0,9332 & 99,8 \\
+21 (sin color) & 100 & 0,9356 & 99,9 & 0,9299 & 99,4 \\
+\midrule
+Completa-22 & --- & 0,9391 & --- & 0,9288 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%======================================================================
+\section{Comparación con el estado del arte}
+
+\begin{table}[H]
+\centering
+\caption{Exactitud media con $k=4$ fijo frente a los valores publicados con
+protocolo comparable.}
+\small
+\begin{tabular}{@{}lrrrrrl@{}}
+\toprule
+ & \multicolumn{2}{c}{4 bloques} & & & & \\
+\cmidrule(lr){2-3}
+Dataset & SVM & ResMLP & Neshov 2025 & Scabini 2025 & HyTexNet 2026 & Supera a \\
+\midrule
+DTD & \textbf{0,8703} & \textbf{0,8624} & 0,8200 & 0,7910 & 0,7320 & los tres \\
+FMD & \textbf{0,9823} & \textbf{0,9800} & 0,9670 & 0,9090 & --- & Neshov, Scabini \\
+KTH-TIPS2-b & 0,9575 & 0,9596 & 0,9680 & 0,9370 & n.\,c. & Scabini \\
+Outex13 & \textbf{0,9294} & \textbf{0,9368} & --- & 0,9160 & --- & Scabini \\
+\midrule
+\multicolumn{7}{@{}l}{Con ambos clasificadores: Scabini 2025, 4 de 4; Neshov 2025, 2 de 3; HyTexNet 2026, 1 de 1.} \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\footnotesize n.\,c.: no comparable, otro protocolo (Tabla~\ref{tab:literatura}).
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Trabajos de la literatura revisados: datasets en común y
+comparabilidad.}
+\label{tab:literatura}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}>{\raggedright}p{3.3cm}>{\raggedright}p{2.6cm}>{\raggedright}p{1.4cm}>{\raggedright}p{4.9cm}cc@{}}
+\toprule
+Trabajo & En común & Compa\-rable & Motivo & Repo & Citado \\
+\midrule
+Neshov et al. 2025, \emph{Electronics} 14:4779 & DTD, FMD, KTH-TIPS2-b & Sí & KTH: 4 particiones fijas por muestra física; DTD: particiones oficiales; Soil excluido por ser otro corpus & Sí & Sí \\
+\addlinespace
+Scabini et al. 2025, \emph{J.\ Imaging} 11:304 & DTD, FMD, KTH-TIPS2-b, Outex13 & Sí & Mismos datasets; promedia KNN, LDA y SVM & No & Sí \\
+\addlinespace
+Gupta et al. 2026 (HyTexNet), \emph{Knowl.-Based Syst.} 338:115482 & DTD & Sí & DTD: 10 particiones aleatorias, 0,7320 & Sí & No \\
+ & KTH-TIPS2-b & No & 0,9979 entrenando con un tercio de las imágenes de las cuatro muestras: no deja una muestra física fuera & & \\
+\addlinespace
+Chang et al. 2024, \emph{Expert Syst.\ Appl.} 238:122100 & KTH-TIPS2-b & No & 0,9129 con el mismo protocolo que HyTexNet; Outex TC12, no TC13 & Sí & No \\
+\addlinespace
+Khan et al. 2015, \emph{Pattern Recogn.\ Lett.} 51:16 & KTH-TIPS2-b, FMD & No & KTH: entrena con una muestra y prueba con tres; FMD: otra partición & Sí & No \\
+\addlinespace
+Ataky et al. 2023, \emph{Appl.\ Sci.} 13:1291 & ninguno & No & KTH-TIPS original y Outex TC11 & Sí & No \\
+\addlinespace
+Puig et al. 2010, \emph{Pattern Recogn.} 43:3282 & ninguno & No & Otros datasets & Sí & No \\
+\addlinespace
+García y Puig 2007, \emph{Image Vis.\ Comput.} 25:1091 & ninguno & No & Otros datasets & Sí & No \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%======================================================================
+\section{Frente a la concatenación completa}
+
+\begin{table}[H]
+\centering
+\caption{Top-4 frente a la Completa-22 en las mismas condiciones (macro-F1).}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+ & \multicolumn{3}{c}{SVM} & \multicolumn{3}{c}{ResMLP} \\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+Dataset & Top-4 & Compl.-22 & Diferencia & Top-4 & Compl.-22 & Diferencia \\
+\midrule
+CUReT & 0,9986 & 0,9989 & \negv{0,0003} & 0,9984 & 0,9991 & \negv{0,0007} \\
+DTD & 0,8689 & 0,8639 & \pos{0,0050} & 0,8612 & 0,8620 & \negv{0,0008} \\
+FMD & 0,9823 & 0,9647 & \pos{0,0176} & 0,9800 & 0,9564 & \pos{0,0236} \\
+KTH-TIPS2-b & 0,9544 & 0,9601 & \negv{0,0057} & 0,9570 & 0,9487 & \pos{0,0083} \\
+Outex13 & 0,9288 & 0,9656 & \negv{0,0368} & 0,9357 & 0,9416 & \negv{0,0059} \\
+Soil & 0,8864 & 0,8816 & \pos{0,0048} & 0,8662 & 0,8649 & \pos{0,0013} \\
+\midrule
+Media (macro-F1) & 0,9366 & \textbf{0,9391} & \negv{0,0026} & \textbf{0,9331} & 0,9288 & \pos{0,0043} \\
+Media (exactitud) & 0,9442 & \textbf{0,9473} & \negv{0,0031} & \textbf{0,9420} & 0,9388 & \pos{0,0032} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Aporte del bloque de color: Completa-22 menos 21 bloques (macro-F1).}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Dataset & SVM & ResMLP \\
+\midrule
+Soil & \pos{0,0078} & \pos{0,0033} \\
+KTH-TIPS2-b & \pos{0,0105} & \pos{0,0006} \\
+Outex13 & \pos{0,0038} & \negv{0,0060} \\
+FMD & \pos{0,0009} & \negv{0,0027} \\
+CUReT & \negv{0,0002} & \pos{0,0002} \\
+DTD & \negv{0,0018} & \negv{0,0020} \\
+\midrule
+Media & \pos{0,0035} & \negv{0,0011} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%======================================================================
+\section{Todos los métodos en la misma base}
+
+\begin{table}[H]
+\centering
+\caption{Macro-F1 medio sobre las 47 condiciones de cada clasificador.}
+\label{tab:metodos}
+\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+ & \multicolumn{2}{c}{SVM} & \multicolumn{2}{c}{ResMLP} & \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Método & Macro-F1 & vs C-22 & Macro-F1 & vs C-22 & Tamaño \\
+\midrule
+Completa-22 & \textbf{0,9391} & --- & 0,9288 & --- & 20.652 dims \\
+Ensamble con diversidad & 0,9383 & \negv{0,0009} & \textbf{0,9394} & \pos{0,0106} & 15 $\times$ 4 bloques \\
+Ensamble tómbola & 0,9369 & \negv{0,0022} & \textbf{0,9394} & \pos{0,0106} & 15 $\times$ 4 bloques \\
+\rowcolor{resalte} Top-4 fijo & 0,9366 & \negv{0,0026} & 0,9331 & \pos{0,0043} & $\approx$3.150 dims (15\,\%) \\
+Top-$k$ ($k$ tomado del GFS) & 0,9352 & \negv{0,0040} & 0,9338 & \pos{0,0050} & 3.800--4.100 dims \\
+GFS & 0,9295 & \negv{0,0097} & 0,9336 & \pos{0,0048} & 3.300--4.000 dims \\
+Homogénea & 0,9272 & \negv{0,0120} & 0,9238 & \negv{0,0050} & 2.000--2.400 dims \\
+Mejor individual & 0,9190 & \negv{0,0201} & 0,9184 & \negv{0,0104} & 650--870 dims \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%======================================================================
+\section{Muestreo por ranking y por diversidad, con cuatro bloques}
+
+\noindent\emph{Tómbola}: probabilidad de elegir el bloque de rango $r$
+proporcional a $(n-r+1)^{\beta}$. \emph{Diversidad}: utilidad
+$u_i = \text{rel}_i - \lambda\,\overline{\text{CKA}}(i, \text{elegidos})$,
+recalculada tras cada elección y ordenada con el mismo peso. Configuraciones:
+$\beta=8$; $\lambda=0{,}25$.
+
+\begin{table}[H]
+\centering
+\caption{Variantes con $k=4$. ``Gana a C-22'' cuenta condiciones.}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+ & \multicolumn{4}{c}{SVM} & \multicolumn{4}{c}{ResMLP} \\
+\cmidrule(lr){2-5}\cmidrule(l){6-9}
+Variante & F1 & vs T-4 & vs C-22 & Gana & F1 & vs T-4 & vs C-22 & Gana \\
+\midrule
+Top-4 determinista & 0,9366 & --- & \negv{0,0026} & 35/47 & 0,9331 & --- & \pos{0,0043} & 29/47 \\
+\addlinespace
+Tómbola: un sorteo & 0,9345 & \negv{0,0021} & \negv{0,0047} & 32/47 & 0,9312 & \negv{0,0019} & \pos{0,0024} & 30/47 \\
+Tómbola: ensamble de 15 & 0,9369 & \pos{0,0004} & \negv{0,0022} & 35/47 & \textbf{0,9394} & \pos{0,0063} & \pos{0,0106} & 38/47 \\
+\addlinespace
+Diversidad: un subconjunto & 0,9342 & \negv{0,0023} & \negv{0,0049} & 27/47 & 0,9339 & \pos{0,0008} & \pos{0,0051} & 30/47 \\
+Diversidad: ensamble de 15 & \textbf{0,9383} & \pos{0,0017} & \negv{0,0009} & 31/47 & \textbf{0,9394} & \pos{0,0063} & \pos{0,0106} & 40/47 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Por dataset, macro-F1 de los ensambles frente a Top-4 y Completa-22.}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+ & \multicolumn{4}{c}{SVM} & \multicolumn{4}{c}{ResMLP} \\
+\cmidrule(lr){2-5}\cmidrule(l){6-9}
+Dataset & C-22 & Top-4 & Tómb. & Divers. & C-22 & Top-4 & Tómb. & Divers. \\
+\midrule
+CUReT & 0,9989 & 0,9986 & 0,9989 & 0,9988 & 0,9991 & 0,9984 & 0,9991 & 0,9989 \\
+DTD & 0,8639 & 0,8689 & 0,8723 & \textbf{0,8734} & 0,8620 & 0,8612 & 0,8748 & \textbf{0,8754} \\
+FMD & 0,9647 & \textbf{0,9823} & 0,9792 & 0,9783 & 0,9564 & \textbf{0,9800} & 0,9770 & 0,9773 \\
+KTH-TIPS2-b & \textbf{0,9601} & 0,9544 & 0,9540 & 0,9541 & 0,9487 & \textbf{0,9570} & 0,9547 & 0,9558 \\
+Outex13 & \textbf{0,9656} & 0,9288 & 0,9399 & 0,9458 & 0,9416 & 0,9357 & \textbf{0,9566} & 0,9551 \\
+Soil & 0,8816 & \textbf{0,8864} & 0,8772 & 0,8792 & 0,8649 & 0,8662 & 0,8739 & \textbf{0,8740} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Redundancia y uso de la biblioteca.}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Medida & SVM & ResMLP \\
+\midrule
+CKA medio dentro del Top-$k$ de Outex13 ($k=8$) & 0,890 & --- \\
+CKA medio de subconjuntos al azar del mismo tamaño & 0,638 & --- \\
+Bloques distintos usados por el ensamble tómbola & 8,9 de 21 & 8,9 de 21 \\
+Bloques distintos usados por el ensamble con diversidad & 9,9 de 21 & 9,8 de 21 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Outex13 con SVM: los cuatro bloques elegidos según el peso de la
+diversidad $\lambda$.}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+$\lambda$ & Los 4 bloques elegidos & CKA medio & Macro-F1 \\
+\midrule
+0 (= Top-4) & BEiTv2, DINOv2, DINOv2-L, DINOv2-S & 0,922 & 0,9288 \\
+0,25 & BEiTv2, ConvNeXt-V2, DINOv2-L, DINOv2-S & 0,901 & 0,9295 \\
+\rowcolor{resalte} 1,0 & BEiTv2, DINOv2-L, ResNet-50, ViT-B/16 & 0,818 & 0,9366 \\
+\midrule
+\multicolumn{3}{@{}l}{Ensamble con diversidad (SVM / ResMLP)} & 0,9458 / 0,9551 \\
+\multicolumn{3}{@{}l}{Completa-22 (SVM / ResMLP)} & 0,9656 / 0,9416 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%======================================================================
+\section{Control: sortear subconjuntos o solo votar}
+
+\noindent Los dos controles combinan 15 modelos sobre los mismos cuatro bloques
+del Top-4, con la misma votación que los ensambles por sorteo.
+\emph{Semillas}: cambia solo la semilla del clasificador. \emph{Bagging}: cada
+modelo se entrena con un remuestreo con reposición de las imágenes de
+entrenamiento, estratificado por clase. El Top-4 de un modelo coincide con el de
+la Tabla~\ref{tab:curva} en las 47 condiciones de cada clasificador.
+
+\begin{table}[H]
+\centering
+\caption{Ensambles de 15 modelos: qué cambia entre ellos y macro-F1 medio.}
+\label{tab:control}
+\small
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+ & & \multicolumn{2}{c}{SVM} & \multicolumn{2}{c}{ResMLP} \\
+\cmidrule(lr){3-4}\cmidrule(l){5-6}
+Variante & Cambia entre modelos & Macro-F1 & vs T-4 & Macro-F1 & vs T-4 \\
+\midrule
+Top-4, un modelo & --- & 0,9366 & --- & 0,9331 & --- \\
+\addlinespace
+Ensamble de semillas & la semilla & 0,9366 & 0,0000 & 0,9356 & \pos{0,0025} \\
+Ensamble bagging & las imágenes de entrenamiento & 0,9340 & \negv{0,0026} & 0,9327 & \negv{0,0004} \\
+\addlinespace
+Ensamble tómbola & los cuatro bloques & 0,9369 & \pos{0,0004} & \textbf{0,9394} & \pos{0,0063} \\
+\rowcolor{resalte} Ensamble con diversidad & los cuatro bloques & \textbf{0,9383} & \pos{0,0017} & \textbf{0,9394} & \pos{0,0063} \\
+\midrule
+Completa-22 & --- & 0,9391 & \pos{0,0026} & 0,9288 & \negv{0,0043} \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\footnotesize Con SVM lineal, el ensamble de semillas coincide con Top-4 en las
+47 condiciones.
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Por dataset, macro-F1 de los ensambles con el subconjunto fijo y con
+subconjuntos sorteados.}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lrrrrrrrrrr@{}}
+\toprule
+ & \multicolumn{5}{c}{SVM} & \multicolumn{5}{c}{ResMLP} \\
+\cmidrule(lr){2-6}\cmidrule(l){7-11}
+ & & \multicolumn{2}{c}{Top-4 fijo} & \multicolumn{2}{c}{Sorteo} & & \multicolumn{2}{c}{Top-4 fijo} & \multicolumn{2}{c}{Sorteo} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){8-9}\cmidrule(l){10-11}
+Dataset & Top-4 & Sem. & Bag. & Tómb. & Div. & Top-4 & Sem. & Bag. & Tómb. & Div. \\
+\midrule
+CUReT & 0,9986 & 0,9986 & 0,9986 & \textbf{0,9989} & 0,9988 & 0,9984 & 0,9988 & 0,9984 & \textbf{0,9991} & 0,9989 \\
+DTD & 0,8689 & 0,8689 & 0,8675 & 0,8723 & \textbf{0,8734} & 0,8612 & 0,8702 & 0,8654 & 0,8748 & \textbf{0,8754} \\
+FMD & \textbf{0,9823} & \textbf{0,9823} & 0,9800 & 0,9792 & 0,9783 & 0,9800 & \textbf{0,9816} & 0,9803 & 0,9770 & 0,9773 \\
+KTH-TIPS2-b & \textbf{0,9544} & \textbf{0,9544} & 0,9539 & 0,9540 & 0,9541 & \textbf{0,9570} & 0,9550 & 0,9557 & 0,9547 & 0,9558 \\
+Outex13 & 0,9288 & 0,9288 & 0,9284 & 0,9399 & \textbf{0,9458} & 0,9357 & 0,9433 & 0,9355 & \textbf{0,9566} & 0,9551 \\
+Soil & \textbf{0,8864} & \textbf{0,8864} & 0,8754 & 0,8772 & 0,8792 & 0,8662 & 0,8649 & 0,8612 & 0,8739 & \textbf{0,8740} \\
+\midrule
+Media & 0,9366 & 0,9366 & 0,9340 & 0,9369 & \textbf{0,9383} & 0,9331 & 0,9356 & 0,9327 & \textbf{0,9394} & \textbf{0,9394} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%======================================================================
+\section{Pruebas sobre el criterio de selección interno}
+
+\begin{table}[H]
+\centering
+\caption{Criterio interno: macro-F1 en pliegues internos del entrenamiento.}
+\small
+\begin{tabular}{@{}>{\raggedright}p{3.2cm}>{\raggedright}p{4.6cm}>{\raggedright\arraybackslash}p{7.6cm}@{}}
+\toprule
+Prueba & Qué mide & Resultado \\
+\midrule
+SFFS (Pudil et al., 1994) & Búsqueda con retroceso, SVM, KTH-TIPS2-b, 4 particiones & Mejora el criterio interno en 3 de 4; gana en el test en 0 de 4 \\
+\addlinespace
+Curva interna contra externa & Spearman entre ambas curvas de $k$ & SVM: $+0{,}269$ (positiva en 35 de 47; Soil $-0{,}089$, Outex13 $-0{,}336$). ResMLP: $+0{,}321$ (35 de 47; Outex13 $-0{,}129$) \\
+\addlinespace
+Elegir $k$ con una regla & Mejor regla sobre la curva interna frente a $k=4$ fijo & SVM: 0,9326 (argmax interno) frente a 0,9366. ResMLP: 0,9343 (argmax interno) frente a 0,9331 \\
+\addlinespace
+Regla de saturación & Margen del criterio interno, SVM, KTH-TIPS2-b & 0,0002 $\rightarrow$ 0,0728 al corregir el agrupamiento; la regla deja de dispararse \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Reglas para elegir $k$ con datos de entrenamiento (macro-F1 externo
+resultante y $k$ medio elegido).}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+ & \multicolumn{2}{c}{SVM} & \multicolumn{2}{c}{ResMLP} \\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+Regla & $k$ medio & Macro-F1 & $k$ medio & Macro-F1 \\
+\midrule
+Argmax del criterio interno & 6,3 & 0,9326 & 7,3 & \textbf{0,9343} \\
+Codo, $\tau=0{,}001$ & 3,2 & 0,9315 & 2,1 & 0,9295 \\
+Codo, $\tau=0{,}005$ & 1,9 & 0,9287 & 1,7 & 0,9282 \\
+Codo, $\tau=0{,}01$ & 1,7 & 0,9261 & 1,3 & 0,9216 \\
+\addlinespace
+Fijo $k=3$ & 3 & 0,9339 & 3 & 0,9337 \\
+\rowcolor{resalte} Fijo $k=4$ & 4 & \textbf{0,9366} & 4 & 0,9331 \\
+Fijo $k=6$ & 6 & 0,9348 & 6 & 0,9296 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%======================================================================
+\section{Corrección del agrupamiento interno}
+
+\begin{table}[H]
+\centering
+\caption{KTH-TIPS2-b, 4 particiones: pliegues internos agrupados por imagen
+(antes) y por muestra física (después).}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Medida & Antes & Después \\
+\midrule
+Pasos de GFS con mejora exactamente cero & 12 de 16 & 0 de 41 \\
+Cambio en GFS con SVM & --- & \pos{0,0212} \\
+Cambio en GFS con ResMLP & --- & \pos{0,0146} \\
+Error de presupuesto de la cascada adaptativa & 21,0\,\% & 5,8\,\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%======================================================================
+\clearpage
+\section{Pruebas estadísticas}\label{sec:stats}
+
+\noindent Mismo procedimiento que el manuscrito: CONTROLTEST y MULTIPLETEST de
+SCI2S por clasificador, sobre una media por dataset ($N=6$); valores $p$ de los
+pares de Friedman ajustados con Holm dentro de cada familia; Wilcoxon exacto
+bilateral como sensibilidad.
+
+\subsection{Ocho métodos}
+
+\noindent Los de la Tabla~\ref{tab:metodos}: los cinco del manuscrito, Top-4 y
+los dos ensambles.
+
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Rankings medios de macro-F1 según Friedman, Friedman alineado y Quade: ocho métodos. Seis datasets por clasificador; menor ranking indica mejor desempeño relativo dentro de cada prueba.}
+\label{tab:sel-metodos-rankings}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Clasif. & Método & Friedman & F. alineado & Quade \\
+\midrule
+SVM & Completa-22 & $3{,}167$ & $18{,}833$ & $2{,}762$ \\
+SVM & Ens.\ diversidad & $3{,}417$ & $15{,}083$ & $2{,}929$ \\
+SVM & Ens.\ tómbola & $3{,}750$ & $18{,}917$ & $3{,}929$ \\
+SVM & Top-4 & $3{,}833$ & $18{,}667$ & $4{,}000$ \\
+SVM & Top-$k$ & $3{,}500$ & $21{,}000$ & $3{,}952$ \\
+SVM & GFS & $5{,}083$ & $27{,}250$ & $4{,}738$ \\
+SVM & Homogénea & $5{,}750$ & $35{,}250$ & $6{,}262$ \\
+SVM & Individual & $7{,}500$ & $41{,}000$ & $7{,}429$ \\
+ResMLP & Completa-22 & $5{,}083$ & $29{,}917$ & $5{,}310$ \\
+ResMLP & Ens.\ diversidad & $2{,}500$ & $11{,}833$ & $2{,}524$ \\
+ResMLP & Ens.\ tómbola & $2{,}750$ & $12{,}250$ & $2{,}929$ \\
+ResMLP & Top-4 & $4{,}167$ & $23{,}833$ & $3{,}952$ \\
+ResMLP & Top-$k$ & $4{,}333$ & $22{,}500$ & $4{,}000$ \\
+ResMLP & GFS & $3{,}333$ & $20{,}667$ & $3{,}476$ \\
+ResMLP & Homogénea & $6{,}500$ & $34{,}333$ & $6{,}667$ \\
+ResMLP & Individual & $7{,}333$ & $40{,}667$ & $7{,}143$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Pruebas globales por clasificador: ocho métodos y seis datasets. Nivel nominal $\alpha=0{,}05$.}
+\label{tab:sel-metodos-global}
+\begin{tabular}{@{}llrl@{}}
+\toprule
+Clasif. & Prueba & $p$ & Decisión \\
+\midrule
+SVM & Friedman & $0{,}0264$ & Rechazo \\
+SVM & Iman--Davenport & $0{,}0133$ & Rechazo \\
+SVM & Friedman alineado & $0{,}6155$ & No rechazo \\
+SVM & Quade & $0{,}0109$ & Rechazo \\
+ResMLP & Friedman & $0{,}0039$ & Rechazo \\
+ResMLP & Iman--Davenport & $0{,}0006$ & Rechazo \\
+ResMLP & Friedman alineado & $0{,}6150$ & No rechazo \\
+ResMLP & Quade & $0{,}0039$ & Rechazo \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Comparaciones por pares basadas en rangos de Friedman: ocho métodos. Holm corrige los 28 pares dentro de cada clasificador.}
+\label{tab:sel-metodos-holm}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+Clasif. & Comparación & $p$ sin ajustar & $p$ Holm \\
+\midrule
+SVM & Completa-22 vs.\ Individual & $0{,}0022$ & $0{,}0611$ \\
+SVM & Ens.\ diversidad vs.\ Individual & $0{,}0039$ & $0{,}1049$ \\
+SVM & Top-$k$ vs.\ Individual & $0{,}0047$ & $0{,}1216$ \\
+SVM & Ens.\ tómbola vs.\ Individual & $0{,}0080$ & $0{,}2002$ \\
+SVM & Top-4 vs.\ Individual & $0{,}0095$ & $0{,}2285$ \\
+SVM & Completa-22 vs.\ Homogénea & $0{,}0677$ & $1{,}0000$ \\
+SVM & GFS vs.\ Individual & $0{,}0875$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Homogénea & $0{,}0990$ & $1{,}0000$ \\
+SVM & Top-$k$ vs.\ Homogénea & $0{,}1116$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ Homogénea & $0{,}1573$ & $1{,}0000$ \\
+SVM & Completa-22 vs.\ GFS & $0{,}1753$ & $1{,}0000$ \\
+SVM & Top-4 vs.\ Homogénea & $0{,}1753$ & $1{,}0000$ \\
+SVM & Homogénea vs.\ Individual & $0{,}2159$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ GFS & $0{,}2386$ & $1{,}0000$ \\
+SVM & Top-$k$ vs.\ GFS & $0{,}2629$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ GFS & $0{,}3458$ & $1{,}0000$ \\
+SVM & Top-4 vs.\ GFS & $0{,}3768$ & $1{,}0000$ \\
+SVM & Completa-22 vs.\ Top-4 & $0{,}6374$ & $1{,}0000$ \\
+SVM & GFS vs.\ Homogénea & $0{,}6374$ & $1{,}0000$ \\
+SVM & Completa-22 vs.\ Ens.\ tómbola & $0{,}6800$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Top-4 & $0{,}7683$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Ens.\ tómbola & $0{,}8137$ & $1{,}0000$ \\
+SVM & Top-4 vs.\ Top-$k$ & $0{,}8137$ & $1{,}0000$ \\
+SVM & Completa-22 vs.\ Top-$k$ & $0{,}8137$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ Top-$k$ & $0{,}8597$ & $1{,}0000$ \\
+SVM & Completa-22 vs.\ Ens.\ diversidad & $0{,}8597$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Top-$k$ & $0{,}9530$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ Top-4 & $0{,}9530$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Individual & $0{,}0006$ & $0{,}0177$ \\
+ResMLP & Ens.\ tómbola vs.\ Individual & $0{,}0012$ & $0{,}0322$ \\
+ResMLP & Ens.\ diversidad vs.\ Homogénea & $0{,}0047$ & $0{,}1216$ \\
+ResMLP & GFS vs.\ Individual & $0{,}0047$ & $0{,}1216$ \\
+ResMLP & Ens.\ tómbola vs.\ Homogénea & $0{,}0080$ & $0{,}1922$ \\
+ResMLP & GFS vs.\ Homogénea & $0{,}0251$ & $0{,}5783$ \\
+ResMLP & Top-4 vs.\ Individual & $0{,}0251$ & $0{,}5783$ \\
+ResMLP & Top-$k$ vs.\ Individual & $0{,}0339$ & $0{,}7118$ \\
+ResMLP & Completa-22 vs.\ Ens.\ diversidad & $0{,}0677$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ Ens.\ tómbola & $0{,}0990$ & $1{,}0000$ \\
+ResMLP & Top-4 vs.\ Homogénea & $0{,}0990$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ Individual & $0{,}1116$ & $1{,}0000$ \\
+ResMLP & Top-$k$ vs.\ Homogénea & $0{,}1255$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Top-$k$ & $0{,}1949$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ GFS & $0{,}2159$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Top-4 & $0{,}2386$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ Top-$k$ & $0{,}2629$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ Homogénea & $0{,}3165$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ Top-4 & $0{,}3165$ & $1{,}0000$ \\
+ResMLP & Top-$k$ vs.\ GFS & $0{,}4795$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ Top-4 & $0{,}5169$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ GFS & $0{,}5557$ & $1{,}0000$ \\
+ResMLP & Top-4 vs.\ GFS & $0{,}5557$ & $1{,}0000$ \\
+ResMLP & Homogénea vs.\ Individual & $0{,}5557$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ Top-$k$ & $0{,}5959$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ GFS & $0{,}6800$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Ens.\ tómbola & $0{,}8597$ & $1{,}0000$ \\
+ResMLP & Top-4 vs.\ Top-$k$ & $0{,}9062$ & $1{,}0000$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Control del ensamble}
+
+\noindent Top-4 y los cuatro ensambles de la Tabla~\ref{tab:control}.
+
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Rankings medios de macro-F1 según Friedman, Friedman alineado y Quade: cinco variantes del control. Seis datasets por clasificador; menor ranking indica mejor desempeño relativo dentro de cada prueba.}
+\label{tab:sel-control-rankings}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Clasif. & Método & Friedman & F. alineado & Quade \\
+\midrule
+SVM & Ens.\ diversidad & $2{,}500$ & $13{,}000$ & $2{,}286$ \\
+SVM & Ens.\ tómbola & $2{,}833$ & $13{,}333$ & $2{,}905$ \\
+SVM & Ens.\ bagging & $4{,}500$ & $22{,}333$ & $4{,}667$ \\
+SVM & Ens.\ semillas & $2{,}583$ & $14{,}417$ & $2{,}571$ \\
+SVM & Top-4 & $2{,}583$ & $14{,}417$ & $2{,}571$ \\
+ResMLP & Ens.\ diversidad & $2{,}000$ & $9{,}667$ & $1{,}857$ \\
+ResMLP & Ens.\ tómbola & $2{,}667$ & $11{,}333$ & $2{,}381$ \\
+ResMLP & Ens.\ bagging & $4{,}000$ & $20{,}833$ & $4{,}143$ \\
+ResMLP & Ens.\ semillas & $3{,}000$ & $16{,}833$ & $3{,}000$ \\
+ResMLP & Top-4 & $3{,}333$ & $18{,}833$ & $3{,}619$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Pruebas globales por clasificador: cinco variantes del control y seis datasets. Nivel nominal $\alpha=0{,}05$.}
+\label{tab:sel-control-global}
+\begin{tabular}{@{}llrl@{}}
+\toprule
+Clasif. & Prueba & $p$ & Decisión \\
+\midrule
+SVM & Friedman & $0{,}1413$ & No rechazo \\
+SVM & Iman--Davenport & $0{,}1307$ & No rechazo \\
+SVM & Friedman alineado & $0{,}2806$ & No rechazo \\
+SVM & Quade & $0{,}1185$ & No rechazo \\
+ResMLP & Friedman & $0{,}2548$ & No rechazo \\
+ResMLP & Iman--Davenport & $0{,}2610$ & No rechazo \\
+ResMLP & Friedman alineado & $0{,}2787$ & No rechazo \\
+ResMLP & Quade & $0{,}1540$ & No rechazo \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Comparaciones por pares basadas en rangos de Friedman: cinco variantes del control. Holm corrige los 10 pares dentro de cada clasificador.}
+\label{tab:sel-control-holm}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+Clasif. & Comparación & $p$ sin ajustar & $p$ Holm \\
+\midrule
+SVM & Ens.\ diversidad vs.\ Ens.\ bagging & $0{,}0285$ & $0{,}2846$ \\
+SVM & Ens.\ bagging vs.\ Ens.\ semillas & $0{,}0358$ & $0{,}3219$ \\
+SVM & Ens.\ bagging vs.\ Top-4 & $0{,}0358$ & $0{,}3219$ \\
+SVM & Ens.\ tómbola vs.\ Ens.\ bagging & $0{,}0679$ & $0{,}4752$ \\
+SVM & Ens.\ diversidad vs.\ Ens.\ tómbola & $0{,}7150$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ Ens.\ semillas & $0{,}7842$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ Top-4 & $0{,}7842$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Ens.\ semillas & $0{,}9273$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Top-4 & $0{,}9273$ & $1{,}0000$ \\
+SVM & Ens.\ semillas vs.\ Top-4 & $1{,}0000$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Ens.\ bagging & $0{,}0285$ & $0{,}2846$ \\
+ResMLP & Ens.\ diversidad vs.\ Top-4 & $0{,}1441$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ Ens.\ bagging & $0{,}1441$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Ens.\ semillas & $0{,}2733$ & $1{,}0000$ \\
+ResMLP & Ens.\ bagging vs.\ Ens.\ semillas & $0{,}2733$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Ens.\ tómbola & $0{,}4652$ & $1{,}0000$ \\
+ResMLP & Ens.\ bagging vs.\ Top-4 & $0{,}4652$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ Top-4 & $0{,}4652$ & $1{,}0000$ \\
+ResMLP & Ens.\ semillas vs.\ Top-4 & $0{,}7150$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ Ens.\ semillas & $0{,}7150$ & $1{,}0000$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Wilcoxon por pares}
+
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Sensibilidad: Wilcoxon exacto bilateral sobre seis datasets. V indica datasets con diferencia positiva sobre los que no empatan y $W$ la menor suma de rangos. Cond.: condiciones externas ganadas y perdidas, descriptivo.}
+\label{tab:sel-sensitivity}
+\begin{tabular}{@{}llrrrrr@{}}
+\toprule
+Clasif. & Diferencia & $\Delta$ medio & V & $W$ & $p$ & Cond. \\
+\midrule
+SVM & Ens.\ diversidad menos Completa-22 & $-0{,}0009$ & 2/6 & $9$ & $0{,}8438$ & 31--15 \\
+SVM & Ens.\ tómbola menos Completa-22 & $-0{,}0022$ & 2/6 & $9$ & $0{,}8438$ & 35--11 \\
+SVM & Top-4 menos Completa-22 & $-0{,}0026$ & 3/6 & $10$ & $1{,}0000$ & 35--11 \\
+SVM & Ens.\ diversidad menos Top-4 & $0{,}0017$ & 3/6 & $10$ & $1{,}0000$ & 19--22 \\
+SVM & Ens.\ tómbola menos Top-4 & $0{,}0004$ & 3/6 & $10$ & $1{,}0000$ & 19--22 \\
+SVM & Ens.\ diversidad menos Ens.\ bagging & $0{,}0043$ & 5/6 & $3$ & $0{,}1562$ & 26--16 \\
+SVM & Ens.\ tómbola menos Ens.\ bagging & $0{,}0030$ & 5/6 & $3$ & $0{,}1562$ & 24--17 \\
+SVM & Ens.\ diversidad menos Ens.\ semillas & $0{,}0017$ & 3/6 & $10$ & $1{,}0000$ & 19--22 \\
+SVM & Ens.\ tómbola menos Ens.\ semillas & $0{,}0004$ & 3/6 & $10$ & $1{,}0000$ & 19--22 \\
+ResMLP & Ens.\ diversidad menos Completa-22 & $0{,}0106$ & 5/6 & $1$ & $0{,}0625$ & 40--6 \\
+ResMLP & Ens.\ tómbola menos Completa-22 & $0{,}0106$ & 5/5 & $0$ & $0{,}0625$ & 38--7 \\
+ResMLP & Top-4 menos Completa-22 & $0{,}0043$ & 3/6 & $7$ & $0{,}5625$ & 29--18 \\
+ResMLP & Ens.\ diversidad menos Top-4 & $0{,}0063$ & 4/6 & $5$ & $0{,}3125$ & 25--17 \\
+ResMLP & Ens.\ tómbola menos Top-4 & $0{,}0063$ & 4/6 & $5$ & $0{,}3125$ & 25--18 \\
+ResMLP & Ens.\ diversidad menos Ens.\ bagging & $0{,}0067$ & 5/6 & $3$ & $0{,}1562$ & 29--12 \\
+ResMLP & Ens.\ tómbola menos Ens.\ bagging & $0{,}0066$ & 4/6 & $5$ & $0{,}3125$ & 30--12 \\
+ResMLP & Ens.\ diversidad menos Ens.\ semillas & $0{,}0038$ & 5/6 & $3$ & $0{,}1562$ & 24--19 \\
+ResMLP & Ens.\ tómbola menos Ens.\ semillas & $0{,}0037$ & 4/6 & $5$ & $0{,}3125$ & 25--18 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\subsection{No inferioridad frente a Completa-22}
+
+\noindent Margen $\delta=0{,}01$ de macro-F1, fijado antes de calcular las pruebas.
+
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{No inferioridad frente a Completa-22 sobre las medias de seis datasets. Cota: límite inferior unilateral al 95\,\% de la diferencia media ($t$ de Student). Margen mínimo: la mayor pérdida que la cota permite descartar. $p$: hipótesis nula de pérdida mayor o igual a $0{,}01$.}
+\label{tab:sel-noninferiority}
+\begin{tabular}{@{}llrrrrr@{}}
+\toprule
+Clasif. & Método & $\Delta$ medio & Cota 95\,\% & Margen mín. & $p$ ($t$) & $p$ (Wilcoxon) \\
+\midrule
+SVM & Top-4 & $-0{,}0026$ & $-0{,}0178$ & $0{,}0178$ & $0{,}1850$ & $0{,}1562$ \\
+SVM & Ens.\ diversidad & $-0{,}0009$ & $-0{,}0106$ & $0{,}0106$ & $0{,}0589$ & $0{,}0781$ \\
+SVM & Ens.\ tómbola & $-0{,}0022$ & $-0{,}0137$ & $0{,}0137$ & $0{,}1143$ & $0{,}1094$ \\
+ResMLP & Top-4 & $0{,}0043$ & $-0{,}0044$ & $0{,}0044$ & $0{,}0104$ & $0{,}0156$ \\
+ResMLP & Ens.\ diversidad & $0{,}0106$ & $0{,}0048$ & $0{,}0000$ & $0{,}0004$ & $0{,}0156$ \\
+ResMLP & Ens.\ tómbola & $0{,}0106$ & $0{,}0046$ & $0{,}0000$ & $0{,}0005$ & $0{,}0156$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Variabilidad entre condiciones}
+
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Macro-F1 por dataset: media $\pm$ desvío estándar entre condiciones externas. Outex13 tiene una sola partición.}
+\label{tab:sel-spread}
+\begin{tabular}{@{}llrlll@{}}
+\toprule
+Clasif. & Dataset & Cond. & Top-4 & Completa-22 & Ens.\ diversidad \\
+\midrule
+SVM & CUReT & 2 & $0{,}9986$ $\pm$ $0{,}0005$ & $0{,}9989$ $\pm$ $0{,}0015$ & $0{,}9988$ $\pm$ $0{,}0013$ \\
+SVM & DTD & 10 & $0{,}8689$ $\pm$ $0{,}0083$ & $0{,}8639$ $\pm$ $0{,}0088$ & $0{,}8734$ $\pm$ $0{,}0093$ \\
+SVM & FMD & 15 & $0{,}9823$ $\pm$ $0{,}0112$ & $0{,}9647$ $\pm$ $0{,}0171$ & $0{,}9783$ $\pm$ $0{,}0145$ \\
+SVM & KTH-TIPS2-b & 4 & $0{,}9544$ $\pm$ $0{,}0379$ & $0{,}9601$ $\pm$ $0{,}0088$ & $0{,}9541$ $\pm$ $0{,}0346$ \\
+SVM & Outex & 1 & $0{,}9288$ & $0{,}9656$ & $0{,}9458$ \\
+SVM & Soil & 15 & $0{,}8864$ $\pm$ $0{,}0304$ & $0{,}8816$ $\pm$ $0{,}0318$ & $0{,}8792$ $\pm$ $0{,}0298$ \\
+ResMLP & CUReT & 2 & $0{,}9984$ $\pm$ $0{,}0013$ & $0{,}9991$ $\pm$ $0{,}0013$ & $0{,}9989$ $\pm$ $0{,}0015$ \\
+ResMLP & DTD & 10 & $0{,}8612$ $\pm$ $0{,}0056$ & $0{,}8620$ $\pm$ $0{,}0095$ & $0{,}8754$ $\pm$ $0{,}0061$ \\
+ResMLP & FMD & 15 & $0{,}9800$ $\pm$ $0{,}0107$ & $0{,}9564$ $\pm$ $0{,}0176$ & $0{,}9773$ $\pm$ $0{,}0133$ \\
+ResMLP & KTH-TIPS2-b & 4 & $0{,}9570$ $\pm$ $0{,}0328$ & $0{,}9487$ $\pm$ $0{,}0275$ & $0{,}9558$ $\pm$ $0{,}0299$ \\
+ResMLP & Outex & 1 & $0{,}9357$ & $0{,}9416$ & $0{,}9551$ \\
+ResMLP & Soil & 15 & $0{,}8662$ $\pm$ $0{,}0374$ & $0{,}8649$ $\pm$ $0{,}0350$ & $0{,}8740$ $\pm$ $0{,}0306$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Sensibilidad a la configuración de los ensambles}
+
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Sensibilidad de los ensambles a su configuración: macro-F1 medio sobre las 47 condiciones. $\beta=0$ es el sorteo uniforme, sin ranking.}
+\label{tab:sel-config}
+\begin{tabular}{@{}lllr@{}}
+\toprule
+Clasif. & Ensamble & Configuración & Macro-F1 \\
+\midrule
+SVM & Ens.\ tómbola & $\beta=0$ & $0{,}9311$ \\
+SVM & Ens.\ tómbola & $\beta=2$ & $0{,}9363$ \\
+SVM & Ens.\ tómbola & $\beta=8$ & $0{,}9369$ \\
+SVM & Ens.\ diversidad & $\lambda=0$, $\beta=2$ & $0{,}9367$ \\
+SVM & Ens.\ diversidad & $\lambda=0$, $\beta=8$ & $0{,}9365$ \\
+SVM & Ens.\ diversidad & $\lambda=0{,}25$, $\beta=2$ & $0{,}9366$ \\
+SVM & Ens.\ diversidad & $\lambda=0{,}25$, $\beta=8$ & $0{,}9383$ \\
+SVM & Ens.\ diversidad & $\lambda=0{,}5$, $\beta=2$ & $0{,}9371$ \\
+SVM & Ens.\ diversidad & $\lambda=0{,}5$, $\beta=8$ & $0{,}9373$ \\
+SVM & Ens.\ diversidad & $\lambda=1$, $\beta=2$ & $0{,}9358$ \\
+SVM & Ens.\ diversidad & $\lambda=1$, $\beta=8$ & $0{,}9372$ \\
+ResMLP & Ens.\ tómbola & $\beta=0$ & $0{,}9298$ \\
+ResMLP & Ens.\ tómbola & $\beta=2$ & $0{,}9382$ \\
+ResMLP & Ens.\ tómbola & $\beta=8$ & $0{,}9394$ \\
+ResMLP & Ens.\ diversidad & $\lambda=0$, $\beta=2$ & $0{,}9370$ \\
+ResMLP & Ens.\ diversidad & $\lambda=0$, $\beta=8$ & $0{,}9389$ \\
+ResMLP & Ens.\ diversidad & $\lambda=0{,}25$, $\beta=2$ & $0{,}9372$ \\
+ResMLP & Ens.\ diversidad & $\lambda=0{,}25$, $\beta=8$ & $0{,}9394$ \\
+ResMLP & Ens.\ diversidad & $\lambda=0{,}5$, $\beta=2$ & $0{,}9360$ \\
+ResMLP & Ens.\ diversidad & $\lambda=0{,}5$, $\beta=8$ & $0{,}9383$ \\
+ResMLP & Ens.\ diversidad & $\lambda=1$, $\beta=2$ & $0{,}9373$ \\
+ResMLP & Ens.\ diversidad & $\lambda=1$, $\beta=8$ & $0{,}9383$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+%=== SECCION 10 ===
+\clearpage
+\section{Tamaño del ensamble, capacidad de ResMLP y costo}
+
+\subsection{Cantidad de modelos en el ensamble}
+
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Macro-F1 medio de los ensambles según la cantidad de modelos: prefijos de una misma secuencia de 50 sorteos, cuyos primeros 15 son los de los ensambles reportados. Con 15 sorteos hay en promedio entre 10,6 y 11,8 subconjuntos distintos.}
+\label{tab:sel-size}
+\begin{tabular}{@{}llrrrrrrr@{}}
+\toprule
+Clasif. & Ensamble & 1 & 3 & 5 & 10 & 15 & 25 & 50 \\
+\midrule
+SVM & Ens.\ tómbola & $0{,}9355$ & $0{,}9353$ & $0{,}9372$ & $0{,}9373$ & $0{,}9369$ & $0{,}9372$ & $0{,}9380$ \\
+SVM & Ens.\ diversidad & $0{,}9354$ & $0{,}9372$ & $0{,}9382$ & $0{,}9375$ & $0{,}9383$ & $0{,}9383$ & $0{,}9371$ \\
+ResMLP & Ens.\ tómbola & $0{,}9319$ & $0{,}9363$ & $0{,}9374$ & $0{,}9391$ & $0{,}9394$ & $0{,}9391$ & $0{,}9396$ \\
+ResMLP & Ens.\ diversidad & $0{,}9309$ & $0{,}9391$ & $0{,}9394$ & $0{,}9384$ & $0{,}9394$ & $0{,}9388$ & $0{,}9397$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{ResMLP con los 21 bloques}
+
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{ResMLP con los 21 bloques: macro-F1 externo al reducir la entrada con PCA, ajustado en el entrenamiento, a tantos componentes como dimensiones tiene el Top-4 (o imágenes de entrenamiento menos una, si son menos), y al aumentar la regularización (\emph{dropout} 0,3 y decaimiento de pesos 0,01).}
+\label{tab:sel-capacity}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Dataset & 21 bloques & 21 + PCA & 21 + regularización & Top-4 \\
+\midrule
+CUReT & $0{,}9989$ & $0{,}9991$ & $0{,}9989$ & $0{,}9984$ \\
+DTD & $0{,}8640$ & $0{,}8622$ & $0{,}8609$ & $0{,}8612$ \\
+FMD & $0{,}9591$ & $0{,}9603$ & $0{,}9614$ & $0{,}9800$ \\
+KTH-TIPS2-b & $0{,}9481$ & $0{,}9437$ & $0{,}9392$ & $0{,}9570$ \\
+Outex & $0{,}9476$ & $0{,}9566$ & $0{,}9523$ & $0{,}9357$ \\
+Soil & $0{,}8616$ & $0{,}8628$ & $0{,}8516$ & $0{,}8662$ \\
+\midrule
+Media & $0{,}9299$ & $0{,}9308$ & $0{,}9274$ & $0{,}9331$ \\
+Gana a 21 bloques & --- & 24/47 & 13/47 & 26/47 \\
+Parámetros (miles) & 5.628 & 905 & 5.628 & 1.218 \\
+Exactitud en entrenamiento & $1{,}000$ & $1{,}000$ & $1{,}000$ & $1{,}000$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Costo de cómputo}
+
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Costo en segundos, sumado sobre una condición por dataset y ejecutado en serie. Selección: ranking interno de los 21 bloques (y CKA para diversidad). Ajuste: un modelo por subconjunto distinto. Predicción: imágenes de test. Dims: media por modelo. 21 bloques: la concatenación completa sin el bloque de color. SVM en CPU; ResMLP en GPU.}
+\label{tab:sel-cost}
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+ & & \multicolumn{4}{c}{SVM} & \multicolumn{4}{c@{}}{ResMLP} \\
+\cmidrule(lr){3-6}\cmidrule(l){7-10}
+Método & Dims & Selección & Ajuste & Total & Predicción & Selección & Ajuste & Total & Predicción \\
+\midrule
+Top-4 & 3.125 & 609 & 32 & 641 & $0{,}08$ & 686 & 9 & 694 & $0{,}02$ \\
+21 bloques & 20.396 & 0 & 157 & 157 & $0{,}54$ & 0 & 12 & 12 & $0{,}07$ \\
+Ens.\ tómbola & 3.358 & 609 & 342 & 951 & $0{,}94$ & 686 & 101 & 787 & $0{,}20$ \\
+Ens.\ diversidad & 3.439 & 920 & 386 & 1.306 & $1{,}07$ & 997 & 122 & 1.119 & $0{,}22$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{document}

@@ -4,9 +4,85 @@ Guía de lectura del trabajo exploratorio sobre **cuántos descriptores hacen
 falta y cómo elegirlos**. Nada de lo que está acá modifica los resultados
 confirmatorios ni las tablas del manuscrito.
 
-Rama: `feat/selection-search-experiments`.
+Ramas: `feat/selection-search-experiments` (etapa anterior) y
+`feat/k4-professor-ideas` (grilla completa).
 
-## El resultado
+## Grilla completa: dos clasificadores y pruebas estadísticas
+
+La etapa anterior (más abajo) usó SVM y la semilla 42. Esta repite todo sobre la
+grilla del manuscrito: seis datasets y 47 condiciones externas por clasificador
+(FMD y Soil con las semillas 42, 123 y 2026), con SVM lineal y ResMLP. Subconjunto
+de k=4 bloques; los ensambles combinan 15 sorteos con $\beta=8$ (tómbola) y
+$\lambda=0{,}25$, $\beta=8$ (diversidad), configuraciones elegidas con SVM y
+aplicadas sin cambios a ResMLP. Macro-F1, media por dataset y luego entre datasets:
+
+| Método | SVM | ResMLP |
+|---|---:|---:|
+| Completa-22 (manuscrito) | **0,9391** | 0,9288 |
+| Ensamble con diversidad | 0,9383 | **0,9394** |
+| Ensamble tómbola | 0,9369 | **0,9394** |
+| Top-4 | 0,9366 | 0,9331 |
+| 21 bloques (sin color) | 0,9356 | 0,9299 |
+
+**Con ResMLP, seleccionar le gana a concatenar todo**; con SVM la Completa-22 sigue
+arriba por menos de una milésima frente al ensamble con diversidad.
+
+**Pruebas, con el procedimiento del manuscrito** (SCI2S sobre una media por
+dataset, Holm sobre los 28 pares de ocho métodos, Wilcoxon exacto bilateral):
+
+- Friedman, Iman–Davenport y Quade rechazan con ambos clasificadores; Friedman
+  alineado no. Tras Holm, solo los dos ensambles superan a Individual con ResMLP;
+  ningún par es significativo con SVM.
+- Top-4 frente a Completa-22: Wilcoxon $p=1{,}00$ (SVM) y $p=0{,}56$ (ResMLP).
+  Los ensambles frente a Completa-22 con ResMLP: $p=0{,}0625$, cinco de seis
+  datasets; con seis datasets el mínimo posible es 0,031.
+- No inferioridad con margen de 0,01: se demuestra para Top-4 con ResMLP
+  ($p=0{,}010$); no con SVM, donde Outex solo permite descartar una pérdida de
+  0,018.
+
+**Controles y robustez:**
+
+- *¿Sortear o solo votar?* Quince modelos sobre el mismo Top-4 cambiando la
+  semilla dan 0,9366 (SVM, idéntico a Top-4) y 0,9356 (ResMLP); con bagging,
+  0,9340 y 0,9327. Con ResMLP, unas tres quintas partes de la mejora del ensamble
+  vienen de sortear subconjuntos distintos. No es significativo.
+- *Configuración:* con ResMLP las diez configuraciones que usan el ranking
+  superan a la Completa-22 (0,936 a 0,939); el sorteo uniforme sin ranking
+  ($\beta=0$) queda a la par (0,930).
+- *Cantidad de modelos:* con ResMLP la mejora llega con tres a cinco; quince ya
+  está en la meseta.
+- *ResMLP con 21 bloques:* reducirlos con PCA al tamaño del Top-4 (0,9308) o
+  regularizar más (0,9274) no recupera el desempeño del Top-4 (0,9331). No es el
+  tamaño de la entrada sino qué bloques entran.
+- *Costo:* el ranking interno hace que entrenar Top-4 lleve más tiempo que entrenar
+  la concatenación completa (641 s contra 157 s con SVM, seis condiciones). El
+  modelo final tiene un sexto de las dimensiones y, con SVM, predice unas siete
+  veces más rápido.
+
+Dónde está cada cosa:
+
+| Qué | Resultados | Script |
+|---|---|---|
+| Curva de k | `k_sweep/`, `resmlp/k_sweep/` | `run_k_sweep.py` |
+| Tómbola y diversidad | `k4/`, `resmlp/k4/` | `run_weighted_lottery_selection.py`, `run_diversity_lottery.py` |
+| Control de ensambles | `ensemble_control/` | `run_ensemble_control.py` |
+| Cantidad de modelos | `ensemble_size/` | `run_ensemble_size.py` |
+| ResMLP con 21 bloques | `resmlp_capacity/` | `run_resmlp_capacity.py` |
+| Costo | `selection_cost/` | `measure_selection_cost.py` |
+| Tablas del reporte | `../analysis/selection_tables/` | `build_selection_tables.py` |
+| Pruebas estadísticas | `../analysis/selection_stats/` | `run_selection_stats.py` |
+
+`scripts/run_selection_grid.sh` corre el control, la cantidad de modelos, la
+capacidad y el costo sobre las 47 condiciones. `run_selection_stats.py` necesita
+Java para SCI2S; con `--tables-only` regenera las tablas LaTeX sin volver a
+correr las pruebas. El ranking interno de cada condición se calcula una vez y se
+guarda en `ranking_cache/` (`src/singleton_ranking.py`).
+
+`src/resmlp_classifier.py` cambió solo en velocidad: la pérdida de cada época se
+acumula en el dispositivo. Pesos y predicciones son idénticos bit a bit en CPU y
+GPU.
+
+## Etapa anterior: SVM, semilla 42
 
 **Cuatro descriptores —un quinto del tamaño de la representación completa—
 superan al estado del arte y quedan a 0,004 de la concatenación completa.** La
@@ -111,7 +187,8 @@ Scripts, en `src/`:
 
 ## Alcance
 
-Seis datasets, 27 condiciones externas, SVM lineal, semilla 42. Las particiones
+Etapa anterior: seis datasets, 27 condiciones externas, SVM lineal, semilla 42.
+La grilla completa de arriba sí aplica las pruebas del manuscrito. Las particiones
 de CUReT son complementarias y dependientes, Outex tiene un único split, y las
 de DTD y FMD reutilizan imágenes: **no se aplica ningún contraste inferencial** y
 todas las comparaciones son descriptivas. Las familias se diseñaron después de
