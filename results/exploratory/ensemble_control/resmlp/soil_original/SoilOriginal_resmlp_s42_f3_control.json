@@ -1,0 +1,32 @@
+{
+  "dataset": "SoilOriginal",
+  "classifier": "resmlp",
+  "seed": 42,
+  "outer_fold": 3,
+  "k": 4,
+  "members": 15,
+  "subset": [
+    "convnext_v2_t",
+    "mae_base",
+    "efficientnet_b0",
+    "eva02_base"
+  ],
+  "inner_group_column": "group",
+  "top4_single": {
+    "macro_f1": 0.8886690814947843,
+    "accuracy": 0.9210526315789473
+  },
+  "variants": {
+    "seed_ensemble": {
+      "macro_f1": 0.8813386069017829,
+      "accuracy": 0.9210526315789473,
+      "mean_agreement_with_single": 0.9774853801169588
+    },
+    "bagging_ensemble": {
+      "macro_f1": 0.9038142084113326,
+      "accuracy": 0.9385964912280702,
+      "mean_agreement_with_single": 0.9526315789473685
+    }
+  },
+  "duration_seconds": 335.4204151839999
+}
