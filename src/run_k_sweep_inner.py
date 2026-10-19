@@ -31,6 +31,7 @@ from run_confirmatory_nested import (  # noqa: E402
     audit_gate, inner_score, load_dataset, load_manifest, manifest_groups,
 )
 from run_topk_individual_control import outer_indices  # noqa: E402
+from singleton_ranking import condition_key, ranked_singletons  # noqa: E402
 
 REPO = SRC.parent
 
@@ -79,10 +80,8 @@ def main() -> None:
 
     names = sorted(cache)
     jobs = args.n_jobs if args.classifier == "svm" else 1
-    scores = Parallel(n_jobs=jobs, prefer="threads")(
-        delayed(inner_score)(cache, [n], train, y, inner_groups,
-                             args.classifier, args.seed) for n in names)
-    singles = dict(zip(names, scores))
+    singles = ranked_singletons(cache, train, y, inner_groups, args.classifier,
+                                args.seed, condition_key(args), n_jobs=jobs)
     order = [n for n, _ in sorted(singles.items(), key=lambda kv: (-kv[1], kv[0]))]
 
     # Sequential for the same reason as the external sweep: the large prefixes

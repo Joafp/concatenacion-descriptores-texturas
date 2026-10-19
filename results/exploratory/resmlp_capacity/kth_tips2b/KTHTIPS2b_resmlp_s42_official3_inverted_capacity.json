@@ -1,0 +1,70 @@
+{
+  "dataset": "KTHTIPS2b",
+  "classifier": "resmlp",
+  "seed": 42,
+  "outer_fold": 2,
+  "k": 4,
+  "subset": [
+    "dinov2",
+    "dinov2_large",
+    "siglip_base",
+    "beitv2_base_final"
+  ],
+  "pca_components": 3328,
+  "pca_explained_variance": 0.9995734095573425,
+  "regularized": {
+    "dropout": 0.3,
+    "weight_decay": 0.01
+  },
+  "variants": {
+    "top4": {
+      "test": {
+        "macro_f1": 0.9758447867746145,
+        "accuracy": 0.9755892255892256
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 3328,
+      "parameters": 1252363
+    },
+    "all21": {
+      "test": {
+        "macro_f1": 0.9503693811680488,
+        "accuracy": 0.9511784511784511
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 20396,
+      "parameters": 5621771
+    },
+    "all21_pca": {
+      "test": {
+        "macro_f1": 0.9582415859461494,
+        "accuracy": 0.9579124579124579
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 3328,
+      "parameters": 1252363
+    },
+    "all21_regularized": {
+      "test": {
+        "macro_f1": 0.9539421676721449,
+        "accuracy": 0.9545454545454546
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 20396,
+      "parameters": 5621771
+    }
+  },
+  "duration_seconds": 100.49047950400018
+}

@@ -1,0 +1,70 @@
+{
+  "dataset": "DTD",
+  "classifier": "resmlp",
+  "seed": 42,
+  "outer_fold": 4,
+  "k": 4,
+  "subset": [
+    "siglip_base",
+    "dinov2_large",
+    "dinov2",
+    "eva02_base"
+  ],
+  "pca_components": 3328,
+  "pca_explained_variance": 0.9941866397857666,
+  "regularized": {
+    "dropout": 0.3,
+    "weight_decay": 0.01
+  },
+  "variants": {
+    "top4": {
+      "test": {
+        "macro_f1": 0.8681116732949914,
+        "accuracy": 0.8691489361702127
+      },
+      "train": {
+        "macro_f1": 0.9997340321638228,
+        "accuracy": 0.9997336174746937
+      },
+      "dimensions": 3328,
+      "parameters": 1261615
+    },
+    "all21": {
+      "test": {
+        "macro_f1": 0.8701650995012716,
+        "accuracy": 0.8718085106382979
+      },
+      "train": {
+        "macro_f1": 0.9997340321638228,
+        "accuracy": 0.9997336174746937
+      },
+      "dimensions": 20396,
+      "parameters": 5631023
+    },
+    "all21_pca": {
+      "test": {
+        "macro_f1": 0.866575579708773,
+        "accuracy": 0.8686170212765958
+      },
+      "train": {
+        "macro_f1": 0.9997340321638228,
+        "accuracy": 0.9997336174746937
+      },
+      "dimensions": 3328,
+      "parameters": 1261615
+    },
+    "all21_regularized": {
+      "test": {
+        "macro_f1": 0.865851271513664,
+        "accuracy": 0.8686170212765958
+      },
+      "train": {
+        "macro_f1": 0.9997340321638228,
+        "accuracy": 0.9997336174746937
+      },
+      "dimensions": 20396,
+      "parameters": 5631023
+    }
+  },
+  "duration_seconds": 70.43581812600132
+}

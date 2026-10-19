@@ -49,6 +49,7 @@ from run_confirmatory_nested import (  # noqa: E402
     make_model, manifest_groups,
 )
 from run_topk_individual_control import archived_k, outer_indices  # noqa: E402
+from singleton_ranking import condition_key, ranked_singletons  # noqa: E402
 
 REPO = SRC.parent
 BETAS = (0.0, 0.5, 1.0, 2.0, 4.0, 8.0)
@@ -69,8 +70,15 @@ def metrics(y_true, y_pred, labels) -> dict:
 
 
 def decision_scores(model, x: np.ndarray) -> np.ndarray:
-    """Standardised decision values so members contribute on a common scale."""
-    scores = np.asarray(model.decision_function(x))
+    """Standardised decision values so members contribute on a common scale.
+
+    The SVM exposes margins; ResMLP exposes only class probabilities, whose
+    logarithm plays the same role in the soft ensemble.
+    """
+    if hasattr(model, "decision_function"):
+        scores = np.asarray(model.decision_function(x))
+    else:
+        scores = np.log(np.clip(np.asarray(model.predict_proba(x)), 1e-12, None))
     if scores.ndim == 1:
         scores = np.column_stack([-scores, scores])
     sd = scores.std()
@@ -146,10 +154,8 @@ def main() -> None:
     # Rank the singletons exactly as the Top-k control does.
     names = sorted(cache)
     jobs = args.n_jobs if args.classifier == "svm" else 1
-    single_scores = Parallel(n_jobs=jobs, prefer="threads")(
-        delayed(inner_score)(cache, [n], train, y, inner_groups,
-                             args.classifier, args.seed) for n in names)
-    singles = dict(zip(names, single_scores))
+    singles = ranked_singletons(cache, train, y, inner_groups, args.classifier,
+                                args.seed, condition_key(args), n_jobs=jobs)
     order = [n for n, _ in sorted(singles.items(), key=lambda kv: (-kv[1], kv[0]))]
     topk_subset = order[:k]
     topk_f1, topk_acc, _ = fit_score_foldaware(

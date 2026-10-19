@@ -107,7 +107,10 @@ class ResMLPClassifier(BaseEstimator, ClassifierMixin):
         self.net_.train()
         for epoch in range(self.max_epochs):
             perm = torch.randperm(n, device=self.device)
-            total = 0.0
+            # Accumulated on device in float64, read once per epoch: the same
+            # sum as adding loss.item() in Python, without stalling the GPU
+            # on every batch.
+            total = torch.zeros((), dtype=torch.float64, device=self.device)
             for i in range(0, n, self.batch_size):
                 idx = perm[i : i + self.batch_size]
                 logits = self.net_(X_t[idx])
@@ -115,9 +118,9 @@ class ResMLPClassifier(BaseEstimator, ClassifierMixin):
                 opt.zero_grad()
                 loss.backward()
                 opt.step()
-                total += loss.item() * idx.shape[0]
+                total += loss.detach().double() * idx.shape[0]
 
-            avg = total / n
+            avg = total.item() / n
             if avg < best_loss - 1e-4:
                 best_loss = avg
                 best_state = {k: v.detach().clone() for k, v in self.net_.state_dict().items()}

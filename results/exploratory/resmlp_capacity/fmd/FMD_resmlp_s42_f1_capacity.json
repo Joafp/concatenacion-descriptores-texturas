@@ -1,0 +1,70 @@
+{
+  "dataset": "FMD",
+  "classifier": "resmlp",
+  "seed": 42,
+  "outer_fold": 1,
+  "k": 4,
+  "subset": [
+    "siglip_base",
+    "eva02_base",
+    "dinov2",
+    "dinov2_large"
+  ],
+  "pca_components": 799,
+  "pca_explained_variance": 0.9999998807907104,
+  "regularized": {
+    "dropout": 0.3,
+    "weight_decay": 0.01
+  },
+  "variants": {
+    "top4": {
+      "test": {
+        "macro_f1": 0.9899968730456535,
+        "accuracy": 0.99
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 3328,
+      "parameters": 1252106
+    },
+    "all21": {
+      "test": {
+        "macro_f1": 0.9750906346541777,
+        "accuracy": 0.975
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 20396,
+      "parameters": 5621514
+    },
+    "all21_pca": {
+      "test": {
+        "macro_f1": 0.9701125703564728,
+        "accuracy": 0.97
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 799,
+      "parameters": 604682
+    },
+    "all21_regularized": {
+      "test": {
+        "macro_f1": 0.9750906346541777,
+        "accuracy": 0.975
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 20396,
+      "parameters": 5621514
+    }
+  },
+  "duration_seconds": 96.92997784699946
+}

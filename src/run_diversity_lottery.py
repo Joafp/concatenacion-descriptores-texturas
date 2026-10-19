@@ -43,6 +43,7 @@ from run_confirmatory_nested import (  # noqa: E402
     make_model, manifest_groups,
 )
 from run_topk_individual_control import archived_k, outer_indices  # noqa: E402
+from singleton_ranking import condition_key, ranked_singletons  # noqa: E402
 from analyze_block_redundancy import linear_cka  # noqa: E402
 
 REPO = SRC.parent
@@ -55,7 +56,12 @@ def metrics(y_true, y_pred, labels) -> dict:
 
 
 def decision_scores(model, x) -> np.ndarray:
-    scores = np.asarray(model.decision_function(x))
+    # The SVM exposes margins; ResMLP only class probabilities, whose logarithm
+    # plays the same role in the soft ensemble.
+    if hasattr(model, "decision_function"):
+        scores = np.asarray(model.decision_function(x))
+    else:
+        scores = np.log(np.clip(np.asarray(model.predict_proba(x)), 1e-12, None))
     if scores.ndim == 1:
         scores = np.column_stack([-scores, scores])
     sd = scores.std()
@@ -111,6 +117,9 @@ def main() -> None:
     parser.add_argument("--draws", type=int, default=15)
     parser.add_argument("--lambdas", type=float, nargs="+", default=[0.0, 0.5, 1.0])
     parser.add_argument("--betas", type=float, nargs="+", default=[2.0, 8.0])
+    parser.add_argument("--k", type=int,
+                        help="subset size; defaults to the archived GFS k of the "
+                             "condition, which is what the Top-k control uses")
     parser.add_argument("--n-jobs", type=int, default=10)
     parser.add_argument("--audit-root", type=Path, required=True)
     parser.add_argument("--manifest-root", type=Path, required=True)
@@ -141,16 +150,16 @@ def main() -> None:
     fold = (args.official_split - 1 if args.official_split is not None
             else {"a_to_b": 0, "b_to_a": 1}[args.curet_direction]
             if args.curet_direction is not None else args.fold)
-    k = archived_k((args.results_root or args.audit_root).resolve(), args.dataset,
-                   args.classifier, args.seed, fold, include_rgb_ngram=True,
-                   ngram_result_subdir=args.ngram_result_subdir)
+    k = args.k
+    if k is None:
+        k = archived_k((args.results_root or args.audit_root).resolve(), args.dataset,
+                       args.classifier, args.seed, fold, include_rgb_ngram=True,
+                       ngram_result_subdir=args.ngram_result_subdir)
 
     names = sorted(cache)
     jobs = args.n_jobs if args.classifier == "svm" else 1
-    scores = Parallel(n_jobs=jobs, prefer="threads")(
-        delayed(inner_score)(cache, [n], train, y, inner_groups,
-                             args.classifier, args.seed) for n in names)
-    singles = dict(zip(names, scores))
+    singles = ranked_singletons(cache, train, y, inner_groups, args.classifier,
+                                args.seed, condition_key(args), n_jobs=jobs)
     # Relevance on [0, 1] so lambda trades against CKA on a comparable scale.
     lo, hi = min(singles.values()), max(singles.values())
     span = (hi - lo) or 1.0
