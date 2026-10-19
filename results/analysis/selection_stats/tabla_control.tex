@@ -1,0 +1,71 @@
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Rankings medios de macro-F1 según Friedman, Friedman alineado y Quade: cinco variantes del control. Seis datasets por clasificador; menor ranking indica mejor desempeño relativo dentro de cada prueba.}
+\label{tab:sel-control-rankings}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Clasif. & Método & Friedman & F. alineado & Quade \\
+\midrule
+SVM & Ens.\ diversidad & $2{,}500$ & $13{,}000$ & $2{,}286$ \\
+SVM & Ens.\ tómbola & $2{,}833$ & $13{,}333$ & $2{,}905$ \\
+SVM & Ens.\ bagging & $4{,}500$ & $22{,}333$ & $4{,}667$ \\
+SVM & Ens.\ semillas & $2{,}583$ & $14{,}417$ & $2{,}571$ \\
+SVM & Top-4 & $2{,}583$ & $14{,}417$ & $2{,}571$ \\
+ResMLP & Ens.\ diversidad & $2{,}000$ & $9{,}667$ & $1{,}857$ \\
+ResMLP & Ens.\ tómbola & $2{,}667$ & $11{,}333$ & $2{,}381$ \\
+ResMLP & Ens.\ bagging & $4{,}000$ & $20{,}833$ & $4{,}143$ \\
+ResMLP & Ens.\ semillas & $3{,}000$ & $16{,}833$ & $3{,}000$ \\
+ResMLP & Top-4 & $3{,}333$ & $18{,}833$ & $3{,}619$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Pruebas globales por clasificador: cinco variantes del control y seis datasets. Nivel nominal $\alpha=0{,}05$.}
+\label{tab:sel-control-global}
+\begin{tabular}{@{}llrl@{}}
+\toprule
+Clasif. & Prueba & $p$ & Decisión \\
+\midrule
+SVM & Friedman & $0{,}1413$ & No rechazo \\
+SVM & Iman--Davenport & $0{,}1307$ & No rechazo \\
+SVM & Friedman alineado & $0{,}2806$ & No rechazo \\
+SVM & Quade & $0{,}1185$ & No rechazo \\
+ResMLP & Friedman & $0{,}2548$ & No rechazo \\
+ResMLP & Iman--Davenport & $0{,}2610$ & No rechazo \\
+ResMLP & Friedman alineado & $0{,}2787$ & No rechazo \\
+ResMLP & Quade & $0{,}1540$ & No rechazo \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Comparaciones por pares basadas en rangos de Friedman: cinco variantes del control. Holm corrige los 10 pares dentro de cada clasificador.}
+\label{tab:sel-control-holm}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+Clasif. & Comparación & $p$ sin ajustar & $p$ Holm \\
+\midrule
+SVM & Ens.\ diversidad vs.\ Ens.\ bagging & $0{,}0285$ & $0{,}2846$ \\
+SVM & Ens.\ bagging vs.\ Ens.\ semillas & $0{,}0358$ & $0{,}3219$ \\
+SVM & Ens.\ bagging vs.\ Top-4 & $0{,}0358$ & $0{,}3219$ \\
+SVM & Ens.\ tómbola vs.\ Ens.\ bagging & $0{,}0679$ & $0{,}4752$ \\
+SVM & Ens.\ diversidad vs.\ Ens.\ tómbola & $0{,}7150$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ Ens.\ semillas & $0{,}7842$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ Top-4 & $0{,}7842$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Ens.\ semillas & $0{,}9273$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Top-4 & $0{,}9273$ & $1{,}0000$ \\
+SVM & Ens.\ semillas vs.\ Top-4 & $1{,}0000$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Ens.\ bagging & $0{,}0285$ & $0{,}2846$ \\
+ResMLP & Ens.\ diversidad vs.\ Top-4 & $0{,}1441$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ Ens.\ bagging & $0{,}1441$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Ens.\ semillas & $0{,}2733$ & $1{,}0000$ \\
+ResMLP & Ens.\ bagging vs.\ Ens.\ semillas & $0{,}2733$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Ens.\ tómbola & $0{,}4652$ & $1{,}0000$ \\
+ResMLP & Ens.\ bagging vs.\ Top-4 & $0{,}4652$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ Top-4 & $0{,}4652$ & $1{,}0000$ \\
+ResMLP & Ens.\ semillas vs.\ Top-4 & $0{,}7150$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ Ens.\ semillas & $0{,}7150$ & $1{,}0000$ \\
+\bottomrule
+\end{tabular}
+\end{table}

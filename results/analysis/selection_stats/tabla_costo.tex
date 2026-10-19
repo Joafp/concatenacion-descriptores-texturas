@@ -1,0 +1,17 @@
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Costo en segundos, sumado sobre una condición por dataset y ejecutado en serie. Selección: ranking interno de los 21 bloques (y CKA para diversidad). Ajuste: un modelo por subconjunto distinto. Predicción: imágenes de test. Dims: media por modelo. 21 bloques: la concatenación completa sin el bloque de color. SVM en CPU; ResMLP en GPU.}
+\label{tab:sel-cost}
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+ & & \multicolumn{4}{c}{SVM} & \multicolumn{4}{c@{}}{ResMLP} \\
+\cmidrule(lr){3-6}\cmidrule(l){7-10}
+Método & Dims & Selección & Ajuste & Total & Predicción & Selección & Ajuste & Total & Predicción \\
+\midrule
+Top-4 & 3.125 & 609 & 32 & 641 & $0{,}08$ & 686 & 9 & 694 & $0{,}02$ \\
+21 bloques & 20.396 & 0 & 157 & 157 & $0{,}54$ & 0 & 12 & 12 & $0{,}07$ \\
+Ens.\ tómbola & 3.358 & 609 & 342 & 951 & $0{,}94$ & 686 & 101 & 787 & $0{,}20$ \\
+Ens.\ diversidad & 3.439 & 920 & 386 & 1.306 & $1{,}07$ & 997 & 122 & 1.119 & $0{,}22$ \\
+\bottomrule
+\end{tabular}
+\end{table}

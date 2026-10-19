@@ -1,0 +1,744 @@
+{
+  "dataset": "SoilOriginal",
+  "classifier": "svm",
+  "seed": 42,
+  "outer_fold": 3,
+  "k": 4,
+  "draws": 15,
+  "n_candidates": 21,
+  "inner_group_column": "group",
+  "ranking": [
+    {
+      "block": "eva02_base",
+      "inner_f1": 0.8412642156445256
+    },
+    {
+      "block": "siglip_base",
+      "inner_f1": 0.8339786572130208
+    },
+    {
+      "block": "convnext_v2_t",
+      "inner_f1": 0.8278674556350675
+    },
+    {
+      "block": "swin_t",
+      "inner_f1": 0.8197795095682276
+    },
+    {
+      "block": "beitv2_base_final",
+      "inner_f1": 0.8166152497628156
+    },
+    {
+      "block": "densenet121",
+      "inner_f1": 0.812307649281619
+    },
+    {
+      "block": "efficientnet_b0",
+      "inner_f1": 0.8089853078428202
+    },
+    {
+      "block": "vit_b16",
+      "inner_f1": 0.8085114428385234
+    },
+    {
+      "block": "resnet101",
+      "inner_f1": 0.8030159691319816
+    },
+    {
+      "block": "resnet50",
+      "inner_f1": 0.7849743480953331
+    },
+    {
+      "block": "mae_base",
+      "inner_f1": 0.7775767783239723
+    },
+    {
+      "block": "dinov2_large",
+      "inner_f1": 0.7652811460436888
+    },
+    {
+      "block": "dinov2_small",
+      "inner_f1": 0.7637020880129857
+    },
+    {
+      "block": "deit_s",
+      "inner_f1": 0.7618851559277443
+    },
+    {
+      "block": "vgg16",
+      "inner_f1": 0.7442180362389247
+    },
+    {
+      "block": "dinov2",
+      "inner_f1": 0.7416103193430055
+    },
+    {
+      "block": "lbp",
+      "inner_f1": 0.3419335461551448
+    },
+    {
+      "block": "gabor",
+      "inner_f1": 0.32179795869510797
+    },
+    {
+      "block": "hog",
+      "inner_f1": 0.28675982204933675
+    },
+    {
+      "block": "drlbp",
+      "inner_f1": 0.265438078059937
+    },
+    {
+      "block": "glcm",
+      "inner_f1": 0.134437059115129
+    }
+  ],
+  "topk": {
+    "subset": [
+      "eva02_base",
+      "siglip_base",
+      "convnext_v2_t",
+      "swin_t"
+    ],
+    "macro_f1": 0.9055005986268053,
+    "accuracy": 0.9385964912280702,
+    "dimensions": 3072
+  },
+  "betas": [
+    {
+      "beta": 0.0,
+      "unique_subsets": 15,
+      "single": {
+        "mean_macro_f1": 0.8826127862878372,
+        "sd": 0.020291218344024548,
+        "min": 0.847181153470709,
+        "max": 0.9148869007752459
+      },
+      "best_inner": {
+        "subset": [
+          "deit_s",
+          "dinov2_large",
+          "glcm",
+          "resnet50"
+        ],
+        "inner_f1": NaN,
+        "macro_f1": 0.8863306744497518
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.9043332285225169,
+        "accuracy": 0.9473684210526315
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8977357336191749,
+        "accuracy": 0.9429824561403509
+      },
+      "mean_dimensions": 3965.6,
+      "draws": [
+        {
+          "subset": [
+            "deit_s",
+            "dinov2_large",
+            "glcm",
+            "resnet50"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8863306744497518,
+          "accuracy": 0.9342105263157895,
+          "dimensions": 3474
+        },
+        {
+          "subset": [
+            "hog",
+            "resnet101",
+            "swin_t",
+            "vit_b16"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.870296568128253,
+          "accuracy": 0.9166666666666666,
+          "dimensions": 5348
+        },
+        {
+          "subset": [
+            "deit_s",
+            "dinov2_small",
+            "resnet50",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8834111816834582,
+          "accuracy": 0.9342105263157895,
+          "dimensions": 3584
+        },
+        {
+          "subset": [
+            "densenet121",
+            "dinov2_large",
+            "swin_t",
+            "vit_b16"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8901830913296906,
+          "accuracy": 0.9385964912280702,
+          "dimensions": 3584
+        },
+        {
+          "subset": [
+            "deit_s",
+            "glcm",
+            "mae_base",
+            "vit_b16"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8547684679530523,
+          "accuracy": 0.9078947368421053,
+          "dimensions": 1938
+        },
+        {
+          "subset": [
+            "dinov2",
+            "hog",
+            "mae_base",
+            "resnet101"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9064630170856102,
+          "accuracy": 0.9473684210526315,
+          "dimensions": 5348
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "siglip_base",
+            "vgg16",
+            "vit_b16"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8947500200452261,
+          "accuracy": 0.9342105263157895,
+          "dimensions": 6400
+        },
+        {
+          "subset": [
+            "dinov2_small",
+            "efficientnet_b0",
+            "eva02_base",
+            "vgg16"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8766588862579796,
+          "accuracy": 0.9254385964912281,
+          "dimensions": 6528
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "gabor",
+            "hog",
+            "vit_b16"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8726098755138959,
+          "accuracy": 0.9166666666666666,
+          "dimensions": 3348
+        },
+        {
+          "subset": [
+            "dinov2",
+            "dinov2_large",
+            "resnet101",
+            "resnet50"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8932904202609365,
+          "accuracy": 0.9429824561403509,
+          "dimensions": 5888
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "dinov2",
+            "hog",
+            "lbp"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9148869007752459,
+          "accuracy": 0.9429824561403509,
+          "dimensions": 3354
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "drlbp",
+            "eva02_base",
+            "resnet50"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9099377738418102,
+          "accuracy": 0.9385964912280702,
+          "dimensions": 3664
+        },
+        {
+          "subset": [
+            "densenet121",
+            "efficientnet_b0",
+            "glcm",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.847181153470709,
+          "accuracy": 0.9035087719298246,
+          "dimensions": 3090
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "dinov2_small",
+            "gabor",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8833008345038421,
+          "accuracy": 0.9429824561403509,
+          "dimensions": 1968
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "dinov2_small",
+            "gabor",
+            "mae_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8551229290180997,
+          "accuracy": 0.9254385964912281,
+          "dimensions": 1968
+        }
+      ]
+    },
+    {
+      "beta": 2.0,
+      "unique_subsets": 15,
+      "single": {
+        "mean_macro_f1": 0.8911086186120734,
+        "sd": 0.012713128720451572,
+        "min": 0.8644808827258987,
+        "max": 0.9091188261820428
+      },
+      "best_inner": {
+        "subset": [
+          "beitv2_base_final",
+          "densenet121",
+          "eva02_base",
+          "siglip_base"
+        ],
+        "inner_f1": NaN,
+        "macro_f1": 0.8827133227865135
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.9074159728646316,
+        "accuracy": 0.9517543859649122
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.9074159728646316,
+        "accuracy": 0.9517543859649122
+      },
+      "mean_dimensions": 3664.4,
+      "draws": [
+        {
+          "subset": [
+            "beitv2_base_final",
+            "densenet121",
+            "eva02_base",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8827133227865135,
+          "accuracy": 0.9298245614035088,
+          "dimensions": 3328
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "convnext_v2_t",
+            "densenet121",
+            "eva02_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9088380588129088,
+          "accuracy": 0.9429824561403509,
+          "dimensions": 3328
+        },
+        {
+          "subset": [
+            "densenet121",
+            "eva02_base",
+            "resnet50",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8883453087304815,
+          "accuracy": 0.9298245614035088,
+          "dimensions": 4608
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "lbp",
+            "siglip_base",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8845975490524189,
+          "accuracy": 0.9342105263157895,
+          "dimensions": 2358
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "dinov2_large",
+            "resnet101",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8942160596295935,
+          "accuracy": 0.9429824561403509,
+          "dimensions": 4608
+        },
+        {
+          "subset": [
+            "densenet121",
+            "eva02_base",
+            "resnet50",
+            "vit_b16"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9023702062742426,
+          "accuracy": 0.9342105263157895,
+          "dimensions": 4608
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "convnext_v2_t",
+            "resnet50",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9091188261820428,
+          "accuracy": 0.9429824561403509,
+          "dimensions": 4352
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "dinov2_small",
+            "efficientnet_b0",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8911520291344209,
+          "accuracy": 0.9385964912280702,
+          "dimensions": 3200
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "densenet121",
+            "dinov2_small",
+            "eva02_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8970456024942611,
+          "accuracy": 0.9429824561403509,
+          "dimensions": 2944
+        },
+        {
+          "subset": [
+            "densenet121",
+            "eva02_base",
+            "resnet101",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9048005648149265,
+          "accuracy": 0.9342105263157895,
+          "dimensions": 4608
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "resnet50",
+            "swin_t",
+            "vit_b16"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8887960660395837,
+          "accuracy": 0.9298245614035088,
+          "dimensions": 4352
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "eva02_base",
+            "mae_base",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8947708197132681,
+          "accuracy": 0.9342105263157895,
+          "dimensions": 3072
+        },
+        {
+          "subset": [
+            "deit_s",
+            "eva02_base",
+            "mae_base",
+            "vit_b16"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8644808827258987,
+          "accuracy": 0.9122807017543859,
+          "dimensions": 2688
+        },
+        {
+          "subset": [
+            "efficientnet_b0",
+            "eva02_base",
+            "siglip_base",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8723762998373752,
+          "accuracy": 0.9254385964912281,
+          "dimensions": 3584
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "densenet121",
+            "mae_base",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.883007682953166,
+          "accuracy": 0.9254385964912281,
+          "dimensions": 3328
+        }
+      ]
+    },
+    {
+      "beta": 8.0,
+      "unique_subsets": 10,
+      "single": {
+        "mean_macro_f1": 0.8947270888568517,
+        "sd": 0.014804098401592969,
+        "min": 0.8622537709339306,
+        "max": 0.9130695209325698
+      },
+      "best_inner": {
+        "subset": [
+          "convnext_v2_t",
+          "eva02_base",
+          "siglip_base",
+          "swin_t"
+        ],
+        "inner_f1": NaN,
+        "macro_f1": 0.9055005986268053
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.9055005986268053,
+        "accuracy": 0.9385964912280702
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.9055005986268053,
+        "accuracy": 0.9385964912280702
+      },
+      "mean_dimensions": 3276.8,
+      "draws": [
+        {
+          "subset": [
+            "convnext_v2_t",
+            "eva02_base",
+            "siglip_base",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9055005986268053,
+          "accuracy": 0.9385964912280702,
+          "dimensions": 3072
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "densenet121",
+            "eva02_base",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8827133227865135,
+          "accuracy": 0.9298245614035088,
+          "dimensions": 3328
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "convnext_v2_t",
+            "eva02_base",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9060501854429435,
+          "accuracy": 0.9385964912280702,
+          "dimensions": 3072
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "eva02_base",
+            "siglip_base",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9055005986268053,
+          "accuracy": 0.9385964912280702,
+          "dimensions": 3072
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "eva02_base",
+            "siglip_base",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8806623623289418,
+          "accuracy": 0.9298245614035088,
+          "dimensions": 3072
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "densenet121",
+            "eva02_base",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8827133227865135,
+          "accuracy": 0.9298245614035088,
+          "dimensions": 3328
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "convnext_v2_t",
+            "eva02_base",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9060501854429435,
+          "accuracy": 0.9385964912280702,
+          "dimensions": 3072
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "convnext_v2_t",
+            "eva02_base",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9060501854429435,
+          "accuracy": 0.9385964912280702,
+          "dimensions": 3072
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "convnext_v2_t",
+            "eva02_base",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9060501854429435,
+          "accuracy": 0.9385964912280702,
+          "dimensions": 3072
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "efficientnet_b0",
+            "eva02_base",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8775226449035101,
+          "accuracy": 0.9254385964912281,
+          "dimensions": 3584
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "densenet121",
+            "eva02_base",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8910028359873877,
+          "accuracy": 0.9342105263157895,
+          "dimensions": 3328
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "eva02_base",
+            "siglip_base",
+            "swin_t"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9055005986268053,
+          "accuracy": 0.9385964912280702,
+          "dimensions": 3072
+        },
+        {
+          "subset": [
+            "beitv2_base_final",
+            "efficientnet_b0",
+            "eva02_base",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8902660145412165,
+          "accuracy": 0.9298245614035088,
+          "dimensions": 3584
+        },
+        {
+          "subset": [
+            "eva02_base",
+            "siglip_base",
+            "swin_t",
+            "vit_b16"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.8622537709339306,
+          "accuracy": 0.9210526315789473,
+          "dimensions": 3072
+        },
+        {
+          "subset": [
+            "convnext_v2_t",
+            "eva02_base",
+            "resnet50",
+            "siglip_base"
+          ],
+          "inner_f1": NaN,
+          "macro_f1": 0.9130695209325698,
+          "accuracy": 0.9429824561403509,
+          "dimensions": 4352
+        }
+      ]
+    }
+  ],
+  "weight_scheme": "w_r = (n - r + 1) ** beta over the inner ranking",
+  "duration_seconds": 19.84969503399998
+}

@@ -1,0 +1,113 @@
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Rankings medios de macro-F1 según Friedman, Friedman alineado y Quade: ocho métodos. Seis datasets por clasificador; menor ranking indica mejor desempeño relativo dentro de cada prueba.}
+\label{tab:sel-metodos-rankings}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Clasif. & Método & Friedman & F. alineado & Quade \\
+\midrule
+SVM & Completa-22 & $3{,}167$ & $18{,}833$ & $2{,}762$ \\
+SVM & Ens.\ diversidad & $3{,}417$ & $15{,}083$ & $2{,}929$ \\
+SVM & Ens.\ tómbola & $3{,}750$ & $18{,}917$ & $3{,}929$ \\
+SVM & Top-4 & $3{,}833$ & $18{,}667$ & $4{,}000$ \\
+SVM & Top-$k$ & $3{,}500$ & $21{,}000$ & $3{,}952$ \\
+SVM & GFS & $5{,}083$ & $27{,}250$ & $4{,}738$ \\
+SVM & Homogénea & $5{,}750$ & $35{,}250$ & $6{,}262$ \\
+SVM & Individual & $7{,}500$ & $41{,}000$ & $7{,}429$ \\
+ResMLP & Completa-22 & $5{,}083$ & $29{,}917$ & $5{,}310$ \\
+ResMLP & Ens.\ diversidad & $2{,}500$ & $11{,}833$ & $2{,}524$ \\
+ResMLP & Ens.\ tómbola & $2{,}750$ & $12{,}250$ & $2{,}929$ \\
+ResMLP & Top-4 & $4{,}167$ & $23{,}833$ & $3{,}952$ \\
+ResMLP & Top-$k$ & $4{,}333$ & $22{,}500$ & $4{,}000$ \\
+ResMLP & GFS & $3{,}333$ & $20{,}667$ & $3{,}476$ \\
+ResMLP & Homogénea & $6{,}500$ & $34{,}333$ & $6{,}667$ \\
+ResMLP & Individual & $7{,}333$ & $40{,}667$ & $7{,}143$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Pruebas globales por clasificador: ocho métodos y seis datasets. Nivel nominal $\alpha=0{,}05$.}
+\label{tab:sel-metodos-global}
+\begin{tabular}{@{}llrl@{}}
+\toprule
+Clasif. & Prueba & $p$ & Decisión \\
+\midrule
+SVM & Friedman & $0{,}0264$ & Rechazo \\
+SVM & Iman--Davenport & $0{,}0133$ & Rechazo \\
+SVM & Friedman alineado & $0{,}6155$ & No rechazo \\
+SVM & Quade & $0{,}0109$ & Rechazo \\
+ResMLP & Friedman & $0{,}0039$ & Rechazo \\
+ResMLP & Iman--Davenport & $0{,}0006$ & Rechazo \\
+ResMLP & Friedman alineado & $0{,}6150$ & No rechazo \\
+ResMLP & Quade & $0{,}0039$ & Rechazo \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\fontsize{8}{10}\selectfont\setlength{\tabcolsep}{3.0pt}
+\caption{Comparaciones por pares basadas en rangos de Friedman: ocho métodos. Holm corrige los 28 pares dentro de cada clasificador.}
+\label{tab:sel-metodos-holm}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+Clasif. & Comparación & $p$ sin ajustar & $p$ Holm \\
+\midrule
+SVM & Completa-22 vs.\ Individual & $0{,}0022$ & $0{,}0611$ \\
+SVM & Ens.\ diversidad vs.\ Individual & $0{,}0039$ & $0{,}1049$ \\
+SVM & Top-$k$ vs.\ Individual & $0{,}0047$ & $0{,}1216$ \\
+SVM & Ens.\ tómbola vs.\ Individual & $0{,}0080$ & $0{,}2002$ \\
+SVM & Top-4 vs.\ Individual & $0{,}0095$ & $0{,}2285$ \\
+SVM & Completa-22 vs.\ Homogénea & $0{,}0677$ & $1{,}0000$ \\
+SVM & GFS vs.\ Individual & $0{,}0875$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Homogénea & $0{,}0990$ & $1{,}0000$ \\
+SVM & Top-$k$ vs.\ Homogénea & $0{,}1116$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ Homogénea & $0{,}1573$ & $1{,}0000$ \\
+SVM & Completa-22 vs.\ GFS & $0{,}1753$ & $1{,}0000$ \\
+SVM & Top-4 vs.\ Homogénea & $0{,}1753$ & $1{,}0000$ \\
+SVM & Homogénea vs.\ Individual & $0{,}2159$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ GFS & $0{,}2386$ & $1{,}0000$ \\
+SVM & Top-$k$ vs.\ GFS & $0{,}2629$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ GFS & $0{,}3458$ & $1{,}0000$ \\
+SVM & Top-4 vs.\ GFS & $0{,}3768$ & $1{,}0000$ \\
+SVM & Completa-22 vs.\ Top-4 & $0{,}6374$ & $1{,}0000$ \\
+SVM & GFS vs.\ Homogénea & $0{,}6374$ & $1{,}0000$ \\
+SVM & Completa-22 vs.\ Ens.\ tómbola & $0{,}6800$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Top-4 & $0{,}7683$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Ens.\ tómbola & $0{,}8137$ & $1{,}0000$ \\
+SVM & Top-4 vs.\ Top-$k$ & $0{,}8137$ & $1{,}0000$ \\
+SVM & Completa-22 vs.\ Top-$k$ & $0{,}8137$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ Top-$k$ & $0{,}8597$ & $1{,}0000$ \\
+SVM & Completa-22 vs.\ Ens.\ diversidad & $0{,}8597$ & $1{,}0000$ \\
+SVM & Ens.\ diversidad vs.\ Top-$k$ & $0{,}9530$ & $1{,}0000$ \\
+SVM & Ens.\ tómbola vs.\ Top-4 & $0{,}9530$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Individual & $0{,}0006$ & $0{,}0177$ \\
+ResMLP & Ens.\ tómbola vs.\ Individual & $0{,}0012$ & $0{,}0322$ \\
+ResMLP & Ens.\ diversidad vs.\ Homogénea & $0{,}0047$ & $0{,}1216$ \\
+ResMLP & GFS vs.\ Individual & $0{,}0047$ & $0{,}1216$ \\
+ResMLP & Ens.\ tómbola vs.\ Homogénea & $0{,}0080$ & $0{,}1922$ \\
+ResMLP & GFS vs.\ Homogénea & $0{,}0251$ & $0{,}5783$ \\
+ResMLP & Top-4 vs.\ Individual & $0{,}0251$ & $0{,}5783$ \\
+ResMLP & Top-$k$ vs.\ Individual & $0{,}0339$ & $0{,}7118$ \\
+ResMLP & Completa-22 vs.\ Ens.\ diversidad & $0{,}0677$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ Ens.\ tómbola & $0{,}0990$ & $1{,}0000$ \\
+ResMLP & Top-4 vs.\ Homogénea & $0{,}0990$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ Individual & $0{,}1116$ & $1{,}0000$ \\
+ResMLP & Top-$k$ vs.\ Homogénea & $0{,}1255$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Top-$k$ & $0{,}1949$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ GFS & $0{,}2159$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Top-4 & $0{,}2386$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ Top-$k$ & $0{,}2629$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ Homogénea & $0{,}3165$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ Top-4 & $0{,}3165$ & $1{,}0000$ \\
+ResMLP & Top-$k$ vs.\ GFS & $0{,}4795$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ Top-4 & $0{,}5169$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ GFS & $0{,}5557$ & $1{,}0000$ \\
+ResMLP & Top-4 vs.\ GFS & $0{,}5557$ & $1{,}0000$ \\
+ResMLP & Homogénea vs.\ Individual & $0{,}5557$ & $1{,}0000$ \\
+ResMLP & Completa-22 vs.\ Top-$k$ & $0{,}5959$ & $1{,}0000$ \\
+ResMLP & Ens.\ tómbola vs.\ GFS & $0{,}6800$ & $1{,}0000$ \\
+ResMLP & Ens.\ diversidad vs.\ Ens.\ tómbola & $0{,}8597$ & $1{,}0000$ \\
+ResMLP & Top-4 vs.\ Top-$k$ & $0{,}9062$ & $1{,}0000$ \\
+\bottomrule
+\end{tabular}
+\end{table}

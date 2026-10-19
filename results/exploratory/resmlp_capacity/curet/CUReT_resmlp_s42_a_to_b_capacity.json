@@ -1,0 +1,70 @@
+{
+  "dataset": "CUReT",
+  "classifier": "resmlp",
+  "seed": 42,
+  "outer_fold": 0,
+  "k": 4,
+  "subset": [
+    "dinov2_small",
+    "dinov2_large",
+    "dinov2",
+    "beitv2_base_final"
+  ],
+  "pca_components": 2805,
+  "pca_explained_variance": 0.9999999403953552,
+  "regularized": {
+    "dropout": 0.3,
+    "weight_decay": 0.01
+  },
+  "variants": {
+    "top4": {
+      "test": {
+        "macro_f1": 0.9975051772467448,
+        "accuracy": 0.9975053456878118
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 2944,
+      "parameters": 1166909
+    },
+    "all21": {
+      "test": {
+        "macro_f1": 0.9978615143239336,
+        "accuracy": 0.9978617248752673
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 20396,
+      "parameters": 5634621
+    },
+    "all21_pca": {
+      "test": {
+        "macro_f1": 0.9982178935113889,
+        "accuracy": 0.9982181040627227
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 2805,
+      "parameters": 1131325
+    },
+    "all21_regularized": {
+      "test": {
+        "macro_f1": 0.9978615143239336,
+        "accuracy": 0.9978617248752673
+      },
+      "train": {
+        "macro_f1": 1.0,
+        "accuracy": 1.0
+      },
+      "dimensions": 20396,
+      "parameters": 5634621
+    }
+  },
+  "duration_seconds": 86.129666713
+}

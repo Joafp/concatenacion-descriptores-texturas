@@ -1,0 +1,32 @@
+{
+  "dataset": "FMD",
+  "classifier": "svm",
+  "seed": 42,
+  "outer_fold": 1,
+  "k": 4,
+  "members": 15,
+  "subset": [
+    "siglip_base",
+    "dinov2",
+    "dinov2_large",
+    "eva02_base"
+  ],
+  "inner_group_column": "group",
+  "top4_single": {
+    "macro_f1": 0.9949968730456537,
+    "accuracy": 0.995
+  },
+  "variants": {
+    "seed_ensemble": {
+      "macro_f1": 0.9949968730456537,
+      "accuracy": 0.995,
+      "mean_agreement_with_single": 1.0
+    },
+    "bagging_ensemble": {
+      "macro_f1": 0.9899937460913071,
+      "accuracy": 0.99,
+      "mean_agreement_with_single": 0.9933333333333334
+    }
+  },
+  "duration_seconds": 28.812321759999804
+}

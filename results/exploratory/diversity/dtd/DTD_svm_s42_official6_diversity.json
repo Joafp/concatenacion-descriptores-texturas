@@ -1,0 +1,1888 @@
+{
+  "dataset": "DTD",
+  "classifier": "svm",
+  "seed": 42,
+  "outer_fold": 5,
+  "k": 7,
+  "draws": 15,
+  "n_candidates": 21,
+  "inner_group_column": "group",
+  "topk": {
+    "subset": [
+      "siglip_base",
+      "dinov2",
+      "dinov2_large",
+      "eva02_base",
+      "dinov2_small",
+      "beitv2_base_final",
+      "convnext_v2_t"
+    ],
+    "macro_f1": 0.8714620476655525,
+    "accuracy": 0.872872340425532,
+    "mean_cka": 0.6748785815054225
+  },
+  "cells": [
+    {
+      "lambda": 0.0,
+      "beta": 2.0,
+      "greedy": {
+        "subset": [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        "macro_f1": 0.8714620476655525,
+        "accuracy": 0.872872340425532,
+        "mean_cka": 0.6748785815054225
+      },
+      "single": {
+        "mean_macro_f1": 0.8567711770434314,
+        "sd": 0.009138530536470905
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.8661438172072142,
+        "accuracy": 0.8680851063829788
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8668335196467702,
+        "accuracy": 0.8686170212765958
+      },
+      "mean_cka_drawn": 0.5627673200702199,
+      "union_blocks": 17,
+      "union": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "deit_s",
+        "densenet121",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "efficientnet_b0",
+        "eva02_base",
+        "hog",
+        "lbp",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vgg16",
+        "vit_b16"
+      ],
+      "subsets": [
+        [
+          "deit_s",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "resnet50",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "efficientnet_b0",
+          "resnet50",
+          "swin_t",
+          "vgg16"
+        ],
+        [
+          "beitv2_base_final",
+          "efficientnet_b0",
+          "eva02_base",
+          "resnet101",
+          "resnet50",
+          "swin_t",
+          "vgg16"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "resnet101",
+          "siglip_base",
+          "vgg16"
+        ],
+        [
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "efficientnet_b0",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "hog",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "convnext_v2_t",
+          "densenet121",
+          "dinov2",
+          "resnet50",
+          "siglip_base",
+          "swin_t",
+          "vgg16"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "densenet121",
+          "efficientnet_b0",
+          "eva02_base",
+          "resnet101",
+          "swin_t"
+        ],
+        [
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "lbp",
+          "vit_b16"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2_small",
+          "hog",
+          "resnet101",
+          "resnet50",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet101",
+          "siglip_base",
+          "swin_t",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "dinov2",
+          "dinov2_small",
+          "resnet50",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "densenet121",
+          "dinov2_large",
+          "resnet101",
+          "resnet50",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet101",
+          "siglip_base",
+          "swin_t",
+          "vit_b16"
+        ]
+      ]
+    },
+    {
+      "lambda": 0.0,
+      "beta": 8.0,
+      "greedy": {
+        "subset": [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        "macro_f1": 0.8714620476655525,
+        "accuracy": 0.872872340425532,
+        "mean_cka": 0.6748785815054225
+      },
+      "single": {
+        "mean_macro_f1": 0.8676877947204953,
+        "sd": 0.003799493368328851
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.8736977453325042,
+        "accuracy": 0.875
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8721026472672054,
+        "accuracy": 0.8734042553191489
+      },
+      "mean_cka_drawn": 0.6372477677249329,
+      "union_blocks": 12,
+      "union": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "densenet121",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "eva02_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vit_b16"
+      ],
+      "subsets": [
+        [
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base",
+          "swin_t",
+          "vit_b16"
+        ]
+      ]
+    },
+    {
+      "lambda": 0.25,
+      "beta": 2.0,
+      "greedy": {
+        "subset": [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        "macro_f1": 0.8728204688593953,
+        "accuracy": 0.8739361702127659,
+        "mean_cka": 0.629798000036311
+      },
+      "single": {
+        "mean_macro_f1": 0.8612850415610785,
+        "sd": 0.0070774503777271324
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.8641092266351783,
+        "accuracy": 0.8664893617021276
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8638123839564577,
+        "accuracy": 0.8659574468085106
+      },
+      "mean_cka_drawn": 0.5616437495451628,
+      "union_blocks": 18,
+      "union": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "deit_s",
+        "densenet121",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "efficientnet_b0",
+        "eva02_base",
+        "hog",
+        "lbp",
+        "mae_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vgg16",
+        "vit_b16"
+      ],
+      "subsets": [
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "resnet50",
+          "siglip_base",
+          "vgg16"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_small",
+          "efficientnet_b0",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "convnext_v2_t",
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "mae_base",
+          "resnet101",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "convnext_v2_t",
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "efficientnet_b0",
+          "resnet101"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2_small",
+          "efficientnet_b0",
+          "eva02_base",
+          "mae_base",
+          "resnet50",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "densenet121",
+          "dinov2",
+          "lbp",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_large",
+          "dinov2_small",
+          "mae_base",
+          "resnet50",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "deit_s",
+          "dinov2_large",
+          "efficientnet_b0",
+          "eva02_base",
+          "hog",
+          "resnet101",
+          "resnet50"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "swin_t",
+          "vgg16"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "densenet121",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "swin_t"
+        ]
+      ]
+    },
+    {
+      "lambda": 0.25,
+      "beta": 8.0,
+      "greedy": {
+        "subset": [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        "macro_f1": 0.8728204688593953,
+        "accuracy": 0.8739361702127659,
+        "mean_cka": 0.629798000036311
+      },
+      "single": {
+        "mean_macro_f1": 0.867633341597183,
+        "sd": 0.004151829793181686
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.8720475108680934,
+        "accuracy": 0.8734042553191489
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8728834288202734,
+        "accuracy": 0.8739361702127659
+      },
+      "mean_cka_drawn": 0.6372688627873209,
+      "union_blocks": 12,
+      "union": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "efficientnet_b0",
+        "eva02_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vit_b16"
+      ],
+      "subsets": [
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "resnet50",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "efficientnet_b0",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ]
+      ]
+    },
+    {
+      "lambda": 0.5,
+      "beta": 2.0,
+      "greedy": {
+        "subset": [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        "macro_f1": 0.8728204688593953,
+        "accuracy": 0.8739361702127659,
+        "mean_cka": 0.629798000036311
+      },
+      "single": {
+        "mean_macro_f1": 0.862329636081365,
+        "sd": 0.005706481555026713
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.8660555723402089,
+        "accuracy": 0.8680851063829788
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8695785138272092,
+        "accuracy": 0.8712765957446809
+      },
+      "mean_cka_drawn": 0.5532692878149831,
+      "union_blocks": 17,
+      "union": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "deit_s",
+        "densenet121",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "drlbp",
+        "eva02_base",
+        "hog",
+        "mae_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vgg16",
+        "vit_b16"
+      ],
+      "subsets": [
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "hog",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet50",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "convnext_v2_t",
+          "deit_s",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "densenet121",
+          "eva02_base",
+          "mae_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "deit_s",
+          "dinov2",
+          "resnet101",
+          "siglip_base",
+          "vgg16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "hog",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "convnext_v2_t",
+          "deit_s",
+          "densenet121",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet50",
+          "vit_b16"
+        ],
+        [
+          "convnext_v2_t",
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "drlbp",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "densenet121",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet50",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "mae_base",
+          "resnet101",
+          "vgg16",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "resnet101",
+          "resnet50",
+          "swin_t"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "mae_base",
+          "resnet101"
+        ],
+        [
+          "deit_s",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ]
+      ]
+    },
+    {
+      "lambda": 0.5,
+      "beta": 8.0,
+      "greedy": {
+        "subset": [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        "macro_f1": 0.8728204688593953,
+        "accuracy": 0.8739361702127659,
+        "mean_cka": 0.629798000036311
+      },
+      "single": {
+        "mean_macro_f1": 0.8687942377033119,
+        "sd": 0.003898494979443681
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.8717760055646128,
+        "accuracy": 0.8734042553191489
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8708786347204371,
+        "accuracy": 0.8723404255319149
+      },
+      "mean_cka_drawn": 0.6130274173374516,
+      "union_blocks": 13,
+      "union": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "deit_s",
+        "densenet121",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "eva02_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vit_b16"
+      ],
+      "subsets": [
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "resnet101",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "resnet50",
+          "siglip_base",
+          "swin_t",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "deit_s",
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ]
+      ]
+    },
+    {
+      "lambda": 0.75,
+      "beta": 2.0,
+      "greedy": {
+        "subset": [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        "macro_f1": 0.8728204688593953,
+        "accuracy": 0.8739361702127659,
+        "mean_cka": 0.629798000036311
+      },
+      "single": {
+        "mean_macro_f1": 0.8620453210421384,
+        "sd": 0.008238286717776594
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.8662064724456635,
+        "accuracy": 0.8680851063829788
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8667598708778688,
+        "accuracy": 0.8691489361702127
+      },
+      "mean_cka_drawn": 0.5402274033950215,
+      "union_blocks": 17,
+      "union": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "deit_s",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "efficientnet_b0",
+        "eva02_base",
+        "gabor",
+        "hog",
+        "lbp",
+        "mae_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vit_b16"
+      ],
+      "subsets": [
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "gabor",
+          "lbp",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "mae_base",
+          "resnet101"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet50",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_small",
+          "eva02_base",
+          "hog",
+          "resnet101",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "swin_t",
+          "vit_b16"
+        ],
+        [
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "dinov2",
+          "dinov2_small",
+          "efficientnet_b0",
+          "mae_base",
+          "siglip_base",
+          "swin_t",
+          "vit_b16"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2_large",
+          "dinov2_small",
+          "efficientnet_b0",
+          "eva02_base",
+          "resnet50",
+          "swin_t"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet101",
+          "resnet50",
+          "swin_t",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2_small",
+          "efficientnet_b0",
+          "eva02_base",
+          "mae_base",
+          "resnet101"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "mae_base",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet50",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_large",
+          "efficientnet_b0",
+          "eva02_base",
+          "mae_base",
+          "resnet50",
+          "siglip_base"
+        ]
+      ]
+    },
+    {
+      "lambda": 0.75,
+      "beta": 8.0,
+      "greedy": {
+        "subset": [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        "macro_f1": 0.8728204688593953,
+        "accuracy": 0.8739361702127659,
+        "mean_cka": 0.629798000036311
+      },
+      "single": {
+        "mean_macro_f1": 0.8672508219942902,
+        "sd": 0.0022362482181067455
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.8694503042900288,
+        "accuracy": 0.8712765957446809
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8690368729703785,
+        "accuracy": 0.8707446808510638
+      },
+      "mean_cka_drawn": 0.5998711386079987,
+      "union_blocks": 13,
+      "union": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "deit_s",
+        "densenet121",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "eva02_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vit_b16"
+      ],
+      "subsets": [
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "resnet101",
+          "siglip_base",
+          "swin_t",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t",
+          "vit_b16"
+        ]
+      ]
+    },
+    {
+      "lambda": 1.0,
+      "beta": 2.0,
+      "greedy": {
+        "subset": [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "mae_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        "macro_f1": 0.8677003693136062,
+        "accuracy": 0.8696808510638298,
+        "mean_cka": 0.5336208834828755
+      },
+      "single": {
+        "mean_macro_f1": 0.8568337658198041,
+        "sd": 0.006272095208172088
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.8670585706327159,
+        "accuracy": 0.8691489361702127
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8665567722145331,
+        "accuracy": 0.8686170212765958
+      },
+      "mean_cka_drawn": 0.49845299546297617,
+      "union_blocks": 19,
+      "union": [
+        "beitv2_base_final",
+        "convnext_v2_t",
+        "deit_s",
+        "densenet121",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "drlbp",
+        "efficientnet_b0",
+        "eva02_base",
+        "hog",
+        "lbp",
+        "mae_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vgg16",
+        "vit_b16"
+      ],
+      "subsets": [
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "densenet121",
+          "dinov2",
+          "efficientnet_b0",
+          "eva02_base",
+          "hog"
+        ],
+        [
+          "deit_s",
+          "densenet121",
+          "dinov2_large",
+          "eva02_base",
+          "mae_base",
+          "resnet50",
+          "vit_b16"
+        ],
+        [
+          "deit_s",
+          "dinov2",
+          "mae_base",
+          "resnet101",
+          "swin_t",
+          "vgg16",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_small",
+          "efficientnet_b0",
+          "eva02_base",
+          "mae_base",
+          "resnet101",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "efficientnet_b0",
+          "eva02_base",
+          "resnet101",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "deit_s",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "mae_base",
+          "resnet101",
+          "vgg16"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "mae_base",
+          "resnet101",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "densenet121",
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "lbp",
+          "resnet101"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2_large",
+          "mae_base",
+          "resnet101",
+          "resnet50",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "resnet50",
+          "siglip_base",
+          "swin_t",
+          "vit_b16"
+        ],
+        [
+          "deit_s",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "lbp",
+          "mae_base",
+          "resnet101"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "drlbp",
+          "efficientnet_b0",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "densenet121",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "resnet50"
+        ],
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "eva02_base",
+          "resnet101",
+          "resnet50",
+          "vgg16",
+          "vit_b16"
+        ]
+      ]
+    },
+    {
+      "lambda": 1.0,
+      "beta": 8.0,
+      "greedy": {
+        "subset": [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "mae_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        "macro_f1": 0.8677003693136062,
+        "accuracy": 0.8696808510638298,
+        "mean_cka": 0.5336208834828755
+      },
+      "single": {
+        "mean_macro_f1": 0.8646242279200984,
+        "sd": 0.0038685633074370543
+      },
+      "ensemble_soft": {
+        "macro_f1": 0.8694497421389704,
+        "accuracy": 0.8712765957446809
+      },
+      "ensemble_hard": {
+        "macro_f1": 0.8696280455283756,
+        "accuracy": 0.8712765957446809
+      },
+      "mean_cka_drawn": 0.526063948250315,
+      "union_blocks": 13,
+      "union": [
+        "beitv2_base_final",
+        "deit_s",
+        "densenet121",
+        "dinov2",
+        "dinov2_large",
+        "dinov2_small",
+        "eva02_base",
+        "mae_base",
+        "resnet101",
+        "resnet50",
+        "siglip_base",
+        "swin_t",
+        "vit_b16"
+      ],
+      "subsets": [
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "mae_base",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "mae_base",
+          "resnet101"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "mae_base",
+          "resnet50",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "eva02_base",
+          "mae_base",
+          "resnet101",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "densenet121",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "mae_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "mae_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "mae_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "mae_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_large",
+          "dinov2_small",
+          "mae_base",
+          "resnet101",
+          "siglip_base",
+          "swin_t"
+        ],
+        [
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "deit_s",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "deit_s",
+          "dinov2",
+          "dinov2_large",
+          "mae_base",
+          "resnet101",
+          "siglip_base",
+          "vit_b16"
+        ]
+      ]
+    }
+  ],
+  "duration_seconds": 1315.3259112490014
+}

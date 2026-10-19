@@ -1,0 +1,291 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage{lscape}
+\title{Results}
+\author{}
+\date{\today}
+\begin{document}
+\begin{landscape}
+\oddsidemargin 0in \topmargin 0in\maketitle
+\section{Tables of Friedman, Aligned Friedman, Bonferroni-Dunn, Holm, Hochberg and Hommel Tests}
+\begin{table}[!htp]
+\centering
+\caption{Average Rankings of the algorithms (Friedman)
+}\begin{tabular}{c|c}
+Algorithm&Ranking\\
+\hline
+Ens-diversidad&1.9999999999999998\\
+Ens-tombola&2.666666666666667\\
+Ens-bagging&4.0\\
+Ens-semillas&3.0\\
+Top-4&3.333333333333333\\
+\end{tabular}
+\end{table}
+
+
+Friedman statistic (distributed according to chi-square with 4 degrees of freedom: 5.333333333333331. 
+P-value computed by Friedman Test: 0.25477265449441266.\newline
+
+Iman and Davenport statistic (distributed according to F-distribution with 4 and 20 degrees of freedom: 1.428571428571428. 
+P-value computed by Iman and Daveport Test: 0.2610422440499947.\newline
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering
+\caption{Average Rankings of the algorithms (Aligned Friedman)
+}\begin{tabular}{c|c}
+Algorithm&Ranking\\
+\hline
+Ens-diversidad&9.666666666666668\\
+Ens-tombola&11.333333333333334\\
+Ens-bagging&20.833333333333332\\
+Ens-semillas&16.833333333333336\\
+Top-4&18.833333333333332\\
+\end{tabular}
+\end{table}
+
+
+Aligned Friedman statistic (distributed according to chi-square with 4 degrees of freedom: 5.084429791697887. 
+P-value computed by Aligned Friedman Test: 0.27874366371118264.\newline
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering
+\caption{Average Rankings of the algorithms (Quade)
+}\begin{tabular}{c|c}
+Algorithm&Ranking\\
+\hline
+Ens-diversidad&1.857142857142857\\
+Ens-tombola&2.380952380952381\\
+Ens-bagging&4.142857142857143\\
+Ens-semillas&3.0\\
+Top-4&3.6190476190476186\\
+\end{tabular}
+\end{table}
+Quade statistic (distributed according to F-distribution with 4 and 20 degrees of freedom: 1.876574307304786. 
+P-value computed by Quade Test: 0.15401526645585137.\newline
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Contrast Estimation}
+\begin{tabular}{
+|r|r|r|r|r|r|}
+\hline
+ &Ens-diversidad&Ens-tombola&Ens-bagging&Ens-semillas&Top-4\\
+\hline
+Ens-diversidad&0,000&0,0002080&0,005123&0,002933&0,004397\\
+\hline
+Ens-tombola&-0,0002080&0,000&0,004915&0,002724&0,004188\\
+\hline
+Ens-bagging&-0,005123&-0,004915&0,000&-0,002190&-0,0007263\\
+\hline
+Ens-semillas&-0,002933&-0,002724&0,002190&0,000&0,001464\\
+\hline
+Top-4&-0,004397&-0,004188&0,0007263&-0,001464&0,000\\
+\hline
+
+\end{tabular}
+\end{table}
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Holm / Hochberg / Holland / Rom / Finner / Li Table for $\alpha=0.05$ (FRIEDMAN)}
+\begin{tabular}{ccccccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel&Holland&Rom&Finner&Li\\
+\hline
+4&Ens-bagging&2.1908902300206643&0.028459736916310614&0.0125&0.012741455098566168&0.013109375000000001&0.012741455098566168&0.028146904291992566\\
+3&Top-4&1.4605934866804429&0.14412703481601533&0.016666666666666666&0.016952427508441503&0.016666666666666666&0.025320565519103666&0.028146904291992566\\
+2&Ens-semillas&1.0954451150103324&0.27332167829229803&0.025&0.025320565519103666&0.025&0.03773939976903784&0.028146904291992566\\
+1&Ens-tombola&0.730296743340222&0.46520881845214135&0.05&0.050000000000000044&0.05&0.050000000000000044&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holland's procedure rejects those hypotheses that have a p-value $\le0.012741455098566168$.
+
+
+Finner's procedure rejects those hypotheses that have a p-value $\le0.012741455098566168$.
+
+
+Li's procedure rejects those hypotheses that have a p-value $\le0.028146904291992566$.
+
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Holm / Hochberg / Holland / Rom / Finner / Li Table for $\alpha=0.05$ (ALIGNED FRIEDMAN)}
+\begin{tabular}{ccccccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel&Holland&Rom&Finner&Li\\
+\hline
+4&Ens-bagging&2.197016549876242&0.028019264259196076&0.0125&0.012741455098566168&0.013109375000000001&0.012741455098566168&0.01352749967196815\\
+3&Top-4&1.8035210484058704&0.07130642284721904&0.016666666666666666&0.016952427508441503&0.016666666666666666&0.025320565519103666&0.01352749967196815\\
+2&Ens-semillas&1.4100255469354992&0.15853213961996454&0.025&0.025320565519103666&0.025&0.03773939976903784&0.01352749967196815\\
+1&Ens-tombola&0.3279129178919764&0.7429775062326052&0.05&0.050000000000000044&0.05&0.050000000000000044&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holland's procedure rejects those hypotheses that have a p-value $\le0.012741455098566168$.
+
+
+Finner's procedure rejects those hypotheses that have a p-value $\le0.012741455098566168$.
+
+
+Li's procedure rejects those hypotheses that have a p-value $\le0.01352749967196815$.
+
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Holm / Hochberg / Holland / Rom / Finner / Li Table for $\alpha=0.05$ (QUADE)}
+\begin{tabular}{ccccccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel&Holland&Rom&Finner&Li\\
+\hline
+4&Ens-bagging&1.5911845059163106&0.11156805877144067&0.0125&0.012741455098566168&0.013109375000000001&0.012741455098566168&0.014980245409204333\\
+3&Top-4&1.226538056643822&0.21999626315162912&0.016666666666666666&0.016952427508441503&0.016666666666666666&0.025320565519103666&0.014980245409204333\\
+2&Ens-semillas&0.795592252958155&0.4262690708983472&0.025&0.025320565519103666&0.025&0.03773939976903784&0.014980245409204333\\
+1&Ens-tombola&0.3646464492724878&0.7153753372251177&0.05&0.050000000000000044&0.05&0.050000000000000044&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holland's procedure rejects those hypotheses that have a p-value $\le0.012741455098566168$.
+
+
+Finner's procedure rejects those hypotheses that have a p-value $\le0.012741455098566168$.
+
+
+Li's procedure rejects those hypotheses that have a p-value $\le0.014980245409204333$.
+
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (FRIEDMAN)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Bonf}$&$p_{Holm}$&$p_{Hoch}$&$p_{Homm}$\\
+\hline
+1&Ens-bagging&0.028459736916310614&0.11383894766524245&0.11383894766524245&0.11383894766524245&0.11383894766524245\\
+2&Top-4&0.14412703481601533&0.5765081392640613&0.432381104448046&0.432381104448046&0.40998251743844705\\
+3&Ens-semillas&0.27332167829229803&1.0932867131691921&0.5466433565845961&0.46520881845214135&0.46520881845214135\\
+4&Ens-tombola&0.46520881845214135&1.8608352738085654&0.5466433565845961&0.46520881845214135&0.46520881845214135\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (FRIEDMAN)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Holl}$&$p_{Rom}$&$p_{Finn}$&$p_{Li}$\\
+\hline
+1&Ens-bagging&0.028459736916310614&0.10907075649331777&0.1085472683339618&0.10907075649331777&0.050527635168199116\\
+2&Top-4&0.14412703481601533&0.3730571915089088&0.432381104448046&0.2674814674671737&0.2122892438914451\\
+3&Ens-semillas&0.27332167829229803&0.47193861676007764&0.46520881845214135&0.3466845341126469&0.338222161625247\\
+4&Ens-tombola&0.46520881845214135&0.47193861676007764&0.46520881845214135&0.46520881845214135&0.4652088184521414\\
+\hline
+\end{tabular}
+\end{table}
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (ALIGNED FRIEDMAN)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Bonf}$&$p_{Holm}$&$p_{Hoch}$&$p_{Homm}$\\
+\hline
+1&Ens-bagging&0.028019264259196076&0.1120770570367843&0.1120770570367843&0.1120770570367843&0.1120770570367843\\
+2&Top-4&0.07130642284721904&0.28522569138887616&0.2139192685416571&0.2139192685416571&0.2139192685416571\\
+3&Ens-semillas&0.15853213961996454&0.6341285584798582&0.3170642792399291&0.3170642792399291&0.3170642792399291\\
+4&Ens-tombola&0.7429775062326052&2.9719100249304207&0.7429775062326052&0.7429775062326052&0.7429775062326052\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (ALIGNED FRIEDMAN)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Holl}$&$p_{Rom}$&$p_{Finn}$&$p_{Li}$\\
+\hline
+1&Ens-bagging&0.028019264259196076&0.10745395503259447&0.10686727726987776&0.10745395503259447&0.09829880524586934\\
+2&Top-4&0.07130642284721904&0.19902801578497464&0.2139192685416571&0.1375282397551716&0.21717984386650027\\
+3&Ens-semillas&0.15853213961996454&0.2919318399474452&0.3170642792399291&0.20558022940719622&0.38149530021528777\\
+4&Ens-tombola&0.7429775062326052&0.7429775062326052&0.7429775062326052&0.7429775062326052&0.7429775062326052\\
+\hline
+\end{tabular}
+\end{table}
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (QUADE)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Bonf}$&$p_{Holm}$&$p_{Hoch}$&$p_{Homm}$\\
+\hline
+1&Ens-bagging&0.11156805877144067&0.4462722350857627&0.4462722350857627&0.4462722350857627&0.43999252630325825\\
+2&Top-4&0.21999626315162912&0.8799850526065165&0.6599887894548874&0.6599887894548874&0.6394036063475208\\
+3&Ens-semillas&0.4262690708983472&1.7050762835933888&0.8525381417966944&0.7153753372251177&0.7153753372251177\\
+4&Ens-tombola&0.7153753372251177&2.861501348900471&0.8525381417966944&0.7153753372251177&0.7153753372251177\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (QUADE)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Holl}$&$p_{Rom}$&$p_{Finn}$&$p_{Li}$\\
+\hline
+1&Ens-bagging&0.11156805877144067&0.3769876492835311&0.425527756935173&0.3769876492835311&0.28160047548575695\\
+2&Top-4&0.21999626315162912&0.5254411794716776&0.6599887894548874&0.3915941705025774&0.4359634169900982\\
+3&Ens-semillas&0.4262690708983472&0.6708328209921542&0.7153753372251177&0.5232642904129139&0.599624178280191\\
+4&Ens-tombola&0.7153753372251177&0.7153753372251177&0.7153753372251177&0.7153753372251177&0.7153753372251177\\
+\hline
+\end{tabular}
+\end{table}
+
+\end{landscape}\end{document}
