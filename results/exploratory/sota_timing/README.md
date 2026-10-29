@@ -92,7 +92,10 @@ En DTD y KTH, la lectura de las imágenes es 68 s y 24 s del tiempo de entrenar.
   muestras; publican 0,998 en una corrida y 0,991 ± 0,001 en cinco), así que el
   método está bien transcrito. Con el protocolo RADAM, que deja una muestra
   física fuera, baja a 0,850: su 0,998 mide reconocer la misma muestra física
-  vista en entrenamiento. En DTD queda 12 puntos debajo de lo publicado.
+  vista en entrenamiento. En DTD queda 12 puntos debajo de lo publicado; parte
+  es la entrada de 128×128, que el paper fija para todo: a 224×224 sube a
+  0,6828 ± 0,010 (entrenar 262 s, predecir 8,1 ms sin lectura), todavía 5
+  puntos abajo.
 - **Costo**: los tres métodos de la literatura usan una sola red y predicen en
   2,5 a 4,4 ms por imagen sin contar la lectura. Nuestros métodos extraen 4 a 22
   bloques: Top-4 predice en ~150 ms (lo dominan DINOv2 y DINOv2-L) y Completa-22
