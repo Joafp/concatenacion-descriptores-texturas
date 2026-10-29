@@ -1,25 +1,29 @@
 #!/usr/bin/env python3
-"""Time the extraction of every descriptor from the KTH-TIPS2-b images.
+"""Time the extraction of every descriptor from the images of one dataset.
 
 The thesis caches its descriptors, so the classifier timings elsewhere start
 from stored embeddings.  Comparing against single-backbone methods from the
 literature needs the step those caches hide: turning each image into features.
-This script runs each extractor over the 4752 images in manifest order on one
-machine.  The images are read from disk and decoded once, and that time is
-reported on its own: every method pays it once, and reading through WSL from a
-Windows drive is slow enough (about 255 images per second) to hide the cost of
-the networks.  Each extractor then starts from the decoded images, with the
-same pipeline for every network (batches of 32, four loader workers) and the
-classical descriptors parallelised over eight processes as in
-``01_extract_features.py``.  Model loading is timed apart from extraction, one
-warm-up batch is excluded, and the GPU is synchronised before the clock stops.
+This script runs each extractor over the images in manifest order on one
+machine.  The images are read from disk, checked against the manifest SHA-256
+and decoded once, and that time is reported on its own: every method pays it
+once, and reading through WSL from a Windows drive is slow enough (about 255
+images per second) to hide the cost of the networks.  Each extractor then
+starts from the decoded images, with the same pipeline for every network
+(batches of 32, four loader workers) and the classical descriptors parallelised
+over eight processes as in ``01_extract_features.py``.  Model loading is timed
+apart from extraction, one warm-up batch is excluded, and the GPU is
+synchronised before the clock stops.
 
 Each extracted array is compared with the stored embedding, so the time belongs
-to the descriptor the experiments used.  Two arrays have no stored copy:
+to the descriptor the experiments used.  Arrays without a stored copy are saved
+next to the embeddings, in ``<embedding dir>_sota``, for the method benchmarks:
 
 ``beitv2_scabini``  BEiTv2-B/16 with the ImageNet-21k weights evaluated by
                     Scabini et al. (timm ``beitv2_base_patch16_224.in1k_ft_in22k``);
-                    it is saved for the method benchmark;
+``beitv2_base_multilayer``  the input of Neshov et al., stored only for
+                    KTH-TIPS2-b; elsewhere ``beitv2_base_final``, from the same
+                    checkpoint, checks the image order and preprocessing;
 ``rgb_ngram_counts`` the label-free RGB N-gram counts behind the colour block,
                     checked against the count cache instead.
 
@@ -70,6 +74,36 @@ DEEP = {
 }
 CLASSICAL = ("lbp", "glcm", "gabor", "hog", "drlbp")
 ALL = tuple(DEEP) + CLASSICAL + ("rgb_ngram_counts",)
+DATASETS = {
+    # name: (manifest, stored embeddings, output directory)
+    "KTHTIPS2b": ("results/extensions/kth_tips2b/sample_manifests/KTHTIPS2b.csv",
+                  "embeddings_extensions/KTH-TIPS2-b", "kth"),
+    "DTD": ("results/confirmatory/sample_manifests/DTD.csv", "embeddings/DTD", "dtd"),
+    "FMD": ("results/confirmatory/sample_manifests/FMD.csv", "embeddings_confirmatory/FMD", "fmd"),
+    "Outex13Official1360": ("results/extensions/outex13_official1360/sample_manifests/"
+                            "Outex13Official1360.csv",
+                            "embeddings_extensions/Outex13Official1360", "outex13"),
+}
+
+
+def image_path(row, image_root):
+    """Local file of a manifest row.
+
+    Manifests written on another machine hold absolute paths; the part from
+    ``data/`` on is the documented layout (docs/DATASETS.md).  Outex rows name
+    their member of the official archive instead, read under ``image_root``.
+    """
+    if image_root is not None and row.get("source_member"):
+        return image_root / row["source_member"]
+    path = Path(row.get("source_path") or row["path"])
+    if not path.is_absolute():
+        return REPO / path
+    parts = path.parts
+    return REPO / Path(*parts[parts.index("data"):]) if "data" in parts else path
+
+
+def stored_sha256(row):
+    return row.get("source_sha256") or row.get("sha256")
 
 
 class Images(Dataset):
@@ -85,12 +119,16 @@ class Images(Dataset):
         return self.transform(Image.fromarray(self.images[i]))
 
 
-def read_images(paths):
+def read_images(paths, sha256s):
     """Read and decode every image once; every method pays this step once."""
+    import hashlib
     import io
     t0 = time.perf_counter()
     raw = [p.read_bytes() for p in paths]
     read_s = time.perf_counter() - t0
+    wrong = [p for p, b, h in zip(paths, raw, sha256s) if h and hashlib.sha256(b).hexdigest() != h]
+    if wrong:
+        raise ValueError(f"{len(wrong)} images differ from the manifest SHA-256, e.g. {wrong[0]}")
     t0 = time.perf_counter()
     images = [np.asarray(Image.open(io.BytesIO(b)).convert("RGB")) for b in raw]
     return images, read_s, time.perf_counter() - t0
@@ -233,21 +271,27 @@ def verify(name, array, embedding_root, count_cache):
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--dataset", choices=DATASETS, default="KTHTIPS2b")
     parser.add_argument("--descriptors", nargs="+", default=list(ALL), choices=ALL)
-    parser.add_argument("--manifest", type=Path,
-                        default=REPO / "results/extensions/kth_tips2b/sample_manifests/KTHTIPS2b.csv")
-    parser.add_argument("--embedding-root", type=Path, default=REPO / "embeddings_extensions/KTH-TIPS2-b")
+    parser.add_argument("--manifest", type=Path, help="default: the dataset's manifest")
+    parser.add_argument("--embedding-root", type=Path, help="default: the dataset's stored embeddings")
+    parser.add_argument("--image-root", type=Path,
+                        help="directory holding the members named by an Outex manifest")
     parser.add_argument("--count-cache", type=Path,
                         default=REPO / "results/extensions/kth_tips2b/rgb_ngram_count_cache/KTHTIPS2b/rgb_ngram_impl1")
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--classical-jobs", type=int, default=8)
-    parser.add_argument("--output", type=Path, default=REPO / "results/exploratory/sota_timing/kth")
+    parser.add_argument("--output", type=Path, help="default: results/exploratory/sota_timing/<dataset>")
     args = parser.parse_args()
+    manifest, embeddings, slug = DATASETS[args.dataset]
+    args.manifest = args.manifest or REPO / manifest
+    args.embedding_root = args.embedding_root or REPO / embeddings
+    args.output = args.output or REPO / "results/exploratory/sota_timing" / slug
 
     with args.manifest.open(newline="", encoding="utf-8") as f:
         rows = sorted(csv.DictReader(f), key=lambda r: int(r["row_id"]))
-    paths = [REPO / r["source_path"] for r in rows]
+    paths = [image_path(r, args.image_root) for r in rows]
     missing = [p for p in paths if not p.is_file()]
     if missing:
         raise FileNotFoundError(f"{len(missing)} images missing, e.g. {missing[0]}")
@@ -257,7 +301,7 @@ def main() -> None:
     results = json.loads(out_json.read_text()) if out_json.exists() else {}
     gpu = torch.cuda.get_device_name(0) if device == "cuda" else "cpu"
 
-    images, read_s, decode_s = read_images(paths)
+    images, read_s, decode_s = read_images(paths, [stored_sha256(r) for r in rows])
     results["_images"] = {"images": len(paths), "read_seconds": read_s, "decode_seconds": decode_s,
                           "note": "read once from disk and decoded once; shared by every method"}
     print(f"leer {read_s:.1f} s, decodificar {decode_s:.1f} s ({len(paths)} imágenes)", flush=True)
@@ -273,12 +317,12 @@ def main() -> None:
             array, load_s, extract_s = extract_deep(name, images, device, args.batch_size, args.workers)
             where = gpu
         check = verify(name, array, args.embedding_root, args.count_cache)
-        if name == "beitv2_scabini":
+        if check["matches_stored"] is None:
             # Kept outside the embedding directory so the loaders never take it
             # for a block of the library.
-            target = args.embedding_root.with_name(args.embedding_root.name + "_scabini")
-            target.mkdir(exist_ok=True)
-            np.save(target / "beitv2_scabini.npy", array.astype(np.float32))
+            target = args.embedding_root.with_name(args.embedding_root.name + "_sota")
+            target.mkdir(parents=True, exist_ok=True)
+            np.save(target / f"{name}.npy", array.astype(np.float32))
         results[name] = {"images": len(paths), "device": where, "load_seconds": load_s,
                          "extract_seconds": extract_s,
                          "ms_per_image": 1000 * extract_s / len(paths),

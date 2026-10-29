@@ -2,7 +2,7 @@
 """Accuracy and training/prediction time of literature methods and ours on KTH-TIPS2-b.
 
 Every method runs on the four RADAM splits (three physical samples train, one
-tests) on the same machine, from features extracted by ``time_kth_extraction.py``.
+tests) on the same machine, from features extracted by ``time_extraction.py``.
 The extraction time per descriptor comes from that script; this one times what
 happens after it.
 
@@ -88,16 +88,16 @@ def sync():
         torch.cuda.synchronize()
 
 
-def neshov(x, y, train, test):
+def neshov(x, y, train, test, seed=42):
     """Training loop of replicate_electronics_beitv2_kth.py, timed."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    torch.manual_seed(42)
-    np.random.seed(42)
+    torch.manual_seed(seed)
+    np.random.seed(seed)
     sync()
     t0 = time.perf_counter()
     loader = DataLoader(TensorDataset(torch.from_numpy(x[train]), torch.from_numpy(y[train]).long()),
                         batch_size=32, shuffle=True,
-                        generator=torch.Generator().manual_seed(42), num_workers=0)
+                        generator=torch.Generator().manual_seed(seed), num_workers=0)
     model = PaperMLP(x.shape[1], len(np.unique(y))).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, betas=(.9, .999), weight_decay=1e-4)
     loss_fn = nn.CrossEntropyLoss()
@@ -122,7 +122,7 @@ def main() -> None:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--splits", type=int, nargs="+", default=[1, 2, 3, 4])
     parser.add_argument("--scabini-features", type=Path,
-                        default=REPO / "embeddings_extensions/KTH-TIPS2-b_scabini/beitv2_scabini.npy")
+                        default=REPO / "embeddings_extensions/KTH-TIPS2-b_sota/beitv2_scabini.npy")
     parser.add_argument("--output", type=Path, default=REPO / "results/exploratory/sota_timing/kth")
     args = parser.parse_args()
 
