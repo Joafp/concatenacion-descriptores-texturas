@@ -6,14 +6,12 @@ comparar exactitud y costo en las mismas condiciones.
 
 | Método | Qué es | Datasets medidos |
 |---|---|---|
-| Scabini 2025 (*J. Imaging*) | BEiTv2-B/16 IN-21k congelado; KNN, LDA y SVM lineal sin ajustar; reporta la media de los tres | KTH-TIPS2-b, DTD, FMD |
+| Scabini 2025 (*J. Imaging*) | BEiTv2-B/16 IN-21k congelado; KNN, LDA y SVM lineal sin ajustar; reporta la media de los tres | KTH-TIPS2-b, DTD, FMD, Outex13 |
 | Neshov 2025 (*Electronics*) | BEiTv2 capas 2, 5, 8 y 11 congelado; MLP 64-BN-ReLU-Dropout(0,2), 100 épocas | KTH-TIPS2-b, DTD, FMD |
 | HyTexNet 2026 (*Knowl.-Based Syst.*) | Histogramas HyTex (514-D) + DenseNet-121 con el último bloque ajustado, a 128×128 | DTD, KTH-TIPS2-b |
 
 Nuestros métodos (Top-4, ensamble por diversidad y Completa-22) se midieron en
-los mismos tres datasets, con el protocolo de la tesis. Outex13 (Scabini y los
-nuestros) está pendiente: el sitio oficial de Outex no responde y hacen falta
-las imágenes del ZIP de la tesis (ver al final).
+los mismos cuatro datasets, con el protocolo de la tesis.
 
 ## Qué se mide
 
@@ -26,9 +24,20 @@ las imágenes del ZIP de la tesis (ver al final).
   contra los embeddings guardados; en DTD y FMD, `beitv2_base_final` (mismo
   checkpoint que Neshov) coincide con coseno 1,0, lo que confirma el orden de las
   imágenes y el preprocesamiento. De los 21 bloques coinciden todos salvo MAE,
-  que enmascara parches al azar (coseno mínimo 0,975 a 0,980), y DINOv2-L en
+  que enmascara parches al azar (coseno mínimo 0,975 a 0,988), DINOv2-L en
   DTD (coseno medio 0,99999, mínimo 0,9975: redondeo de la GPU en pocas
-  imágenes).
+  imágenes) y ViT-B/16 y DeiT-S en Outex13 (ver abajo).
+- **ViT-B/16 y DeiT-S en Outex13.** Su salida pasa por un *pooler* que los
+  checkpoints no traen y que se inicializa al azar; los embeddings guardados de
+  Outex13 se extrajeron con otra inicialización. En 1355 de las 1360 filas el
+  vector guardado es exactamente `tanh(W·cls + b)` del token CLS de esta
+  extracción para un único par `W`, `b` (coseno 1,0000 en ViT y 0,99995 en
+  DeiT), así que el cómputo, y su tiempo, es el mismo. Las filas 991, 1034,
+  1137, 1302 y 1329 no encajan en ninguno de los dos bloques ni se parecen a
+  otra imagen del dataset: esos cinco vectores guardados no salen de sus
+  imágenes, que sí coinciden en Swin-T y en los otros bloques. No cambia los
+  tiempos; afecta a 5 filas de 2 de los 22 bloques de las exactitudes de la
+  tesis en Outex13. Se comprueba con `src/check_outex_pooler.py`.
 - **Clasificadores** de scikit-learn en un hilo de CPU; MLP y HyTexNet en la GPU.
 - **Entrenar** = leer y decodificar todas las imágenes + extraer lo que el método
   necesita + seleccionar + ajustar, en segundos, para una partición.
@@ -42,9 +51,10 @@ las imágenes del ZIP de la tesis (ver al final).
 | KTH-TIPS2-b | RADAM: 3 muestras físicas entrenan, 1 prueba | 4 |
 | DTD | 10 particiones oficiales; se ajusta con train + validación (como la tesis), sin las copias idénticas de imágenes de test | 10 |
 | FMD | 10 repeticiones de validación cruzada estratificada de 10 folds, semilla 42·r (Neshov) | 100 |
+| Outex13 | partición oficial 680/680 (`Outex_TC_00013`, problema 000) | 1 |
 
 Nuestros métodos usan las condiciones externas del estudio k=4 de la tesis: las
-mismas particiones en KTH y DTD, y en FMD los 5 folds de `StratifiedGroupKFold`
+mismas particiones en KTH, DTD y Outex13, y en FMD los 5 folds de `StratifiedGroupKFold`
 con semilla 42 (800 imágenes de entrenamiento y 200 de prueba, contra 900 y 100
 de los papers). Sus exactitudes reproducen las de `../k4/README.md`.
 
@@ -106,12 +116,27 @@ Los métodos de la literatura se evalúan en 100 folds de 10×10 y los nuestros 
 5 folds con menos imágenes de entrenamiento, así que las exactitudes de FMD no
 son de las mismas particiones.
 
-La lectura de las imágenes es 67 s del tiempo de entrenar en DTD, 24 s en KTH y
-10 s en FMD.
+### Outex13
+
+Una sola partición, sin desvío.
+
+| Método | Clasif. | Exactitud | Publicada | Entrenar | Predecir | Sin lectura |
+|---|---|---:|---:|---:|---:|---:|
+| Scabini 2025 | media de 3 | 0,9127 | 0,916 | 11,6 s | 8,0 ms | 4,0 ms |
+| Scabini 2025 | SVM | 0,9279 | | 10,8 s | 8,0 ms | 3,9 ms |
+| Top-4 | SVM | 0,9294 | | 614 s | 161 ms | 157 ms |
+| Top-4 | ResMLP | 0,9368 | | 635 s | 161 ms | 157 ms |
+| Ens. diversidad | SVM | 0,9471 | | 665 s | 174 ms | 170 ms |
+| Ens. diversidad | ResMLP | 0,9559 | | 664 s | 178 ms | 173 ms |
+| Completa-22 | SVM | 0,9662 | | 583 s | 414 ms | 410 ms |
+| Completa-22 | ResMLP | 0,9456 | | 564 s | 414 ms | 410 ms |
+
+La lectura de las imágenes es 67 s del tiempo de entrenar en DTD, 24 s en KTH,
+10 s en FMD y 5,5 s en Outex13.
 
 ## Lectura
 
-- **Scabini se reproduce** en los tres datasets (diferencias de 0,1 a 0,4
+- **Scabini se reproduce** en los cuatro datasets (diferencias de 0,1 a 0,4
   puntos). **Neshov no**: con su receta transcrita queda 2 a 4 puntos debajo en
   los tres, siempre en la misma dirección.
 - **HyTexNet**: con el protocolo de su paper la réplica da 0,987 ± 0,006 en KTH
@@ -123,16 +148,17 @@ La lectura de las imágenes es 67 s del tiempo de entrenar en DTD, 24 s en KTH y
   es la entrada de 128×128, que el paper fija para todo: a 224×224 sube a
   0,6828 ± 0,010 (entrenar 262 s, predecir 8,1 ms sin lectura), todavía 5
   puntos abajo.
-- **Exactitud**: nuestros métodos superan a los de la literatura en los tres
+- **Exactitud**: nuestros métodos superan a los de la literatura en los cuatro
   datasets. En DTD, con las mismas particiones, Top-4 con SVM da 0,870
   contra 0,788 de Scabini y 0,799 de Neshov; en KTH, 0,958 contra 0,936 y
   0,930. En FMD la ventaja es parecida (0,982 contra 0,913 y 0,943), pero los
-  protocolos difieren.
+  protocolos difieren. En Outex13, Top-4 apenas pasa a Scabini con SVM (0,929
+  contra 0,928) y la ventaja la da Completa-22 (0,966 contra 0,913).
 - **Costo**: los tres métodos de la literatura usan una sola red y predicen en
   2,5 a 4,4 ms por imagen sin contar la lectura. Nuestros métodos extraen 4 a 22
   bloques: Top-4 predice en ~150 ms (lo dominan DINOv2 y DINOv2-L) y Completa-22
-  en 400 a 430 ms. Entrenarlos cuesta ~2000 s en KTH, ~2700 s en DTD y ~450 s
-  en FMD, porque hay que extraer los 21 bloques para el ranking; Gabor, DINOv2-L
+  en 400 a 430 ms. Entrenarlos cuesta ~2000 s en KTH, ~2700 s en DTD, ~450 s
+  en FMD y ~600 s en Outex13, porque hay que extraer los 21 bloques para el ranking; Gabor, DINOv2-L
   y DINOv2 son más del 70 % de esa extracción. Predecir con Top-4 cuesta unas
   35 a 40 veces lo que cuesta con un método de una sola red.
 
@@ -146,26 +172,14 @@ mejor valida en la primera partición entre 1e-3 y 1e-4 (DTD: 1e-4, 110 s; KTH:
 elección de la tasa se hace una vez y no está sumada en *Entrenar*. El
 descriptor HyTex se verificó contra la Tabla 1 del paper (umbral T75).
 
-## Pendiente: Outex13
-
-Los embeddings guardados de Outex13 ya están en el repo (para verificar la
-extracción). Con las imágenes del ZIP `Outex_TC_00013-20260120T014101Z-3-001.zip`
-descomprimidas en `data/confirmatory_sources/Outex13/` (debe quedar
-`Outex_TC_00013/images/000000.bmp`):
-
-```bash
-python src/time_extraction.py --dataset Outex13Official1360 \
-  --image-root data/confirmatory_sources/Outex13
-python src/benchmark_sota_methods.py --dataset Outex13Official1360
-python src/benchmark_our_methods.py --dataset Outex13Official1360
-python src/summarize_timing.py --dataset all
-```
-
 ## Scripts
 
 En WSL, con el entorno de GPU. Las imágenes van en `data/` según
-`docs/DATASETS.md`; los rasgos que no están guardados se escriben en
-`<carpeta de embeddings>_sota/`.
+`docs/DATASETS.md`; las de Outex13 son las del ZIP
+`Outex_TC_00013-20260120T014101Z-3-001.zip` (SHA-256 `8d8c6b9d…bcc642`, el de
+`Outex13Official1360.audit.json`), descomprimido en
+`data/confirmatory_sources/Outex13/` y pasado con `--image-root`. Los rasgos
+que no están guardados se escriben en `<carpeta de embeddings>_sota/`.
 
 ```bash
 python src/time_extraction.py --dataset DTD --descriptors \
@@ -176,5 +190,6 @@ python src/replicate_hytexnet.py --dataset KTHTIPS2b --kth-protocol paper  # con
 python src/benchmark_kth_methods.py                         # KTH: también Top-4, ensamble y Completa-22
 python src/time_extraction.py --dataset DTD                 # los 21 bloques y los conteos de color
 python src/benchmark_our_methods.py --dataset DTD           # our_runs.csv: Top-4, ensamble y Completa-22
+python src/time_extraction.py --dataset Outex13Official1360 --image-root data/confirmatory_sources/Outex13
 python src/summarize_timing.py --dataset all                # timing_table.csv y timing_all.csv
 ```
