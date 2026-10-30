@@ -117,6 +117,78 @@ def neshov(x, y, train, test, seed=42):
     return pred, fit_s, time.perf_counter() - t0
 
 
+def ours(cache, y, train, test, inner_groups, counts, fold, clf, add, seed=42):
+    """Top-4, the diversity ensemble and Completa-22 with one classifier, timed.
+
+    ``fold`` numbers the external condition as the k=4 study does and seeds the
+    diversity draws.  The ranking is recomputed, not read from the cache.
+    ``add`` records one method; see ``main``.
+    """
+    names = sorted(cache)
+    labels = np.unique(y)
+    y_tr = y[train]
+    with tempfile.TemporaryDirectory() as tmp:
+        sync()
+        t0 = time.perf_counter()
+        singles = ranked_singletons(cache, train, y, inner_groups, clf, seed,
+                                    f"bench_{clf}_{fold}", n_jobs=1, cache_dir=Path(tmp))
+        sync()
+        ranking_s = time.perf_counter() - t0
+    order = [n for n, _ in sorted(singles.items(), key=lambda kv: (-kv[1], kv[0]))]
+
+    def fit_subset(subset):
+        x = np.concatenate([cache[b] for b in subset], axis=1)
+        sync()
+        model, pred, fit_s, pred_s = timed_fit_predict(make_model(clf, seed), x[train], y_tr,
+                                                       x[test])
+        sync()
+        return model, x, pred, fit_s, pred_s
+
+    _, x4, pred, fit_s, pred_s = fit_subset(order[:K])
+    add("top4", clf, pred, fit_s, pred_s, ranking_s, dims=x4.shape[1], blocks=order[:K])
+
+    t0 = time.perf_counter()
+    mats = {n: cache[n][train].astype(np.float64) for n in names}
+    cka = {}
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            cka[(a, b)] = cka[(b, a)] = linear_cka(mats[a], mats[b])
+    del mats
+    cka_s = time.perf_counter() - t0
+    lo, hi = min(singles.values()), max(singles.values())
+    relevance = {n: (v - lo) / ((hi - lo) or 1.0) for n, v in singles.items()}
+    rng = np.random.default_rng(seed * 1000 + fold * 10 + int(LAMBDA * 7) + int(BETA))
+    subsets = [draw_subset(names, relevance, cka, LAMBDA, BETA, K, rng) for _ in range(DRAWS)]
+    fit_total = pred_total = 0.0
+    member = {}
+    for subset in sorted({tuple(s) for s in subsets}):
+        model, x, _, fit_s, _ = fit_subset(list(subset))
+        t0 = time.perf_counter()
+        member[subset] = decision_scores(model, x[test])
+        pred_total += time.perf_counter() - t0
+        fit_total += fit_s
+    t0 = time.perf_counter()
+    soft = np.mean([member[tuple(s)] for s in subsets], axis=0)
+    pred = labels[np.argmax(soft, axis=1)]
+    pred_total += time.perf_counter() - t0
+    union = {b for s in subsets for b in s}
+    add("diversidad", clf, pred, fit_total, pred_total, ranking_s + cka_s,
+        models=len(member), dims=int(sum(cache[b].shape[1] for b in union)), blocks=union)
+
+    # Completa-22: the colour block's SVD is part of training.
+    block = RGBNgramSVDBlock(counts)
+    t0 = time.perf_counter()
+    ng_train, ng_test, _ = block.transform(train, test)
+    svd_s = time.perf_counter() - t0
+    x_tr = np.concatenate([cache[n][train] for n in names] + [ng_train], axis=1)
+    x_te = np.concatenate([cache[n][test] for n in names] + [ng_test], axis=1)
+    sync()
+    _, pred, fit_s, pred_s = timed_fit_predict(make_model(clf, seed), x_tr, y_tr, x_te)
+    sync()
+    add("completa22", clf, pred, svd_s + fit_s, pred_s, dims=x_tr.shape[1],
+        blocks=names + ["rgb_ngram_counts"])
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -131,13 +203,11 @@ def main() -> None:
     cache.pop("beitv2_base_multilayer", None)
     groups, rows = load_manifest(AUDIT, DATASET, y)
     inner_groups = manifest_groups(rows, "sample")
-    names = sorted(cache)
-    if len(names) != 21:
-        raise AssertionError(f"expected the 21 stored blocks, found {len(names)}")
+    if len(cache) != 21:
+        raise AssertionError(f"expected the 21 stored blocks, found {len(cache)}")
     x_scabini = np.load(args.scabini_features).astype(np.float32)
     x_neshov = np.load(RAW / "beitv2_base_multilayer.npy").astype(np.float32)
     counts = build_count_cache(rows, REPO, AUDIT / "rgb_ngram_count_cache" / DATASET / "rgb_ngram_impl1")
-    labels = np.unique(y)
     records = []
 
     for split in args.splits:
@@ -172,68 +242,8 @@ def main() -> None:
         add("neshov", "mlp", pred, fit_s, pred_s, dims=x_neshov.shape[1],
             blocks=["beitv2_base_multilayer"])
 
-        # Our methods: the ranking is recomputed, not read from the cache.
         for clf in ("svm", "resmlp"):
-            with tempfile.TemporaryDirectory() as tmp:
-                sync()
-                t0 = time.perf_counter()
-                singles = ranked_singletons(cache, train, y, inner_groups, clf, 42,
-                                            f"bench_{clf}_{split}", n_jobs=1, cache_dir=Path(tmp))
-                sync()
-                ranking_s = time.perf_counter() - t0
-            order = [n for n, _ in sorted(singles.items(), key=lambda kv: (-kv[1], kv[0]))]
-
-            def fit_subset(subset):
-                x = np.concatenate([cache[b] for b in subset], axis=1)
-                sync()
-                model, pred, fit_s, pred_s = timed_fit_predict(make_model(clf, 42), x[train], y_tr,
-                                                               x[test])
-                sync()
-                return model, x, pred, fit_s, pred_s
-
-            _, x4, pred, fit_s, pred_s = fit_subset(order[:K])
-            add("top4", clf, pred, fit_s, pred_s, ranking_s, dims=x4.shape[1], blocks=order[:K])
-
-            t0 = time.perf_counter()
-            mats = {n: cache[n][train].astype(np.float64) for n in names}
-            cka = {}
-            for i, a in enumerate(names):
-                for b in names[i + 1:]:
-                    cka[(a, b)] = cka[(b, a)] = linear_cka(mats[a], mats[b])
-            del mats
-            cka_s = time.perf_counter() - t0
-            lo, hi = min(singles.values()), max(singles.values())
-            relevance = {n: (v - lo) / ((hi - lo) or 1.0) for n, v in singles.items()}
-            rng = np.random.default_rng(42 * 1000 + (split - 1) * 10 + int(LAMBDA * 7) + int(BETA))
-            subsets = [draw_subset(names, relevance, cka, LAMBDA, BETA, K, rng) for _ in range(DRAWS)]
-            fit_total = pred_total = 0.0
-            member = {}
-            for subset in sorted({tuple(s) for s in subsets}):
-                model, x, _, fit_s, _ = fit_subset(list(subset))
-                t0 = time.perf_counter()
-                member[subset] = decision_scores(model, x[test])
-                pred_total += time.perf_counter() - t0
-                fit_total += fit_s
-            t0 = time.perf_counter()
-            soft = np.mean([member[tuple(s)] for s in subsets], axis=0)
-            pred = labels[np.argmax(soft, axis=1)]
-            pred_total += time.perf_counter() - t0
-            union = {b for s in subsets for b in s}
-            add("diversidad", clf, pred, fit_total, pred_total, ranking_s + cka_s,
-                models=len(member), dims=int(sum(cache[b].shape[1] for b in union)), blocks=union)
-
-            # Completa-22: the colour block's SVD is part of training.
-            block = RGBNgramSVDBlock(counts)
-            t0 = time.perf_counter()
-            ng_train, ng_test, _ = block.transform(train, test)
-            svd_s = time.perf_counter() - t0
-            x_tr = np.concatenate([cache[n][train] for n in names] + [ng_train], axis=1)
-            x_te = np.concatenate([cache[n][test] for n in names] + [ng_test], axis=1)
-            sync()
-            _, pred, fit_s, pred_s = timed_fit_predict(make_model(clf, 42), x_tr, y_tr, x_te)
-            sync()
-            add("completa22", clf, pred, svd_s + fit_s, pred_s, dims=x_tr.shape[1],
-                blocks=names + ["rgb_ngram_counts"])
+            ours(cache, y, train, test, inner_groups, counts, split - 1, clf, add)
 
     args.output.mkdir(parents=True, exist_ok=True)
     frame = pd.DataFrame(records)

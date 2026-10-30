@@ -10,8 +10,10 @@ comparar exactitud y costo en las mismas condiciones.
 | Neshov 2025 (*Electronics*) | BEiTv2 capas 2, 5, 8 y 11 congelado; MLP 64-BN-ReLU-Dropout(0,2), 100 épocas | KTH-TIPS2-b, DTD, FMD |
 | HyTexNet 2026 (*Knowl.-Based Syst.*) | Histogramas HyTex (514-D) + DenseNet-121 con el último bloque ajustado, a 128×128 | DTD, KTH-TIPS2-b |
 
-Outex13 (solo Scabini) está pendiente: el sitio oficial de Outex no responde y
-hacen falta las imágenes del ZIP de la tesis (ver al final).
+Nuestros métodos (Top-4, ensamble por diversidad y Completa-22) se midieron en
+los mismos tres datasets, con el protocolo de la tesis. Outex13 (Scabini y los
+nuestros) está pendiente: el sitio oficial de Outex no responde y hacen falta
+las imágenes del ZIP de la tesis (ver al final).
 
 ## Qué se mide
 
@@ -23,7 +25,10 @@ hacen falta las imágenes del ZIP de la tesis (ver al final).
   `torch.cuda.synchronize` antes de parar el reloj. Cada extracción se verifica
   contra los embeddings guardados; en DTD y FMD, `beitv2_base_final` (mismo
   checkpoint que Neshov) coincide con coseno 1,0, lo que confirma el orden de las
-  imágenes y el preprocesamiento.
+  imágenes y el preprocesamiento. De los 21 bloques coinciden todos salvo MAE,
+  que enmascara parches al azar (coseno mínimo 0,975 a 0,980), y DINOv2-L en
+  DTD (coseno medio 0,99999, mínimo 0,9975: redondeo de la GPU en pocas
+  imágenes).
 - **Clasificadores** de scikit-learn en un hilo de CPU; MLP y HyTexNet en la GPU.
 - **Entrenar** = leer y decodificar todas las imágenes + extraer lo que el método
   necesita + seleccionar + ajustar, en segundos, para una partición.
@@ -37,6 +42,11 @@ hacen falta las imágenes del ZIP de la tesis (ver al final).
 | KTH-TIPS2-b | RADAM: 3 muestras físicas entrenan, 1 prueba | 4 |
 | DTD | 10 particiones oficiales; se ajusta con train + validación (como la tesis), sin las copias idénticas de imágenes de test | 10 |
 | FMD | 10 repeticiones de validación cruzada estratificada de 10 folds, semilla 42·r (Neshov) | 100 |
+
+Nuestros métodos usan las condiciones externas del estudio k=4 de la tesis: las
+mismas particiones en KTH y DTD, y en FMD los 5 folds de `StratifiedGroupKFold`
+con semilla 42 (800 imágenes de entrenamiento y 200 de prueba, contra 900 y 100
+de los papers). Sus exactitudes reproducen las de `../k4/README.md`.
 
 Neshov no dice para qué usa la validación de DTD, así que su MLP también se
 ajustó solo con train (*solo train*). HyTexNet usa la validación de DTD para
@@ -66,21 +76,38 @@ Exactitud media; desvío entre evaluaciones.
 
 | Método | Clasif. | Exactitud | Publicada | Entrenar | Predecir | Sin lectura |
 |---|---|---:|---:|---:|---:|---:|
-| Scabini 2025 | media de 3 | 0,7883 ± 0,009 | 0,791 | 91 s | 16,5 ms | 4,4 ms |
-| Scabini 2025 | SVM | 0,8178 | | 91 s | 16,4 ms | 4,3 ms |
-| Neshov 2025 | MLP | 0,7993 ± 0,007 | 0,820 | 110 s | 15,9 ms | 3,8 ms |
-| Neshov 2025 | MLP, solo train | 0,7701 ± 0,009 | 0,820 | 100 s | 15,9 ms | 3,8 ms |
-| HyTexNet 2026 | MLP | 0,6141 ± 0,008 | 0,732 | 167 s | 15,3 ms | 3,2 ms |
+| Scabini 2025 | media de 3 | 0,7883 ± 0,009 | 0,791 | 90 s | 16,3 ms | 4,4 ms |
+| Scabini 2025 | SVM | 0,8178 | | 89 s | 16,1 ms | 4,3 ms |
+| Neshov 2025 | MLP | 0,7993 ± 0,007 | 0,820 | 109 s | 15,6 ms | 3,8 ms |
+| Neshov 2025 | MLP, solo train | 0,7701 ± 0,009 | 0,820 | 98 s | 15,6 ms | 3,8 ms |
+| HyTexNet 2026 | MLP | 0,6141 ± 0,008 | 0,732 | 166 s | 15,1 ms | 3,2 ms |
+| Top-4 | SVM | 0,8703 ± 0,008 | | 2761 s | 160 ms | 149 ms |
+| Top-4 | ResMLP | 0,8624 ± 0,005 | | 2703 s | 163 ms | 151 ms |
+| Ens. diversidad | SVM | 0,8748 | | 3019 s | 183 ms | 171 ms |
+| Ens. diversidad | ResMLP | 0,8768 | | 2828 s | 183 ms | 171 ms |
+| Completa-22 | SVM | 0,8654 ± 0,008 | | 2568 s | 441 ms | 429 ms |
+| Completa-22 | ResMLP | 0,8637 | | 2505 s | 441 ms | 429 ms |
 
 ### FMD
 
 | Método | Clasif. | Exactitud | Publicada | Entrenar | Predecir | Sin lectura |
 |---|---|---:|---:|---:|---:|---:|
-| Scabini 2025 | media de 3 | 0,9130 ± 0,020 | 0,909 | 14,5 s | 14,4 ms | 4,0 ms |
-| Scabini 2025 | SVM | 0,9524 | | 14,3 s | 14,3 ms | 4,0 ms |
-| Neshov 2025 | MLP | 0,9426 ± 0,021 | 0,967 | 19,3 s | 14,3 ms | 3,9 ms |
+| Scabini 2025 | media de 3 | 0,9130 ± 0,020 | 0,909 | 14,6 s | 14,5 ms | 4,0 ms |
+| Scabini 2025 | SVM | 0,9524 | | 14,4 s | 14,4 ms | 4,0 ms |
+| Neshov 2025 | MLP | 0,9426 ± 0,021 | 0,967 | 19,4 s | 14,4 ms | 3,9 ms |
+| Top-4 | SVM | 0,9820 ± 0,017 | | 439 s | 160 ms | 150 ms |
+| Top-4 | ResMLP | 0,9750 ± 0,017 | | 507 s | 160 ms | 150 ms |
+| Ens. diversidad | SVM | 0,9790 | | 467 s | 187 ms | 177 ms |
+| Ens. diversidad | ResMLP | 0,9770 | | 539 s | 187 ms | 176 ms |
+| Completa-22 | SVM | 0,9650 ± 0,024 | | 434 s | 428 ms | 417 ms |
+| Completa-22 | ResMLP | 0,9560 | | 432 s | 428 ms | 417 ms |
 
-En DTD y KTH, la lectura de las imágenes es 68 s y 24 s del tiempo de entrenar.
+Los métodos de la literatura se evalúan en 100 folds de 10×10 y los nuestros en
+5 folds con menos imágenes de entrenamiento, así que las exactitudes de FMD no
+son de las mismas particiones.
+
+La lectura de las imágenes es 67 s del tiempo de entrenar en DTD, 24 s en KTH y
+10 s en FMD.
 
 ## Lectura
 
@@ -96,11 +123,18 @@ En DTD y KTH, la lectura de las imágenes es 68 s y 24 s del tiempo de entrenar.
   es la entrada de 128×128, que el paper fija para todo: a 224×224 sube a
   0,6828 ± 0,010 (entrenar 262 s, predecir 8,1 ms sin lectura), todavía 5
   puntos abajo.
+- **Exactitud**: nuestros métodos superan a los de la literatura en los tres
+  datasets. En DTD, con las mismas particiones, Top-4 con SVM da 0,870
+  contra 0,788 de Scabini y 0,799 de Neshov; en KTH, 0,958 contra 0,936 y
+  0,930. En FMD la ventaja es parecida (0,982 contra 0,913 y 0,943), pero los
+  protocolos difieren.
 - **Costo**: los tres métodos de la literatura usan una sola red y predicen en
   2,5 a 4,4 ms por imagen sin contar la lectura. Nuestros métodos extraen 4 a 22
   bloques: Top-4 predice en ~150 ms (lo dominan DINOv2 y DINOv2-L) y Completa-22
-  en ~400 ms; entrenarlos cuesta ~2000 s porque hay que extraer los 21 bloques
-  (Gabor, DINOv2-L y DINOv2 son el 77 %).
+  en 400 a 430 ms. Entrenarlos cuesta ~2000 s en KTH, ~2700 s en DTD y ~450 s
+  en FMD, porque hay que extraer los 21 bloques para el ranking; Gabor, DINOv2-L
+  y DINOv2 son más del 70 % de esa extracción. Predecir con Top-4 cuesta unas
+  35 a 40 veces lo que cuesta con un método de una sola red.
 
 ## Decisiones de la réplica de HyTexNet
 
@@ -121,8 +155,9 @@ descomprimidas en `data/confirmatory_sources/Outex13/` (debe quedar
 
 ```bash
 python src/time_extraction.py --dataset Outex13Official1360 \
-  --image-root data/confirmatory_sources/Outex13 --descriptors beitv2_base_final beitv2_scabini
+  --image-root data/confirmatory_sources/Outex13
 python src/benchmark_sota_methods.py --dataset Outex13Official1360
+python src/benchmark_our_methods.py --dataset Outex13Official1360
 python src/summarize_timing.py --dataset all
 ```
 
@@ -139,5 +174,7 @@ python src/benchmark_sota_methods.py --dataset DTD          # sota_runs.csv: Sca
 python src/replicate_hytexnet.py --dataset DTD              # hytexnet_runs.csv
 python src/replicate_hytexnet.py --dataset KTHTIPS2b --kth-protocol paper  # control de la réplica
 python src/benchmark_kth_methods.py                         # KTH: también Top-4, ensamble y Completa-22
+python src/time_extraction.py --dataset DTD                 # los 21 bloques y los conteos de color
+python src/benchmark_our_methods.py --dataset DTD           # our_runs.csv: Top-4, ensamble y Completa-22
 python src/summarize_timing.py --dataset all                # timing_table.csv y timing_all.csv
 ```

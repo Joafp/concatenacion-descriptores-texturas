@@ -25,7 +25,10 @@ next to the embeddings, in ``<embedding dir>_sota``, for the method benchmarks:
                     KTH-TIPS2-b; elsewhere ``beitv2_base_final``, from the same
                     checkpoint, checks the image order and preprocessing;
 ``rgb_ngram_counts`` the label-free RGB N-gram counts behind the colour block,
-                    checked against the count cache instead.
+                    checked against the count cache of KTH-TIPS2-b; the
+                    repository keeps no cache for the other datasets, so their
+                    counts are saved in ``<embedding dir>_sota/rgb_ngram_counts``
+                    in the layout of ``rgb_ngram_descriptor.build_count_cache``.
 
 ``mae_base`` masks random patches at inference, so its stored copy cannot be
 matched exactly; its similarity is reported but not required.
@@ -249,9 +252,21 @@ def extract_ngram_counts(images):
     return (keys, counts), 0.0, time.perf_counter() - t0
 
 
+def save_counts(array, destination):
+    """Per-image counts in the layout of rgb_ngram_descriptor.build_count_cache."""
+    keys, counts = array
+    destination.mkdir(parents=True, exist_ok=True)
+    np.save(destination / "keys.npy", np.concatenate(keys))
+    np.save(destination / "counts.npy", np.concatenate(counts))
+    np.save(destination / "indptr.npy",
+            np.concatenate(([0], np.cumsum([len(k) for k in keys]))).astype(np.int64))
+
+
 def verify(name, array, embedding_root, count_cache):
     if name == "rgb_ngram_counts":
         keys, counts = array
+        if not (count_cache / "keys.npy").exists():
+            return {"matches_stored": None}
         cache = {n: np.load(count_cache / f"{n}.npy") for n in ("keys", "counts", "indptr")}
         same = (np.array_equal(np.concatenate(keys), cache["keys"])
                 and np.array_equal(np.concatenate(counts), cache["counts"]))
@@ -278,7 +293,8 @@ def main() -> None:
     parser.add_argument("--image-root", type=Path,
                         help="directory holding the members named by an Outex manifest")
     parser.add_argument("--count-cache", type=Path,
-                        default=REPO / "results/extensions/kth_tips2b/rgb_ngram_count_cache/KTHTIPS2b/rgb_ngram_impl1")
+                        help="RGB N-gram counts to check against; default: the stored cache of "
+                             "KTH-TIPS2-b, elsewhere <embedding dir>_sota/rgb_ngram_counts")
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--classical-jobs", type=int, default=8)
@@ -288,6 +304,12 @@ def main() -> None:
     args.manifest = args.manifest or REPO / manifest
     args.embedding_root = args.embedding_root or REPO / embeddings
     args.output = args.output or REPO / "results/exploratory/sota_timing" / slug
+    # Kept outside the embedding directory so the loaders never take it for a
+    # block of the library.
+    sota = args.embedding_root.with_name(args.embedding_root.name + "_sota")
+    args.count_cache = args.count_cache or (
+        REPO / "results/extensions/kth_tips2b/rgb_ngram_count_cache/KTHTIPS2b/rgb_ngram_impl1"
+        if args.dataset == "KTHTIPS2b" else sota / "rgb_ngram_counts")
 
     with args.manifest.open(newline="", encoding="utf-8") as f:
         rows = sorted(csv.DictReader(f), key=lambda r: int(r["row_id"]))
@@ -317,12 +339,11 @@ def main() -> None:
             array, load_s, extract_s = extract_deep(name, images, device, args.batch_size, args.workers)
             where = gpu
         check = verify(name, array, args.embedding_root, args.count_cache)
-        if check["matches_stored"] is None:
-            # Kept outside the embedding directory so the loaders never take it
-            # for a block of the library.
-            target = args.embedding_root.with_name(args.embedding_root.name + "_sota")
-            target.mkdir(parents=True, exist_ok=True)
-            np.save(target / f"{name}.npy", array.astype(np.float32))
+        if check["matches_stored"] is None and name == "rgb_ngram_counts":
+            save_counts(array, args.count_cache)
+        elif check["matches_stored"] is None:
+            sota.mkdir(parents=True, exist_ok=True)
+            np.save(sota / f"{name}.npy", array.astype(np.float32))
         results[name] = {"images": len(paths), "device": where, "load_seconds": load_s,
                          "extract_seconds": extract_s,
                          "ms_per_image": 1000 * extract_s / len(paths),

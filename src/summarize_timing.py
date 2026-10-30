@@ -10,7 +10,9 @@ Inputs, all from results/exploratory/sota_timing/<dataset>:
                            each split (benchmark_kth_methods.py);
 ``sota_runs.csv``          the literature methods on the protocol of the papers
                            (benchmark_sota_methods.py);
-``hytexnet_runs.csv``      HyTexNet (replicate_hytexnet.py).
+``hytexnet_runs.csv``      HyTexNet (replicate_hytexnet.py);
+``our_runs.csv``           the thesis methods on the protocol of the thesis,
+                           outside KTH-TIPS2-b (benchmark_our_methods.py).
 
 Per method and classifier, averaged over the evaluations of the protocol:
 
@@ -53,7 +55,7 @@ PUBLISHED = {("scabini", "media3"): {"KTHTIPS2b": 0.937, "DTD": 0.791, "FMD": 0.
 
 def load_runs(root: Path) -> pd.DataFrame:
     frames = []
-    for name in ("method_runs.csv", "sota_runs.csv", "hytexnet_runs.csv"):
+    for name in ("method_runs.csv", "sota_runs.csv", "hytexnet_runs.csv", "our_runs.csv"):
         if (root / name).exists():
             frame = pd.read_csv(root / name, dtype={"split": str})
             if frames:  # a method already measured by an earlier file is not repeated
