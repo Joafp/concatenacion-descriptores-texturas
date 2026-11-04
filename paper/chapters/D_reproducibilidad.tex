@@ -1,0 +1,28 @@
+\chapter{Reproducibilidad y disponibilidad}\label{app:reproducibilidad}
+
+\section{Materiales, procedencia y acceso}
+El paquete organiza manifiestos, decisiones, puntuaciones, predicciones y scripts. La procedencia se identifica mediante commit y hashes, incluidos los cambios locales. La implementación se desarrolla en el \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{repositorio del proyecto}; al reproducir el estudio deben contrastarse los registros locales con la versión publicada.
+
+Los manifiestos identifican las muestras de las seis colecciones del Capítulo~\ref{sec:diseno}. La disponibilidad y redistribución de imágenes, embeddings y pesos dependen de sus proveedores. Los archivos auxiliares locales no se presumen incluidos en la versión pública.
+
+\section{Comprobaciones registradas y alcance}\label{sec:trazabilidad}
+La verificación del 25 de octubre de 2026 recalcula 147 métricas de desarrollo, comprueba 470 filas estáticas y reproduce 36 decisiones del híbrido con sus 13 resultados. Ese corte registró 83 pruebas de software aprobadas. La réplica del 26 de octubre añade cinco condiciones auditadas, con 60 selecciones estáticas, 180 decisiones de enrutamiento y 170 resultados de políticas recalculados; su verificación de software registró 94 pruebas aprobadas. Los índices, decisiones y puntuaciones permiten comprobar selección y aritmética; reproducir independientemente requiere repetir extracción y entrenamiento con las configuraciones indicadas.
+
+El benchmark histórico conserva 27 archivos de predicciones y 31.984 observaciones de test acumuladas, no necesariamente imágenes únicas. Las particiones sin índices guardados mantienen una reserva de trazabilidad. El piloto híbrido conserva 680 predicciones por política y se distingue de esas 27 condiciones.
+
+El control de poda y compuerta verifica 31 hashes y las predicciones de rescate de 36 decisiones contra las puntuaciones originales. Sus 8.160 filas corresponden a doce vistas de las mismas 680 imágenes, no a imágenes adicionales. Las tablas se reconstruyen mediante \texttt{scripts/build\_p0\_thesis\_tables.py} desde los registros P0, con hashes de entradas y salidas, sin reentrenar ni modificar predicciones.
+
+Las comprobaciones desde caché y las pruebas de software no estiman desempeño en imágenes nuevas ni sustituyen extracción y entrenamiento independientes. La medición física requiere fidelidad de representación y un régimen de ejecución explícito.
+
+\section{Reconstrucción mínima y límites de entrega}
+Se reconstruyeron las dos tablas P0 en una carpeta aislada con diez archivos: el generador, cinco registros del análisis y cuatro del piloto de origen. El resultado fue byte-idéntico, utilizando el mismo entorno Python; no se presenta como instalación independiente ni reproducción de extracción. La receta, dependencias, entradas y hashes completos se documentan en \path{docs/fsc_tex/REPRODUCCION_MINIMA_MESA_2026-10-25.md} dentro del repositorio.
+
+El control estático nuevo conserva sus doce decisiones antes de evaluación, las puntuaciones de validación y una predicción por imagen y presupuesto. Se comprobaron las doce selecciones, el costo de cada unión y la correspondencia entre puntuaciones y clases. La sensibilidad KTH conserva matrices de entrada, salidas SCI2S y comprobaciones numéricas de Friedman y Holm. Estos registros separan la reconstrucción aritmética del entrenamiento y la extracción.
+
+En la réplica, los tres controles estáticos FMD fallaron por una comprobación heredada que exigía 680 imágenes en lugar de las 800 de desarrollo. Se conservan los intentos originales y se recuperaron solo esas etapas en directorios nuevos, adaptando la validación al tamaño de entrenamiento. Las decisiones recuperadas son byte-idénticas a las congeladas antes del fallo. No se modificaron las particiones, el selector ni los parámetros, ni se repitieron el pool, el ensamble o el híbrido. El registro de autorización y los hashes distinguen recuperación de ejecución original.
+
+Las tablas de la réplica se generan con \path{scripts/build_replication_thesis_tables.py} desde los resultados auditados en \path{results/analysis/mesa_replication_20261026}. El generador verifica las fuentes ligadas por hashes y conserva la procedencia de cuatro tablas en \path{paper/generated_replication/provenance.json}. Su reconstrucción no ejecuta modelos ni añade contrastes estadísticos. La auditoría comprueba además la exclusión de test y la separación de grupos y transformaciones.
+
+Para SoilOriginal se verificaron nuevamente el archivo de la versión 1 y los hashes de las 1.140 imágenes admitidas. El SHA-256 del archivo comienza por \texttt{a4ae6ce5f918}; el manifiesto y el registro de reproducción conservan el valor completo. Se utilizan las rutas de las fuentes recuperadas, no los placeholders históricos. Los grupos de dependencia por nombre son conservadores y no acreditan que se conozca toda relación física entre imágenes.
+
+El paquete de trabajo contiene rutas absolutas históricas y archivos auxiliares no necesariamente publicados. La entrega pública completa requiere resolver su portabilidad, disponibilidad y condiciones de redistribución. Reproducir desde RGB exige además los pesos exactos, preprocesamiento y capa de cada extractor del Anexo~\ref{app:especificaciones}. Estas comprobaciones no incluyen esa reextracción ni una medición física del híbrido.

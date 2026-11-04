@@ -36,7 +36,8 @@ from run_confirmatory_nested import (  # noqa: E402
 )
 from run_diversity_lottery import draw_subset  # noqa: E402
 from run_topk_individual_control import outer_indices  # noqa: E402
-from run_weighted_lottery_selection import decision_scores, metrics, rank_weights  # noqa: E402
+from ensemble_scoring import decision_scores, training_score_scale  # noqa: E402
+from run_weighted_lottery_selection import metrics, rank_weights  # noqa: E402
 from singleton_ranking import condition_key, ranked_singletons  # noqa: E402
 
 REPO = SRC.parent
@@ -124,7 +125,8 @@ def main() -> None:
         model = make_model(args.classifier, args.seed)
         model.fit(x[train], y[train])
         pred = np.asarray(model.predict(x[test]))
-        return decision_scores(model, x[test]), metrics(y_test, pred, labels)
+        scale = training_score_scale(model, x[train])
+        return decision_scores(model, x[test], scale), metrics(y_test, pred, labels), scale
 
     distinct = sorted({tuple(s) for s in lottery + diversity})
     fitted = dict(zip(distinct, Parallel(n_jobs=jobs, prefer="threads")(
@@ -132,6 +134,7 @@ def main() -> None:
 
     record = {"dataset": args.dataset, "classifier": args.classifier, "seed": args.seed,
               "outer_fold": fold, "k": k, "members": args.members, "beta": BETA,
+              "score_normalization": "global_std_fitted_on_outer_training_rows_v1",
               "lambda": LAMBDA, "distinct_subsets_fitted": len(distinct), "methods": {}}
     flat = []
     for method, subsets in (("tombola", lottery), ("diversidad", diversity)):
@@ -145,7 +148,8 @@ def main() -> None:
                          "members": m, **met, "distinct": curve[m]["distinct"]})
         record["methods"][method] = {
             "subsets": subsets, "curve": curve,
-            "member_macro_f1": [fitted[tuple(s)][1]["macro_f1"] for s in subsets]}
+            "member_macro_f1": [fitted[tuple(s)][1]["macro_f1"] for s in subsets],
+            "member_score_scales": [fitted[tuple(s)][2] for s in subsets]}
     record["duration_seconds"] = time.perf_counter() - started
 
     output.mkdir(parents=True, exist_ok=True)

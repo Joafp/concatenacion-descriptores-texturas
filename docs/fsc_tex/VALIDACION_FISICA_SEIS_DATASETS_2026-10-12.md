@@ -1,5 +1,7 @@
 # Validación física de la cascada: seis datasets
 
+> **Nota de alcance vigente — 23-10-2026:** este es un reporte histórico de la cascada anterior, no una medición del híbrido de diversidad. Sus conclusiones deben leerse con las reservas posteriores del [plan de fidelidad](PLAN_CIERRE_TESIS_2026-10-18.md) y del [resumen vigente](RESUMEN_RESULTADOS_PARA_EXPONER_2026-10-23.md). CUReT y Soil presentan discrepancias de representaciones: coincidir en rutas/predicciones no demuestra identidad de embeddings. La atribución causal al pooler descrita abajo es una hipótesis histórica, no un diagnóstico cerrado. Las tablas crudas se conservan; no presentar las conclusiones amplias de fidelidad como verificadas ni transferir sus porcentajes al nuevo híbrido.
+
 ## Material Passport
 
 - Origin Skill: experiment-agent (ARS)

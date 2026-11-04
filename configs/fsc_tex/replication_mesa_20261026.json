@@ -1,0 +1,24 @@
+{
+  "schema": "local-development-replication/1",
+  "date": "2026-10-26",
+  "output_root": "results/exploratory/integration_v11/replication_20261026",
+  "max_workers": 2,
+  "threads_per_process": 2,
+  "stage_timeout_seconds": 1800,
+  "producer_folds": 3,
+  "selection_folds": 3,
+  "budgets_ms": [15, 30, 60, 120],
+  "quantiles": [0.1, 0.25, 0.5],
+  "candidate_draws": 5,
+  "subset_size": 4,
+  "max_members": 3,
+  "library": 22,
+  "protocol_document": "docs/fsc_tex/PROTOCOLO_REPLICA_MESA_2026-10-26.md",
+  "conditions": [
+    {"id": "FMD_s42", "dataset": "FMD", "seed": 42, "fold": 0, "expected_development_images": 800, "manifest_root": "results/confirmatory", "embedding_root": "embeddings_confirmatory", "ngram_count_cache": "results/confirmatory/rgb_ngram_count_cache/FMD/rgb_ngram_impl1"},
+    {"id": "Outex_s123", "dataset": "Outex13Official1360", "seed": 123, "official_split": 1, "expected_development_images": 680, "manifest_root": "results/extensions/outex13_official1360", "embedding_root": "embeddings_extensions", "ngram_count_cache": "results/extensions/outex13_official1360/rgb_ngram_count_cache/Outex13Official1360/rgb_ngram_impl1"},
+    {"id": "FMD_s123", "dataset": "FMD", "seed": 123, "fold": 0, "expected_development_images": 800, "manifest_root": "results/confirmatory", "embedding_root": "embeddings_confirmatory", "ngram_count_cache": "results/confirmatory/rgb_ngram_count_cache/FMD/rgb_ngram_impl1"},
+    {"id": "Outex_s2026", "dataset": "Outex13Official1360", "seed": 2026, "official_split": 1, "expected_development_images": 680, "manifest_root": "results/extensions/outex13_official1360", "embedding_root": "embeddings_extensions", "ngram_count_cache": "results/extensions/outex13_official1360/rgb_ngram_count_cache/Outex13Official1360/rgb_ngram_impl1"},
+    {"id": "FMD_s2026", "dataset": "FMD", "seed": 2026, "fold": 0, "expected_development_images": 800, "manifest_root": "results/confirmatory", "embedding_root": "embeddings_confirmatory", "ngram_count_cache": "results/confirmatory/rgb_ngram_count_cache/FMD/rgb_ngram_impl1"}
+  ]
+}

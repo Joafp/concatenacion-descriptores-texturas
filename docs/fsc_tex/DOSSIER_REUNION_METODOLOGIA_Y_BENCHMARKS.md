@@ -1,4 +1,7 @@
 # Dossier Ejecutivo de Metodología y Benchmarks (FSC-Tex)
+
+> **Actualización del 23-10-2026:** para exponer los avances nuevos usar [el resumen vigente](RESUMEN_RESULTADOS_PARA_EXPONER_2026-10-23.md) y el [plan integración v10](PLAN_INTEGRACION_CARLOS_CASCADA_2026-10-19.md). El cuerpo siguiente conserva la exposición histórica: sus cifras de la cascada anterior y sus mediciones físicas no corresponden al nuevo híbrido con ensamble podado. Las reservas de fidelidad CUReT/Soil y procedencia de KTH continúan abiertas; no interpretar coincidencia de decisiones como identidad de embeddings.
+
 **Documento de Apoyo para Reunión de Tutoría y Presentación de Avances**
 
 * **Proyecto:** Concatenación Sistemática y Fusión Adaptativa Costo-Consciente de Descriptores Visuales para Clasificación de Texturas

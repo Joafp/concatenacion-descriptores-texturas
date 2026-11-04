@@ -164,3 +164,16 @@ class RGBNgramSVDBlock:
             (np.concatenate(values), np.concatenate(columns), np.asarray(indptr, dtype=np.int64)),
             shape=(len(rows), self.hash_bins), dtype=np.float32,
         )
+
+    def transformation_audits(self) -> list[dict]:
+        """Expose exact split membership for each fitted projection in this run."""
+        with self._lock:
+            return [
+                {**audit,
+                 "train_indices": list(train), "evaluation_indices": list(evaluation),
+                 "train_indices_sha256": hashlib.sha256(
+                     np.asarray(train, dtype="<i8").tobytes()).hexdigest(),
+                 "evaluation_indices_sha256": hashlib.sha256(
+                     np.asarray(evaluation, dtype="<i8").tobytes()).hexdigest()}
+                for (train, evaluation), (_, _, audit) in self._cache.items()
+            ]

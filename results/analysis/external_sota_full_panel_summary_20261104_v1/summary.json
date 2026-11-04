@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-11-04T08:28:00-03:00",
+  "hardware": "NVIDIA GeForce RTX 4060 Laptop GPU (8 GB VRAM), batch_size=1, torch.cuda.synchronize() + time.perf_counter_ns()",
+  "total_external_online_calls": 141584,
+  "methods": {
+    "Neshov_2025_BEiTv2_LogReg": {
+      "citation": "Neshov et al. (2025)",
+      "architecture": "Frozen BEiT-v2-B (768D) + L2 Normalization + LogisticRegression",
+      "conditions_completed": "47/47",
+      "online_calls": 36264,
+      "datasets": {
+        "DTD": {"macro_f1": 0.8397, "accuracy": 0.8395, "mean_ms": 22.86, "conditions": "10/10"},
+        "FMD": {"macro_f1": 0.9420, "accuracy": 0.9420, "mean_ms": 21.05, "conditions": "15/15"},
+        "CUReT": {"macro_f1": 0.9941, "accuracy": 0.9941, "mean_ms": 21.22, "conditions": "2/2"},
+        "Outex13": {"macro_f1": 0.9067, "accuracy": 0.9088, "mean_ms": 21.23, "conditions": "1/1"},
+        "SoilOriginal": {"macro_f1": 0.8578, "accuracy": 0.9006, "mean_ms": 22.02, "conditions": "15/15"},
+        "KTHTIPS2b": {"macro_f1": 0.9293, "accuracy": 0.9333, "mean_ms": 20.80, "conditions": "4/4"}
+      }
+    },
+    "DeepLumina_2022_ResNet101_RGB_YIQ_ECOC": {
+      "citation": "Simon & Uma (2022)",
+      "architecture": "ResNet-101 fc1000 RGB (1000D) + ResNet-101 fc1000 YIQ-Y (1000D) = 2000D + sparse-random ternary ECOC LinearSVC (lossweighted hinge)",
+      "conditions_completed": "46/47 (DTD s42_f3 hit 3600s CPU timeout during 84-column LinearSVC fit)",
+      "online_calls": 34384,
+      "datasets": {
+        "DTD": {"macro_f1": 0.7027, "accuracy": 0.7040, "mean_ms": 69.61, "conditions": "9/10"},
+        "FMD": {"macro_f1": 0.8559, "accuracy": 0.8553, "mean_ms": 53.33, "conditions": "15/15"},
+        "CUReT": {"macro_f1": 0.9881, "accuracy": 0.9881, "mean_ms": 53.00, "conditions": "2/2"},
+        "Outex13": {"macro_f1": 0.9073, "accuracy": 0.9103, "mean_ms": 53.54, "conditions": "1/1"},
+        "SoilOriginal": {"macro_f1": 0.8050, "accuracy": 0.8614, "mean_ms": 57.80, "conditions": "15/15"},
+        "KTHTIPS2b": {"macro_f1": 0.8744, "accuracy": 0.8798, "mean_ms": 51.57, "conditions": "4/4"}
+      }
+    },
+    "HyTexNet_2026_MobileNetV2_235D_MLP": {
+      "citation": "Gupta et al. (2026)",
+      "architecture": "MobileNetV2 GAP (1280D) + 235D handcrafted (LBP+GLCM+Gabor+Wavelet+Autocorr+FFT) = 1515D + StandardScaler + 2-layer MLP",
+      "conditions_completed": "46/47 (DTD s42_f2 hit 600s stage timeout)",
+      "online_calls": 34672,
+      "datasets": {
+        "DTD": {"macro_f1": 0.6363, "accuracy": 0.6400, "mean_ms": 31.83, "conditions": "9/10"},
+        "FMD": {"macro_f1": 0.7652, "accuracy": 0.7667, "mean_ms": 29.60, "conditions": "15/15"},
+        "CUReT": {"macro_f1": 0.9580, "accuracy": 0.9581, "mean_ms": 33.51, "conditions": "2/2"},
+        "Outex13": {"macro_f1": 0.8422, "accuracy": 0.8456, "mean_ms": 32.10, "conditions": "1/1"},
+        "SoilOriginal": {"macro_f1": 0.7748, "accuracy": 0.8313, "mean_ms": 33.24, "conditions": "15/15"},
+        "KTHTIPS2b": {"macro_f1": 0.8259, "accuracy": 0.8316, "mean_ms": 29.04, "conditions": "4/4"}
+      }
+    },
+    "CellNN_6LBP_2024": {
+      "citation": "Chang et al. (2024)",
+      "architecture": "6 multi-radius riu2 LBP histograms (3 original + 3 dCellNN contour maps, R in {1,2,3}) = 108D + StandardScaler + MLP",
+      "conditions_completed": "47/47",
+      "online_calls": 36264,
+      "datasets": {
+        "DTD": {"macro_f1": 0.3427, "accuracy": 0.3511, "mean_ms": 32.98, "conditions": "10/10"},
+        "FMD": {"macro_f1": 0.4329, "accuracy": 0.4383, "mean_ms": 29.66, "conditions": "15/15"},
+        "CUReT": {"macro_f1": 0.9261, "accuracy": 0.9268, "mean_ms": 31.22, "conditions": "2/2"},
+        "Outex13": {"macro_f1": 0.8282, "accuracy": 0.8338, "mean_ms": 31.49, "conditions": "1/1"},
+        "SoilOriginal": {"macro_f1": 0.7990, "accuracy": 0.8503, "mean_ms": 32.04, "conditions": "15/15"},
+        "KTHTIPS2b": {"macro_f1": 0.6707, "accuracy": 0.6915, "mean_ms": 31.18, "conditions": "4/4"}
+      }
+    }
+  }
+}

@@ -1,6 +1,37 @@
 # Propuesta de tesis: fusión secuencial de descriptores de textura con utilidad predictiva y costo real
 
-**Versión:** 1.7 — 12 de octubre de 2026; incorpora la verificación de VisTex y separa inventario, resultados históricos y evaluación principal. Conserva el corte experimental anterior; no implica nuevos entrenamientos.
+## Actualización operativa — 25 de octubre de 2026
+
+**Plan vigente: integración v11, [plan de cierre del 25-10](fsc_tex/PLAN_CIERRE_VIGENTE_2026-10-25.md).** La [reauditoría](fsc_tex/AUDITORIA_TESIS_Y_CIERRE_2026-10-25.md) verifica el benchmark estático, las predicciones históricas, los pilotos de integración y las mediciones físicas archivadas. Aprobaron 80 pruebas; se reprodujeron las 36 selecciones/13 resultados del híbrido y el pool emparejado. No se reentrenó hoy. La [reestructuración editorial posterior](fsc_tex/REVISION_EDITORIAL_APLICADA_2026-10-25.md) organiza el manuscrito en siete capítulos y anexos (54 páginas), separa método y diseño e incorpora pseudocódigos, diagrama y curva desde datos guardados; `paper/tesis.pdf` describe ya el ensamble de diversidad como rescate, pero **no está cerrado experimentalmente**.
+
+El [ensamble de Carlos como rescate](fsc_tex/CARLOS_RESCATE_HIBRIDO_OUTEX_2026-10-21.md) sigue evaluado únicamente en el piloto de desarrollo Outex: relevancia/60 obtiene F1 0,910742 y 53,316 ms proyectados, frente al ensamble permanente 0,914389/365,196. No lo supera en calidad ni demuestra ahorro físico. El próximo control es el mismo rescate podado siempre activo frente a su versión con compuerta. Después corresponden réplicas, sensibilidad de bases/controles y medición física del híbrido. Se conservan seis datasets, 22 bloques principales y la evaluación histórica; sus coberturas no se atribuyen al piloto nuevo.
+
+La contribución candidata es la selección conjunta bajo presupuesto medio proyectado. P0, P1-A y P1-B están implementados; sigue P2, validar estabilidad, cumplimiento fuera de muestra y bases, además de completar controles. El [piloto corregido de pool emparejado](fsc_tex/POOL_EMPAREJADO_OUTEX_2026-10-21.md) terminó y pasó sus auditorías: Outex/120 ms con color obtiene 0,906690/83,772 ms con regla marginal y 0,907233/89,325 con relevancia, frente a Completa-22 0,913957. La cifra 0,909417 pertenece al pool anterior desigual y no sustituye esta comparación corregida. FMD muestra ventajas cambiantes por presupuesto. Esto respalda continuar investigando, no una conclusión de superioridad. La tesis conserva seis datasets y 22 descriptores principales; los pilotos no reemplazan sus tablas.
+
+**Registro histórico:** versión 1.8 — 18 de octubre de 2026, referencia `5685be3`. El orden actual está en integración v11; las observaciones de fidelidad físico/cache de CUReT y Soil siguen pendientes.
+
+## Registro del plan de cierre — 18 de octubre de 2026
+
+Este bloque conserva el estado histórico de cierre. Para ejecutar trabajo nuevo rige integración v11; los pendientes de fidelidad aquí descritos se mantienen como requisitos de validación física. La especificación histórica está en [PLAN_CIERRE_TESIS_2026-10-18.md](fsc_tex/PLAN_CIERRE_TESIS_2026-10-18.md).
+
+**Objetivo:** cerrar una evaluación trazable del compromiso calidad–costo de la cascada adaptativa, sin presentar coincidencia de predicciones como identidad de representaciones ni ausencia de significancia como equivalencia.
+
+**Ya terminado:** evaluación predictiva archivada de 27 condiciones en seis datasets; piloto físico en los seis (204 imágenes, 612 parejas de mediciones); cuatro folds Top-k SVM de KTH con agrupación interna por muestra; actualización de tesis, ZIP, presentación y guion. Los registros físicos de CUReT y Soil tienen discrepancias de fidelidad; completar corridas no las resuelve.
+
+**Secuencia vigente:**
+
+1. Auditar y resolver la fidelidad físico–caché de CUReT y Soil con comparación controlada de extracción. No atribuir causalidad al pooler o a la interpolación sin evidencia reproducible.
+2. Reconciliar la cascada KTH con los cuatro controles Top-k corregidos, verificando selección interna, particiones y transformaciones. No sustituir únicamente cifras en una tabla.
+3. Recalcular métricas y contrastes únicamente desde variantes reconciliadas; conservar la exclusión inferencial de KTH hasta cumplir ese criterio.
+4. Determinar el alcance físico: conservar el piloto de una condición por dataset o ampliar a las 27 condiciones. Medir Completa/GFS si se afirma ventaja física frente a ellos.
+5. Sincronizar tesis, tablas, figuras, presentación, guion, dossier y auditoría; revisar particularmente afirmaciones de reproducibilidad, saturación y prospectividad.
+6. Compilar y verificar PDF/ZIP, ejecutar pruebas pertinentes y registrar hashes y entorno para la entrega.
+
+VisTex permanece fuera del manuscrito. No se añaden arquitecturas ni datasets nuevos en esta fase. El primer trabajo ejecutable es el diagnóstico de fidelidad, no repetir las seis corridas indiscriminadamente.
+
+## Archivo histórico de diseño y decisiones (hasta 12-10-2026)
+
+Las referencias siguientes a Top-k KTH faltante, piloto exclusivo de DTD o suite en ejecución describen estados anteriores y no son el estado vigente. Se conservan como trazabilidad del proceso.
 
 ### Actualización de inventario y alcance: VisTex
 

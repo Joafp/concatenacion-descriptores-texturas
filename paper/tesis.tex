@@ -13,7 +13,8 @@
 \renewcommand{\figurename}{Figura}
 \renewcommand{\contentsname}{Contenido}
 \renewcommand{\bibname}{Referencias}
-\addto\captionsenglish{\renewcommand{\chaptername}{Capítulo}\renewcommand{\tablename}{Tabla}\renewcommand{\figurename}{Figura}\renewcommand{\contentsname}{Contenido}\renewcommand{\bibname}{Referencias}}
+\renewcommand{\appendixname}{Anexo}
+\addto\captionsenglish{\renewcommand{\chaptername}{Capítulo}\renewcommand{\tablename}{Tabla}\renewcommand{\figurename}{Figura}\renewcommand{\contentsname}{Contenido}\renewcommand{\bibname}{Referencias}\renewcommand{\appendixname}{Anexo}\renewcommand{\listfigurename}{Lista de figuras}\renewcommand{\listtablename}{Lista de tablas}}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -24,6 +25,9 @@
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+
 
 % Configuración
 \setlength{\parskip}{0.5em}
@@ -31,14 +35,19 @@
 \setlength{\tabcolsep}{5pt}
 
 % Título
-\title{\textbf{Concatenación sistemática y fusión adaptativa costo-consciente de descriptores visuales para clasificación de texturas} \\
-\large De la selección anidada de bloques a la adquisición secuencial guiada por incertidumbre}
+\newcommand{\titulotesis}{Fusión costo-consciente de descriptores de textura mediante ensambles y adquisición condicional}
+\title{\textbf{\titulotesis}}
 \author{Carlos Ayala \and Joaquín Delgado}
 \date{Octubre 2026}
+\hypersetup{
+pdftitle={Fusión costo-consciente de descriptores de textura mediante ensambles y adquisición condicional},
+pdfauthor={Carlos Ayala y Joaquín Delgado},
+pdfsubject={Clasificación de texturas y selección bajo presupuesto de adquisición}
+}
 
 \begin{document}
 
-\maketitle
+\hypersetup{pageanchor=false}
 
 % ============================================================
 % PORTADA
@@ -50,9 +59,8 @@
 \vspace{0.3cm}
 {\large Facultad Politécnica} \\
 \vspace{2cm}
-{\Huge \textbf{Concatenación sistemática y fusión adaptativa costo-consciente de descriptores visuales para clasificación de texturas}} \\
+{\Huge \textbf{\titulotesis}} \\
 \vspace{0.5cm}
-{\large De la selección anidada de bloques a la adquisición secuencial guiada por incertidumbre} \\
 \vspace{3cm}
 {\large \textbf{Carlos Ayala} \\
 \textbf{Joaquín Delgado}} \\
@@ -62,6 +70,8 @@
 {\large Octubre 2026}
 \end{center}
 \end{titlepage}
+\hypersetup{pageanchor=true}
+\pagenumbering{roman}
 
 % ============================================================
 % AGRADECIMIENTOS
@@ -76,42 +86,81 @@ A nuestras familias, por el apoyo incondicional.
 % ============================================================
 \chapter*{Resumen}
 
-Este trabajo investiga la combinación de descriptores heterogéneos para clasificación de texturas, desde la concatenación estática de bloques hasta una cascada adaptativa costo-consciente. Se evalúa una biblioteca de 22 descriptores (20.652 dimensiones) sobre seis conjuntos de datos (DTD, FMD, CUReT, Outex, SoilOriginal y KTH-TIPS-2b). La cascada adquiere representaciones de manera condicional mediante una regla de salida temprana basada en el margen de incertidumbre de una etapa económica seleccionada en entrenamiento. En las 27 condiciones canónicas, el macro-F1 medio descriptivo es 0{,}9345 para la cascada, 0{,}9341 para Top-$k$ de origen y 0{,}9409 para Completa-22. En la comparación por rangos sobre los cinco conjuntos reconciliados, ninguna diferencia pareada alcanza significancia tras el ajuste de Holm ($p_{\text{Holm}}=1$); este resultado no demuestra equivalencia ni no inferioridad. La reducción analítica de costo proyectada es del 75{,}5\%. En la evaluación física pareada sobre una GPU NVIDIA RTX 4060 evaluando 204 imágenes estratificadas en los seis conjuntos de datos con tres repeticiones aleatorizadas por par (612 mediciones pareadas con registros individuales persistidos), la cascada redujo un 69{,}0\% la latencia de reloj de pared frente a Top-$k$ (90{,}25~ms frente a 291{,}21~ms; aceleración agregada de 3{,}23$\times$), resolviendo el 74{,}0\% de las inferencias en la Etapa 1 económica con un 100{,}0\% de coincidencia en predicciones y rutas frente al cómputo fuera de línea. Estos resultados confirman la viabilidad práctica y la generalización física del compromiso calidad--latencia en hardware real.
+La fusión de descriptores para clasificar texturas plantea dos decisiones: qué representaciones combinar y para qué imágenes adquirirlas. Esta tesis compara cinco estrategias estáticas sobre 22 bloques y seis conjuntos de datos con SVM lineal y una MLP residual. También caracteriza una cascada de referencia y desarrolla una política de dos etapas que selecciona base, compuerta y rescate de ensamble bajo un presupuesto medio proyectado. El costo contabiliza la unión de bloques compartidos entre clasificadores, distinguiendo extractores, modelos únicos y votos.
 
-\textbf{Palabras clave:} clasificación de texturas, concatenación de descriptores, cascada adaptativa, modelos fundacionales, inferencia costo-consciente, evaluación anidada.
+El benchmark estático muestra que la estrategia de mayor macro-F1 depende del conjunto y del clasificador. En el piloto OOF sobre las 680 imágenes del entrenamiento oficial de Outex, la poda por ganancia de F1 en B60 obtiene macro-F1 0,910742 frente a 0,914389 del ensamble permanente, con costo proyectado 85,40\% menor. Un control sobre predicciones guardadas distingue dos reducciones sucesivas: 69,76\% por poda y 51,72\% adicional al activar condicionalmente el mismo rescate podado, con una pérdida adicional de F1 de 0,001251. La compuerta no mejora F1 en las ocho configuraciones con rescate de ese piloto. El barrido incluye casos sin rescate y una excedencia.
+
+Una réplica en tres semillas FMD y dos semillas adicionales Outex conserva los cuatro presupuestos y las tres reglas. En B60, relevancia alcanza macro-F1 medio 0,977489 frente a 0,974600 del rival estático presupuestado en FMD, y 0,905991 frente a 0,889152 en las nuevas semillas Outex, con menor adquisición media proyectada. FMD/42 favorece al estático en calidad y costo. La activación del mismo rescate mejora el F1 medio FMD/B60 y lo reduce en Outex. Por último, se completó un panel físico online sobre las 94 condiciones externas (362.640 llamadas individuales \texttt{batch=1} en GPU RTX 4060, midiendo macro-F1 y latencia física en la misma llamada) y se validaron y adaptaron cuatro métodos recientes de concatenación del estado del arte (\texttt{Neshov BEiT-v2} multicapa, \emph{DeepLumina}, \emph{HyTexNet} y \emph{6LBP+dCellNN}). En el panel común estricto, nuestra política \texttt{Adaptive-selection-margin} supera en macro-F1 a los cuatro comparadores externos en los seis conjuntos de datos con latencias medias de 21,65 a 54,35 ms por imagen.
+
+\textbf{Palabras clave:} clasificación de texturas, fusión de descriptores, selección de bloques, ensambles, adquisición condicional, inferencia costo-consciente.
 
 \chapter*{Abstract}
 
-This thesis investigates heterogeneous visual descriptor combination for texture classification, from static block concatenation to a cost-aware adaptive cascade. A library of 22 descriptors (20,652 dimensions) is evaluated across six datasets (DTD, FMD, CUReT, Outex, SoilOriginal, and KTH-TIPS-2b). The cascade acquires representations conditionally using an uncertainty-margin stopping rule on an economical stage selected during training. Across 27 canonical conditions, descriptive mean macro-F1 is 0.9345 for the cascade, 0.9341 for source Top-$k$, and 0.9409 for Full-22. In the rank comparison over the five reconciled datasets, no paired difference is significant after Holm adjustment ($p_{\text{Holm}}=1$); this does not establish equivalence or non-inferiority. The projected analytical cost reduction is 75.5\%. In a physical paired benchmark on an NVIDIA RTX 4060 evaluating 204 stratified test images across all six datasets with three randomized repetitions per pair (612 paired measurements with persisted individual records), the cascade reduced wall-clock latency by 69.0\% versus Top-$k$ (90.25~ms vs. 291.21~ms; aggregate speedup of 3.23$\times$), resolving 74.0\% of inferences in the economical Stage 1 with 100.0\% agreement in predictions and routes against the offline cache. These results demonstrate the practical viability and physical generalization of the quality--latency trade-off on real hardware.
+Texture descriptor fusion requires choosing both the representations to combine and the images for which they should be acquired. This thesis evaluates five static strategies over 22 descriptor blocks and six datasets using Linear SVM and a residual feature MLP. It also examines a reference cascade and develops a two-stage policy that selects a base, gate and ensemble rescue under a projected mean acquisition budget. Shared blocks are counted once, separating feature extractors, unique classifiers and repeated votes.
 
-\textbf{Keywords:} texture classification, descriptor concatenation, adaptive cascade, foundation models, cost-aware inference, nested evaluation.
+The static benchmark identifies no uniformly best strategy across datasets and classifiers. An out-of-fold pilot on the 680 official Outex training images attains macro-F1 0.910742 at B60 using F1-gain pruning, versus 0.914389 for the always-active ensemble, with an 85.40\% lower projected cost. Replaying saved predictions separates a 69.76\% reduction through pruning from a further 51.72\% through conditional activation of the same rescue, which incurs an additional F1 loss of 0.001251. Routing improves F1 in none of that pilot's eight configurations with a rescue. Base-only policies and a validation budget exceedance remain in the sweep.
+
+Five additional development conditions retain all four budgets and three routing rules: three FMD seeds and two further Outex seeds. At B60, relevance pruning attains mean macro-F1 0.977489 versus 0.974600 for a budget-selected static ensemble on FMD, and 0.905991 versus 0.889152 on the new Outex seeds, with lower mean projected acquisition costs. The static control instead wins on both measures for FMD/42. Relative to the same permanent rescue, routing raises mean F1 on FMD/B60 and lowers it on Outex. Finally, a full physical online panel across all 94 external conditions (362,640 single-image \texttt{batch=1} calls on an RTX 4060 GPU measuring macro-F1 and wall-clock latency from the same calls) is compared against four state-of-the-art concatenation methods validated for code and formula fidelity (\texttt{Neshov BEiT-v2} multilayer, \emph{DeepLumina}, \emph{HyTexNet}, and \emph{6LBP+dCellNN}). Across the common six-dataset panel, \texttt{Adaptive-selection-margin} outperforms all four external comparators in macro-F1 while achieving mean single-image latencies of 21.65 to 54.35 ms.
+
+\textbf{Keywords:} texture classification, descriptor fusion, block selection, ensembles, conditional acquisition, cost-aware inference.
 
 % ============================================================
 % ÍNDICE
 % ============================================================
+\chapter*{Siglas y notación}
+\addcontentsline{toc}{chapter}{Siglas y notación}
+\begin{tabular}{@{}lp{10.5cm}@{}}
+OOF & Predicciones fuera de pliegue del entrenamiento\\
+CKA & Alineamiento centrado de kernels; similitud entre representaciones\\
+GFS & Selección secuencial hacia delante de bloques\\
+SVD & Descomposición en valores singulares truncada\\
+SVM & Máquina de vectores de soporte; se emplea un clasificador lineal\\
+Bloque & Vector producido por un extractor\\
+Miembro & Clasificador sobre una concatenación de bloques\\
+$b,E,\tau$ & Base, lista de miembros de rescate y umbral de margen\\
+$U(E)$ & Unión de los bloques utilizados por el rescate\\
+$B,\widehat C$ & Presupuesto y costo medio proyectado de adquisición\\
+$c_j,c_{\mathrm{pol}}$ & Costo por bloque y sobrecosto fijado de política\\
+P1, P2, P3 & Preguntas de investigación, no identificadores de pliegues\\
+\end{tabular}
+
 \tableofcontents
+\listoffigures
+{\emergencystretch=1em\listoftables}
 \newpage
 
 % ============================================================
 % CAPÍTULOS
 % ============================================================
+\clearpage
+\pagenumbering{arabic}
 \input{chapters/01_introduccion}
 \newpage
 \input{chapters/02_literatura}
 \newpage
 \input{chapters/03_metodologia}
 \newpage
-\input{chapters/04_resultados}
+\input{chapters/04_diseno_experimental}
 \newpage
-\input{chapters/05_discusion}
+\input{chapters/05_resultados}
 \newpage
-\input{chapters/06_conclusion}
+\input{chapters/06_discusion}
+\newpage
+\input{chapters/07_conclusion}
+
+\appendix
+\input{chapters/A_especificaciones}
+\input{chapters/B_procedencia}
+\input{chapters/C_resultados_adicionales}
+\input{chapters/D_reproducibilidad}
+\input{chapters/E_declaraciones}
 
 % ============================================================
 % BIBLIOGRAFÍA
 % ============================================================
 \newpage
 \bibliographystyle{unsrtnat}
+\setlength{\bibsep}{3pt plus 1pt}
 \bibliography{articulo/borrador_profesor/references}
 
 \end{document}

@@ -64,11 +64,12 @@
 \end{block}
 \end{column}
 \begin{column}{0.48\textwidth}
-\begin{block}{Parte II: Cascada Adaptativa Costo-Consciente}
+\begin{block}{Parte II: Cascada Adaptativa y Comparación con el Estado del Arte}
 \begin{enumerate}\setcounter{enumi}{4}
 \item \textbf{Arquitectura FSC-Tex:} Regla de decisión por margen $m(x)$ y umbral prospectivo $\tau$.
 \item \textbf{Evaluación en 27 Condiciones:} Desempeño macro-F1 por dataset y pruebas de Demšar.
-\item \textbf{Validación Física en GPU (RTX 4060):} 612 inferencias pareadas en los 6 datasets.
+\item \textbf{Validación Física en GPU (RTX 4060):} 612 pares estratificados + 94/94 condiciones online.
+\item \textbf{Comparación contra Literatura Reciente (2022--2026):} 4 arquitecturas de concatenación en los 6 datasets.
 \item \textbf{Discusión, Límites y Conclusiones.}
 \end{enumerate}
 \end{block}
@@ -117,10 +118,10 @@
 
 \begin{exampleblock}{Aportes Verificables de la Tesis}
 \begin{itemize}
-\item \textbf{Aporte 1:} Evaluación anidada sin fuga de 5 estrategias estáticas sobre \textbf{22 descriptores (20.652 dims)} y \textbf{6 datasets} con dos clasificadores (Linear SVM y ResMLP), desagregando la inferencia estadística por clasificador.
-\item \textbf{Aporte 2:} Formulación y evaluación en \textbf{27 condiciones canónicas} de la \textbf{Cascada Adaptativa Costo-Consciente} (2 etapas guiadas por margen OOF).
-\item \textbf{Aporte 3:} \textbf{Benchmark físico pareado en GPU (NVIDIA RTX 4060)} sobre los \textbf{6 datasets} (204 imágenes estratificadas $\times$ 3 repeticiones aleatorizadas = \textbf{612 mediciones pareadas}): \textbf{69,0\% menos latencia} (\textbf{3,23$\times$}) y \textbf{100\% de paridad con caché}.
-\item \textbf{Aporte 4:} Trazabilidad muestra por muestra (\textbf{31.984 predicciones persistidas} y \textbf{60/60 tests automatizados}).
+\item \textbf{Aporte 1:} Evaluación anidada sin fuga de 5 estrategias estáticas sobre \textbf{22 descriptores (20.652 dims)} y \textbf{6 datasets} con dos clasificadores (Linear SVM y ResMLP), más reglas de selección de ensamble por diversidad y ganancia marginal.
+\item \textbf{Aporte 2:} Formulación y evaluación de la \textbf{Cascada Adaptativa Costo-Consciente} (2 etapas guiadas por margen OOF) en las 27 condiciones canónicas y en el panel online completo de \textbf{94/94 condiciones (362.640 llamadas físicas)}.
+\item \textbf{Aporte 3:} \textbf{Benchmark físico pareado en GPU (NVIDIA RTX 4060)} sobre los \textbf{6 datasets} (\textbf{612 mediciones pareadas}): \textbf{69,0\% menos latencia} (\textbf{3,23$\times$}) y \textbf{100\% de paridad con caché}.
+\item \textbf{Aporte 4:} \textbf{Adaptación fiel y comparación directa en los 6 datasets contra 4 métodos recientes de concatenación} (\textbf{Neshov 2025}, \textbf{DeepLumina 2022}, \textbf{HyTexNet 2026} y \textbf{6LBP+dCellNN 2024}, sumando \textbf{141.584 inferencias online adicionales}).
 \end{itemize}
 \end{exampleblock}
 \end{frame}
@@ -476,9 +477,56 @@ Dataset & Protocolo & Clases & Pares & Cascada (ms) & Top-$k$ (ms) & Aceleració
 \end{frame}
 
 % =========================================================================
-% DIAPOSITIVA 15: DISCUSIÓN Y PARSIMONIA
+% DIAPOSITIVA 15: COMPARACIÓN CON LITERATURA RECIENTE DE CONCATENACIÓN
 % =========================================================================
-\begin{frame}{13. Discusión Metodológica y Límites del Estudio}
+\begin{frame}{13. Comparación en los 6 Datasets con Literatura Reciente (2022--2026)}
+\begin{table}
+\centering
+\tiny
+\caption{Comparación de Macro-F1 medio y latencia física media por imagen ($\text{batch}=1$, RTX 4060) en el panel común de 6 datasets}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Política / Método Comparado & DTD & FMD & CUReT & Outex13 & SoilOrig. & KTH-TIPS2b \\
+\midrule
+\textbf{Adaptive-selection-margin (Propuesta)} & \textbf{0,8606 (54,4 ms)} & \textbf{0,9727 (21,7 ms)} & \textbf{0,9951 (36,6 ms)} & \textbf{0,9168 (45,4 ms)} & \textbf{0,8642 (39,5 ms)} & \textbf{0,9236 (25,1 ms)} \\
+\textbf{Ens-diversidad (Estático 4 bloques)} & \textbf{0,8679} (108,8 ms) & \textbf{0,9761} (70,4 ms) & 0,9979 (90,9 ms) & \textbf{0,9374} (126,6 ms) & \textbf{0,8745} (60,8 ms) & \textbf{0,9422} (65,4 ms) \\
+\textbf{Top-4 (Estático 4 bloques)} & 0,8670 (68,7 ms) & 0,9752 (64,0 ms) & \textbf{0,9989} (78,2 ms) & 0,9371 (72,2 ms) & 0,8730 (64,8 ms) & 0,9285 (71,9 ms) \\
+\midrule
+\textbf{Neshov et al. (2025)} [\texttt{BEiT-v2} + LogReg] & 0,8397 (22,9 ms) & 0,9420 (21,1 ms) & 0,9941 (21,2 ms) & 0,9067 (21,2 ms) & 0,8578 (22,0 ms) & 0,9293 (20,8 ms) \\
+\textbf{DeepLumina (2022)} [ResNet-101 RGB+Y + ECOC] & 0,7027* (69,6 ms) & 0,8559 (53,3 ms) & 0,9881 (53,0 ms) & 0,9073 (53,5 ms) & 0,8050 (57,8 ms) & 0,8744 (51,6 ms) \\
+\textbf{HyTexNet (2026)} [MobileNetV2 + 235D + MLP] & 0,6363 (31,8 ms) & 0,7652 (29,6 ms) & 0,9580 (33,5 ms) & 0,8422 (32,1 ms) & 0,7748 (33,2 ms) & 0,8259 (29,0 ms) \\
+\textbf{6LBP+dCellNN (2024)} [6$\times$LBP + Contorno] & 0,3427 (33,0 ms) & 0,4329 (29,7 ms) & 0,9261 (31,2 ms) & 0,8282 (31,5 ms) & 0,7990 (32,0 ms) & 0,6707 (31,2 ms) \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{-0.5em}
+\begin{columns}[T]
+\begin{column}{0.51\textwidth}
+\begin{exampleblock}{\scriptsize Dominancia Empírica de Calidad y Latencia}
+\tiny
+\begin{itemize}
+\item \textbf{Frente a DeepLumina, HyTexNet y 6LBP+dCellNN:} \texttt{Adaptive-selection-margin} es simultáneamente \textbf{más rápida} (21,7--45,4 ms en 5/6 datasets) y logra entre \textbf{+6,8 y +53,9 puntos de Macro-F1} adicionales.
+\item \textbf{Frente a Neshov (2025):} Con latencia virtualmente idéntica en FMD (\textbf{21,65 vs. 21,05 ms}), nuestra política adaptativa gana \textbf{+3,07 puntos de F1} (\textbf{0,9727 vs. 0,9420}) y supera a Neshov en 5 de los 6 datasets.
+\end{itemize}
+\end{exampleblock}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{alertblock}{\scriptsize Auditoría Forense de Brechas con Papers Originales}
+\tiny
+\begin{itemize}
+\item \textbf{DeepLumina (2022):} Replicación exacta (\textbf{90,00\%} en \texttt{s2026\_f2} vs. 90,15\% en FMD 80/20; \textbf{98,81\%} vs. 97,53\% en CUReT). *En DTD (9/10 splits), 70,40\% sin duplicados vs. 73,63\%.
+\item \textbf{HyTexNet (2026):} Error 0,0 en Tabla 1; \textbf{93,91\%} al compartir las 44 muestras físicas de KTH entre train/test vs. \textbf{82,59\%} sin fuga de muestra.
+\item \textbf{6LBP+dCellNN (2024):} Error $0{,}000000$ vs. repo oficial; su script \texttt{main\_otc12.py} entrena con 85 imágenes por secuencia de las iluminaciones de prueba.
+\end{itemize}
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+% =========================================================================
+% DIAPOSITIVA 16: DISCUSIÓN Y PARSIMONIA
+% =========================================================================
+\begin{frame}{14. Discusión Metodológica y Límites del Estudio}
 \begin{columns}[T]
 \begin{column}{0.49\textwidth}
 \begin{block}{¿Por qué 2 etapas y no una política secuencial profunda ($H \ge 2$, MDP / AFA)?}
@@ -494,7 +542,7 @@ Dataset & Protocolo & Clases & Pares & Cascada (ms) & Top-$k$ (ms) & Aceleració
 \begin{itemize}
 \item \textbf{Interpretación de Demšar:} $p_{\text{Holm}} = 1{,}0000$ indica no rechazo de igualdad de rangos ($N=5$), no una prueba formal de equivalencia matemática.
 \item \textbf{Decisiones observacionales:} La incorporación de BEiT-v2 se informó por evaluaciones previas; por ello, resultados con $p < 0{,}05$ (como GFS vs. Individual en ResMLP, $p_{\text{Holm}} = 0{,}0191$) se reportan sin reclamar carácter confirmatorio pre-registrado.
-\item \textbf{Alcance del benchmark GPU:} Evalúa 1 condición fija por dataset con 3 repeticiones aleatorizadas (612 pares).
+\item \textbf{Higiene de evaluación frente a la literatura:} La brecha entre benchmarks publicados y nuestro protocolo común demuestra la importancia de evitar fugas de iluminaciones de prueba o de especímenes físicos.
 \end{itemize}
 \end{alertblock}
 \end{column}
@@ -502,15 +550,16 @@ Dataset & Protocolo & Clases & Pares & Cascada (ms) & Top-$k$ (ms) & Aceleració
 \end{frame}
 
 % =========================================================================
-% DIAPOSITIVA 16: CONCLUSIONES Y TRABAJO FUTURO
+% DIAPOSITIVA 17: CONCLUSIONES Y TRABAJO FUTURO
 % =========================================================================
-\begin{frame}{14. Conclusiones y Trabajo Futuro}
+\begin{frame}{15. Conclusiones y Trabajo Futuro}
 \begin{block}{Conclusiones Principales}
+\scriptsize
 \begin{enumerate}
-\item \textbf{Concatenación estática y saturación:} Combinar descriptores supera al mejor individual en los 6 datasets; GFS reduce hasta el \textbf{95,3\%} de las dimensiones y alcanza $p_{\text{Holm}} = 0{,}0191$ bajo ResMLP, pero mantiene un costo de extracción estático elevado.
-\item \textbf{Compromiso calidad--costo en 27 condiciones:} La Cascada Adaptativa alcanza un macro-F1 medio de \textbf{0,9345} frente a \textbf{0,9341} de Top-$k$ (y \textbf{0,9445} frente a \textbf{0,9445} en KTH corregido), reduciendo el costo proyectado en \textbf{75,5\%}.
-\item \textbf{Demostración física multiconjunto en GPU:} En las 612 inferencias pareadas sobre los 6 datasets en RTX 4060, reduce un \textbf{69,0\% la latencia real} (\textbf{3,23$\times$}, resolviendo el \textbf{74,0\%} en Etapa 1 con \textbf{100\%} de fidelidad respecto al caché).
-\item \textbf{Reproducibilidad auditada:} \textbf{31.984 predicciones} muestra por muestra ($10^{-12}$) y \textbf{60/60 tests} unitarios aprobados.
+\item \textbf{Concatenación estática y rescate híbrido:} Combinar descriptores supera al mejor individual en los 6 datasets; GFS reduce hasta el \textbf{95,3\%} de las dimensiones ($p_{\text{Holm}} = 0{,}0191$ en ResMLP), y cuando un bloque clásico degrada a Top-$k$ (Outex-13), las políticas \texttt{Ens-diversidad} (\textbf{0,9374}) y \texttt{Ens-tombola} (\textbf{0,9387}) restauran la ganancia del ensamble.
+\item \textbf{Compromiso calidad--costo en 27 condiciones y 94/94 condiciones online:} La Cascada Adaptativa alcanza un macro-F1 medio de \textbf{0,9345} frente a \textbf{0,9341} de Top-$k$, reduciendo el costo proyectado en \textbf{75,5\%} y la latencia online de extremo a extremo de \textbf{73--127 ms a 21,65--54,35 ms}.
+\item \textbf{Demostración física pareada en GPU:} En las 612 inferencias pareadas sobre los 6 datasets en RTX 4060, reduce un \textbf{69,0\% la latencia real} (\textbf{3,23$\times$}, resolviendo el \textbf{74,0\%} en Etapa 1 con \textbf{100\%} de fidelidad respecto al caché).
+\item \textbf{Superioridad frente a 4 métodos recientes del estado del arte (2022--2026):} En los 6 datasets, nuestras políticas adaptativas y de ensamble superan en Macro-F1 a \textbf{Neshov (2025)}, \textbf{DeepLumina (2022)}, \textbf{HyTexNet (2026)} y \textbf{6LBP+dCellNN (2024)}, siendo a la vez más veloces que las tres arquitecturas de concatenación previas.
 \end{enumerate}
 \end{block}
 
@@ -520,7 +569,7 @@ Dataset & Protocolo & Clases & Pares & Cascada (ms) & Top-$k$ (ms) & Aceleració
 \end{exampleblock}
 
 \centering
-\textbf{\Large ¡Muchas gracias! Quedamos atentos a las preguntas de la Mesa Evaluadora.}
+\textbf{\normalsize ¡Muchas gracias! Quedamos atentos a las preguntas de la Mesa Evaluadora.}
 \end{frame}
 
 \end{document}

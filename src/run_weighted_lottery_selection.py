@@ -50,6 +50,9 @@ from run_confirmatory_nested import (  # noqa: E402
 )
 from run_topk_individual_control import archived_k, outer_indices  # noqa: E402
 from singleton_ranking import condition_key, ranked_singletons  # noqa: E402
+from ensemble_scoring import (  # noqa: E402
+    decision_scores, legacy_batch_decision_scores, training_score_scale,
+)
 
 REPO = SRC.parent
 BETAS = (0.0, 0.5, 1.0, 2.0, 4.0, 8.0)
@@ -67,22 +70,6 @@ def metrics(y_true, y_pred, labels) -> dict:
     return {"macro_f1": float(f1_score(y_true, y_pred, labels=labels,
                                        average="macro", zero_division=0)),
             "accuracy": float(accuracy_score(y_true, y_pred))}
-
-
-def decision_scores(model, x: np.ndarray) -> np.ndarray:
-    """Standardised decision values so members contribute on a common scale.
-
-    The SVM exposes margins; ResMLP exposes only class probabilities, whose
-    logarithm plays the same role in the soft ensemble.
-    """
-    if hasattr(model, "decision_function"):
-        scores = np.asarray(model.decision_function(x))
-    else:
-        scores = np.log(np.clip(np.asarray(model.predict_proba(x)), 1e-12, None))
-    if scores.ndim == 1:
-        scores = np.column_stack([-scores, scores])
-    sd = scores.std()
-    return scores / sd if sd > 0 else scores
 
 
 def main() -> None:
@@ -169,13 +156,24 @@ def main() -> None:
         model = make_model(args.classifier, args.seed)
         model.fit(x[train], y[train])
         pred = np.asarray(model.predict(x[test]))
-        return pred, decision_scores(model, x[test]), metrics(y_test, pred, labels)
+        scale = training_score_scale(model, x[train])
+        scores = decision_scores(model, x[test], scale)
+        legacy_scores = legacy_batch_decision_scores(model, x[test])
+        # A fixed scale must yield identical scores whether samples are queried
+        # together or independently. Persist a direct runtime audit per member.
+        probe = min(5, len(test))
+        batch_delta = max(float(np.max(np.abs(
+            scores[i] - decision_scores(model, x[test[i:i + 1]], scale)[0])))
+                           for i in range(probe))
+        return (pred, scores, legacy_scores, metrics(y_test, pred, labels),
+                scale, batch_delta)
 
     report = {
         "dataset": args.dataset, "classifier": args.classifier, "seed": args.seed,
         "outer_fold": fold, "k": k, "draws": args.draws,
         "n_candidates": len(names),
         "inner_group_column": args.inner_group_column or "group",
+        "score_normalization": "global_std_fitted_on_outer_training_rows_v1",
         "ranking": [{"block": n, "inner_f1": singles[n]} for n in order],
         "topk": {"subset": topk_subset, "macro_f1": topk_f1, "accuracy": topk_acc,
                  "dimensions": int(sum(cache[b].shape[1] for b in topk_subset))},
@@ -198,13 +196,16 @@ def main() -> None:
                    for _ in range(args.draws)]
 
         def evaluate_draw(subset):
-            pred, scores, met = external(subset)
+            pred, scores, legacy_scores, met, score_scale, batch_delta = external(subset)
             inner = (inner_score(cache, subset, train, y, inner_groups,
                                  args.classifier, args.seed)
                      if not args.skip_draw_inner else float("nan"))
             return {"subset": subset, "inner_f1": inner, **met,
+                    "score_scale": score_scale,
+                    "batch_invariance_max_abs_delta": batch_delta,
                     "dimensions": int(sum(cache[b].shape[1] for b in subset)),
-                    "_pred": pred, "_scores": scores}
+                    "_pred": pred, "_scores": scores,
+                    "_legacy_scores": legacy_scores}
 
         draws = Parallel(n_jobs=jobs, prefer="threads")(
             delayed(evaluate_draw)(s) for s in subsets)
@@ -217,6 +218,9 @@ def main() -> None:
         soft_pred = labels[np.argmax(soft, axis=1)] if soft.shape[1] == len(labels) \
             else np.asarray([draws[0]["_pred"][i] for i in range(len(y_test))])
         ens_soft = metrics(y_test, soft_pred, labels)
+        legacy_soft = np.mean([d["_legacy_scores"] for d in draws], axis=0)
+        legacy_pred = labels[np.argmax(legacy_soft, axis=1)]
+        ens_soft_legacy = metrics(y_test, legacy_pred, labels)
         # Hard ensemble: majority vote over member predictions.
         votes = np.stack([d["_pred"] for d in draws])
         hard_pred = np.asarray([np.bincount(
@@ -232,7 +236,11 @@ def main() -> None:
             "best_inner": {"subset": best_inner["subset"],
                            "inner_f1": best_inner["inner_f1"],
                            "macro_f1": best_inner["macro_f1"]},
-            "ensemble_soft": ens_soft, "ensemble_hard": ens_hard,
+            "ensemble_soft": ens_soft,
+            "ensemble_soft_legacy_batch_scale": ens_soft_legacy,
+            "legacy_vs_training_scale_prediction_disagreement": float(
+                np.mean(legacy_pred != soft_pred)),
+            "ensemble_hard": ens_hard,
             "mean_dimensions": float(np.mean([d["dimensions"] for d in draws])),
             "draws": [{kk: vv for kk, vv in d.items() if not kk.startswith("_")}
                       for d in draws],

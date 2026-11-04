@@ -1,235 +1,172 @@
-\chapter{Método de concatenación y selección de descriptores}\label{sec:metodo}
+\chapter{Método de fusión y adquisición condicional}\label{sec:metodo}
 
-\section{Representación conjunta y pregunta de estudio}
-
-El estudio evalúa la concatenación como un problema de selección de bloques. Cada extractor transforma una imagen $x_i$ en un vector $\mathbf{z}_{ij}\in\mathbb{R}^{d_j}$, donde $j$ identifica el descriptor y $d_j$ su dimensionalidad. Para un subconjunto $S$ de extractores, la representación conjunta se define como
+\section{Bloques, miembros y política de adquisición}
+Sea $\mathcal B=\{1,\ldots,M\}$ una biblioteca de extractores congelados. El bloque $j$ transforma una imagen $x_i$ en $\mathbf z_{ij}\in\mathbb R^{d_j}$. Para un subconjunto $S\subseteq\mathcal B$, se utiliza
 \begin{equation}
- \mathbf{z}_{i,S}=\mathop{\Vert}_{j\in S}\frac{\mathbf{z}_{ij}}{\max(\lVert\mathbf{z}_{ij}\rVert_2,10^{-12})},
- \label{eq:concat}
+\mathbf z_{i,S}=\mathop{\Vert}_{j\in S}
+\frac{\mathbf z_{ij}}{\max(\lVert\mathbf z_{ij}\rVert_2,10^{-12})},
+\qquad d_S=\sum_{j\in S}d_j .
+\label{eq:concat}
 \end{equation}
-donde $\Vert$ denota concatenación. La normalización $L_2$ se aplica por descriptor y por muestra antes de unir los bloques, para evitar que la escala de un extractor determine por sí sola la contribución al clasificador.
+Cada miembro $f_S$ es una SVM entrenada sobre una concatenación de bloques; distintos votos pueden corresponder al mismo modelo. Una política $\pi=(b,E,\tau)$ consta de un bloque base $b$, una lista de miembros de rescate $E$ y un umbral $\tau$. El ensamble completo puede contener miembros repetidos con efecto en el voto, aunque cada modelo único se ejecute una sola vez.
 
-La Figura~\ref{fig:pipeline} muestra cómo una misma imagen produce representaciones diferentes. Un descriptor resume patrones, relaciones entre intensidades o activaciones aprendidas en un vector. Después de normalizar cada bloque, se conserva un descriptor individual o se concatenan los bloques seleccionados. La dimensión conjunta es $d_S=\sum_{j\in S}d_j$.
+La biblioteca comprende 22 bloques y 20.652 dimensiones nominales. Los descriptores fijos se almacenan por imagen, mientras que la proyección SVD de N-gramas se aprende con el entrenamiento del ajuste pertinente. Los detalles de extracción, checkpoints y dimensiones se conservan en el Anexo~\ref{app:especificaciones}. La selección actúa sobre bloques completos, no sobre coordenadas individuales.
 
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=\textwidth]{articulo/borrador_profesor/figures/concatenacion_v02.pdf}
-\caption{Extracción y concatenación de descriptores. La misma imagen de DTD se representa mediante cinco ejemplos: patrones locales (LBP), respuestas de filtros (Gabor), coocurrencias (GLCM), una red convolucional (ResNet) y secuencias RGB (N-gramas). Las transformaciones internas se muestran esquemáticamente; no representan mapas de importancia por píxel. Cada rama produce un bloque normalizado que puede utilizarse individualmente o concatenarse con otros. El ejemplo de tres bloques ilustra la unión de coordenadas; cada política determina el subconjunto admisible.}
-\label{fig:pipeline}
-\end{figure}
-\FloatBarrier
+Se denomina entrenamiento productor al conjunto utilizado para construir candidatos, seleccionar la política y reajustar los modelos. Dentro de él se obtienen predicciones OOF internas para la selección. La validación productora permanece fuera de esas decisiones y evalúa la política elegida. El Capítulo~\ref{sec:diseno} detalla ambos niveles de partición.
 
-\section{Estrategias comparadas}
-
-Las cinco estrategias responden a decisiones sobre la representación que recibe el clasificador. Individual establece el desempeño de un solo bloque; Completa evalúa la unión de toda la biblioteca; Top-$k$ y GFS eligen subconjuntos; Homogénea restringe la procedencia de los bloques a una familia. Se utilizan las mismas denominaciones en método, resultados y estadística:
-\begin{enumerate}
-\item \textbf{Individual}: descriptor con mayor macro-F1 medio en validación interna.
-\item \textbf{Completa}: concatenación de todos los bloques de la biblioteca evaluada.
-\item \textbf{Top-$k$}: concatenación de los $k$ descriptores mejor posicionados por su macro-F1 individual interno; $k$ se toma del subconjunto GFS de la misma condición.
-\item \textbf{GFS}: subconjunto devuelto por la selección secuencial de bloques.
-\item \textbf{Homogénea}: mejor resultado interno de GFS restringido a una familia, con un límite de bloques no mayor que el subconjunto GFS heterogéneo.
-\end{enumerate}
-Top-$k$ controla la composición bajo el mismo número de bloques que GFS, aunque las dimensiones pueden diferir. No constituye una política independiente de elección de $k$. Homogénea permite estudiar el efecto de restringir la biblioteca a una familia. Todos los comparadores se seleccionan antes de evaluar el test. Los controles aleatorios y las variantes de presupuesto se conservan como análisis auxiliares en los materiales del proyecto.
-
-\section{Espacio de descriptores}
-
-La biblioteca contiene 22 descriptores, agrupados según el tipo de representación (6 clásicos y 16 modelos aprendidos profundos y fundacionales). Cada uno constituye un bloque candidato sujeto al mismo criterio de selección. Las
-Tablas~\ref{tab:extractores-clasicos} y~\ref{tab:extractores-aprendidos}
-identifican la parametrización, los checkpoints y la dimensionalidad de cada
-bloque. Las redes preentrenadas se ejecutaron en modo evaluación y sin
-ajuste de pesos. En los modelos cargados mediante \texttt{timm} se eliminó la
-capa clasificadora (\texttt{num\_classes=0}) y se aplicó el preprocesamiento
-asociado al checkpoint. Para ViT, DeiT, Swin, MAE y SigLIP se utilizó la salida
-\emph{pooler} cuando estaba disponible y, en caso contrario, el token de
-clasificación. Todas las imágenes se convirtieron a RGB.
-
-Los descriptores clásicos se basan en operadores LBP,
-Gabor, GLCM y HOG \citep{ojala2002lbp,mehta2016drlbp,jain1991gabor,haralick1979glcm,dalal2005hog}.
-Las CNN corresponden a VGG16, ResNet, DenseNet, EfficientNet y ConvNeXt V2
-\citep{simonyan2015vgg,he2016resnet,huang2017densenet,tan2019efficientnet,woo2023convnextv2}.
-El grupo Transformer incluye ViT, DeiT, Swin y EVA-02
-\citep{dosovitskiy2021vit,touvron2021deit,liu2021swin,fang2024eva02}; las
-representaciones con preentrenamiento autosupervisado o multimodal se basan en
-DINOv2, MAE y SigLIP \citep{oquab2024dinov2,he2022mae,zhai2023siglip}.
-
-\begin{table}[!ht]
-\centering
-\caption{Seis descriptores basados en patrones, filtros, gradientes y conteos incluidos en la biblioteca. Cada fila constituye un bloque completo.}
-\label{tab:extractores-clasicos}
-\fontsize{9}{11}\selectfont
-\begin{tabular}{@{}lp{7.0cm}p{3.2cm}r@{}}
-\toprule
-Descriptor & Parametrización & Salida & Dim. \\
-\midrule
-LBP & multiescala $(P,R)=(8,1),(16,2),(24,3)$; mapeo uniforme invariante a rotación (riu2) & histogramas normalizados & 54 \\
-LBP-rot & $P=8$, $R=1$; ocho rotaciones; códigos limitados a $[0,10]$ & histogramas $10\times 8$ & 80 \\
-Gabor & cuatro frecuencias 0,1--0,8; seis orientaciones & media y desv. de respuesta real & 48 \\
-GLCM & 256 niveles; distancias 1--3; cuatro ángulos; seis propiedades & promedios sobre ángulos & 18 \\
-HOG & nueve orientaciones; celda $16^2$; bloque $2^2$; norma L2-Hys & vector HOG & 1.764 \\
-N-gramas & ventana vertical $2\times1$; cuantización RGB por 12; 8.192 bins; SVD & vector normalizado & 256 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[!ht]
-\centering
-\caption{Representaciones aprendidas congeladas incluidas en la biblioteca (16 extractores profundos y de modelos fundacionales). ``Preclas.'' designa la salida inmediatamente anterior al clasificador del backbone.}
-\label{tab:extractores-aprendidos}
-\fontsize{9}{11}\selectfont
-\begin{tabular}{@{}llp{6.5cm}lr@{}}
-\toprule
-Familia & Descriptor & Checkpoint & Salida & Dim. \\
-\midrule
-CNN & VGG16 & \texttt{vgg16.tv\_in1k} & preclas. & 4.096 \\
- & ResNet-50 & \texttt{resnet50.a1\_in1k} & preclas. & 2.048 \\
- & ResNet-101 & \texttt{resnet101.a1\_in1k} & preclas. & 2.048 \\
- & DenseNet-121 & \texttt{densenet121.tv\_in1k} & preclas. & 1.024 \\
- & EfficientNet-B0 & \texttt{efficientnet\_b0.ra\_in1k} & preclas. & 1.280 \\
- & ConvNeXt V2-T & \texttt{convnextv2\_tiny.fcmae\_ft\_in22k\_in1k} & preclas. & 768 \\
-\midrule
-Transformer & ViT-B/16 & \texttt{google/vit-base-patch16-224} & pooler/CLS & 768 \\
- & DeiT-S & \texttt{facebook/deit-small-patch16-224} & pooler/CLS & 384 \\
- & Swin-T & \texttt{microsoft/swin-tiny-patch4-window7-224} & pooler & 768 \\
- & EVA-02 base & \texttt{eva02\_base\_patch14\_224} & preclas. & 768 \\
- & BEiT-v2-B$^\dagger$ & \texttt{beitv2\_base\_patch16\_224} & pooler/CLS & 768 \\
-\midrule
-Autosup./multimodal & DINOv2-S & \texttt{vit\_small\_patch14\_dinov2.lvd142m} & preclas. & 384 \\
- & DINOv2-B & \texttt{vit\_base\_patch14\_dinov2.lvd142m} & preclas. & 768 \\
- & DINOv2-L & \texttt{vit\_large\_patch14\_dinov2.lvd142m} & preclas. & 1.024 \\
- & MAE-B & \texttt{facebook/vit-mae-base} & pooler/CLS & 768 \\
- & SigLIP-B & \texttt{google/siglip-base-patch16-224} & pooler/CLS & 768 \\
-\bottomrule
-\multicolumn{5}{l}{\footnotesize $^\dagger$BEiT-v2-B (768d) consolida la biblioteca en 22 extractores (20.652 dimensiones conjuntas).}
-\end{tabular}
-\end{table}
-
-Los descriptores clásicos se calcularon en escala de grises con la implementación de scikit-image: LBP, LBP-rot, Gabor y GLCM sobre imágenes redimensionadas a $256\times256$, y HOG sobre $128\times128$. LBP-rot designa la implementación propia registrada como \texttt{drlbp} en los archivos experimentales: aplica LBP con mapeo \texttt{ror} a ocho rotaciones y concatena diez bins por rotación en el intervalo $[0,10]$. Los códigos fuera de ese intervalo se descartan; por tanto, es un histograma restringido, no una reproducción del DRLBP de Mehta y Egiazarian \citep{mehta2016drlbp}.
-
-La biblioteca consolidada del estudio comprende 22 descriptores (6 clásicos y 16 aprendidos), cuyos vectores concatenados suman 20.652 dimensiones (19.884 dimensiones correspondientes al conjunto preliminar de 21 descriptores más 768 componentes aportadas por BEiT-v2-B). Las características fijas y los conteos por imagen se almacenaron junto con etiquetas, orden de muestras y hashes de procedencia; las transformaciones aprendidas se ajustaron dentro de cada partición de entrenamiento. El estudio evalúa la selección y concatenación de bloques con extractores de imagen congelados y transformaciones ajustadas dentro del entrenamiento; no compara estrategias de \emph{fine-tuning}.
-
-RGB Pixel N-grams \citep{paiva2023rgb} utiliza ventanas verticales de $2\times1$ píxeles con paso 1 sobre la imagen RGB en su resolución original. Cada canal se cuantiza mediante $q(v)=\lfloor v/12\rfloor$; los seis valores se codifican en base 22, recorriendo las dos posiciones de R, G y B. Los conteos se agrupan por el resto del código dividido por 8.192 y se comprimen mediante TruncatedSVD aleatorizado (256 componentes, cinco iteraciones y semilla de la condición). SVD se ajusta exclusivamente con el entrenamiento de cada partición interna y se reajusta sobre el entrenamiento externo para la evaluación final. El vector se normaliza con $L_2$ antes de concatenarlo. Esta parametrización comprimida se identifica como N-gramas + SVD y constituye una familia propia para la selección Homogénea.
-
-\section{Greedy Forward Selection}
-
-GFS se utiliza como un método \emph{wrapper}: los subconjuntos se valoran mediante el propio clasificador y exclusivamente dentro de la validación interna, como requieren los diseños de selección que separan búsqueda y evaluación externa \citep{kohavi1997wrappers,guyon2003feature}. La búsqueda comienza con un conjunto vacío. En el paso $t$, evalúa cada descriptor aún no seleccionado al añadirlo al subconjunto vigente y elige el candidato con mayor macro-F1 medio en la validación interna:
+\section{Generación del ensamble de subconjuntos}
+Se construye un ensamble de 15 miembros, cada uno con cuatro bloques. La relevancia $R_j$ se obtiene normalizando $a_j$, la media aritmética del macro-F1 individual entre los pliegues internos:
 \begin{equation}
- j_t=\arg\max_{j\notin S_{t-1}}\widehat{F}_{1,\mathrm{inner}}(S_{t-1}\cup\{j\}),
- \qquad S_t=S_{t-1}\cup\{j_t\}.
- \label{eq:gfs}
+R_j=\frac{a_j-a_{\min}}{a_{\max}-a_{\min}},
+\label{eq:relevance}
 \end{equation}
-La búsqueda se limita a $k\leq 8$. Se detiene cuando la mejora respecto del paso anterior es menor que 0,001 durante dos pasos consecutivos, pero devuelve el mejor paso histórico, no necesariamente el último. Los empates se resuelven de forma determinista mediante el nombre del extractor. Todas las evaluaciones candidatas utilizan únicamente muestras pertenecientes al entrenamiento externo.
-
-La Figura~\ref{fig:gfs-pasos} representa el mecanismo general de GFS. En cada ronda se comparan únicamente los bloques aún disponibles dentro de los folds internos; el bloque elegido se incorpora al subconjunto y el test externo permanece fuera de esa decisión.
-
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=\textwidth]{articulo/borrador_profesor/figures/gfs_pasos.pdf}
-\caption{Mecanismo de Greedy Forward Selection sobre bloques completos. En cada paso se elige el bloque que maximiza el macro-F1 medio de la validación interna; el test externo se utiliza únicamente tras cerrar el subconjunto.}
-\label{fig:gfs-pasos}
-\end{figure}
-\FloatBarrier
-
-La Tabla~\ref{tab:config-gfs} concentra los parámetros de búsqueda, comunes a ambos clasificadores.
-
-\begin{table}[!b]
-\centering
-\caption{Configuración de la selección GFS en el flujo general.}
-\label{tab:config-gfs}
-\fontsize{9}{11}\selectfont
-\begin{tabular}{lp{8.4cm}}
-\toprule
-Elemento & Configuración \\
-\midrule
-Unidad de selección & Bloque completo generado por un extractor \\
-Candidatos & Hasta 22 bloques candidatos \\
-Criterio interno & Macro-F1 medio en cuatro folds estratificados y agrupados \\
-Presupuesto & Hasta $k=8$ bloques \\
-Parada & Dos mejoras consecutivas menores que 0,001; se devuelve el mejor paso histórico \\
-Empates & Nombre del extractor, en orden determinista \\
-Información excluida & Test externo y sus etiquetas durante toda la selección \\
-\bottomrule
-\end{tabular}
-\end{table}
-\FloatBarrier
-
-
-\section{Conjuntos de datos y control de integridad}
-
-Antes del análisis se construyó un manifiesto por dataset y se verificaron etiquetas, orden de muestras, dimensiones, valores finitos y grupos de dependencia. El estudio evalúa seis conjuntos de datos de textura: DTD, FMD, CUReT, Outex, SoilOriginal y KTH-TIPS-2b. Para la concatenación estática se analizan 47 condiciones externas por clasificador; para la cascada adaptativa se evalúa el espacio canónico de 27 condiciones.
-
-DTD contiene 5.640 imágenes de texturas en condiciones no controladas y proporciona diez particiones oficiales de entrenamiento, validación y prueba \citep{cimpoi2014dtd}. En cada partición se unieron entrenamiento y validación para ejecutar la selección interna, mientras que el test oficial se reservó para una única evaluación. Los duplicados byte-idénticos que cruzaban roles fueron retirados del conjunto de entrenamiento, conservando intacta la evaluación.
-
-FMD reúne 1.000 fotografías de diez categorías de materiales \citep{sharan2013fmd}. Las características fijas y los conteos por imagen se obtuvieron desde las imágenes oficiales en un orden canónico. Cada imagen presentó un hash único y se utilizó como unidad de agrupación. En la concatenación estática, la evaluación externa empleó cinco folds estratificados y agrupados repetidos con semillas 42, 123 y 2026 (15 condiciones externas); en la cascada adaptativa, se evalúan los cinco pliegues canónicos.
-
-Outex contiene 1.360 BMP RGB de $128\times128$ píxeles, organizados en 68 clases balanceadas (suite Outex-TC-00013). La auditoría verificó archivos legibles, IDs continuos 000000--001359, ausencia de duplicados y la partición oficial de 680 imágenes de entrenamiento y 680 de prueba, con diez muestras de cada clase en cada lado \citep{ojala2002outex}. Todos los bloques respetan el orden de las 1.360 muestras del manifiesto oficial.
-
-Para CUReT se utilizó la distribución gris recortada de 61 materiales, con 92 condiciones compartidas por clase \citep{varma2003filter}. Cada condición constituye un grupo para impedir que la misma configuración de adquisición aparezca a ambos lados de una partición. Se definieron dos mitades complementarias deterministas de 46 condiciones: A para selección y entrenamiento con B como test, y la dirección inversa. Esta asignación reproduce de manera transparente el tamaño 46/46 publicado, pero no se presenta como el split histórico exacto. Debido a que las dos direcciones son complementarias y dependientes, sus resultados se interpretan descriptivamente.
-
-SoilOriginal comprende 1.140 imágenes originales de textura de suelos agrícolas tras deduplicación exacta, clasificadas en siete clases texturales estándar y evaluadas bajo cinco pliegues estratificados canónicos (228 imágenes de prueba por pliegue, $N=5$ condiciones).
-
-KTH-TIPS-2b contiene imágenes de 11 clases de materiales capturadas bajo cuatro muestras físicas independientes (\emph{sample\_a}, \emph{sample\_b}, \emph{sample\_c}, \emph{sample\_d}) variando pose, escala e iluminación ($N=4$ condiciones). Para mantener la trazabilidad con los experimentos archivados del proyecto, sus resultados se reportan de forma puramente descriptiva; no obstante, debido a diferencias en su historial de selección previa y particionamiento, se excluye formalmente del conjunto de datos sometido a los contrastes inferenciales no paramétricos conjuntos de Demšar, los cuales se restringen a los cinco conjuntos metodológicamente reconciliados (DTD, FMD, CUReT, Outex13 y SoilOriginal, $N=5$, 23 condiciones).
-
-\section{Clasificadores}
-
-Se emplearon dos clasificadores con sesgos diferentes. La SVM lineal se implementa con \texttt{LinearSVC} de scikit-learn: $C=1$, ponderación balanceada por clase, pérdida \emph{squared hinge}, regularización $L_2$, esquema uno-contra-el-resto, tolerancia $10^{-4}$ y un máximo de 10.000 iteraciones.
-
-Se denomina ResMLP a la MLP residual implementada para este estudio sobre vectores de características; no es una reproducción del modelo de imágenes del mismo nombre \citep{touvron2021resmlp}. Proyecta la entrada a 256 unidades y aplica tres bloques residuales, normalización de capa, activaciones GELU, \emph{dropout} de 0,1 y una salida multiclase. Se entrena con entropía cruzada y AdamW, tasa de aprendizaje $10^{-3}$, decaimiento de pesos $10^{-4}$, lotes de 256 muestras y un máximo de 100 épocas. La parada se basa en la pérdida media de entrenamiento: tras diez épocas sin una disminución mayor que $10^{-4}$, se detiene y restaura el mejor estado registrado. No utiliza el test ni una validación adicional para elegir la época. Las semillas se fijan para NumPy y PyTorch; cuando está disponible, la red se ejecuta en GPU.
-
-\section{Configuración experimental y protocolo anidado}
-
-La selección interna utiliza cuatro folds estratificados y agrupados. En DTD se ejecuta dentro de la unión \emph{train+val} de cada split oficial; en FMD dentro del entrenamiento de cada uno de los 15 folds externos; y en CUReT dentro de la mitad de 46 condiciones asignada al entrenamiento. En Outex, las cinco estrategias restringen los cuatro folds internos a las 680 imágenes del entrenamiento oficial. Después de seleccionar el subconjunto y los comparadores, cada modelo se ajusta con todo el entrenamiento externo y se evalúa una sola vez en el test correspondiente. Se verifica programáticamente que ningún grupo aparezca en entrenamiento y prueba.
-
-
-
-\section{Análisis estadístico}\label{sec:analisis-estadistico}
-
-El análisis inferencial sigue las recomendaciones metodológicas para comparación de clasificadores sobre múltiples conjuntos de datos \citep{demsar2006statistical,derrac2011practical,garcia2008extension}. Los cálculos se realizaron con los paquetes Java ControlTest y MultipleTest distribuidos con el tutorial de pruebas no paramétricas \citep{derrac2011practical}.
-
-La exactitud es la proporción de imágenes clasificadas correctamente. Macro-F1 promedia el F1 de las $C$ clases con igual peso: $\mathrm{macro\mbox{-}F1}=C^{-1}\sum_{c=1}^{C}2TP_c/(2TP_c+FP_c+FN_c)$, donde $TP_c$, $FP_c$ y $FN_c$ son los verdaderos positivos, falsos positivos y falsos negativos de la clase $c$. Esta media evita que la contribución de una clase dependa directamente de su número de muestras.
-
-Macro-F1 es la métrica primaria del estudio. Para la evaluación de la concatenación estática sobre la biblioteca consolidada de 22 descriptores, los contrastes no paramétricos se ejecutan de forma desagregada por clasificador (Linear SVM y ResMLP), definiendo un bloque por conjunto de datos ($N=6$ conjuntos: DTD, FMD, CUReT, Outex, SoilOriginal y KTH-TIPS-2b). En cada bloque se promedian previamente las particiones externas dependientes. Se calculan los rankings de Friedman, Friedman alineado y Quade, y los contrastes por pares aplican el ajuste secuencial de Holm ($\alpha=0{,}05$) sobre la familia de diez comparaciones posibles. Esta separación por clasificador respeta los sesgos inductivos disímiles de cada modelo y evita el problema de pseudorreplicación derivado de tratar evaluaciones dependientes sobre las mismas imágenes como problemas independientes.
-
-Para la evaluación de la Cascada Adaptativa Costo-Consciente, se aplican los contrastes de Demšar sobre los cinco conjuntos de datos metodológicamente reconciliados ($N=5$, 23 condiciones canónicas), contrastando la cascada frente a la concatenación Top-$k$ de origen y la Concatenación Completa-22 mediante pruebas pareadas de Wilcoxon con ajuste de Holm.
-
-En todos los casos, la ausencia de significancia estadística ($p_{\text{Holm}}>0{,}05$) representa la imposibilidad de rechazar la hipótesis nula de igualdad de rangos bajo la muestra disponible; es metodológicamente fundamental reconocer que no constituye una demostración de equivalencia matemática ni de no inferioridad formal entre estrategias. Se informan con rigor las diferencias empíricas observadas junto con los valores de significancia.
-
-\section[Cascada Adaptativa Costo-Consciente]{Fusión secuencial y cascada adaptativa de dos etapas}\label{sec:cascada-adaptativa}
-
-La concatenación estática descrita en la Sección~\ref{sec:metodo} presenta una limitación operativa fundamental: para cada imagen del conjunto de prueba, obliga a calcular la totalidad de los descriptores seleccionados, incurriendo en un costo computacional masivo y constante sin importar si el patrón textural es trivial o altamente complejo.
-
-Para abordar este compromiso calidad--costo, se formuló una estrategia de adquisición condicional en dos etapas denominada \emph{Cascada Adaptativa Costo-Consciente}. En lugar de evaluar todos los bloques de entrada de forma homogénea, el sistema procesa la imagen de manera progresiva guiado por la incertidumbre predictiva del clasificador.
-
-\subsection{Formulación y Regla de Decisión}
-
-Sea $\mathcal{B} = \{\phi_1, \dots, \phi_M\}$ la biblioteca de extractores disponibles ($M=22$) y $x$ una imagen de entrada. La inferencia en cascada opera en dos etapas:
-
-\begin{enumerate}
-\item \textbf{Etapa 1 (Económica):} Se extrae un único descriptor inicial liviano $\phi_{\text{cheap}} \in \mathcal{B}$. El clasificador lineal ajustado sobre este descriptor produce un vector de puntuaciones de decisión $\mathbf{s} = [s_1, \dots, s_C]$. El margen de confianza $m(x)$ se define como la diferencia entre la puntuación de la clase más probable y la segunda más probable:
+con denominador uno cuando todos los valores coinciden. La frontera de bases y las ganancias de poda, en cambio, usan macro-F1 sobre las predicciones OOF internas reunidas. Ambas agregaciones pueden producir ordenamientos diferentes. La similitud entre dos matrices de características centradas por columna, $X$ e $Y$, se calcula mediante CKA lineal \citep{kornblith2019similarity}:
 \begin{equation}
-m(x) = s_{(1)} - s_{(2)}.
+\operatorname{CKA}(X,Y)=
+\frac{\lVert Y^\top X\rVert_F^2}
+{\lVert X^\top X\rVert_F\,\lVert Y^\top Y\rVert_F}.
+\label{eq:cka}
+\end{equation}
+Si el denominador es cero, la implementación devuelve cero. Se usa únicamente el entrenamiento productor, es decir, las imágenes disponibles para construir y seleccionar la ruta antes de evaluar su pliegue de validación.
+
+Dado el conjunto parcial $S$, la utilidad de un candidato es
+\begin{equation}
+u_j(S)=R_j-\lambda\,|S|^{-1}\sum_{\ell\in S}\operatorname{CKA}(j,\ell);
+\qquad u_j(\varnothing)=R_j .
+\label{eq:utility}
+\end{equation}
+Los candidatos se ordenan por utilidad decreciente y nombre en caso de empate. Si quedan $n$ candidatos y $r_j=1$ identifica el mejor, el sorteo utiliza
+\begin{equation}
+p(j\mid S)=\frac{(n-r_j+1)^\beta}{\sum_{\ell=1}^{n}\ell^\beta}.
+\label{eq:lottery}
+\end{equation}
+Cada bloque elegido se retira del sorteo del mismo miembro. Entre miembros sí pueden repetirse subconjuntos. En el piloto se fijaron $\beta=8$ y $\lambda=0{,}25$, procedentes de la configuración archivada del ensamble. No se presentan como hiperparámetros óptimos universales.
+
+\section{Puntuaciones y agregación}
+Cada SVM produce un vector de puntuaciones $s_S(x)\in\mathbb R^C$, con el mismo orden de clases. Su escala $\sigma_S$ es la desviación estándar poblacional de todas las puntuaciones de sus imágenes de entrenamiento, agrupando filas y clases. Se fija en uno si no es positiva o finita. La puntuación normalizada es
+\begin{equation}
+\widetilde s_S(x)=s_S(x)/\sigma_S,\qquad
+\widehat y_E(x)=\arg\max_c\frac{1}{|E|}
+\sum_{S\in E}\widetilde s_{S,c}(x).
+\label{eq:ensemble}
+\end{equation}
+La escala permanece congelada en validación; no se recalcula con el lote evaluado. Esta operación no convierte las puntuaciones en probabilidades calibradas. Los miembros repetidos conservan su multiplicidad en la suma del ensamble completo. El rescate podado, en cambio, usa pesos uniformes sobre modelos únicos seleccionados.
+
+\section{Base y compuerta}
+Las bases candidatas pertenecen a la frontera no dominada de macro-F1 individual interno y costo proyectado. Una base se excluye si otra no es peor en calidad ni costo y la mejora estrictamente en al menos uno. Es una restricción del espacio de búsqueda: no demuestra que una base dominada individualmente carezca de utilidad para enrutamiento.
+
+El margen de la base es la diferencia entre sus dos puntuaciones más altas:
+\begin{equation}
+m_b(x)=\widetilde s_{b,(1)}(x)-\widetilde s_{b,(2)}(x).
 \label{eq:margin}
 \end{equation}
-Si el margen supera un umbral prospectivo $\tau$ ($m(x) > \tau$), la predicción de la Etapa 1 se considera suficientemente certera, el proceso se detiene inmediatamente (\emph{early exit}) y no se adquieren descriptores adicionales.
-
-\item \textbf{Etapa 2 (Escalamiento a Concatenación Densa):} Si $m(x) \le \tau$, la muestra se identifica como ambigua. En este caso, el sistema escala selectivamente y adquiere los extractores complementarios seleccionados mediante Top-$k$ ($\mathcal{B}_{\text{Top-}k}$). La predicción final se obtiene evaluando el modelo conjunto entrenado sobre la concatenación normalizada de todos los bloques adquiridos:
+Para cada base se consideran cuantiles $q\in\{0{,}1;0{,}25;0{,}5\}$ de márgenes OOF internos. Un umbral $\tau_{b,q}$ define la regla
 \begin{equation}
-\hat{y}(x) = 
-\begin{cases} 
-\hat{y}_{\text{cheap}}(x), & \text{si } m(x) > \tau, \\
-\hat{y}_{\text{Top-}k}(x), & \text{si } m(x) \le \tau.
+\widehat y_\pi(x)=
+\begin{cases}
+\widehat y_b(x),& E=\varnothing\ \text{o}\ m_b(x)\ge\tau_{b,q},\\
+\widehat y_E(x),& m_b(x)<\tau_{b,q}.
 \end{cases}
 \label{eq:decision-rule}
 \end{equation}
+Cuando se activa el rescate, su predicción reemplaza a la base; esta no se añade como voto adicional. El margen ordena las muestras para esta regla de parada, pero no es una probabilidad de acierto. Tras reajustar la base con todo el entrenamiento productor, su escala se vuelve a estimar únicamente con ese entrenamiento y se conserva el valor numérico del umbral OOF. No se recalcula el cuantil con la validación productora. Por ello, el cuantil seleccionado no fija una fracción exacta de derivación al evaluar.
+
+\section{Costo compartido y presupuesto}
+Sea $U(E)$ la unión de bloques de los miembros y $c_j$ el costo por extractor del perfil fijado. Para la fracción interna derivada $\widehat r$, se estima
+\begin{equation}
+\widehat C(b,E)=
+\begin{cases}
+c_b,&E=\varnothing,\\
+c_b+c_{\mathrm{pol}}+\widehat r
+\displaystyle\sum_{j\in U(E)\setminus\{b\}}c_j,&E\ne\varnothing.
+\end{cases}
+\label{eq:cost-hybrid}
+\end{equation}
+Los bloques compartidos se contabilizan una vez y la representación base se reutiliza. El piloto fija $c_{\mathrm{pol}}=0{,}45$ ms como sobrecosto del perfil. Este valor no constituye un cronometraje de todos los clasificadores del híbrido. El Anexo~\ref{app:especificaciones} registra las constantes utilizadas.
+
+Los presupuestos $B\in\{15,30,60,120\}$ ms restringen la media proyectada de selección, no el costo de cada imagen ni una media futura. La fracción derivada puede cambiar al evaluar. También se registra el número esperado de llamadas:
+\begin{equation}
+\widehat L=1+\widehat r\,|\operatorname{unique}(E)|.
+\end{equation}
+Menos llamadas no implica por sí solo una reducción física proporcional.
+
+\subsection{Interpretación del costo de adquisición}
+Para una política no vacía, sea $A_{b,E}=\sum_{j\in U(E)\setminus\{b\}}c_j$ el costo adicional del rescate. El modelo por imagen es
+\begin{equation}
+C_\pi(x)=c_b+c_{\mathrm{pol}}+
+\mathbb I[m_b(x)<\tau]\,A_{b,E}.
+\end{equation}
+La media de esta expresión da la Ecuación~\ref{eq:cost-hybrid}. El sobrecosto fijo se aplica a todas las imágenes cuando existe rescate, no solo a las derivadas.
+
+Una referencia que extrae permanentemente la misma unión tiene costo de adquisición $C_E=\sum_{j\in U(E)}c_j$, sin incluir latencia de clasificadores. Si $A_{b,E}>0$, la política condicional reduce ese costo estimado únicamente cuando
+\begin{equation}
+\widehat r < \frac{C_E-c_b-c_{\mathrm{pol}}}{A_{b,E}}.
+\label{eq:break-even}
+\end{equation}
+La condición muestra dos efectos distintos: podar puede reducir $U(E)$ y enrutar puede reducir $\widehat r$. Una base fuera de la unión añade un costo que debe compensarse; el umbral también puede derivar demasiadas imágenes para que la adquisición resulte ventajosa. Esta identidad del modelo de costos no es una garantía de latencia física. Además, comparar un rescate podado condicional con un ensamble completo permanente cambia ambos mecanismos, por lo que no aísla el aporte de la compuerta.
+
+\section{Selección completa y poda del rescate}
+Sea $\mathcal P_B$ la familia restringida de políticas visitadas a partir de las bases candidatas, los cuantiles y la búsqueda de rescates para el presupuesto $B$. Se selecciona
+\begin{equation}
+\widehat\pi_B\in
+\underset{\pi\in\mathcal P_B:\,\widehat C(\pi)\le B}
+{\operatorname{arg\,max}}\;
+\widehat F_{1,\mathrm{OOF}}(\pi),
+\label{eq:policy-selection}
+\end{equation}
+donde el macro-F1 se calcula sobre las puntuaciones internas reunidas. El desempate favorece menor costo, menos miembros y, finalmente, los identificadores deterministas de la implementación. La optimalidad se refiere solo a los puntos visitados en $\mathcal P_B$; no a todos los subconjuntos posibles. Si ninguna base cabe en el presupuesto, la configuración se registra como inviable.
+
+El criterio operativo de este estudio es maximizar calidad interna dentro de un presupuesto de adquisición fijado, no aceptar una pérdida de F1 elegida después de observar validación. Al evaluar se informan conjuntamente $\Delta F_1$, costo y cumplimiento del presupuesto frente a controles factibles para el mismo $B$. Una política domina descriptivamente a otra si no empeora ninguna de las dos magnitudes y mejora al menos una; de otro modo se conserva el compromiso, sin agregarlo en una puntuación arbitraria. No se escoge un presupuesto de despliegue ni se establece un margen retrospectivo de no inferioridad. Una excedencia en validación se registra como incumplimiento observado, aunque la selección interna fuera factible.
+
+El rescate completo compara la base sola con los 15 votos para cada base, cuantil y presupuesto factibles. La poda empieza sin miembros y añade hasta tres modelos únicos del mismo ensamble. Cada adición debe mejorar el macro-F1 interno de la ruta y cumplir $\widehat C\le B$. Se comparan dos méritos:
+\begin{equation}
+h_{\mathrm{rel}}=\Delta F_1,\qquad
+h_{\mathrm{marg}}=\Delta F_1/\Delta\widehat C .
+\end{equation}
+Aquí $\Delta F_1$ es el cambio de macro-F1 de la ruta completa sobre las imágenes internas reunidas, manteniendo base y umbral; no el F1 aislado del candidato ni el F1 de las imágenes derivadas solamente. $\Delta\widehat C$ es la diferencia de costo de adquisición al añadir ese miembro a los ya elegidos.
+El primer criterio se denomina \emph{relevancia} en los registros, pero su mérito es la ganancia de macro-F1 de la ruta, no la relevancia individual $R_j$ usada para generar el ensamble. Solo se aceptan ganancias mayores que $10^{-12}$. En el criterio marginal, una ganancia positiva con costo incremental no mayor que $10^{-12}$ tiene prioridad sobre razones finitas; el criterio de relevancia ordena por ganancia sin utilizar ese cociente. Los desempates consideran ganancia, costo y nombre del miembro. Se conserva el mejor punto interno visitado, incluida base sola.
+
+Esta es una búsqueda heurística sobre candidatos generados, no una solución global del problema combinatorio. La relevancia y la razón marginal usan el mismo pool, bases y cuantiles; cambiar ese pool constituiría otra comparación.
+
+\begin{table}[H]
+\centering
+\caption{Procedimiento de selección dentro de un entrenamiento productor. La validación productora no interviene en estos pasos.}
+\label{tab:algoritmo-entrenamiento}
+\begin{minipage}{0.95\textwidth}\small
+\begin{enumerate}
+\item Recibir entrenamiento productor, biblioteca, grupos, semilla y perfil de costos.
+\item Calcular ranking individual y CKA; generar 15 subconjuntos de cuatro bloques.
+\item Obtener puntuaciones OOF internas de bases y miembros, ajustando SVD y escalas dentro de cada ajuste pertinente.
+\item Construir la frontera de bases; para cada presupuesto y cuantil, evaluar base sola y rescate completo o la secuencia de poda.
+\item Conservar la política de mayor macro-F1 interno bajo el presupuesto y los desempates especificados.
+\item Reajustar los modelos necesarios con el entrenamiento productor; congelar escalas y umbral. Guardar selección e índices antes de evaluar la validación productora.
 \end{enumerate}
+\end{minipage}
+\end{table}
 
-\subsection{Selección prospectiva en entrenamiento (OOF)}
+\begin{table}[H]
+\centering
+\caption{Especificación de inferencia de la política seleccionada. El piloto la evalúa sobre puntuaciones guardadas; la ejecución física completa del híbrido no ha sido medida.}
+\label{tab:algoritmo-inferencia}
+\begin{minipage}{0.95\textwidth}\small
+\begin{enumerate}
+\item Extraer y normalizar la base; calcular su predicción y margen.
+\item Si no hay rescate o el margen es al menos el umbral, devolver la predicción base.
+\item En otro caso, adquirir $U(E)\setminus\{b\}$, reutilizando cada bloque ya disponible.
+\item Evaluar cada modelo único del rescate; agregar puntuaciones con sus escalas y multiplicidades fijadas. Devolver la clase de mayor puntuación.
+\end{enumerate}
+\end{minipage}
+\end{table}
+\FloatBarrier
 
-Para prevenir sesgos optimistas o fuga de información hacia el conjunto de prueba, tanto la elección del descriptor económico inicial $\phi_{\text{cheap}}$ como el umbral de confianza $\tau$ se optimizan de forma estrictamente prospectiva en el conjunto de entrenamiento $T_{\text{train}}$ mediante validación cruzada interna fuera de pliegue (\emph{Out-of-Fold}, OOF).
+\input{figures/hibrido_flujo.tex}
 
-Los candidatos económicos considerados en la búsqueda interna corresponden a ResNet-50, SigLIP-B, BEiT-v2-B y ConvNeXt~V2-T, evaluados bajo una grilla de presupuestos relativos de escalamiento $B \in \{0{,}25; 0{,}50; 0{,}75\}$. Para cada candidato y presupuesto, el umbral $\tau$ se fija como el percentil $B$ de los márgenes OOF observados en entrenamiento. La ruta seleccionada es aquella que minimiza el costo computacional proyectado garantizando que el macro-F1 OOF se mantenga dentro de un margen de tolerancia estricto ($\Delta \le 0{,}005$) respecto a la concatenación directa. Si ningún candidato económico satisface el criterio de calidad en entrenamiento, el sistema selecciona automáticamente la ruta directa sin escalamiento (\texttt{topk\_direct}). El subconjunto denso Top-$k$ de la Etapa 2 se hereda de las selecciones internas realizadas en el entrenamiento.
+\section{Referencias estáticas y cascada de comparación}
+\label{sec:comparadores}
+Las estrategias estáticas son: Individual, mejor descriptor interno; Completa, los 22 bloques; GFS, selección secuencial; Top-$k$, los primeros del ranking individual con $k$ heredado de GFS; y Homogénea, GFS restringido a una familia con el límite de tamaño del GFS heterogéneo. Top-$k$ controla composición bajo igual número de bloques, no una elección independiente de $k$.
 
-\subsection{Protocolo de Medición Física de Latencia en GPU}
+GFS inicia vacío y añade el bloque que maximiza macro-F1 interno, hasta ocho bloques. Se detiene tras dos mejoras consecutivas menores que 0,001 y devuelve el mejor paso visitado. Sus detalles y esquema se conservan en el Anexo~\ref{app:especificaciones}.
 
-Para contrastar la reducción analítica de costos proyectados con la latencia física real de reloj de pared, se diseñó y ejecutó un protocolo de medición física pareada en una GPU NVIDIA GeForce RTX 4060 (8~GB VRAM) extendido a los seis conjuntos de datos del estudio (DTD \texttt{official1}, CUReT \texttt{curet\_half\_indices:a\_to\_b}, KTH-TIPS-2b \texttt{official1\_inverted}, Outex13 \texttt{official1}, SoilOriginal \texttt{stratified\_group\_kfold5\_fold0} y FMD \texttt{stratified\_group\_kfold5\_fold0}). En cada conjunto se seleccionó una muestra estratificada de una imagen de prueba por clase (semilla fija 42, sumando 204 imágenes únicas en las 204 clases totales) y se ejecutaron tres repeticiones pareadas por imagen alternando aleatoriamente el orden de evaluación entre la Cascada Adaptativa y Top-$k$ en cada repetición, acumulando 612 mediciones físicas pareadas (que amplían y controlan metodológicamente el piloto preliminar de orden fijo sobre 47 imágenes de DTD).
+La cascada de referencia usa una base y una concatenación Top-$k$ archivada como rescate. Su compuerta deriva si $m(x)\le\tau$, mientras el híbrido usa $m(x)<\tau$. El umbral se seleccionó entre cuantiles 0,25/0,50/0,75 minimizando costo bajo tolerancia interna de F1 de 0,005. La ruta Top-$k$ no se reconstruyó dentro de cada pliegue productor OOF; esta dependencia se mantiene como límite de esa referencia. Si ninguna ruta cumple, se elige Top-$k$ directo.
 
-Se empleó tamaño de lote unitario ($\text{batch size}=1$) con los modelos residentes en memoria de video y las imágenes RGB decodificadas previamente con PIL, delimitando la medición estrictamente al cómputo de extracción y clasificación bajo demanda sin mezclar tiempos de inicialización o lectura de disco. Antes y después de cada inferencia se aplicaron barreras explícitas de sincronización CUDA (\texttt{torch.cuda.synchronize()}) alrededor del cronómetro de alta resolución (\texttt{time.perf\_counter()}). Para garantizar trazabilidad y auditoría, cada observación individual registra la ruta de archivo verificada, su resumen criptográfico SHA-256, el índice de repetición, el orden aleatorio asignado, los tiempos de pared de ambas rutas y la concordancia exacta de decisiones de escalamiento y predicciones respecto al caché fuera de línea. Al evaluar una condición fija por conjunto de datos, este protocolo documenta el ahorro físico controlado en los seis dominios sin pretender sustituir el cronometraje exhaustivo de las 27 condiciones completas.
+En la referencia se consideraron ResNet-50, SigLIP, BEiT-v2 y ConvNeXt V2; KTH utilizó solo ResNet-50 y BEiT-v2. No se confunde este conjunto acotado de bases con la frontera individual del híbrido.

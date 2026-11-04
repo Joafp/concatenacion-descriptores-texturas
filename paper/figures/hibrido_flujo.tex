@@ -1,0 +1,25 @@
+\begin{figure}[!htbp]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw,rounded corners,align=center,text width=7.0cm,minimum height=1.1cm,inner sep=5pt,font=\fontsize{9}{11}\selectfont},
+  smallbox/.style={draw,rounded corners,align=center,text width=4.3cm,minimum height=1.0cm,inner sep=5pt,font=\fontsize{9}{11}\selectfont},
+  arr/.style={-{Stealth[length=2mm]},thick}
+]
+\node[box,fill=blue!6] (train) {Entrenamiento productor\\Ranking, CKA y miembros candidatos};
+\node[box,fill=blue!6,below=7mm of train] (select) {OOF interno: seleccionar base, rescate\\y umbral bajo presupuesto};
+\node[box,fill=blue!6,below=7mm of select] (freeze) {Reajustar modelos y congelar política\\antes de la validación productora};
+\draw[arr] (train) -- (select);
+\draw[arr] (select) -- (freeze);
+\node[smallbox,fill=green!6,below=9mm of freeze] (base) {Imagen: bloque base\\Predicción y margen};
+\node[smallbox,fill=green!6,below left=10mm and 2mm of base] (exit) {Sin rescate o $m\ge\tau$\\Devolver clase base};
+\node[smallbox,fill=orange!10,below right=10mm and 2mm of base] (rescue) {$m<\tau$: adquirir unión\\de bloques faltantes};
+\node[smallbox,fill=orange!10,below=7mm of rescue] (vote) {Modelos únicos y voto\\Rescate reemplaza base};
+\draw[arr,dashed] (freeze) -- (base);
+\draw[arr] (base) -- (exit);
+\draw[arr] (base) -- (rescue);
+\draw[arr] (rescue) -- (vote);
+\end{tikzpicture}
+\caption{Construcción de la política y especificación de su ejecución. La selección usa entrenamiento; la compuerta utiliza el margen de cada imagen, no su etiqueta. En el piloto las rutas se reconstruyen con puntuaciones guardadas y costos proyectados; no se cronometra esta ruta completa desde RGB.}
+\label{fig:hibrido-flujo}
+\end{figure}
+\FloatBarrier

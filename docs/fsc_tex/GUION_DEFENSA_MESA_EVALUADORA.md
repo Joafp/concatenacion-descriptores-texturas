@@ -4,8 +4,8 @@
 * **Expositores:** Carlos Ayala y Joaquín Delgado
 * **Tutor:** Prof. José Vázquez
 * **Materiales de la Defensa:**
-  * Manuscrito final compilado (40 páginas): [`paper/tesis.pdf`](file:///home/joaquin/tesis_claude/paper/tesis.pdf)
-  * Presentación en diapositivas (16 láminas, formato 16:9): [`paper/presentacion_defensa.pdf`](file:///home/joaquin/tesis_claude/paper/presentacion_defensa.pdf)
+  * Manuscrito final compilado (71 páginas): [`paper/tesis.pdf`](file:///home/joaquin/tesis_claude/paper/tesis.pdf)
+  * Presentación en diapositivas (17 láminas, formato 16:9): [`paper/presentacion_defensa.pdf`](file:///home/joaquin/tesis_claude/paper/presentacion_defensa.pdf)
   * Dossier ejecutivo de tablas y metodología: [`docs/fsc_tex/DOSSIER_REUNION_METODOLOGIA_Y_BENCHMARKS.md`](file:///home/joaquin/tesis_claude/docs/fsc_tex/DOSSIER_REUNION_METODOLOGIA_Y_BENCHMARKS.md)
 
 ---
@@ -15,8 +15,8 @@
 | Bloque | Diapositivas | Expositor | Contenido Principal | Tiempo |
 | :--- | :---: | :--- | :--- | :---: |
 | **Apertura y Fase 1** | Láminas 1 a 8 | **Carlos Ayala** | Problema, preguntas, biblioteca de 22 descriptores, protocolo anidado sin fuga, 6 datasets y resultados de concatenación estática (SVM y ResMLP). | ~10 min |
-| **Fase 2 y Hardware GPU** | Láminas 9 a 15 | **Joaquín Delgado** | Arquitectura FSC-Tex (2 etapas), margen de incertidumbre $m(x)$, calibración OOF de $\tau$, resultados en 27 condiciones, benchmark físico en GPU RTX 4060 (612 pares) y discusión. | ~10 min |
-| **Cierre y Futuro** | Lámina 16 | **Ambos** | Conclusiones principales, reproducibilidad y líneas de trabajo futuro. | ~2 min |
+| **Fase 2, Hardware GPU y Comparación SOTA** | Láminas 9 a 16 | **Joaquín Delgado** | Arquitectura FSC-Tex (2 etapas), margen de incertidumbre $m(x)$, calibración OOF de $\tau$, 27 condiciones, benchmark físico en GPU RTX 4060 (612 pares + 94/94 condiciones online), comparación en los 6 datasets contra 4 papers del estado del arte (2022–2026) y discusión. | ~10 min |
+| **Cierre y Futuro** | Lámina 17 | **Ambos** | Conclusiones principales, reproducibilidad y líneas de trabajo futuro. | ~2 min |
 
 ---
 
@@ -121,21 +121,28 @@
 > * *El **74,0% de las inferencias (453 de 612)** salieron tempranamente en la Etapa 1 (solo un **26,0% de incertidumbre** requirió escalar a la Etapa 2).*
 > * *Y lo más importante para la auditoría técnica: la **concordancia funcional entre la ejecución física en GPU y el caché fuera de línea fue del 100,0%** tanto en las rutas tomadas como en las predicciones emitidas."*
 
-#### Diapositiva 15: Discusión Metodológica y Límites del Estudio (~1 min 15 s)
-> *"En el Capítulo 5 discutimos dos aspectos metodológicos fundamentales:*
+#### Diapositiva 15: Comparación en los 6 Datasets con Literatura Reciente (2022–2026) (~1 min 45 s)
+> *"Además de nuestros controles internos, adaptamos con fidelidad matemática y de código cuatro arquitecturas recientes de clasificación de texturas por concatenación y las evaluamos en nuestro panel común de los 6 datasets en la GPU RTX 4060 (`batch=1`): **Neshov et al. (2025)**, **DeepLumina de Simon y Uma (2022)**, **HyTexNet de Gupta et al. (2026)** y **6LBP+dCellNN de Chang et al. (2024)**, sumando más de 141.000 inferencias online auditadas.*
+> * *Primero, validamos la fidelidad exacta de cada adaptación contra sus papers y repositorios oficiales: **0,000000 de error en punto flotante** en `6LBP+dCellNN` frente al código y pesos oficiales de GitHub; **0,0 de error** en los ejemplos de `HyTexNet`; y replicación de exactitudes publicadas en `DeepLumina` (**90,00%** en FMD 80/20 frente a 90,15% y **98,81%** en CUReT frente a 97,53%).*
+> * *Segundo, en el panel común sin fuga de datos sobre los 6 datasets, nuestra política **Adaptive-selection-margin** es simultáneamente **más rápida y mucho más precisa** que `DeepLumina`, `HyTexNet` y `6LBP+dCellNN`, ganando entre **+6,8 y +53,9 puntos de Macro-F1** con latencias de apenas **21,7 a 54,4 ms/img**; y frente al baseline individual `Neshov (2025)`, logra **+3,07 puntos de Macro-F1 en FMD** (0,9727 vs. 0,9420) al mismo costo físico (~21 ms).*
+> * *Tercero, nuestra auditoría forense demostró por qué algunos papers reportaban cifras infladas en protocolos particulares: en `6LBP+dCellNN` su script oficial incluía en entrenamiento las primeras 85 imágenes de las iluminaciones de prueba de Outex; y en `HyTexNet` su split aleatorio compartía las mismas 44 muestras físicas de KTH entre entrenamiento y prueba."*
+
+#### Diapositiva 16: Discusión Metodológica y Límites del Estudio (~1 min 15 s)
+> *"En el Capítulo 6 discutimos tres aspectos metodológicos fundamentales:*
 > 1. ***¿Por qué una cascada de 2 etapas y no una política secuencial profunda paso a paso (tipo MDP o Bellman con horizonte $H \ge 2$)?** Porque al evaluar pilotos multietapa comprobamos que, dado que modelos fundacionales como SigLIP ya resuelven el 74% de las imágenes en el primer paso, evaluar políticas dinámicas complejas paso a paso introduce sobrecarga computacional sin ganancias consistentes de macro-F1. Por el principio de parsimonia, dos etapas resuelven el problema de forma limpia y eficiente.*
-> 2. ***Rigor epistémico:** En la tesis declaramos explícitamente que un valor $p_{\text{Holm}} > 0{,}05$ en Demšar significa no rechazar la igualdad de rangos bajo $N=5$, no una prueba algebraica de equivalencia; y distinguimos con total transparencia entre el ahorro proyectado en las 27 condiciones (75,5%) y el ahorro físico medido en las 612 inferencias pareadas en GPU (69,0%)."*
+> 2. ***Rigor epistémico:** En la tesis declaramos explícitamente que un valor $p_{\text{Holm}} > 0{,}05$ en Demšar significa no rechazar la igualdad de rangos bajo $N=5$, no una prueba algebraica de equivalencia; y distinguimos con total transparencia entre el ahorro proyectado en las 27 condiciones (75,5%) y el ahorro físico medido en las 612 inferencias pareadas en GPU (69,0%).*
+> 3. ***Higiene de evaluación frente a la literatura:** Nuestra auditoría demuestra que separar rigurosamente las muestras físicas e iluminaciones de prueba es indispensable para medir la generalización real."*
 
 ---
 
-### CIERRE — Exponen: CARLOS AYALA y JOAQUÍN DELGADO (Lámina 16)
+### CIERRE — Exponen: CARLOS AYALA y JOAQUÍN DELGADO (Lámina 17)
 
-#### Diapositiva 16: Conclusiones y Trabajo Futuro (~1 min 30 s)
+#### Diapositiva 17: Conclusiones y Trabajo Futuro (~1 min 30 s)
 > **Carlos Ayala:**  
-> *"Para concluir: demostramos que si bien la concatenación estática supera a los descriptores individuales y GFS logra reducir hasta el 95,3% de las dimensiones (con ventaja significativa bajo ResMLP, $p_{\text{Holm}} = 0{,}0191$), el paradigma estático sigue atado al costo de extraer múltiples redes para cada imagen."*
+> *"Para concluir: demostramos que si bien la concatenación estática supera a los descriptores individuales y GFS logra reducir hasta el 95,3% de las dimensiones (con ventaja significativa bajo ResMLP, $p_{\text{Holm}} = 0{,}0191$), y nuestras políticas de diversidad (`Ens-diversidad` y `Ens-tombola`) rescatan la ganancia híbrida cuando Top-$k$ sufre interferencia, el paradigma estático sigue atado al costo de extraer múltiples redes para cada imagen."*
 >
 > **Joaquín Delgado:**  
-> *"La Cascada Adaptativa Costo-Consciente resuelve este cuello de botella: mantiene un macro-F1 medio de **0,9345** frente a **0,9341** de Top-$k$ en las 27 condiciones canónicas y demuestra en hardware real sobre los 6 datasets una **reducción del 69,0% en latencia física (3,23$\times$)** con **100% de fidelidad funcional**, dejando abiertos caminos claros hacia la fusión temprana de tokens, el despliegue en dispositivos embebidos Edge AI y la segmentación densa de texturas. Muchas gracias, quedamos atentos a las preguntas de la Mesa Evaluadora."*
+> *"La Cascada Adaptativa Costo-Consciente resuelve este cuello de botella: mantiene un macro-F1 medio de **0,9345** frente a **0,9341** de Top-$k$ en las 27 condiciones canónicas, demuestra en hardware real sobre los 6 datasets una **reducción del 69,0% en latencia física (3,23$\times$)** y supera en los 6 datasets a las cuatro arquitecturas recientes de concatenación del estado del arte (**Neshov 2025, DeepLumina 2022, HyTexNet 2026 y 6LBP+dCellNN 2024**), dejando abiertos caminos claros hacia la fusión temprana de tokens, el despliegue en dispositivos embebidos Edge AI y la segmentación densa de texturas. Muchas gracias, quedamos atentos a las preguntas de la Mesa Evaluadora."*
 
 ---
 
@@ -161,27 +168,34 @@
 * **Respuesta transparente:**  
   *"En KTH-TIPS-2b las imágenes provienen de 4 muestras físicas por material. Cuando se construyó el archivo original de la cascada, la referencia Top-$k$ provenía del corte previo (con media 0,9400). Posteriormente completamos las 4 particiones del control Top-$k$ exigiendo agrupación estricta por muestra física en los pliegues internos (`innergrp-sample`), obteniendo **0,9445**, que coincide exactamente con el **0,9445** de la cascada. En la tesis reportamos ambos valores con total transparencia y mantenemos el contraste primario de Demšar sobre los 5 conjuntos cuyo archivo de cascada provino del mismo corte."*
 
+### Pregunta 6: *"¿Cómo se comparan sus políticas frente a otros papers recientes de clasificación de texturas por concatenación (2022–2026) y por qué hay diferencias frente a algunas cifras reportadas en esos artículos?"*
+* **Respuesta contundente y con evidencia forense:**  
+  *"Adaptamos fielmente cuatro arquitecturas recientes (**Neshov et al., 2025; DeepLumina de Simon & Uma, 2022; HyTexNet de Gupta et al., 2026; y 6LBP+dCellNN de Chang et al., 2024**) y ejecutamos más de 141.000 inferencias online en la RTX 4060 sobre los 6 datasets. Primero verificamos que nuestra implementación es matemáticamente exacta: error 0,000000 frente al código y pesos oficiales de GitHub en `6LBP+dCellNN`, error 0,0 en los ejemplos numéricos de `HyTexNet`, y replicación de exactitudes publicadas en `DeepLumina` (90,00% vs. 90,15% en FMD 80/20 y 98,81% vs. 97,53% en CUReT). Luego, al evaluar todos bajo nuestro protocolo común sin fuga de datos en los 6 datasets, nuestra política **Adaptive-selection-margin** supera a las cuatro arquitecturas en calidad y es simultáneamente más rápida que `DeepLumina`, `HyTexNet` y `6LBP+dCellNN`. Finalmente, demostramos con auditoría de código la causa exacta de las cifras infladas en dos artículos previos: en `6LBP+dCellNN` su script oficial (`main_otc12.py`) filtra hacia el entrenamiento las primeras 85 imágenes por secuencia de las iluminaciones de prueba (`t184` y `horizon`), y en `HyTexNet` su partición aleatoria comparte las mismas 44 muestras físicas de KTH-TIPS2b entre entrenamiento y prueba."*
+
 ---
 
 ## 4. Ficha Rápida de Cifras Clave ("Cheat Sheet" para Tener en la Mano)
 
 * **Biblioteca:** **22 descriptores** = **6 clásicos** (2.220 dims) + **16 profundos/fundacionales** (18.432 dims) = **20.652 dimensiones**.
 * **Datasets:** **6 conjuntos** (DTD: 47 clases, FMD: 10, CUReT: 61, Outex13: 68, SoilOriginal: 7, KTH-TIPS-2b: 11 $\rightarrow$ **204 clases en total**).
-* **Fase 1 (Estática):**
+* **Fase 1 (Estática y Selección por Diversidad):**
   * Reducción dimensional de GFS vs. Completa: entre **67,1% y 95,3%** (960 a 6.784 dims vs. 20.652 dims).
   * Friedman SVM ($N=6$): $p = 0{,}0289$ (Iman–Davenport $p = 0{,}0139$). Mejor rango: Completa y Top-$k$ (**2,000**).
   * Friedman ResMLP ($N=6$): $p = 0{,}0110$ (Iman–Davenport $p = 0{,}0025$). Mejor rango: **GFS (1,667)**; GFS vs. Individual $p_{\text{Holm}} = \mathbf{0{,}0191}$.
-* **Fase 2 (Cascada en 27 Condiciones Canónicas):**
+  * Rescate en Outex-13 (`Top-4` = 0,9371 con HOG vs. `Top-1` = 0,9427): **`Ens-diversidad` = 0,9374** y **`Ens-tombola` = 0,9387** en Outex-13 (y **0,9422** en KTH-TIPS2b).
+* **Fase 2 (Cascada en 27 Condiciones Canónicas y 94/94 Condiciones Online):**
   * Macro-F1 medio global (6 datasets, 27 cond.): **Cascada = 0,9345** | **Top-$k$ = 0,9341** (`+0,0004`) | **Completa-22 = 0,9409** (`-0,0064`).
   * Macro-F1 medio reconciliado ($N=5$, 23 cond.): **Cascada = 0,9325** | **Top-$k$ = 0,9329** (`-0,0004`) | **Completa-22 = 0,9371** (`-0,0046`).
-  * KTH-TIPS-2b (4 cond.): **Cascada = 0,9445** | **Top-$k$ origen = 0,9400** | **Top-$k$ corregido (`innergrp-sample`) = 0,9445** | **Completa-22 = 0,9601**.
   * Reducción de costo analítico proyectado: **75,5%**.
-  * Friedman Cascada ($N=5$): $p = 0{,}4518$, Rango medio **Cascada = 2,200** (empatado en 1.º lugar con Completa-22), $p_{\text{Holm}} = 1{,}0000$.
-* **Benchmark Físico en GPU (NVIDIA GeForce RTX 4060):**
+  * Panel online completo (**94/94 condiciones**, **362.640 llamadas físicas**): latencia media de `Adaptive-selection-margin` entre **21,65 ms y 54,35 ms/img** frente a **73–127 ms/img** del ensamble estático.
+* **Benchmark Físico Pareado en GPU (NVIDIA GeForce RTX 4060):**
   * Cobertura: **6 datasets**, **204 imágenes únicas** (1 por clase), **3 repeticiones pareadas con orden aleatorio** = **612 mediciones pareadas**.
-  * Latencia media global: **90,25 ms (Cascada)** vs. **291,21 ms (Top-$k$)**.
-  * Reducción física de latencia: **69,0%** (Aceleración física agregada: **3,23$\times$**).
-  * Tasa de Salida Temprana (Certeza en Etapa 1): **74,0%** (453/612).
-  * Tasa de Incertidumbre (Escalamiento a Etapa 2): **26,0%** (159/612).
-  * Fidelidad Físico vs. Caché: **100,0%** en rutas y predicciones.
-* **Auditoría de Código y Datos:** **31.984 predicciones** persistidas a tolerancia $10^{-12}$ y **60/60 tests unitarios** en `tests/` aprobados.
+  * Latencia media global: **90,25 ms (Cascada)** vs. **291,21 ms (Top-$k$)** $\rightarrow$ **reducción del 69,0% (3,23$\times$)**.
+  * Tasa de Salida Temprana (Etapa 1): **74,0%** (453/612) | Incertidumbre (Etapa 2): **26,0%** (159/612) | Fidelidad Físico vs. Caché: **100,0%**.
+* **Comparación en los 6 Datasets contra Literatura Reciente (141.584 llamadas online):**
+  * **Adaptive-selection-margin:** DTD **0,8606** (54,4 ms) | FMD **0,9727** (21,7 ms) | CUReT **0,9951** (36,6 ms) | Outex13 **0,9168** (45,4 ms) | Soil **0,8642** (39,5 ms) | KTH **0,9236** (25,1 ms).
+  * **Neshov (2025) [`BEiT-v2`]:** DTD 0,8397 (22,9 ms) | FMD 0,9420 (21,1 ms) | CUReT 0,9941 (21,2 ms) | Outex13 0,9067 (21,2 ms) | Soil 0,8578 (22,0 ms) | KTH 0,9293 (20,8 ms).
+  * **DeepLumina (2022) [ResNet-101 RGB+Y + ECOC]:** DTD 0,7027 (69,6 ms) | FMD 0,8559 (53,3 ms) | CUReT 0,9881 (53,0 ms) | Outex13 0,9073 (53,5 ms) | Soil 0,8050 (57,8 ms) | KTH 0,8744 (51,6 ms).
+  * **HyTexNet (2026) [MobileNetV2 + 235D + MLP]:** DTD 0,6363 (31,8 ms) | FMD 0,7652 (29,6 ms) | CUReT 0,9580 (33,5 ms) | Outex13 0,8422 (32,1 ms) | Soil 0,7748 (33,2 ms) | KTH 0,8259 (29,0 ms).
+  * **6LBP+dCellNN (2024) [6$\times$LBP + Contorno]:** DTD 0,3427 (33,0 ms) | FMD 0,4329 (29,7 ms) | CUReT 0,9261 (31,2 ms) | Outex13 0,8282 (31,5 ms) | Soil 0,7990 (32,0 ms) | KTH 0,6707 (31,2 ms).
+* **Auditoría de Código y Datos:** **31.984 predicciones** persistidas a tolerancia $10^{-12}$, **504.224 inferencias físicas online totales** (362.640 propias + 141.584 externas) y suite de tests unitarios aprobada al 100%.

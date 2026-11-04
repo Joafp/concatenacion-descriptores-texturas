@@ -42,6 +42,7 @@ from run_confirmatory_nested import (  # noqa: E402
 )
 from run_topk_individual_control import outer_indices  # noqa: E402
 from singleton_ranking import condition_key, ranked_singletons  # noqa: E402
+from ensemble_scoring import decision_scores, training_score_scale  # noqa: E402
 
 REPO = SRC.parent
 
@@ -50,17 +51,6 @@ def metrics(y_true, y_pred, labels) -> dict:
     return {"macro_f1": float(f1_score(y_true, y_pred, labels=labels,
                                        average="macro", zero_division=0)),
             "accuracy": float(accuracy_score(y_true, y_pred))}
-
-
-def decision_scores(model, x) -> np.ndarray:
-    if hasattr(model, "decision_function"):
-        scores = np.asarray(model.decision_function(x))
-    else:
-        scores = np.log(np.clip(np.asarray(model.predict_proba(x)), 1e-12, None))
-    if scores.ndim == 1:
-        scores = np.column_stack([-scores, scores])
-    sd = scores.std()
-    return scores / sd if sd > 0 else scores
 
 
 def stratified_bootstrap(train: np.ndarray, y: np.ndarray, rng) -> np.ndarray:
@@ -129,9 +119,10 @@ def main() -> None:
         model.fit(x[rows_idx], y[rows_idx])
         if not np.array_equal(np.asarray(model.classes_), labels):
             raise RuntimeError("member did not see every class")
-        return np.asarray(model.predict(x[test])), decision_scores(model, x[test])
+        scale = training_score_scale(model, x[rows_idx])
+        return np.asarray(model.predict(x[test])), decision_scores(model, x[test], scale), scale
 
-    single_pred, _ = member(train, args.seed)
+    single_pred, _, single_scale = member(train, args.seed)
     rng = np.random.default_rng(args.seed * 1000 + fold)
     boots = [stratified_bootstrap(train, y, rng) for _ in range(args.members)]
     plans = {"seed_ensemble": [(train, args.seed + 1 + m) for m in range(args.members)],
@@ -139,18 +130,22 @@ def main() -> None:
 
     record = {"dataset": args.dataset, "classifier": args.classifier, "seed": args.seed,
               "outer_fold": fold, "k": args.k, "members": args.members,
+              "score_normalization": "global_std_fitted_on_member_training_rows_v1",
               "subset": subset, "inner_group_column": args.inner_group_column or "group",
+              "top4_single_score_scale": single_scale,
               "top4_single": metrics(y_test, single_pred, labels), "variants": {}}
     flat = [{"dataset": args.dataset, "classifier": args.classifier, "seed": args.seed,
              "outer_fold": fold, "variant": "top4_single", **record["top4_single"]}]
     for name, plan in plans.items():
         results = Parallel(n_jobs=jobs, prefer="threads")(
             delayed(member)(r, s) for r, s in plan)
-        soft = np.mean([s for _, s in results], axis=0)
+        soft = np.mean([s for _, s, _ in results], axis=0)
         pred = labels[np.argmax(soft, axis=1)]
         met = metrics(y_test, pred, labels)
-        agree = float(np.mean([np.mean(p == single_pred) for p, _ in results]))
-        record["variants"][name] = {**met, "mean_agreement_with_single": agree}
+        agree = float(np.mean([np.mean(p == single_pred) for p, _, _ in results]))
+        record["variants"][name] = {
+            **met, "mean_agreement_with_single": agree,
+            "member_score_scales": [scale for _, _, scale in results]}
         flat.append({"dataset": args.dataset, "classifier": args.classifier,
                      "seed": args.seed, "outer_fold": fold, "variant": name, **met})
     record["duration_seconds"] = time.perf_counter() - started

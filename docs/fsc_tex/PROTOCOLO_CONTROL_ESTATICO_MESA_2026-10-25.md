@@ -1,0 +1,11 @@
+# Control estático bajo presupuesto: protocolo del análisis de mesa
+
+Fecha: 25 de octubre de 2026. Se fija antes de calcular las nuevas predicciones de validación productora. No es una preinscripción ciega: se conocen resultados previos del piloto Outex y P0. No se modifica el híbrido ni se utiliza el test oficial.
+
+- Se mantienen los tres pliegues productores y sus tres particiones internas, la biblioteca de 22 bloques, las escalas y el perfil de adquisición del piloto `integration_v8/carlos_hybrid_outex22_20261021`.
+- Pool estático por pliegue: los 22 clasificadores individuales y los subconjuntos únicos del ensamble de diversidad de ese entrenamiento productor. Se conservan sus puntuaciones OOF internas originales. La generación de los subconjuntos sigue adaptada al entrenamiento productor, igual que en el híbrido.
+- Se enumeran todos los ensambles de uno a tres miembros únicos de ese pool, sin repetición y con votos de puntuación de igual peso. El límite de tres coincide con la poda híbrida. No se enumeran todas las concatenaciones posibles de los 22 bloques ni pesos continuos.
+- Para cada presupuesto 15, 30, 60 y 120 ms, se elige el mayor macro-F1 OOF interno entre combinaciones cuya unión de bloques cumpla el presupuesto. Se desempatan por menor costo, menos modelos y orden léxico de miembros. No se permite base ni compuerta redundantes en el costo estático.
+- Se guardan las doce decisiones antes de producir la evaluación. Los modelos de validación ya disponibles se reutilizan; los que falten se reajustan con el mismo entrenamiento productor y receta SVM. No se extraen nuevas imágenes ni se ajusta la política usando validación productora.
+- Se informa macro-F1 sobre las 680 predicciones OOF reunidas, exactitud, costo por imagen, llamadas, diferencias por pliegue y cobertura. Se conservan los cuatro presupuestos y todas las derrotas/empates. No se usan los pliegues dependientes como datasets ni se calculan pruebas confirmatorias.
+- La comparación ofrece un control estático competitivo dentro del pool visitado. No prueba optimalidad global, no sustituye GFS concatenado ni valida ahorro físico. Los resultados no autorizan cambiar retrospectivamente la métrica, el límite de miembros o el pool para favorecer al híbrido.

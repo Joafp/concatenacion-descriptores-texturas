@@ -45,6 +45,7 @@ from run_confirmatory_nested import (  # noqa: E402
 from run_topk_individual_control import archived_k, outer_indices  # noqa: E402
 from singleton_ranking import condition_key, ranked_singletons  # noqa: E402
 from analyze_block_redundancy import linear_cka  # noqa: E402
+from ensemble_scoring import decision_scores, training_score_scale  # noqa: E402
 
 REPO = SRC.parent
 
@@ -53,19 +54,6 @@ def metrics(y_true, y_pred, labels) -> dict:
     return {"macro_f1": float(f1_score(y_true, y_pred, labels=labels,
                                        average="macro", zero_division=0)),
             "accuracy": float(accuracy_score(y_true, y_pred))}
-
-
-def decision_scores(model, x) -> np.ndarray:
-    # The SVM exposes margins; ResMLP only class probabilities, whose logarithm
-    # plays the same role in the soft ensemble.
-    if hasattr(model, "decision_function"):
-        scores = np.asarray(model.decision_function(x))
-    else:
-        scores = np.log(np.clip(np.asarray(model.predict_proba(x)), 1e-12, None))
-    if scores.ndim == 1:
-        scores = np.column_stack([-scores, scores])
-    sd = scores.std()
-    return scores / sd if sd > 0 else scores
 
 
 def utilities(names, relevance, cka, chosen, lam):
@@ -184,7 +172,9 @@ def main() -> None:
         model = make_model(args.classifier, args.seed)
         model.fit(x[train], y[train])
         pred = np.asarray(model.predict(x[test]))
-        return pred, decision_scores(model, x[test]), metrics(y_test, pred, labels)
+        scale = training_score_scale(model, x[train])
+        return (pred, decision_scores(model, x[test], scale),
+                metrics(y_test, pred, labels), scale)
 
     def mean_cka(subset):
         v = [cka[(a, b)] for i, a in enumerate(subset) for b in subset[i + 1:]]
@@ -192,6 +182,7 @@ def main() -> None:
 
     report = {"dataset": args.dataset, "classifier": args.classifier,
               "seed": args.seed, "outer_fold": fold, "k": k, "draws": args.draws,
+              "score_normalization": "global_std_fitted_on_outer_training_rows_v1",
               "n_candidates": len(names),
               "inner_group_column": args.inner_group_column or "group",
               "topk": {"subset": topk, "macro_f1": topk_f1, "accuracy": topk_acc,
@@ -206,7 +197,7 @@ def main() -> None:
     flat = []
     for lam in args.lambdas:
         greedy = greedy_subset(names, relevance, cka, lam, k)
-        g_pred, _, g_met = external(greedy)
+        g_pred, _, g_met, g_scale = external(greedy)
         for beta in args.betas:
             rng = np.random.default_rng(args.seed * 1000 + fold * 10
                                         + int(lam * 7) + int(beta))
@@ -214,10 +205,10 @@ def main() -> None:
                        for _ in range(args.draws)]
             evald = Parallel(n_jobs=jobs, prefer="threads")(
                 delayed(external)(s) for s in subsets)
-            f1s = np.array([m["macro_f1"] for _, _, m in evald])
-            soft = np.mean([s for _, s, _ in evald], axis=0)
+            f1s = np.array([m["macro_f1"] for _, _, m, _ in evald])
+            soft = np.mean([s for _, s, _, _ in evald], axis=0)
             soft_pred = labels[np.argmax(soft, axis=1)]
-            votes = np.stack([p for p, _, _ in evald])
+            votes = np.stack([p for p, _, _, _ in evald])
             hard_pred = labels[[np.bincount(np.searchsorted(labels, votes[:, i]),
                                             minlength=len(labels)).argmax()
                                 for i in range(votes.shape[1])]]
@@ -225,13 +216,15 @@ def main() -> None:
             ens_hard = metrics(y_test, hard_pred, labels)
             union = sorted({b for s in subsets for b in s})
             cell = {"lambda": lam, "beta": beta,
-                    "greedy": {"subset": greedy, **g_met, "mean_cka": mean_cka(greedy)},
+                    "greedy": {"subset": greedy, **g_met, "mean_cka": mean_cka(greedy),
+                               "score_scale": g_scale},
                     "single": {"mean_macro_f1": float(f1s.mean()),
                                "sd": float(f1s.std(ddof=1))},
                     "ensemble_soft": ens_soft, "ensemble_hard": ens_hard,
                     "mean_cka_drawn": float(np.mean([mean_cka(s) for s in subsets])),
                     "union_blocks": len(union), "union": union,
-                    "subsets": subsets}
+                    "subsets": subsets,
+                    "member_score_scales": [scale for _, _, _, scale in evald]}
             report["cells"].append(cell)
             print(f"  {lam:>7.1f}{beta:>6.1f}{g_met['macro_f1']:>9.4f}"
                   f"{f1s.mean():>9.4f}{ens_soft['macro_f1']:>11.4f}"
