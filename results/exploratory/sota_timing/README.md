@@ -13,6 +13,21 @@ comparar exactitud y costo en las mismas condiciones.
 Nuestros métodos (Top-4, ensamble por diversidad y Completa-22) se midieron en
 los mismos cuatro datasets, con el protocolo de la tesis.
 
+## En resumen
+
+- **Réplicas.** Scabini se reproduce en los cuatro datasets. Neshov queda 2 a 4
+  puntos debajo de lo publicado. HyTexNet se reproduce en KTH con el protocolo
+  de su paper (0,987, publican 0,991 a 0,998), pero baja a 0,850 cuando la
+  muestra física de prueba no se vio al entrenar.
+- **Exactitud.** Nuestros métodos superan a los de la literatura en los cuatro
+  datasets; en DTD, Top-4 con SVM da 0,870 contra 0,788 de Scabini y 0,799 de
+  Neshov.
+- **Costo.** Sin contar la lectura, Top-4 predice en ~150 ms por imagen, contra
+  2,5 a 4,4 ms de los métodos de una sola red, y entrenarlo lleva de 440 a
+  2760 s según el dataset, porque el ranking necesita extraer los 21 bloques.
+- **Datos.** Cinco vectores de ViT-B/16 y DeiT-S guardados para Outex13 no
+  salen de sus imágenes (ver *Qué se mide*).
+
 ## Qué se mide
 
 - **Lectura y decodificación** de las imágenes: una sola vez y por separado. Se
@@ -161,6 +176,34 @@ La lectura de las imágenes es 67 s del tiempo de entrenar en DTD, 24 s en KTH,
   en FMD y ~600 s en Outex13, porque hay que extraer los 21 bloques para el ranking; Gabor, DINOv2-L
   y DINOv2 son más del 70 % de esa extracción. Predecir con Top-4 cuesta unas
   35 a 40 veces lo que cuesta con un método de una sola red.
+
+## Relación con las réplicas de `main`
+
+En `main` (capítulo 5 de la tesis) también se replicaron Neshov y HyTexNet,
+además de DeepLumina y 6LBP+dCellNN, que aquí no están; Scabini está solo
+aquí. Donde coinciden el dataset y el número de particiones, el F1 macro de las
+dos réplicas queda a menos de 1,5 puntos:
+
+| Método | Dataset (particiones) | `main` | Aquí |
+|---|---|---:|---:|
+| Neshov 2025 | DTD (10) | 0,8020 | 0,7985 |
+| Neshov 2025 | KTH-TIPS2-b (4) | 0,9245 | 0,9285 |
+| Neshov 2025 | FMD 10×10 (100) | 0,9419 | 0,9423 |
+| HyTexNet 2026 | DTD (10) | 0,6242 | 0,6114 |
+| HyTexNet 2026 | KTH-TIPS2-b (4) | 0,8259 | 0,8400 |
+
+Difieren en dos decisiones; aquí se siguió el paper:
+
+- **Neshov**: `main` concatena las 12 capas de BEiTv2 (9216-D); el paper usa
+  las capas 2, 5, 8 y 11 (3072-D).
+- **HyTexNet**: `main` deja DenseNet-121 congelado; la configuración final del
+  paper ajusta el último bloque. Con el protocolo del paper en KTH, `main` da
+  0,939 de exactitud y esta réplica 0,987.
+
+Los tiempos de las dos no se pueden mezclar en una tabla: `main` mide la
+latencia de una llamada con una imagen (`batch=1`) en una RTX 4060 Laptop, y
+aquí se mide el costo por imagen en lotes de 32 en una RTX 5060 Ti, además del
+tiempo de entrenar.
 
 ## Decisiones de la réplica de HyTexNet
 
