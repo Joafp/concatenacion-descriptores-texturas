@@ -1,0 +1,5625 @@
+[
+  {
+    "producer_fold": 0,
+    "policy": "marginal_cost_B15",
+    "feasible": true,
+    "budget_ms": 15.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [],
+      "quantile": null,
+      "threshold": null,
+      "training_macro_f1": 0.9681479299862639,
+      "training_projected_ms": 11.68,
+      "training_escalation_fraction": 0.0,
+      "training_classifier_calls": 1.0
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06371569633483887,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.3168599165936073,
+            "training_projected_ms": 5.143020637898687,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.08662284285680372,
+            "merit": 0.03046859445973905
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.31921692017841197,
+            "training_projected_ms": 10.98373358348968,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.0023570035848046733,
+            "merit": 0.0004035472393115836
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.1705620288848877,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.418749778462724,
+            "training_projected_ms": 8.64392120075047,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.1885127047259204,
+            "merit": 0.029715486488643625
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.40751779079437256,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6149466387666209,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.38470956502981735,
+            "merit": 0.031436061391232964
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.834662139415741,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.4012490510940552,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 1.9935287237167358,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 0,
+    "policy": "relevance_B15",
+    "feasible": true,
+    "budget_ms": 15.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [],
+      "quantile": null,
+      "threshold": null,
+      "training_macro_f1": 0.9681479299862639,
+      "training_projected_ms": 11.68,
+      "training_escalation_fraction": 0.0,
+      "training_classifier_calls": 1.0
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06371569633483887,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "convnext_v2_t",
+                "dinov2",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.32149717143016565,
+            "training_projected_ms": 13.854953095684802,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.09126009769336207,
+            "merit": 0.09126009769336207
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.1705620288848877,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.418749778462724,
+            "training_projected_ms": 8.64392120075047,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.1885127047259204,
+            "merit": 0.1885127047259204
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.40751779079437256,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6149466387666209,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.38470956502981735,
+            "merit": 0.38470956502981735
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.834662139415741,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.4012490510940552,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 1.9935287237167358,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 0,
+    "policy": "marginal_cost_B30",
+    "feasible": true,
+    "budget_ms": 30.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "rgb_ngram_svd",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.834662139415741,
+      "training_macro_f1": 0.9774960503879566,
+      "training_projected_ms": 19.84500938086304,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.2026266416510318
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06371569633483887,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.3168599165936073,
+            "training_projected_ms": 5.143020637898687,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.08662284285680372,
+            "merit": 0.03046859445973905
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.31921692017841197,
+            "training_projected_ms": 10.98373358348968,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.0023570035848046733,
+            "merit": 0.0004035472393115836
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.1705620288848877,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.418749778462724,
+            "training_projected_ms": 8.64392120075047,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.1885127047259204,
+            "merit": 0.029715486488643625
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.4209594468040135,
+            "training_projected_ms": 23.029380863039396,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.0022096683412894946,
+            "merit": 0.00015360429163637206
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.40751779079437256,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6149466387666209,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.38470956502981735,
+            "merit": 0.031436061391232964
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6168652922857526,
+            "training_projected_ms": 23.770487804878048,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.0019186535191316745,
+            "merit": 0.0002078118930496205
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.834662139415741,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 17.970712945590993,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.003669988383853906,
+            "merit": 0.0005833978462530406
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9774960503879566,
+            "training_projected_ms": 19.84500938086304,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.005678132017838844,
+            "merit": 0.003029473839347448
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.4012490510940552,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.4012490510940552,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 26.515459662288926,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.003669988383853906,
+            "merit": 0.0002473794858667475
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 1.9935287237167358,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 0,
+    "policy": "relevance_B30",
+    "feasible": true,
+    "budget_ms": 30.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "rgb_ngram_svd",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.834662139415741,
+      "training_macro_f1": 0.9774960503879566,
+      "training_projected_ms": 19.84500938086304,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.2026266416510318
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06371569633483887,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "convnext_v2_t",
+                "dinov2",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.32149717143016565,
+            "training_projected_ms": 13.854953095684802,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.09126009769336207,
+            "merit": 0.09126009769336207
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.1705620288848877,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.4210207348413135,
+            "training_projected_ms": 20.04998123827392,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.19078366110450995,
+            "merit": 0.19078366110450995
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.422949720843362,
+            "training_projected_ms": 24.666303939962475,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.001928986002048494,
+            "merit": 0.001928986002048494
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.40751779079437256,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6149466387666209,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.38470956502981735,
+            "merit": 0.38470956502981735
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6168652922857526,
+            "training_projected_ms": 23.770487804878048,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.0019186535191316745,
+            "merit": 0.0019186535191316745
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.834662139415741,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 17.970712945590993,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.003669988383853906,
+            "merit": 0.003669988383853906
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9774960503879566,
+            "training_projected_ms": 19.84500938086304,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.005678132017838844,
+            "merit": 0.005678132017838844
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.4012490510940552,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.4012490510940552,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 26.515459662288926,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.003669988383853906,
+            "merit": 0.003669988383853906
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 1.9935287237167358,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 0,
+    "policy": "marginal_cost_B60",
+    "feasible": true,
+    "budget_ms": 60.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "rgb_ngram_svd",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.834662139415741,
+      "training_macro_f1": 0.9793682235526706,
+      "training_projected_ms": 42.25754221388368,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.303939962476548
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06371569633483887,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.3168599165936073,
+            "training_projected_ms": 5.143020637898687,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.08662284285680372,
+            "merit": 0.03046859445973905
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.31921692017841197,
+            "training_projected_ms": 10.98373358348968,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.0023570035848046733,
+            "merit": 0.0004035472393115836
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.1705620288848877,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.418749778462724,
+            "training_projected_ms": 8.64392120075047,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.1885127047259204,
+            "merit": 0.029715486488643625
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.4209594468040135,
+            "training_projected_ms": 23.029380863039396,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.0022096683412894946,
+            "merit": 0.00015360429163637206
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.40751779079437256,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6149466387666209,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.38470956502981735,
+            "merit": 0.031436061391232964
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6248005173747546,
+            "training_projected_ms": 43.30876172607879,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.009853878608133693,
+            "merit": 0.000342494395016287
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.834662139415741,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 17.970712945590993,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.003669988383853906,
+            "merit": 0.0005833978462530406
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9774960503879566,
+            "training_projected_ms": 19.84500938086304,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.005678132017838844,
+            "merit": 0.003029473839347448
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9793682235526706,
+            "training_projected_ms": 42.25754221388368,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.303939962476548,
+            "gain": 0.0018721731647139972,
+            "merit": 8.353242262542067e-05
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.4012490510940552,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.4012490510940552,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 26.515459662288926,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.003669988383853906,
+            "merit": 0.0002473794858667475
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.4012490510940552,
+            "training_macro_f1": 0.9756213725090033,
+            "training_projected_ms": 31.131782363977486,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.003803454138885498,
+            "merit": 0.0008239142678422957
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 1.9935287237167358,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 1.9935287237167358,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 40.900919324577856,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.003669988383853906,
+            "merit": 0.00012559455584161108
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 1.9935287237167358,
+            "training_macro_f1": 0.9756213725090033,
+            "training_projected_ms": 50.133564727954976,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.003803454138885498,
+            "merit": 0.00041195713392114784
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "producer_fold": 0,
+    "policy": "relevance_B60",
+    "feasible": true,
+    "budget_ms": 60.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "dinov2_large",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.834662139415741,
+      "training_macro_f1": 0.9793324525876104,
+      "training_projected_ms": 35.93356472795497,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.101313320825516
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06371569633483887,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "convnext_v2_t",
+                "dinov2",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.32149717143016565,
+            "training_projected_ms": 13.854953095684802,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.09126009769336207,
+            "merit": 0.09126009769336207
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.1705620288848877,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "convnext_v2_t",
+                "dinov2",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.4213202460250189,
+            "training_projected_ms": 30.10108818011257,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.1910831722882153,
+            "merit": 0.1910831722882153
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "convnext_v2_t",
+                "dinov2",
+                "dinov2_small",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.4231633152365092,
+            "training_projected_ms": 30.10108818011257,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.0018430692114903002,
+            "merit": 0.0018430692114903002
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.40751779079437256,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "convnext_v2_t",
+                "dinov2",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6248694928429963,
+            "training_projected_ms": 57.45217636022514,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.39463241910619273,
+            "merit": 0.39463241910619273
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "convnext_v2_t",
+                "dinov2",
+                "dinov2_small",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6268754520518729,
+            "training_projected_ms": 57.45217636022514,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.0020059592088765843,
+            "merit": 0.0020059592088765843
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.834662139415741,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9793324525876104,
+            "training_projected_ms": 35.93356472795497,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.011184522601346503,
+            "merit": 0.011184522601346503
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.4012490510940552,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.4012490510940552,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 26.515459662288926,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.003669988383853906,
+            "merit": 0.003669988383853906
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.4012490510940552,
+            "training_macro_f1": 0.9756213725090033,
+            "training_projected_ms": 31.131782363977486,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.003803454138885498,
+            "merit": 0.003803454138885498
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 1.9935287237167358,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 1.9935287237167358,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 40.900919324577856,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.003669988383853906,
+            "merit": 0.003669988383853906
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 1.9935287237167358,
+            "training_macro_f1": 0.9756213725090033,
+            "training_projected_ms": 50.133564727954976,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.003803454138885498,
+            "merit": 0.003803454138885498
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "producer_fold": 0,
+    "policy": "marginal_cost_B120",
+    "feasible": true,
+    "budget_ms": 120.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "rgb_ngram_svd",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.834662139415741,
+      "training_macro_f1": 0.9793682235526706,
+      "training_projected_ms": 42.25754221388368,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.303939962476548
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06371569633483887,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.3168599165936073,
+            "training_projected_ms": 5.143020637898687,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.08662284285680372,
+            "merit": 0.03046859445973905
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.31921692017841197,
+            "training_projected_ms": 10.98373358348968,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.0023570035848046733,
+            "merit": 0.0004035472393115836
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.1705620288848877,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.418749778462724,
+            "training_projected_ms": 8.64392120075047,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.1885127047259204,
+            "merit": 0.029715486488643625
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.4209594468040135,
+            "training_projected_ms": 23.029380863039396,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.0022096683412894946,
+            "merit": 0.00015360429163637206
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.40751779079437256,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6149466387666209,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.38470956502981735,
+            "merit": 0.031436061391232964
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6248005173747546,
+            "training_projected_ms": 43.30876172607879,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.009853878608133693,
+            "merit": 0.000342494395016287
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.834662139415741,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 17.970712945590993,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.003669988383853906,
+            "merit": 0.0005833978462530406
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9774960503879566,
+            "training_projected_ms": 19.84500938086304,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.005678132017838844,
+            "merit": 0.003029473839347448
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9793682235526706,
+            "training_projected_ms": 42.25754221388368,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.303939962476548,
+            "gain": 0.0018721731647139972,
+            "merit": 8.353242262542067e-05
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.4012490510940552,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.4012490510940552,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 26.515459662288926,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.003669988383853906,
+            "merit": 0.0002473794858667475
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.4012490510940552,
+            "training_macro_f1": 0.9756213725090033,
+            "training_projected_ms": 31.131782363977486,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.003803454138885498,
+            "merit": 0.0008239142678422957
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.4012490510940552,
+            "training_macro_f1": 0.9793682235526706,
+            "training_projected_ms": 86.33302063789868,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.74859287054409,
+            "gain": 0.003746851043667343,
+            "merit": 6.787621366525529e-05
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 1.9935287237167358,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 1.9935287237167358,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 40.900919324577856,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.003669988383853906,
+            "merit": 0.00012559455584161108
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 1.9935287237167358,
+            "training_macro_f1": 0.9756213725090033,
+            "training_projected_ms": 50.133564727954976,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.003803454138885498,
+            "merit": 0.00041195713392114784
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "producer_fold": 0,
+    "policy": "relevance_B120",
+    "feasible": true,
+    "budget_ms": 120.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "dinov2_large",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.834662139415741,
+      "training_macro_f1": 0.9793324525876104,
+      "training_projected_ms": 35.93356472795497,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.101313320825516
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06371569633483887,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "convnext_v2_t",
+                "dinov2",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06371569633483887,
+            "training_macro_f1": 0.32149717143016565,
+            "training_projected_ms": 13.854953095684802,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.09126009769336207,
+            "merit": 0.09126009769336207
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.1705620288848877,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.1705620288848877,
+            "training_macro_f1": 0.4251626140674912,
+            "training_projected_ms": 73.72908067542214,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.1949255403306876,
+            "merit": 0.1949255403306876
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.40751779079437256,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "convnext_v2_t",
+                "dinov2",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6248694928429963,
+            "training_projected_ms": 57.45217636022514,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.39463241910619273,
+            "merit": 0.39463241910619273
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "convnext_v2_t",
+                "dinov2",
+                "dinov2_small",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.40751779079437256,
+            "training_macro_f1": 0.6268754520518729,
+            "training_projected_ms": 57.45217636022514,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.0020059592088765843,
+            "merit": 0.0020059592088765843
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.834662139415741,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.834662139415741,
+            "training_macro_f1": 0.9793324525876104,
+            "training_projected_ms": 35.93356472795497,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.011184522601346503,
+            "merit": 0.011184522601346503
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.4012490510940552,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.4012490510940552,
+            "training_macro_f1": 0.977499064674166,
+            "training_projected_ms": 71.94756097560976,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.009351134687902163,
+            "merit": 0.009351134687902163
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 1.9935287237167358,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 1.9935287237167358,
+            "training_macro_f1": 0.9718179183701178,
+            "training_projected_ms": 40.900919324577856,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.003669988383853906,
+            "merit": 0.003669988383853906
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 1.9935287237167358,
+            "training_macro_f1": 0.9756213725090033,
+            "training_projected_ms": 50.133564727954976,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.003803454138885498,
+            "merit": 0.003803454138885498
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "producer_fold": 1,
+    "policy": "marginal_cost_B15",
+    "feasible": true,
+    "budget_ms": 15.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "eva02_base",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.7169448137283325,
+      "training_macro_f1": 0.9662181632497562,
+      "training_projected_ms": 14.087373358348968,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.101313320825516
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.07181765884160995,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.2783712906825957,
+            "training_projected_ms": 5.143020637898687,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.08524435049636153,
+            "merit": 0.029983725534742066
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.2824780182468251,
+            "training_projected_ms": 7.1003939962476545,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.004106727564229418,
+            "merit": 0.0020980808524406484
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16023516654968262,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.3918107395757438,
+            "training_projected_ms": 8.64392120075047,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.19868379938950964,
+            "merit": 0.03131876848754141
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.39992560760510193,
+            "training_projected_ms": 13.464859287054407,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.008114868029358124,
+            "merit": 0.001683254977368842
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3744380474090576,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.5851053601552794,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.3919784199690452,
+            "merit": 0.032030026789768934
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.7169448137283325,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9662181632497562,
+            "training_projected_ms": 14.087373358348968,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 8.737700215755151e-05,
+            "merit": 3.629557577951958e-05
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3700569868087769,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0569252967834473,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 1,
+    "policy": "relevance_B15",
+    "feasible": true,
+    "budget_ms": 15.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "eva02_base",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.7169448137283325,
+      "training_macro_f1": 0.9662181632497562,
+      "training_projected_ms": 14.087373358348968,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.101313320825516
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.07181765884160995,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.28435382554051053,
+            "training_projected_ms": 14.22373358348968,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.09122688535427637,
+            "merit": 0.09122688535427637
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16023516654968262,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.3979036168936155,
+            "training_projected_ms": 10.48545966228893,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.2047766767073813,
+            "merit": 0.2047766767073813
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.39992560760510193,
+            "training_projected_ms": 13.464859287054407,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.0020219907114864544,
+            "merit": 0.0020219907114864544
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3744380474090576,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.5851053601552794,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.3919784199690452,
+            "merit": 0.3919784199690452
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.7169448137283325,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9662181632497562,
+            "training_projected_ms": 14.087373358348968,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 8.737700215755151e-05,
+            "merit": 8.737700215755151e-05
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3700569868087769,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0569252967834473,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 1,
+    "policy": "marginal_cost_B30",
+    "feasible": true,
+    "budget_ms": 30.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "hog",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.7169448137283325,
+      "training_macro_f1": 0.9774701388727698,
+      "training_projected_ms": 23.863095684803,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.303939962476548
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.07181765884160995,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.2783712906825957,
+            "training_projected_ms": 5.143020637898687,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.08524435049636153,
+            "merit": 0.029983725534742066
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.2824780182468251,
+            "training_projected_ms": 7.1003939962476545,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.004106727564229418,
+            "merit": 0.0020980808524406484
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16023516654968262,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.3918107395757438,
+            "training_projected_ms": 8.64392120075047,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.19868379938950964,
+            "merit": 0.03131876848754141
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.39992560760510193,
+            "training_projected_ms": 13.464859287054407,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.008114868029358124,
+            "merit": 0.001683254977368842
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3744380474090576,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.5851053601552794,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.3919784199690452,
+            "merit": 0.032030026789768934
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.6009636389617514,
+            "training_projected_ms": 24.179718574108815,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.01585827880647206,
+            "merit": 0.001644729565343796
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.7169448137283325,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9755830105423333,
+            "training_projected_ms": 19.928086303939963,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.00945222429473469,
+            "merit": 0.0011459899843942625
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.975636036212979,
+            "training_projected_ms": 21.37078799249531,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 5.302567064568997e-05,
+            "merit": 3.675442474790988e-05
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9774701388727698,
+            "training_projected_ms": 23.863095684803,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.303939962476548,
+            "gain": 0.0018341026597907817,
+            "merit": 0.0007359053881876599
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3700569868087769,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0569252967834473,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 1,
+    "policy": "relevance_B30",
+    "feasible": true,
+    "budget_ms": 30.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "hog",
+          "resnet50",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.7169448137283325,
+      "training_macro_f1": 0.9774701388727698,
+      "training_projected_ms": 23.863095684803,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.303939962476548
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.07181765884160995,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.28435382554051053,
+            "training_projected_ms": 14.22373358348968,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.09122688535427637,
+            "merit": 0.09122688535427637
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16023516654968262,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.3979723717486098,
+            "training_projected_ms": 24.870919324577862,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.2048454315623756,
+            "merit": 0.2048454315623756
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3744380474090576,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.5953379031980716,
+            "training_projected_ms": 18.22091932457786,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.4022109630118374,
+            "merit": 0.4022109630118374
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.6009636389617514,
+            "training_projected_ms": 24.179718574108815,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.005625735763679862,
+            "merit": 0.005625735763679862
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.7169448137283325,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9755830105423333,
+            "training_projected_ms": 19.928086303939963,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.00945222429473469,
+            "merit": 0.00945222429473469
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.975636036212979,
+            "training_projected_ms": 21.37078799249531,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 5.302567064568997e-05,
+            "merit": 5.302567064568997e-05
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9774701388727698,
+            "training_projected_ms": 23.863095684803,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.303939962476548,
+            "gain": 0.0018341026597907817,
+            "merit": 0.0018341026597907817
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3700569868087769,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0569252967834473,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 1,
+    "policy": "marginal_cost_B60",
+    "feasible": true,
+    "budget_ms": 60.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.7169448137283325,
+      "training_macro_f1": 0.9774862699689573,
+      "training_projected_ms": 40.38324577861163,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.2026266416510318
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.07181765884160995,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.2783712906825957,
+            "training_projected_ms": 5.143020637898687,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.08524435049636153,
+            "merit": 0.029983725534742066
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.2824780182468251,
+            "training_projected_ms": 7.1003939962476545,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.004106727564229418,
+            "merit": 0.0020980808524406484
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16023516654968262,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.3918107395757438,
+            "training_projected_ms": 8.64392120075047,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.19868379938950964,
+            "merit": 0.03131876848754141
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.39992560760510193,
+            "training_projected_ms": 13.464859287054407,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.008114868029358124,
+            "merit": 0.001683254977368842
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3744380474090576,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.5851053601552794,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.3919784199690452,
+            "merit": 0.032030026789768934
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.6009636389617514,
+            "training_projected_ms": 24.179718574108815,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.01585827880647206,
+            "merit": 0.001644729565343796
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.7169448137283325,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9755830105423333,
+            "training_projected_ms": 19.928086303939963,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.00945222429473469,
+            "merit": 0.0011459899843942625
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9774862699689573,
+            "training_projected_ms": 40.38324577861163,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.0019032594266239489,
+            "merit": 9.304544552588969e-05
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3700569868087769,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.9737089452216662,
+            "training_projected_ms": 31.33639774859287,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.00757815897406755,
+            "merit": 0.00038553142193157154
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.975636036212979,
+            "training_projected_ms": 34.88971857410881,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.0019270909913128298,
+            "merit": 0.0005423352086517591
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.9774701388727698,
+            "training_projected_ms": 41.028180112570354,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.74859287054409,
+            "gain": 0.0018341026597907817,
+            "merit": 0.00029878865385062845
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0569252967834473,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 2.0569252967834473,
+            "training_macro_f1": 0.9737089452216662,
+            "training_projected_ms": 50.542795497185736,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.00757815897406755,
+            "merit": 0.00019499778328134747
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 2.0569252967834473,
+            "training_macro_f1": 0.975636036212979,
+            "training_projected_ms": 57.64943714821763,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.0019270909913128298,
+            "merit": 0.00027116760432587927
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "producer_fold": 1,
+    "policy": "relevance_B60",
+    "feasible": true,
+    "budget_ms": 60.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.7169448137283325,
+      "training_macro_f1": 0.9774862699689573,
+      "training_projected_ms": 40.38324577861163,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.2026266416510318
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.07181765884160995,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.28435382554051053,
+            "training_projected_ms": 14.22373358348968,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.09122688535427637,
+            "merit": 0.09122688535427637
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16023516654968262,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.39978281000641647,
+            "training_projected_ms": 31.009380863039397,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.2066558698201823,
+            "merit": 0.2066558698201823
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3744380474090576,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.6011638414422423,
+            "training_projected_ms": 46.991838649155724,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.40803690125600817,
+            "merit": 0.40803690125600817
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.7169448137283325,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9755830105423333,
+            "training_projected_ms": 19.928086303939963,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.00945222429473469,
+            "merit": 0.00945222429473469
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9774862699689573,
+            "training_projected_ms": 40.38324577861163,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.0019032594266239489,
+            "merit": 0.0019032594266239489
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3700569868087769,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.9737089452216662,
+            "training_projected_ms": 31.33639774859287,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.00757815897406755,
+            "merit": 0.00757815897406755
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.975636036212979,
+            "training_projected_ms": 34.88971857410881,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.0019270909913128298,
+            "merit": 0.0019270909913128298
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.9774701388727698,
+            "training_projected_ms": 41.028180112570354,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.74859287054409,
+            "gain": 0.0018341026597907817,
+            "merit": 0.0018341026597907817
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0569252967834473,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 2.0569252967834473,
+            "training_macro_f1": 0.9737089452216662,
+            "training_projected_ms": 50.542795497185736,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.00757815897406755,
+            "merit": 0.00757815897406755
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 2.0569252967834473,
+            "training_macro_f1": 0.975636036212979,
+            "training_projected_ms": 57.64943714821763,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.0019270909913128298,
+            "merit": 0.0019270909913128298
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "producer_fold": 1,
+    "policy": "marginal_cost_B120",
+    "feasible": true,
+    "budget_ms": 120.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.7169448137283325,
+      "training_macro_f1": 0.9774862699689573,
+      "training_projected_ms": 40.38324577861163,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.2026266416510318
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.07181765884160995,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.2783712906825957,
+            "training_projected_ms": 5.143020637898687,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.08524435049636153,
+            "merit": 0.029983725534742066
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.2824780182468251,
+            "training_projected_ms": 7.1003939962476545,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.004106727564229418,
+            "merit": 0.0020980808524406484
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16023516654968262,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.3918107395757438,
+            "training_projected_ms": 8.64392120075047,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.19868379938950964,
+            "merit": 0.03131876848754141
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.39992560760510193,
+            "training_projected_ms": 13.464859287054407,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.008114868029358124,
+            "merit": 0.001683254977368842
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3744380474090576,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.5851053601552794,
+            "training_projected_ms": 14.537842401500937,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.3919784199690452,
+            "merit": 0.032030026789768934
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.6009636389617514,
+            "training_projected_ms": 24.179718574108815,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.01585827880647206,
+            "merit": 0.001644729565343796
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.7169448137283325,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9755830105423333,
+            "training_projected_ms": 19.928086303939963,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.00945222429473469,
+            "merit": 0.0011459899843942625
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9774862699689573,
+            "training_projected_ms": 40.38324577861163,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.0019032594266239489,
+            "merit": 9.304544552588969e-05
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3700569868087769,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.9737089452216662,
+            "training_projected_ms": 31.33639774859287,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.00757815897406755,
+            "merit": 0.00038553142193157154
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.975636036212979,
+            "training_projected_ms": 34.88971857410881,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.0019270909913128298,
+            "merit": 0.0005423352086517591
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.9774701388727698,
+            "training_projected_ms": 41.028180112570354,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.74859287054409,
+            "gain": 0.0018341026597907817,
+            "merit": 0.00029878865385062845
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0569252967834473,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 2.0569252967834473,
+            "training_macro_f1": 0.9737089452216662,
+            "training_projected_ms": 50.542795497185736,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.00757815897406755,
+            "merit": 0.00019499778328134747
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 2.0569252967834473,
+            "training_macro_f1": 0.975636036212979,
+            "training_projected_ms": 57.64943714821763,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.0019270909913128298,
+            "merit": 0.00027116760432587927
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 2.0569252967834473,
+            "training_macro_f1": 0.9774701388727698,
+            "training_projected_ms": 69.92636022514071,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 2.49718574108818,
+            "gain": 0.0018341026597907817,
+            "merit": 0.00014939432692531423
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "producer_fold": 1,
+    "policy": "relevance_B120",
+    "feasible": true,
+    "budget_ms": 120.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.7169448137283325,
+      "training_macro_f1": 0.9774862699689573,
+      "training_projected_ms": 40.38324577861163,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.2026266416510318
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.07181765884160995,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.07181765884160995,
+            "training_macro_f1": 0.28435382554051053,
+            "training_projected_ms": 14.22373358348968,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.09122688535427637,
+            "merit": 0.09122688535427637
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16023516654968262,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16023516654968262,
+            "training_macro_f1": 0.39978281000641647,
+            "training_projected_ms": 31.009380863039397,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.2066558698201823,
+            "merit": 0.2066558698201823
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3744380474090576,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3744380474090576,
+            "training_macro_f1": 0.6011638414422423,
+            "training_projected_ms": 46.991838649155724,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.40803690125600817,
+            "merit": 0.40803690125600817
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.7169448137283325,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9755830105423333,
+            "training_projected_ms": 19.928086303939963,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.101313320825516,
+            "gain": 0.00945222429473469,
+            "merit": 0.00945222429473469
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.7169448137283325,
+            "training_macro_f1": 0.9774862699689573,
+            "training_projected_ms": 40.38324577861163,
+            "training_escalation_fraction": 0.10131332082551595,
+            "training_classifier_calls": 1.2026266416510318,
+            "gain": 0.0019032594266239489,
+            "merit": 0.0019032594266239489
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3700569868087769,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.9737089452216662,
+            "training_projected_ms": 31.33639774859287,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.24953095684803,
+            "gain": 0.00757815897406755,
+            "merit": 0.00757815897406755
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.975636036212979,
+            "training_projected_ms": 34.88971857410881,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.0019270909913128298,
+            "merit": 0.0019270909913128298
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3700569868087769,
+            "training_macro_f1": 0.9774701388727698,
+            "training_projected_ms": 41.028180112570354,
+            "training_escalation_fraction": 0.24953095684803,
+            "training_classifier_calls": 1.74859287054409,
+            "gain": 0.0018341026597907817,
+            "merit": 0.0018341026597907817
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0569252967834473,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 2.0569252967834473,
+            "training_macro_f1": 0.9737089452216662,
+            "training_projected_ms": 50.542795497185736,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.49906191369606,
+            "gain": 0.00757815897406755,
+            "merit": 0.00757815897406755
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 2.0569252967834473,
+            "training_macro_f1": 0.975636036212979,
+            "training_projected_ms": 57.64943714821763,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 1.99812382739212,
+            "gain": 0.0019270909913128298,
+            "merit": 0.0019270909913128298
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 2.0569252967834473,
+            "training_macro_f1": 0.9774701388727698,
+            "training_projected_ms": 69.92636022514071,
+            "training_escalation_fraction": 0.49906191369606,
+            "training_classifier_calls": 2.49718574108818,
+            "gain": 0.0018341026597907817,
+            "merit": 0.0018341026597907817
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "producer_fold": 2,
+    "policy": "marginal_cost_B15",
+    "feasible": true,
+    "budget_ms": 15.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [],
+      "quantile": null,
+      "threshold": null,
+      "training_macro_f1": 0.9699793787432733,
+      "training_projected_ms": 11.68,
+      "training_escalation_fraction": 0.0,
+      "training_classifier_calls": 1.0
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06568286567926407,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06568286567926407,
+            "training_macro_f1": 0.2866695198672315,
+            "training_projected_ms": 5.138539325842697,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.08772289677649253,
+            "merit": 0.03090423866171015
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16376793384552002,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16376793384552002,
+            "training_macro_f1": 0.41737876586677486,
+            "training_projected_ms": 8.677116104868913,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.250936329588015,
+            "gain": 0.2184321427760359,
+            "merit": 0.034252495827896794
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3693389296531677,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6107227511284208,
+            "training_projected_ms": 14.559999999999999,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 1.5,
+            "gain": 0.4117761280376818,
+            "merit": 0.03358695987256785
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.6993435621261597,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3486709594726562,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0122616291046143,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 2,
+    "policy": "relevance_B15",
+    "feasible": true,
+    "budget_ms": 15.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [],
+      "quantile": null,
+      "threshold": null,
+      "training_macro_f1": 0.9699793787432733,
+      "training_projected_ms": 11.68,
+      "training_escalation_fraction": 0.0,
+      "training_classifier_calls": 1.0
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06568286567926407,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06568286567926407,
+            "training_macro_f1": 0.28713495235529873,
+            "training_projected_ms": 14.202247191011235,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.08818832926455977,
+            "merit": 0.08818832926455977
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16376793384552002,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16376793384552002,
+            "training_macro_f1": 0.41737876586677486,
+            "training_projected_ms": 8.677116104868913,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.250936329588015,
+            "gain": 0.2184321427760359,
+            "merit": 0.2184321427760359
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3693389296531677,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6107227511284208,
+            "training_projected_ms": 14.559999999999999,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 1.5,
+            "gain": 0.4117761280376818,
+            "merit": 0.4117761280376818
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.6993435621261597,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3486709594726562,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0122616291046143,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 2,
+    "policy": "marginal_cost_B30",
+    "feasible": true,
+    "budget_ms": 30.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [],
+      "quantile": null,
+      "threshold": null,
+      "training_macro_f1": 0.9699793787432733,
+      "training_projected_ms": 11.68,
+      "training_escalation_fraction": 0.0,
+      "training_classifier_calls": 1.0
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06568286567926407,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06568286567926407,
+            "training_macro_f1": 0.2866695198672315,
+            "training_projected_ms": 5.138539325842697,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.08772289677649253,
+            "merit": 0.03090423866171015
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16376793384552002,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16376793384552002,
+            "training_macro_f1": 0.41737876586677486,
+            "training_projected_ms": 8.677116104868913,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.250936329588015,
+            "gain": 0.2184321427760359,
+            "merit": 0.034252495827896794
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3693389296531677,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6107227511284208,
+            "training_projected_ms": 14.559999999999999,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 1.5,
+            "gain": 0.4117761280376818,
+            "merit": 0.03358695987256785
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.611687862655625,
+            "training_projected_ms": 24.22,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 2.0,
+            "gain": 0.0009651115272042432,
+            "merit": 9.990802559050136e-05
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.6993435621261597,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3486709594726562,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0122616291046143,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 2,
+    "policy": "relevance_B30",
+    "feasible": true,
+    "budget_ms": 30.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [],
+      "quantile": null,
+      "threshold": null,
+      "training_macro_f1": 0.9699793787432733,
+      "training_projected_ms": 11.68,
+      "training_escalation_fraction": 0.0,
+      "training_classifier_calls": 1.0
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06568286567926407,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06568286567926407,
+            "training_macro_f1": 0.29081562462420624,
+            "training_projected_ms": 28.17247191011236,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.09186900153346728,
+            "merit": 0.09186900153346728
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16376793384552002,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16376793384552002,
+            "training_macro_f1": 0.41737876586677486,
+            "training_projected_ms": 8.677116104868913,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.250936329588015,
+            "gain": 0.2184321427760359,
+            "merit": 0.2184321427760359
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3693389296531677,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6107227511284208,
+            "training_projected_ms": 14.559999999999999,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 1.5,
+            "gain": 0.4117761280376818,
+            "merit": 0.4117761280376818
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.611687862655625,
+            "training_projected_ms": 24.22,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 2.0,
+            "gain": 0.0009651115272042432,
+            "merit": 0.0009651115272042432
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.6993435621261597,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3486709594726562,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0122616291046143,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 2,
+    "policy": "marginal_cost_B60",
+    "feasible": true,
+    "budget_ms": 60.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "rgb_ngram_svd",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.6993435621261597,
+      "training_macro_f1": 0.9755745139804389,
+      "training_projected_ms": 42.20112359550562,
+      "training_escalation_fraction": 0.10112359550561797,
+      "training_classifier_calls": 1.202247191011236
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06568286567926407,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06568286567926407,
+            "training_macro_f1": 0.2866695198672315,
+            "training_projected_ms": 5.138539325842697,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.08772289677649253,
+            "merit": 0.03090423866171015
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16376793384552002,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16376793384552002,
+            "training_macro_f1": 0.41737876586677486,
+            "training_projected_ms": 8.677116104868913,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.250936329588015,
+            "gain": 0.2184321427760359,
+            "merit": 0.034252495827896794
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3693389296531677,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6107227511284208,
+            "training_projected_ms": 14.559999999999999,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 1.5,
+            "gain": 0.4117761280376818,
+            "merit": 0.03358695987256785
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6150054752511223,
+            "training_projected_ms": 53.045,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 2.0,
+            "gain": 0.004282724122701476,
+            "merit": 0.000111282944594036
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.6993435621261597,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.6993435621261597,
+            "training_macro_f1": 0.9736672225871661,
+            "training_projected_ms": 42.20112359550562,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.0036878438438927574,
+            "merit": 0.00012082922938118208
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.6993435621261597,
+            "training_macro_f1": 0.9755745139804389,
+            "training_projected_ms": 42.20112359550562,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.202247191011236,
+            "gain": 0.0019072913932728364,
+            "merit": "positive_gain_zero_cost"
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3486709594726562,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0122616291046143,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 2,
+    "policy": "relevance_B60",
+    "feasible": true,
+    "budget_ms": 60.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "rgb_ngram_svd",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.6993435621261597,
+      "training_macro_f1": 0.9755745139804389,
+      "training_projected_ms": 42.20112359550562,
+      "training_escalation_fraction": 0.10112359550561797,
+      "training_classifier_calls": 1.202247191011236
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06568286567926407,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06568286567926407,
+            "training_macro_f1": 0.29081562462420624,
+            "training_projected_ms": 28.17247191011236,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.09186900153346728,
+            "merit": 0.09186900153346728
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16376793384552002,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16376793384552002,
+            "training_macro_f1": 0.41797477927188015,
+            "training_projected_ms": 31.168539325842698,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.250936329588015,
+            "gain": 0.2190281561811412,
+            "merit": 0.2190281561811412
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16376793384552002,
+            "training_macro_f1": 0.41962526324725236,
+            "training_projected_ms": 35.81086142322098,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.5018726591760299,
+            "gain": 0.0016504839753722078,
+            "merit": 0.0016504839753722078
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3693389296531677,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6160465404182568,
+            "training_projected_ms": 59.375,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 1.5,
+            "gain": 0.41709991732751783,
+            "merit": 0.41709991732751783
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.6993435621261597,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.6993435621261597,
+            "training_macro_f1": 0.9736672225871661,
+            "training_projected_ms": 42.20112359550562,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.0036878438438927574,
+            "merit": 0.0036878438438927574
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.6993435621261597,
+            "training_macro_f1": 0.9755745139804389,
+            "training_projected_ms": 42.20112359550562,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.202247191011236,
+            "gain": 0.0019072913932728364,
+            "merit": 0.0019072913932728364
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3486709594726562,
+        "steps": []
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0122616291046143,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 2,
+    "policy": "marginal_cost_B120",
+    "feasible": true,
+    "budget_ms": 120.0,
+    "criterion": "marginal_cost",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "rgb_ngram_svd",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "rgb_ngram_svd",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.25,
+      "threshold": 1.3486709594726562,
+      "training_macro_f1": 0.9793139979791364,
+      "training_projected_ms": 86.75093632958801,
+      "training_escalation_fraction": 0.250936329588015,
+      "training_classifier_calls": 1.752808988764045
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06568286567926407,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06568286567926407,
+            "training_macro_f1": 0.2866695198672315,
+            "training_projected_ms": 5.138539325842697,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.08772289677649253,
+            "merit": 0.03090423866171015
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16376793384552002,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16376793384552002,
+            "training_macro_f1": 0.41737876586677486,
+            "training_projected_ms": 8.677116104868913,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.250936329588015,
+            "gain": 0.2184321427760359,
+            "merit": 0.034252495827896794
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3693389296531677,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6107227511284208,
+            "training_projected_ms": 14.559999999999999,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 1.5,
+            "gain": 0.4117761280376818,
+            "merit": 0.03358695987256785
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6150054752511223,
+            "training_projected_ms": 53.045,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 2.0,
+            "gain": 0.004282724122701476,
+            "merit": 0.000111282944594036
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "hog",
+                "resnet50",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "hog",
+                "resnet50",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6151039547055765,
+            "training_projected_ms": 62.295,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 2.5,
+            "gain": 9.847945445429218e-05,
+            "merit": 1.0646427508572128e-05
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.6993435621261597,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.6993435621261597,
+            "training_macro_f1": 0.9736672225871661,
+            "training_projected_ms": 42.20112359550562,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.0036878438438927574,
+            "merit": 0.00012082922938118208
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.6993435621261597,
+            "training_macro_f1": 0.9755745139804389,
+            "training_projected_ms": 42.20112359550562,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.202247191011236,
+            "gain": 0.0019072913932728364,
+            "merit": "positive_gain_zero_cost"
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3486709594726562,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3486709594726562,
+            "training_macro_f1": 0.9755944800381409,
+            "training_projected_ms": 75.93558052434457,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.250936329588015,
+            "gain": 0.0056151012948675305,
+            "merit": 8.738698256317414e-05
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3486709594726562,
+            "training_macro_f1": 0.9774636389166454,
+            "training_projected_ms": 80.57790262172284,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.5018726591760299,
+            "gain": 0.0018691588785045843,
+            "merit": 0.0004026344659626663
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3486709594726562,
+            "training_macro_f1": 0.9793139979791364,
+            "training_projected_ms": 86.75093632958801,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.752808988764045,
+            "gain": 0.0018503590624909805,
+            "merit": 0.00029974873782616883
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0122616291046143,
+        "steps": []
+      }
+    ]
+  },
+  {
+    "producer_fold": 2,
+    "policy": "relevance_B120",
+    "feasible": true,
+    "budget_ms": 120.0,
+    "criterion": "relevance",
+    "base_candidates": [
+      "hog",
+      "siglip_base"
+    ],
+    "selected": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.25,
+      "threshold": 1.3486709594726562,
+      "training_macro_f1": 0.977495966280285,
+      "training_projected_ms": 82.10861423220973,
+      "training_escalation_fraction": 0.250936329588015,
+      "training_classifier_calls": 1.5018726591760299
+    },
+    "paths": [
+      {
+        "base": "hog",
+        "quantile": 0.1,
+        "threshold": 0.06568286567926407,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.06568286567926407,
+            "training_macro_f1": 0.29081562462420624,
+            "training_projected_ms": 28.17247191011236,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.09186900153346728,
+            "merit": 0.09186900153346728
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.25,
+        "threshold": 0.16376793384552002,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 0.16376793384552002,
+            "training_macro_f1": 0.4216276718338636,
+            "training_projected_ms": 65.83539325842696,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.250936329588015,
+            "gain": 0.22268104874312467,
+            "merit": 0.22268104874312467
+          }
+        ]
+      },
+      {
+        "base": "hog",
+        "quantile": 0.5,
+        "threshold": 0.3693389296531677,
+        "steps": [
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6160465404182568,
+            "training_projected_ms": 59.375,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 1.5,
+            "gain": 0.41709991732751783,
+            "merit": 0.41709991732751783
+          },
+          {
+            "base": "hog",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.5,
+            "threshold": 0.3693389296531677,
+            "training_macro_f1": 0.6193428069216137,
+            "training_projected_ms": 68.625,
+            "training_escalation_fraction": 0.5,
+            "training_classifier_calls": 2.0,
+            "gain": 0.003296266503356904,
+            "merit": 0.003296266503356904
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.1,
+        "threshold": 0.6993435621261597,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.6993435621261597,
+            "training_macro_f1": 0.9736672225871661,
+            "training_projected_ms": 42.20112359550562,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.101123595505618,
+            "gain": 0.0036878438438927574,
+            "merit": 0.0036878438438927574
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "rgb_ngram_svd",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.1,
+            "threshold": 0.6993435621261597,
+            "training_macro_f1": 0.9755745139804389,
+            "training_projected_ms": 42.20112359550562,
+            "training_escalation_fraction": 0.10112359550561797,
+            "training_classifier_calls": 1.202247191011236,
+            "gain": 0.0019072913932728364,
+            "merit": 0.0019072913932728364
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.25,
+        "threshold": 1.3486709594726562,
+        "steps": [
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3486709594726562,
+            "training_macro_f1": 0.9755944800381409,
+            "training_projected_ms": 75.93558052434457,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.250936329588015,
+            "gain": 0.0056151012948675305,
+            "merit": 0.0056151012948675305
+          },
+          {
+            "base": "siglip_base",
+            "members": [
+              [
+                "dinov2",
+                "dinov2_large",
+                "eva02_base",
+                "siglip_base"
+              ],
+              [
+                "dinov2",
+                "dinov2_large",
+                "dinov2_small",
+                "eva02_base",
+                "siglip_base"
+              ]
+            ],
+            "quantile": 0.25,
+            "threshold": 1.3486709594726562,
+            "training_macro_f1": 0.977495966280285,
+            "training_projected_ms": 82.10861423220973,
+            "training_escalation_fraction": 0.250936329588015,
+            "training_classifier_calls": 1.5018726591760299,
+            "gain": 0.0019014862421441459,
+            "merit": 0.0019014862421441459
+          }
+        ]
+      },
+      {
+        "base": "siglip_base",
+        "quantile": 0.5,
+        "threshold": 2.0122616291046143,
+        "steps": []
+      }
+    ]
+  }
+]

@@ -1,0 +1,213 @@
+{
+  "status": "blocked_parity_or_runtime",
+  "condition": "Outex_s123",
+  "producer_fold": 0,
+  "device": "cpu",
+  "physical_timing_validated": false,
+  "external_test_evaluated": false,
+  "new_inferential_tests": 0,
+  "protocol_sha256": "54e2416d9ca5f1e86ab4b27c2a877b67ae1bc23ce86bff64eb293fc1c401fbf7",
+  "source_sha256": "e17fe2a6be0a0ca5c8324f5eb9fca2990acaf73df5e75792836139d744a38246",
+  "route_source_sha256": "3ad4237e5ab5c7ed095bddcac3e260d2a1d425aab12c82cb122139d82ece1c2e",
+  "recipes": {
+    "carlos_permanent": {
+      "members": [
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2_small",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2_small",
+          "rgb_ngram_svd"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_small",
+          "rgb_ngram_svd"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "rgb_ngram_svd",
+          "vit_b16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "rgb_ngram_svd"
+        ],
+        [
+          "dinov2",
+          "dinov2_small",
+          "efficientnet_b0",
+          "rgb_ngram_svd"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "efficientnet_b0",
+          "rgb_ngram_svd"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_small",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "rgb_ngram_svd",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "rgb_ngram_svd"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "rgb_ngram_svd"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2",
+          "rgb_ngram_svd"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "rgb_ngram_svd",
+          "vgg16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_small",
+          "rgb_ngram_svd",
+          "vgg16"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "rgb_ngram_svd",
+          "vit_b16"
+        ]
+      ]
+    },
+    "static_B60": {
+      "members": [
+        [
+          "beitv2_base_final"
+        ],
+        [
+          "dinov2_small"
+        ],
+        [
+          "rgb_ngram_svd"
+        ]
+      ],
+      "blocks": [
+        "beitv2_base_final",
+        "dinov2_small",
+        "rgb_ngram_svd"
+      ],
+      "training_macro_f1": 0.881963184557202,
+      "projected_ms": 55.32,
+      "classifier_calls": 3
+    },
+    "previous_pool_B60": {
+      "base": "beitv2_base_final",
+      "members": [
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "rgb_ngram_svd"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2"
+        ]
+      ],
+      "quantile": 0.5,
+      "threshold": 3.1311025619506836,
+      "training_macro_f1": 0.9061571920511549,
+      "training_projected_ms": 50.660949227373074,
+      "training_escalation_fraction": 0.4988962472406181,
+      "training_classifier_calls": 1.9977924944812362
+    },
+    "hybrid_carlos_B60": {
+      "base": "beitv2_base_final",
+      "members": [
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2_small",
+          "rgb_ngram_svd"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "dinov2_small",
+          "swin_t"
+        ],
+        [
+          "beitv2_base_final",
+          "convnext_v2_t",
+          "rgb_ngram_svd",
+          "swin_t"
+        ]
+      ],
+      "quantile": 0.5,
+      "threshold": 3.1311025619506836,
+      "training_macro_f1": 0.899863141472138,
+      "training_projected_ms": 52.681479028697574,
+      "training_escalation_fraction": 0.4988962472406181,
+      "training_classifier_calls": 2.4966887417218544
+    }
+  },
+  "rows": [
+    6,
+    266,
+    540,
+    802,
+    1094,
+    1350
+  ],
+  "fit_indices_sha256": "0c7ed2e5e99d34f3b941cc3d99cb2c87e8ccc8c45f7da470f1b042b7ddf6f893",
+  "audit_sha256": "d60ac447994e84509dd601c4cdf09f1ab960d1140c7c81cdbe5d62451e4fff80",
+  "repeats": 3,
+  "seed": 123,
+  "warmup_rows": 2,
+  "sample_rule": "linspace in producer validation order, without score or label filtering",
+  "timing_scope": "batch1 image decode/preprocessing/extraction/transfer/scoring/routing; resident CPU models; model load and SVM fit excluded",
+  "required_blocks": [
+    "beitv2_base_final",
+    "convnext_v2_t",
+    "dinov2",
+    "dinov2_large",
+    "dinov2_small",
+    "efficientnet_b0",
+    "rgb_ngram_svd",
+    "swin_t",
+    "vgg16",
+    "vit_b16"
+  ],
+  "fitted_models": 17,
+  "extractor_max_abs_error": {
+    "beitv2_base_final": 6.975606083869934e-07,
+    "convnext_v2_t": 1.8984079360961914e-05,
+    "dinov2": 5.085021257400513e-07,
+    "dinov2_large": 6.310641765594482e-06
+  },
+  "error": "AssertionError: ('dinov2_small', 266, 'embedding parity', 0.0001031532883644104)"
+}

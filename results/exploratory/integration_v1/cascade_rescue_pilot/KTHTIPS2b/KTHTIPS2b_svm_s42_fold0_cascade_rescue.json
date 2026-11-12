@@ -1,0 +1,228 @@
+{
+  "dataset": "KTHTIPS2b",
+  "classifier": "svm",
+  "seed": 42,
+  "outer_fold": 0,
+  "base_block": "beitv2_base_final",
+  "official_split": 1,
+  "official_split_inverted": true,
+  "curet_direction": null,
+  "available_blocks": 22,
+  "available_block_names": [
+    "beitv2_base_final",
+    "beitv2_base_multilayer",
+    "convnext_v2_t",
+    "deit_s",
+    "densenet121",
+    "dinov2",
+    "dinov2_large",
+    "dinov2_small",
+    "drlbp",
+    "efficientnet_b0",
+    "eva02_base",
+    "gabor",
+    "glcm",
+    "hog",
+    "lbp",
+    "mae_base",
+    "resnet101",
+    "resnet50",
+    "siglip_base",
+    "swin_t",
+    "vgg16",
+    "vit_b16"
+  ],
+  "rgb_ngram_svd_included": false,
+  "library_note": "dataset-specific available embedding cache; not assumed identical to the 22-descriptor primary library",
+  "k": 4,
+  "members": 15,
+  "unique_subsets": 13,
+  "beta": 8.0,
+  "escalation_quantile_fixed_on_training": 0.25,
+  "inner_group_column": "sample",
+  "threshold_normalized_margin": 0.9387614130973816,
+  "n_train": 3564,
+  "n_test": 1188,
+  "escalated": 172,
+  "escalation_fraction": 0.1447811447811448,
+  "macro_f1": {
+    "base": 0.9669702115944624,
+    "top_k_static": 0.991570002247406,
+    "rescue_ensemble_static": 0.9822329893168351,
+    "complete_available_static": 0.9745384083971192,
+    "cascade_with_rescue": 0.9822329893168351,
+    "cascade_with_top_k_rescue": 0.991570002247406
+  },
+  "accuracy": {
+    "base": 0.9671717171717171,
+    "top_k_static": 0.9915824915824916,
+    "rescue_ensemble_static": 0.9823232323232324,
+    "complete_available_static": 0.9747474747474747,
+    "cascade_with_rescue": 0.9823232323232324,
+    "cascade_with_top_k_rescue": 0.9915824915824916
+  },
+  "prediction_agreement": {
+    "cascade_vs_static_rescue_ensemble": 1.0,
+    "cascade_vs_static_top_k": 0.9890572390572391,
+    "cascade_vs_cascade_top_k_rescue": 0.9890572390572391
+  },
+  "mean_classifier_calls_per_image": 2.8821548821548824,
+  "top_k_subset": [
+    "beitv2_base_final",
+    "beitv2_base_multilayer",
+    "dinov2_large",
+    "dinov2"
+  ],
+  "rescue_subsets": [
+    [
+      "beitv2_base_final",
+      "beitv2_base_multilayer",
+      "dinov2",
+      "swin_t"
+    ],
+    [
+      "beitv2_base_final",
+      "beitv2_base_multilayer",
+      "dinov2",
+      "siglip_base"
+    ],
+    [
+      "beitv2_base_final",
+      "beitv2_base_multilayer",
+      "dinov2",
+      "siglip_base"
+    ],
+    [
+      "beitv2_base_final",
+      "beitv2_base_multilayer",
+      "convnext_v2_t",
+      "swin_t"
+    ],
+    [
+      "beitv2_base_final",
+      "beitv2_base_multilayer",
+      "eva02_base",
+      "siglip_base"
+    ],
+    [
+      "beitv2_base_final",
+      "dinov2_large",
+      "siglip_base",
+      "swin_t"
+    ],
+    [
+      "beitv2_base_final",
+      "beitv2_base_multilayer",
+      "dinov2_large",
+      "swin_t"
+    ],
+    [
+      "beitv2_base_final",
+      "beitv2_base_multilayer",
+      "dinov2",
+      "dinov2_large"
+    ],
+    [
+      "beitv2_base_final",
+      "densenet121",
+      "dinov2",
+      "swin_t"
+    ],
+    [
+      "beitv2_base_final",
+      "dinov2",
+      "dinov2_large",
+      "eva02_base"
+    ],
+    [
+      "beitv2_base_final",
+      "dinov2",
+      "dinov2_large",
+      "eva02_base"
+    ],
+    [
+      "beitv2_base_final",
+      "beitv2_base_multilayer",
+      "eva02_base",
+      "swin_t"
+    ],
+    [
+      "beitv2_base_final",
+      "beitv2_base_multilayer",
+      "dinov2_large",
+      "eva02_base"
+    ],
+    [
+      "beitv2_base_multilayer",
+      "dinov2",
+      "dinov2_large",
+      "siglip_base"
+    ],
+    [
+      "beitv2_base_final",
+      "beitv2_base_multilayer",
+      "dinov2_large",
+      "dinov2_small"
+    ]
+  ],
+  "rescue_union": [
+    "beitv2_base_final",
+    "beitv2_base_multilayer",
+    "convnext_v2_t",
+    "densenet121",
+    "dinov2",
+    "dinov2_large",
+    "dinov2_small",
+    "eva02_base",
+    "siglip_base",
+    "swin_t"
+  ],
+  "rescue_union_blocks": 10,
+  "rescue_extra_blocks_after_base": [
+    "beitv2_base_multilayer",
+    "convnext_v2_t",
+    "densenet121",
+    "dinov2",
+    "dinov2_large",
+    "dinov2_small",
+    "eva02_base",
+    "siglip_base",
+    "swin_t"
+  ],
+  "base_score_scale": 0.7897621618942897,
+  "member_score_scales": [
+    0.7866285398581421,
+    0.8125293028783905,
+    0.8125293028783905,
+    0.8014090359458769,
+    0.8411983514718775,
+    0.7718618622645629,
+    0.7675392446209982,
+    0.7723519979643684,
+    0.7828885269949003,
+    0.7730492722947995,
+    0.7730492722947995,
+    0.8116393302808945,
+    0.7824103386985577,
+    0.7819253289480377,
+    0.7823279530046021
+  ],
+  "top_k_rescue_score_scale": 0.7723519979643684,
+  "cost_projection_ms": {
+    "base_extractor": 12.22,
+    "rescue_union_additional_extractors": null,
+    "cascade_mean_extraction_plus_gate": null,
+    "cascade_top_k_rescue_extraction_plus_gate": null,
+    "static_rescue_union_extraction": null,
+    "static_top_k_extraction": null,
+    "static_complete_available_extraction": null,
+    "missing_hardware_profile_blocks": [
+      "beitv2_base_multilayer"
+    ],
+    "classifier_latency_included": false,
+    "physical_measurement": false
+  },
+  "calibration": "OOF normalized margins on outer-training groups only",
+  "score_normalization": "member global std fitted on training rows; batch independent",
+  "duration_seconds": 122.31892444699997
+}

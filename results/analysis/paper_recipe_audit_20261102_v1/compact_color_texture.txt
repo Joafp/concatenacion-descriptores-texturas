@@ -1,0 +1,501 @@
+                                                                      Pattern Recognition Letters 51 (2015) 16–22
+
+
+
+                                                                    Contents lists available at ScienceDirect
+
+
+                                                             Pattern Recognition Letters
+                                                          journal homepage: www.elsevier.com/locate/patrec
+
+
+
+
+Compact color–texture description for texture classiﬁcationR
+Fahad Shahbaz Khana,∗, Rao Muhammad Anwerb, Joost van de Weijerc, Michael Felsberga,
+Jorma Laaksonenb
+a
+  Computer Vision Laboratory, Linköping University, Sweden
+b
+  Department of Information and Computer Science, Aalto University School of Science, Finland
+c
+  Computer Vision Center, CS Dept. Universitat Autonoma de Barcelona, Spain
+
+
+
+
+a r t i c l e            i n f o                          a b s t r a c t
+
+Article history:                                           Describing textures is a challenging problem in computer vision and pattern recognition. The classiﬁcation
+Received 27 April 2014                                    problem involves assigning a category label to the texture class it belongs to. Several factors such as variations
+Available online 12 August 2014
+                                                          in scale, illumination and viewpoint make the problem of texture description extremely challenging. A
+                                                          variety of histogram based texture representations exists in literature. However, combining multiple texture
+Keywords:
+                                                          descriptors and assessing their complementarity is still an open research problem. In this paper, we ﬁrst
+Texture features
+Color features                                            show that combining multiple local texture descriptors signiﬁcantly improves the recognition performance
+Texture classiﬁcation                                     compared to using a single best method alone. This gain in performance is achieved at the cost of high-
+Image classiﬁcation                                       dimensional ﬁnal image representation. To counter this problem, we propose to use an information-theoretic
+                                                          compression technique to obtain a compact texture description without any signiﬁcant loss in accuracy. In
+                                                          addition, we perform a comprehensive evaluation of pure color descriptors, popular in object recognition,
+                                                          for the problem of texture classiﬁcation. Experiments are performed on four challenging texture datasets
+                                                          namely, KTH-TIPS-2a, KTH-TIPS-2b, FMD and Texture-10. The experiments clearly demonstrate that our
+                                                          proposed compact multi-texture approach outperforms the single best texture method alone. In all cases,
+                                                          discriminative color names outperforms other color features for texture classiﬁcation. Finally, we show that
+                                                          combining discriminative color names with compact texture representation outperforms state-of-the-art
+                                                          methods by 7.8%, 4.3% and 5.0% on KTH-TIPS-2a, KTH-TIPS-2b and Texture-10 datasets respectively.
+                                                                                                                                   © 2014 Elsevier B.V. All rights reserved.
+
+
+
+
+1. Introduction                                                                                 of Local Binary Patterns (LBP) [30] based image representations. Other
+                                                                                                than texture classiﬁcation, LBP have been successfully employed to
+    Classifying textures is a diﬃcult problem in computer vision and                            solve other vision problems as well, such as object detection [48],
+pattern recognition. The task is to associate a class label to its respec-                      face recognition [1] and pedestrian detection [42]. LBP describes the
+tive texture category. In recent years, a variety of texture descrip-                           neighbourhood of a pixel by its binary derivatives which are used to
+tion approaches have been proposed [30,10,20,5,9,52,12,41]. These                               form a short code to describe the pixel neighbourhood. A variety of
+approaches can be divided into two categories, namely sparse and                                LBP variants have been proposed [10,47,45]. Combining multiple tex-
+dense representations. The sparse representation works by detecting                             ture features, such as variants of LBP features, is still an open research
+feature points either based on interest point or dense sampling strat-                          problem. The work of Guo et al. [9] proposes a learning framework
+egy. Feature description is then performed on these sampling points                             to combine variants of LBP features for texture classiﬁcation. Tan and
+[20,49]. The second strategy, dense representations, involves extract-                          Triggs [38] propose to combine Gabor wavelets and LBP features for
+ing local features for each pixel in an image [30,10,5]. In this paper,                         the problem of face recognition. In this paper, we propose to use a
+we investigate the problem of texture classiﬁcation using dense local                           heterogeneous feature set by combining multiple texture description
+texture representations.                                                                        methods.
+    A variety of texture description approaches exist in literature                                 Combining multiple texture description methods have an in-
+[30,10,20,5,9,52]. One of the most successful approaches is that                                herent problem of high-dimensional ﬁnal image representations.
+                                                                                                Recently, Elﬁky et al. [7] proposed to use a divisive informa-
+                                                                                                tion theoretic clustering (DITC) method [6] to counter the prob-
+    R
+        This paper has been recommended for acceptance by Y. Liu.
+    ∗
+                                                                                                lem of high-dimensionality of bag-of-words based spatial pyramid
+        Corresponding author.
+
+http://dx.doi.org/10.1016/j.patrec.2014.07.020
+0167-8655/© 2014 Elsevier B.V. All rights reserved.
+                                                  F.S. Khan et al. / Pattern Recognition Letters 51 (2015) 16–22                                                      17
+
+
+representations. The DITC compression was shown to reduce the di-                   perceptually inspired image features are proposed by Sharan et al.
+mensionality of image representations without any signiﬁcant loss in                [35] for texture classiﬁcation.
+accuracy. Similar to the work of Elﬁky et al. [7], we propose to use the                Combining multiple texture representations for robust classiﬁ-
+DITC approach to compress the high-dimensional multi-texture rep-                   cation [9,24,38,11] is an interesting problem. The work of Tan and
+resentation. However, different to the work of Elﬁky et al. [7], here we            Triggs [38] combines Gabor wavelets and LBP for the problem of
+investigate compressing a multi-texture histogram to obtain a single                face recognition. Ylioinas et al. [46] combine contrast information
+heterogeneous texture representation.                                               together with local binary patterns for improved gender classiﬁca-
+    Generally, state-of-the-art texture descriptors operate on grey                 tion. A combination of HOG, LBP and Gabor features is used by Li
+level images thereby ignoring the color information. Color in com-                  et al. [23] for gender classiﬁcation. To counter the dimensionality of
+bination with shape features has been shown to yield excellent re-                  the proposed image representation, Partial Least Squares (PLS) is used
+sults for object recognition [32,18,19], object detection [16] and ac-              to learn a low-dimensional representation. Hong et al. [11] propose
+tion recognition [15]. Color description is a challenging problem due               a numerical variant of LBP which is eﬃcient and rotation invariant.
+to signiﬁcant variations in color caused by changes in illumination,                The method is combined with other cues by a covariance matrix. Guo
+shadows and highlights. Recent works have shown that an explicit                    et al. [9] propose a learning framework to fuse a variety of LBP variants
+color representation improves the performance for object recogni-                   such as conventional LBP, rotation invariant patterns, local patterns
+tion [18,19], object detection [16] and action recognition [15]. In                 with anisotropic structure, completed local binary patterns and local
+this paper, we perform a comprehensive evaluation of pure color                     ternary patterns. Similar to Guo et al. [9], we investigate the problem
+descriptors, popular in object recognition, for the task of texture                 of combining multiple texture description approaches. However, in-
+classiﬁcation.                                                                      stead of only combining LBP variants [9], we here investigate fusing
+    Contributions: We ﬁrst show that combining multiple texture de-                 multiple texture descriptors to obtain a single heterogeneous texture
+scription methods signiﬁcantly improves the performance compared                    representation.
+to using the single best texture method alone. We further propose to                    A variety of color description approaches have been proposed in
+use information theoretic compression approach to compress high-                    the ﬁeld of object and scene recognition [8,3,43,32,18,19]. Bosch et al.
+dimensional multi-texture features into a compact heterogeneous                     [3] propose to compute SIFT descriptors directly on HSV channels for
+texture representation. Finally, we provide a comprehensive evalu-                  image classiﬁcation. A comprehensive evaluation of color descriptors
+ation of color features, popular in object recognition, for the task of             is performed by Sande et al. [32]. It has been shown that using an
+texture classiﬁcation. This paper extends our earlier work [17] for                 explicit color descriptor signiﬁcantly improves the performance for
+texture classiﬁcation that only evaluated the contribution of color for             object recognition [18,19], object detection [16], texture recognition
+texture recognition. Beyond the work in [17], we here investigate the               [17] and action recognition [15]. In this work, we perform a com-
+problem of combining multiple local texture descriptors for robust                  prehensive evaluation of pure color descriptors, popular in object
+texture description. We perform extensive experiments on four chal-                 recognition, for the problem of texture classiﬁcation.
+lenging texture datasets namely, KTH-TIPS-2a, KTH-TIPS-2b, FMD and
+Texture-10.
+    The results of our experiments clearly demonstrate that combin-                 3. Combining multiple texture descriptors
+ing multi-texture descriptors signiﬁcantly improves the performance
+compared to the single best method alone. We further show that                          Here we present our framework of combining multiple texture
+multi-texture representations can be compressed eﬃciently without                   features and obtaining a compact heterogeneous texture represen-
+any signiﬁcant loss in accuracy. Finally, our comprehensive evaluation              tation. We combine ﬁve texture descriptors namely, completed local
+of color features suggest that discriminative color names outperforms               binary patterns [10], WLD descriptor [5], binary Gabor pattern [51],
+other color descriptors for texture recognition. By combining the best              local phase quantization descriptor [31] and binarized statistical fea-
+color descriptor with our compact heterogenous texture represen-                    tures [14]. We start by providing a brief overview of the ﬁve texture
+tation provides state-of-the-art results on three of the four texture               descriptors used in this work.
+datasets.                                                                               Completed local binary patterns [10]: The completed local binary
+    The paper is organized as follows. In Section 3 we investigate the              patterns (CLBP) extends the conventional LBP operator by incorporat-
+problem of combining multiple texture descriptors. A comprehensive                  ing local difference sign-magnitude transform information (LDSMT).1
+evaluation of pure color descriptors for texture description is provided            The LDSMT further consists of two components, namely the difference
+in Section 4. In Section 5 we provide experimental results. Section 6               sign and difference magnitude encoded by a binary code. Likewise
+ﬁnishes with concluding remarks.                                                    the conventional LBP, a region is also represented by its center pixel
+                                                                                    encoded by a binary code after global thresholding. The ﬁnal image
+                                                                                    representation is obtained by concatenating the three binary code
+2. Related work                                                                     maps to form a single histogram.
+                                                                                        WLD descriptor [5]: The WLD descriptor is inspired by Weber’s
+    A variety of texture description approaches have been pro-                      Law and encodes both differential excitations and orientations at lo-
+posed in recent years [30,10,20,5,9,52,47,22]. Varma and Zisser-                    cations. The ﬁrst component, differential excitation, captures the ratio
+man [41] propose a statistical approach for texture modeling us-                    between the intensity difference of a pixel with its neighbors and the
+ing the joint probability distribution of ﬁlter responses. A multires-              intensity of the current pixel. The second component captures the
+olution approach based on local binary patterns (LBP) is proposed                   gradient orientation of the current pixel.
+by Ojala et al. [30] for gray-scale and rotation invariant texture                      Binary Gabor patterns [51]: The binary Gabor patterns (BGP) is a
+classiﬁcation. The LBP is one of the most successful approaches                     rotation invariant texture descriptor. Unlike MR8 ﬁlters [41], BGP
+for texture classiﬁcation with several variants existing in litera-                 uses pre-deﬁned rotation invariant binary patterns and does not
+ture [10,47,45]. Chen et al. [5] propose a method based on We-                      require a pre-training phase to learn a texton dictionary. Unlike
+ber’s law consisting of two components namely differential exci-                    LBP, where each sign is binary coded from the difference of two
+tation and orientation. An image is represented by concatenating
+the two components in a single representation. ul Hussain and
+Triggs [12] introduce an approach that uses lookup-table based vec-                   1
+                                                                                        We experimented with different variants of LBP and found CLBP to provide superior
+tor quantization for texture description. A set of low and mid-level                performance.
+18                                                    F.S. Khan et al. / Pattern Recognition Letters 51 (2015) 16–22
+
+
+single pixels, BGP adopts the difference of regions to counter the                      4. Combining color and texture
+noise sensitivity problem.
+    Local phase quantization [31]: The local phase quantization (LPQ)                      There exist two main strategies namely, early and late fu-
+descriptor works by quantizing the phase information of the Fourier                     sion, to combine color and texture information [29,17]. Early fu-
+transform and is robust to image blur. To counter the problem of heavy                  sion works by computing texture descriptor on the color chan-
+image blur, the approach uses short-term Fourier transform with a                       nels. In this way, a joint color–texture representation is obtained
+uniform function. A data correlation scheme is also incorporated into                   that combines the two cues at the pixel-level. Early fusion based
+the descriptor which plays a crucial role in case of a sharp image. The                 image representation has the advantage of being more discrimi-
+LPQ descriptor is shown to provide excellent results for both texture                   native since the two cues are combined at the pixel level. How-
+and face recognition tasks.                                                             ever, early fusion representations suffers from the problem of high
+    Binarized statistical descriptor [14]: The binarized statistical image              dimensionality.
+feature (BSIF) represents each pixel by a binary code. These binary                        Contrary to early fusion, late fusion combines the two cues at the
+codes are constructed by learning a set of basis vectors from natural                   image level. A separate histogram is constructed for color and texture.
+images using independent component analysis and an eﬃcient scalar                       The two visual cues are then combined by concatenating the separate
+quantization scheme. The number of basis vectors determines the                         histograms into a single representation. The late fusion approach has
+length of the pixel binary codes used to construct the ﬁnal histogram                   shown to provide superior results for texture recognition [29,17],
+of an image.                                                                            object recognition [18], object detection [16] and action recognition
+    In our approach, each image is represented by the ﬁve aforemen-                     [15]. Therefore, in this work, we use late fusion scheme for combining
+tioned texture description methods. The ﬁnal representation is ob-                      color and texture information. Next, we provide an overview of pure
+tained by concatenating all ﬁve texture representations into a single                   color descriptors.
+histogram, H = [ht1 , ht2 , ht3 , ht4 , ht5 ]. This multi-texture histogram is
+then input to the classiﬁer for texture classiﬁcation.
+                                                                                        4.1. Pure color descriptors
+
+3.1. Compact multi-texture representation                                                   Here, we provide a brief overview of the pure color descriptors,
+                                                                                        popular in object recognition, for the problem of texture description.
+    The multi-texture representation has the disadvantage of being                          RGB histogram [32]: We use the standard RGB descriptor as
+high-dimensional (more than 3k of size) for an image. This is problem-                  a baseline. The RGB histogram is constructed by combining the
+atic as it signiﬁcantly increases the computational time and memory                     three histograms from the R, G and B channels. The descriptor has
+usage in the classiﬁcation stage. Recently, Elﬁky et al. [7] proposed                   45 dimensions.
+a compression approach using the DITC algorithm [6] to counter the                          rg histogram [32]: The rg histogram is based on the normalized
+high-dimensionality issue of the bag-of-words based spatial pyra-                       RGB color model. The descriptor is 45 dimensional. It is invariant to
+mid representation. In this work, we also use the same underlying                       light intensity changes and shadows.
+approach to compress the high-dimensional multi-texture represen-                           Opponent-angle histogram [43]: Unlike other pure color descriptors
+tation. However, the difference with the work of Elﬁky et al. [7], is that              based on the (transformed) RGB values of the image, the opponent-
+here we investigate the DITC algorithm to solve the problem of com-                     angle histogram is constructed based on image derivatives. The his-
+pressing multi-texture histogram to obtain a single heterogeneous                       togram has 36 dimensions.
+texture representation.                                                                     HUE histogram [43]: The HUE descriptor was proposed by Weijer
+    The DITC algorithm has been shown to obtain excellent results in                    and Schmid [43] and consists of 36 dimensions. In this descriptor, the
+reducing large histograms to compact ones. The algorithm is designed                    hue is weighted by the saturation of a pixel in order to counter the
+to ﬁnd a ﬁxed number of clusters that minimize the loss in mutual in-                   instabilities in hue.
+formation between clusters and the category labels of training images.                      Transformed color distribution [32]: The transformed color descrip-
+The DITC algorithm works on the class-conditional distributions over                    tor is derived by normalizing each channel of RGB histogram. The
+the texture histograms. The class-conditional estimation is measured                    descriptor has 45 dimensions. It is invariant with respect to scale and
+by the probability distributions p(R|h), where R = {r1 , r2 , . . . , rO } is           light intensity.
+the set of O classes. The DITC algorithm works by estimating the drop                       Color moments and invariants [32]: In the work of van de Sande
+in mutual information I between the histogram H and the class la-                       et al. [32], the color moment histogram is constructed by using all
+bels R. The transformation from the original texture histogram H to                     generalized color moments up to the second degree and the ﬁrst order.
+the new representation HR = {H1 , H2 , . . . , HJ } (where every Hj repre-              The color moment invariants are constructed using generalized color
+sents a group of words in the original uncompressed histogram) is                       moments. The color moments histogram has 36 dimensions whereas
+equal to                                                                                the color moment invariants has 24 dimensions.
+                                                                                            Hue-saturation descriptor: The hue-saturation descriptor is invari-
+                                 J                                                ant to luminance variations. The histogram has 36 dimensions (nine
+          
+ΔI = I R; H − I R; HR =  p h KL(p(R|h), p(R|Hj )),                           (1)        bins for hue times four for saturation).
+                                      j=1 h∈Hj                                              Color names [44]: Most of the color descriptors discussed above are
+                                                                                        designed to achieve photometric invariance. Instead, color names de-
+                                                                                        scriptor aims at providing a certain degree of photometric invariance
+where KL is the Kullback–Leibler divergence between the two distri-
+                                                                                        with discriminative power. The color names are used in daily life by
+butions deﬁned by
+                                                                                        humans to communicate color, such as “black”, “blue” and “orange”.
+                                                                                       Here, we use the 11 dimensional color names mapping learned from
+                                   p1 (z)
+KL(p1 , p2 ) =         p1 (z)log          .                                  (2)        the Google images by van de Weijer et al. [44].
+                                   p2 (z)
+                 z∈Z                                                                        Discriminative color descriptors [19]: The discriminative color de-
+                                                                                        scriptors by Khan et al. [19] take an information theoretic ap-
+   The multi-texture histogram bins with similar discriminative                         proach to the problem of color description. The method works
+power are merged together over the classes. For more details, we                        by clustering color values together based on their discriminative
+refer to Dhillon et al. [6] on the DITC algorithm.                                      power with an objective function to minimize the drop of mutual
+                                                      F.S. Khan et al. / Pattern Recognition Letters 51 (2015) 16–22                                       19
+
+
+information of the ﬁnal color representation. In this work, we use the                  and Texture-10, respectively. The results clearly suggest that differ-
+three universal color representations with 11, 25 and 50 dimensions,                    ent texture representations possess complementary information and
+respectively.                                                                           should be combined to obtain a signiﬁcant performance boost.
+
+
+                                                                                        5.2. Experiment 2: compact multi-texture features
+5. Experimental results
+                                                                                            As discussed above, combining multi-texture representations
+    To validate the performance of the proposed framework, we use
+                                                                                        improve the overall performance. However, this performance im-
+four challenging datasets, namely KTH-TIPS-2a, KTH-TIPS-2b, FMD
+                                                                                        provement comes at the price of high dimensionality. Here, we
+and Texture-10. The KTH-TIPS-2a dataset consists of 11 texture cat-
+                                                                                        present the results obtained, using the approach described in Sec-
+egories with images at 9 different scales, 3 poses and 4 different
+                                                                                        tion 3.1, to compress the high dimensional multi-texture represen-
+illumination conditions. We use the standard protocol [4,36,5] by re-
+                                                                                        tation.We ﬁx the ﬁnal dimension of our multi-texture representation
+porting the average classiﬁcation performance over the 4 test runs.
+                                                                                        to 500.
+In each time, all the images from 1 sample are used for test while the
+                                                                                            Table 2 shows the results obtained on the four texture datasets.
+images from the remaining 3 samples are used as a training set. The
+                                                                                        The DITC compression method reduces the dimensions from 3184
+KTH-TIPS-2b dataset also consists of 11 texture categories. Here, for
+                                                                                        to 500 without any signiﬁcant loss in accuracy. Surprisingly, on the
+each test run, all images from 1 sample are used for training while all
+                                                                                        KTH-TIPS-2a and KTH-TIPS-2b datasets, the low-dimensional com-
+the images from remaining 3 samples are used for testing. The FMD
+                                                                                        pact representation improves the performance compared to the orig-
+dataset consists of 10 texture categories with 100 images [37,35] for
+                                                                                        inal representation. This demonstrates that the DITC method removes
+each class where 50 images are used for training and 50 for test-
+                                                                                        the redundancy while increasing the discriminative power in certain
+ing. The Texture-10 dataset consists of 10 different texture categories
+                                                                                        cases such as KTH-TIPS-2a and KTH-TIPS-2b datasets.
+[17] where 25 images per class are used for training and 15 for testing.
+                                                                                            We also compared our texture compression approach with the
+Fig. 1 shows example images from the four texture datasets.
+                                                                                        discriminative texture feature selection method [9] on Texture-10
+    Throughout our experiments, we use one-versus-all SVM using
+                                                                                        dataset. The method [9] learns a selection of LBP patterns based
+the χ 2 kernel [49]. Each test instance is assigned the category la-
+                                                                                        on robustness, discriminative power and representation of the fea-
+bel of the classiﬁer giving the highest response. The ﬁnal classiﬁca-
+                                                                                        tures. We use the same feature representation (CLBP), having rota-
+tion score is obtained by calculating the mean recognition rate per
+                                                                                        tion invariance and a pixel neighborhood of 16, for both compression
+category.
+                                                                                        methods. The original representation is reduced to 500 using the two
+                                                                                        compression methods. The original feature representation with 8k di-
+                                                                                        mensions provides a recognition rate of 71.3%. The feature selection
+5.1. Experiment 1: combining texture features                                           method [9] obtains a classiﬁcation rate of 70.0%. Our DITC based com-
+                                                                                        pression method improved the performance by providing an accuracy
+    We start by providing results for multi-texture representations.                    of 72.6%.
+The results are presented in Table 1. For the CLBP descriptor, we use                       Additionally, we also compare the DITC compression method with
+multiple radius values since it was shown to improve the performance                    conventional approaches for very low-dimensional representations.
+compared to using a single radius value. On the KTH-TIPS-2a and                         We compare with standard compression methods namely, PCA, PLS
+Texture-10 datasets, CLBP provides the best performance compared                        and Diffusion maps. Fig. 2 shows results obtained using different
+to other single texture features. Among the ﬁve texture descriptors,                    compression techniques on the FMD and Texture-10 datasets. The
+the best results are achieved when using the BGP descriptor on the                      three compression methods, PCA, PLS and Diffusion maps provide
+KTH-TIPS-2b dataset and WLD descriptor on the FMD dataset. In case                      inferior performance on both datasets. The DITC based compression
+of FMD and KTH-TIPS-2b datasets, the BSIF descriptor alone provides                     method signiﬁcantly outperforms other compression methods even
+inferior results compared to other four texture descriptors. However,                   for very compact texture representations.
+the performance still improves by 2.1% and 1.3% respectively on these
+datasets by adding the BSIF descriptor.
+    Combining the ﬁve texture representations in a single repre-                        5.3. Experiment 3: pure color descriptors
+sentation signiﬁcantly improves the performance on all datasets.
+On the KTH-TIPS-2a dataset, a signiﬁcant gain of 4.0% is obtained                           Here, we provide results of our comprehensive evaluation of color
+by combining multiple features compared to the single best rep-                         descriptors for texture recognition. Table 3 shows the results ob-
+resentation. Similarly, gains of 5.6%, 7.8% and 2.4% are obtained                       tained using different color description methods on the four tex-
+by combining multiple texture features on the KTH-TIPS-2b, FMD                          ture datasets. On the KTH-TIPS-2a and KTH-TIPS-2b datasets, RGB
+
+
+
+
+                    Fig. 1. Example images from the four texture datasets, KTH-TIPS-2a, KTH-TIPS-2b, FMD and Texture-10, used in our experiments.
+20                                                          F.S. Khan et al. / Pattern Recognition Letters 51 (2015) 16–22
+
+
+       Table 1
+       Classiﬁcation accuracy (%) of different texture representations on four texture datasets. In all cases, combining multi-texture representations signiﬁcantly improves
+       the performance compared to the single best texture method.
+
+         Method                                         Dimension                  KTH-TIPS-2a                   KTH-TIPS-2b                FMD                Texture-10
+
+         CLBP [10]                                      1944                       76.1 ±5.6                     61.5 ±2.3                  43.6               76.9
+         WLD [5]                                        512                        68.5 ±5.1                     56.0 ±2.8                  43.8               74.7
+         BGP [51]                                       216                        76.8 ±4.9                     63.3 ±3.4                  43.2               66.0
+         LPQ [31]                                       256                        67.7 ±5.6                     54.4 ±2.7                  41.0               75.3
+         BSIF [14]                                      256                        70.0 ±5.7                     54.3 ±2.8                  34.4               66.0
+         CLBP + WLD                                     2456                       78.1 ±4.8                     63.7 ±2.8                  46.6               77.8
+         CLBP + WLD + BGP                               2672                       79.2 ±5.1                     65.1 ±2.3                  48.1               78.6
+         CLBP + WLD + BGP + LPQ                         2928                       79.9 ±4.9                     67.6 ±2.6                  49.5               78.9
+         CLBP + WLD + BGP + LPQ + BSIF                  3184                       80.8 ±5.3                     68.9 ±2.9                  51.6               79.3
+
+       The bold enteries in the table correspond to the highest performance (number) compared to other methods.
+       Table 2
+       Classiﬁcation accuracy (%) obtained when using the original high-dimensional texture and compact texture representations. Note that the compression method
+       reduces the dimensionality with little or no loss in accuracy.
+
+         Method                                  Dimension                    KTH-TIPS-2a                    KTH-TIPS-2b                   FMD                 Texture-10
+
+         Original texture feature                3184                         80.8 ±5.3                      68.9 ±1.7                     51.6                79.3
+         Compact texture (DITC)                  500                          82.2 ±5.4                      69.0 ±1.6                     49.0                78.0
+
+       The bold enteries in the table correspond to the highest performance (number) compared to other methods.
+
+
+                                                                                               Table 3
+                                                                                               Comparison (%) of pure color descriptors on four texture datasets. Note that the best
+                                                                                               performance is obtained by using discriminative color names with 50 dimensions.
+
+                                                                                                 Method                      Dimension KTH-TIPS-2a KTH-TIPS-2b FMD Texture-10
+
+                                                                                                 RGB                         50        55.5 ±5.8   42.1 ±1.8     20.3 52.3
+                                                                                                 rg                          30        54.3 ±6.2   43.3 ±2.3     22.2 52.7
+                                                                                                 HUE                         36        53.3 ±6.1   43.1 ±2.1     21.6 50.7
+                                                                                                 Opp-angle                   36        50.1 ±6.2   45.4 ±1.7     17.4 34.0
+                                                                                                 Transformed color           45        52.8 ±5.3   44.8 ±1.8     23.0 40.0
+                                                                                                 Color moments               30        54.9 ±5.7   45.1 ±1.6     26.0 50.1
+                                                                                                 Color moments inv           24        50.1 ±5.5   41.0 ±2.4     10.0 44.6
+                                                                                                 HS                          36        53.6 ±5.2   42.9 ±2.9     26.0 44.6
+                                                                                                 Color names                 11        56.8 ±5.8   44.2 ±1.7     25.6 56.0
+                                                                                                 Discriminative color        11        55.7 ±5.6   43.9 ±2.1     22.0 50.7
+                                                                                                    descriptors
+                                                                                                 Discriminative color        25        57.4 ±5.8   46.4 ±2.2     25.6 54.0
+                                                                                                    descriptors
+                                                                                                 Discriminative color        50        60.1 ±5.7   48.1 ±1.9     27.4 58.0
+                                                                                                    descriptors
+                                                                                               The bold enteries in the table correspond to the highest performance (number) com-
+                                                                                               pared to other methods.
+
+
+
+                                                                                               dimensions. Similarly, on the FMD and Texture-10 datasets, the
+                                                                                               discriminative color names with 50 dimensions provide the best
+                                                                                               performance.
+                                                                                                   The results clearly demonstrate the effectiveness of using a dis-
+                                                                                               criminative color description approach that aims at maximizing the
+                                                                                               discriminative power while maintaining a certain degree of photo-
+                                                                                               metric invariance. Therefore, we select the discriminative color de-
+                                                                                               scriptors with 50 dimensions as an explicit color representation. In
+                                                                                               our ﬁnal experiment, we combine the discriminative color descrip-
+                                                                                               tors with our proposed compact texture representation. The texture
+                                                                                               and color representations are concatenated in a late fusion manner
+                                                                                               which is then input to the classiﬁer.
+
+
+Fig. 2. Classiﬁcation accuracy (%) obtained by compressing the multi-texture repre-
+sentation using different compression methods. Top row: results on the FMD dataset.
+                                                                                               5.4. Comparison with state-of-the-art
+Bottom row: results on the Texture-10 dataset. The best results are obtained using the
+DITC based compression technique.                                                                 Table 4 shows a comparison with state-of-the-art approaches
+                                                                                               on four texture datasets. On the KTH-TIPS-2a dataset, the method
+                                                                                               of Sharma et al. [36] based on local-high-order statistics provides
+descriptor provides a recognition score of 55.5% and 42.1% re-                                 a classiﬁcation accuracy of 73.0%. The approach by Lee et al. [21]
+spectively. The conventional color names provides a classiﬁca-                                 based on local color vector binary patterns achieves a recognition
+tion performance of 56.8% and 44.2% respectively. The best re-                                 rate of 61.7%. Our approach, while being compact, outperforms
+sults are obtained using discriminative color descriptors with 50                              the state-of-the-art methods with a signiﬁcant gain of 7.8% over
+                                                         F.S. Khan et al. / Pattern Recognition Letters 51 (2015) 16–22                                                             21
+
+
+Table 4                                                                                    compression approaches [13,34] can provide a further insight on its
+Comparison (%) with state-of-the-art approaches on four texture datasets. Our ap-
+                                                                                           applicability to other computer vision applications.
+proach provides the best performance on KTH-TIPS-2a, KTH-TIPS-2b and Texture-10
+datasets.
+
+ Method             KTH-TIPS-2a        KTH-TIPS-2b        FMD         Texture-10           Acknowledgements
+ LHS [36]           73.0               –                  –           –
+ TFT [40]           –                  66.3               55.7        –                        This work has been supported by SSF through a grant for the
+ PIF [35]           –                  –                  57.1        –                    project CUAS, by VR through a grant for the project ETT, through
+ CNLBP [17]         –                  –                  –           77.0                 the Strategic Area for ICT research ELLIIT, CADICS and The Academy
+ PM [17]            –                  –                  –           73.0
+                                                                                           of Finland (Finnish Centre of Excellence in Computational Inference
+ WLD [5]            56.4               –                  –           –
+ MWLD [5]           64.7               –                  –           –                    Research COIN, 251170). We also acknowledge the grants 255745
+ SDIC [37]          –                  –                  41.4        –                    and 251170 of the Academy of Finland, SSP-14183 of EIT ICT Labs,
+ LQP [12]           64.2               –                  –           –                    and the D2I SHOK project. The project TIN2013-41751 of Spanish
+ LTP [39]           60.0               –                  –           –
+                                                                                           Ministry of Science. The calculations were performed using computer
+ CMR [50]           69.4               –                  –           –
+ ELBP [28]          –                  58.1               –           –                    resources within the Aalto University School of Science “Science-IT”
+ SRP [27]           –                  –                  48.2        –                    project.
+ LBP-HF [2]         –                  54.6               –           –
+ VZ-MR8 [41]        –                  46.3               –           –
+ CMLBP [25]         73.1               –                  –           –                    References
+ aLDA [26]          –                  –                  44.6        –
+ ETF [33]           62.6               –                  –           –                     [1] T. Ahonen, A. Hadid, M. Pietikainen, Face recognition with local binary patterns,
+ LBPD [11]          74.9               –                  –           –                         in: ECCV, 2004.
+ LVCBP [21]         61.7               53.6               38.4        58.7                  [2] T. Ahonen, J. Matas, C. He, M. Pietikainen, Rotation invariant image description
+                                                                                                with local binary pattern histogram fourier features, in: SCIA, 2009.
+ This paper         82.7               70.6               54.2        82.0                  [3] A. Bosch, A. Zisserman, X. Munoz, Scene classiﬁcation via plsa, in: ECCV, 2006.
+                                                                                            [4] B. Caputo, E. Hayman, P. Mallikarjuna, Class-speciﬁc material categorisation, in:
+The bold enteries in the table correspond to the highest performance (number) com-              ICCV, 2005.
+pared to other methods.                                                                     [5] J. Chen, S. Shan, C. He, G. Zhao, M. Pietikainen, X. Chen, W. Gao, Wld: a robust local
+                                                                                                image descriptor, PAMI 32 (2010) 1705–1720.
+                                                                                            [6] I. Dhillon, S. Mallela, R. Kumar, A divisive information-theoretic feature clustering
+                                                                                                algorithm for text classiﬁcation, JMLR 3 (2003) 1265–1287.
+the best reported result. On the KTH-TIPS-2b dataset, the extended                          [7] N. Elﬁky, F.S. Khan, J. van de Weijer, J. Gonzalez, Discriminative compact pyramids
+                                                                                                for object and scene recognition, PR 45 (2012) 1627–1636.
+LBP approach [28] provides an accuracy of 58.1%. A combination of
+                                                                                            [8] T. Gevers, A.W.M. Smeulders, Color based object recognition, PR 32 (1999)
+LBP and Fourier features achieves an accuracy of 54.6%. Our approach                            453–464.
+outperforms existing methods on this dataset by providing a recog-                          [9] Y. Guo, G. Zhao, M. Pietikainen, Discriminative features for texture description,
+nition accuracy of 70.6%.                                                                       PR 45 (2012) 3834–3843.
+                                                                                           [10] Z. Guo, L. Zhang, D. Zhang, A completed modeling of local binary pattern operator
+    On the FMD dataset, a training-free approach by Timofte and Gool                            for texture classiﬁcation, TIP 19 (2010) 1657–1663.
+[40] obtains a recognition accuracy of 55.7%. Our approach, despite                        [11] X. Hong, G. Zhao, M. Pietikainen, X. Chen, Combining lbp difference and feature
+its simplicity, achieves an accuracy of 54.2%. The best results on this                         correlation for texture description, TIP 23 (2014) 2557–2568.
+                                                                                           [12] S. ul Hussain, B. Triggs, Visual recognition using local quantized patterns, in:
+dataset are obtained using perceptually inspired features [35]. It is                           ECCV, 2012.
+worthy to mention that our approach neither uses any ground-truth                          [13] X. Jiang, Asymmetric principal component and discriminant analyses for pattern
+masks nor any perceptually inspired features. Such features are com-                            classiﬁcation, PAMI 31 (2009) 931–937.
+                                                                                           [14] J. Kannala, E. Rahtu, Bsif: binarized statistical image features, in: ICPR, 2012.
+plementary to the approach presented in this paper and can be com-                         [15] F.S. Khan, R.M. Anwer, J. van de Weijer, A. Bagdanov, A. Lopez, M. Felsberg, Coloring
+bined to obtain further boost in performance. Finally, on the Texture-                          action recognition in still images, IJCV 105 (2013) 205–221.
+10 dataset, our approach outperforms the color names and LBP fusion                        [16] F.S. Khanm, R.M. Anwer, J. van de Weijer, A.D. Bagdanov, M. Vanrell, A.M. Lopez,
+                                                                                                Color attributes for object detection, in: CVPR, 2012.
+methods [17] by achieving a recognition accuracy of 82.0%.                                 [17] F.S. Khan, J. van de Weijer, S. Ali, M. Felsberg, Evaluating the impact of color on
+                                                                                                texture recognition, in: CAIP, 2013.
+                                                                                           [18] F.S. Khan, J. van de Weijer, M. Vanrell, Modulating shape features by color attention
+                                                                                                for object recognition, IJCV 98 (2012) 49–64.
+6. Conclusion                                                                              [19] R. Khan, J. van de Weijer, F.S. Khan, D. Muselet, C. Ducottet, C. Barat, Discriminative
+                                                                                                color descriptors, in: CVPR, 2013.
+    In this paper we investigated the problem of texture recognition                       [20] S. Lazebnik, C. Schmid, J. Ponce, A sparse texture representation using local aﬃne
+                                                                                                regions, PAMI 27 (2005) 1265–1278.
+in images. Firstly, we have shown that fusing different texture repre-                     [21] S.H. Lee, J.Y. Choi, Y.M. Ro, K. Plataniotis, Local color vector binary patterns from
+sentations signiﬁcantly improves the performance compared to the                                multichannel face images for face recognition, TIP 21 (2012) 2347–2353.
+single best method. To counter the high-dimensionality problem of                          [22] T. Leung, J. Malik, Representing and recognizing the visual appearance of materials
+                                                                                                using three-dimensional textons, IJCV 43 (2001) 29–44.
+the image representation, we proposed to use the DITC approach. Ad-                        [23] M. Li, S. Bao, W. Dong, Y. Wang, Z. Su, Head-shoulder based gender recognition,
+ditionally, we performed a comprehensive evaluation of pure color                               in: ICIP, 2013.
+descriptors, popular in image classiﬁcation, for the task of texture                       [24] S.T. Li, Y. Li, Y.N. Wang, Comparison and fusion of multiresolution features for
+                                                                                                texture classiﬁcation, in: ICMLC, 2004.
+recognition.                                                                               [25] W. Li, M. Fritz, Recognizing materials from virtual examples, in: ECCV, 2012.
+    The results show that our compact texture representation with a                        [26] C. Liu, L. Sharan, E. Adelson, R. Rosenholtz, Exploring features in a bayesian frame-
+dimensionality of only 500 signiﬁcantly improved the performance                                work for material recognition, in: CVPR, 2010.
+                                                                                           [27] L. Liu, P. Fieguth, D. Clausi, G. Kuang, Sorted random projections for robust
+over existing texture classiﬁcation methods. Among the color descrip-                           rotation-invariant texture classiﬁcation, PR 45 (2012) 2405–2418.
+tors, the discriminative color descriptors provide the best results. Fi-                   [28] L. Liu, L. Zhao, Y. Long, G. Kuang, P. Fieguth, Extended local binary patterns for
+nally, we fused the discriminative color descriptors with our compact                           texture classiﬁcation, IVC 30 (2012) 86–99.
+                                                                                           [29] T. Maenpaa, M. Pietikainen, Classiﬁcation with color and texture: jointly or sepa-
+texture representation and showed that it can achieve state-of-the-
+                                                                                                rately?, PR 37 (2004) 1629–1640.
+art performance.                                                                           [30] T. Ojala, M. Pietikainen, T. Maenpaa, Multiresolution gray-scale and rotation in-
+    In this work, we used a simple late fusion technique to combine                             variant texture classiﬁcation with local binary patterns, PAMI 24 (2002) 971–987.
+the color and texture features. Future work includes investigating                         [31] E. Rahtu, J. Heikkila, V. Ojansivu, T. Ahonen, Local phase quantization for blur-
+                                                                                                insensitive image analysis, IVC 30 (2012) 501–512.
+sophisticated fusion approaches to combine the color and texture                           [32] K.E.A. van de Sande, T. Gevers, C.G.M. Snoek, Evaluating color descriptors for object
+descriptions. A further comparison of the DITC approach with other                              and scene recognition, PAMI 32 (2010) 1582–1596.
+22                                                              F.S. Khan et al. / Pattern Recognition Letters 51 (2015) 16–22
+
+
+[33] A. Satpathy, X. Jiang, H.L. Eng, Lbp-based edge-texture features for object                  [43] J. van de Weijer, C. Schmid, Coloring local feature extraction, in: ECCV, 2006.
+     recognition, TIP 23 (2014) 1953–1964.                                                        [44] J. van de Weijer, C. Schmid, J.J. Verbeek, D. Larlus, Learning color names for real-
+[34] B. Scholkopf, A. Smola, K.R. Muller, Nonlinear component analysis as a kernel                     world applications, TIP 18 (2009) 1512–1524.
+     eigenvalue problem, Neural Comput. 10 (1998) 1299–1319.                                      [45] J. Ylioinas, A. Hadid, Y. Guo, M. Pietikainen, Eﬃcient image appearance description
+[35] L. Sharan, C. Liu, R. Rosenholtz, E. Adelson, Recognizing materials using perceptu-               using dense sampling based local binary patterns, in: ACCV, 2012.
+     ally inspired features, IJCV 103 (2013) 348–371.                                             [46] J. Ylioinas, A. Hadid, M. Pietikainen, Combining contrast information and local
+[36] G. Sharma, S. ul Hussain, F. Jurie, Local higher-order statistics (lhs) for texture               binary patterns for gender classiﬁcation, in: SCIA, 2011.
+     categorization and facial analysis, in: ECCV, 2012.                                          [47] J. Ylioinas, X. Hong, M. Pietikainen, Constructing local binary pattern statistics by
+[37] L. Sifre, S. Mallat, Rotation, scaling and deformation invariant scattering for texture           soft voting, in: SCIA, 2013.
+     discrimination, in: CVPR, 2013.                                                              [48] J. Zhang, K. Huang, Y. Yu, T. Tan, Boosted local structured hog-lbp for object
+[38] X. Tan, B. Triggs, Fusing gabor and lbp feature sets for kernel-based face recogni-               localization, in: CVPR, 2011.
+     tion, in: AMFG, 2007.                                                                        [49] J. Zhang, M. Marszalek, S. Lazebnik, C. Schmid, Local features and kernels for
+[39] X. Tan, B. Triggs, Enhanced local texture feature sets for face recognition under                 classiﬁcation of texture and object categories: a comprehensive study, IJCV 73
+     diﬃcult lighting conditions, TIP 19 (2010) 1635–1650.                                             (2007) 213–218.
+[40] R. Timofte, L.V. Gool, A training-free classiﬁcation framework for textures, writers,        [50] J. Zhang, H. Zhao, J. Liang, Continuous rotation invariant local descriptors for
+     and materials, in: BMVC, 2012.                                                                    texton dictionary-based texture classiﬁcation, CVIU 117 (2013) 56–75.
+[41] M. Varma, A. Zisserman, A statistical approach to texture classiﬁcation from single          [51] L. Zhang, Z. Zhou, H. Li, Binary Gabor pattern: an eﬃcient and robust descriptor
+     images, IJCV 32 (2010) 1705–1720.                                                                 for texture classiﬁcation, in: ICIP, 2012.
+[42] X. Wang, T. Han, S. Yan, An hog-lbp human detector with partial occlusion                    [52] G. Zhao, T. Ahonen, J. Matas, M. Pietikainen, Rotation-invariant image and video
+     handling, in: ICCV. 2009.                                                                         description with local binary pattern features, TIP 21 (2012) 1465–1477.
+

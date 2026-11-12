@@ -1,0 +1,303 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage{lscape}
+\title{Results}
+\author{}
+\date{\today}
+\begin{document}
+\begin{landscape}
+\oddsidemargin 0in \topmargin 0in\maketitle
+\section{Tables of Friedman, Aligned Friedman, Bonferroni-Dunn, Holm, Hochberg and Hommel Tests}
+\begin{table}[!htp]
+\centering
+\caption{Average Rankings of the algorithms (Friedman)
+}\begin{tabular}{c|c}
+Algorithm&Ranking\\
+\hline
+Individual&4.8\\
+Completa&2.2\\
+Top-$k$&2.0\\
+GFS&2.6\\
+Homogénea&3.4000000000000004\\
+\end{tabular}
+\end{table}
+
+
+Friedman statistic (distributed according to chi-square with 4 degrees of freedom: 10.400000000000006. 
+P-value computed by Friedman Test: 0.03420269942205956.\newline
+
+Iman and Davenport statistic (distributed according to F-distribution with 4 and 16 degrees of freedom: 4.333333333333338. 
+P-value computed by Iman and Daveport Test: 0.01454050870139282.\newline
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering
+\caption{Average Rankings of the algorithms (Aligned Friedman)
+}\begin{tabular}{c|c}
+Algorithm&Ranking\\
+\hline
+Individual&21.799999999999997\\
+Completa&9.399999999999999\\
+Top-$k$&8.2\\
+GFS&10.0\\
+Homogénea&15.600000000000001\\
+\end{tabular}
+\end{table}
+
+
+Aligned Friedman statistic (distributed according to chi-square with 4 degrees of freedom: 4.119629958180205. 
+P-value computed by Aligned Friedman Test: 0.39005772838960173.\newline
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering
+\caption{Average Rankings of the algorithms (Quade)
+}\begin{tabular}{c|c}
+Algorithm&Ranking\\
+\hline
+Individual&4.866666666666667\\
+Completa&2.066666666666667\\
+Top-$k$&2.1999999999999997\\
+GFS&2.2\\
+Homogénea&3.666666666666666\\
+\end{tabular}
+\end{table}
+Quade statistic (distributed according to F-distribution with 4 and 16 degrees of freedom: 3.9594790159189586. 
+P-value computed by Quade Test: 0.02025817989333597.\newline
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\tiny
+\caption{Contrast Estimation}
+\begin{tabular}{
+|r|r|r|r|r|r|}
+\hline
+ &Individual&Completa&Top-$k$&GFS&Homogénea\\
+\hline
+Individual&0.000&-0.01691&-0.01785&-0.01377&-0.01116\\
+\hline
+Completa&0.01691&0.000&-0.0009432&0.003145&0.005753\\
+\hline
+Top-$k$&0.01785&0.0009432&0.000&0.004088&0.006696\\
+\hline
+GFS&0.01377&-0.003145&-0.004088&0.000&0.002608\\
+\hline
+Homogénea&0.01116&-0.005753&-0.006696&-0.002608&0.000\\
+\hline
+
+\end{tabular}
+\end{table}
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Holm / Hochberg / Holland / Rom / Finner / Li Table for $\alpha=0.05$ (FRIEDMAN)}
+\begin{tabular}{ccccccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel&Holland&Rom&Finner&Li\\
+\hline
+4&Individual&2.8&0.005110260660855882&0.0125&0.012741455098566168&0.013109375000000001&0.012741455098566168&0.008343127309379287\\
+3&Homogénea&1.4000000000000004&0.16151331846754202&0.016666666666666666&0.016952427508441503&0.016666666666666666&0.025320565519103666&0.008343127309379287\\
+2&GFS&0.6000000000000001&0.548506235500147&0.025&0.025320565519103666&0.025&0.03773939976903784&0.008343127309379287\\
+1&Completa&0.20000000000000018&0.8414805811217936&0.05&0.050000000000000044&0.05&0.050000000000000044&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+Hochberg's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+Holland's procedure rejects those hypotheses that have a p-value $\le0.016952427508441503$.
+
+
+Rom's procedure rejects those hypotheses that have a p-value $\le0.013109375000000001$.
+
+
+Finner's procedure rejects those hypotheses that have a p-value $\le0.025320565519103666$.
+
+
+Li's procedure rejects those hypotheses that have a p-value $\le0.008343127309379287$.
+
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Holm / Hochberg / Holland / Rom / Finner / Li Table for $\alpha=0.05$ (ALIGNED FRIEDMAN)}
+\begin{tabular}{ccccccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel&Holland&Rom&Finner&Li\\
+\hline
+4&Individual&2.9217486860808854&0.003480722742941689&0.0125&0.012741455098566168&0.013109375000000001&0.012741455098566168&0.010707356896969895\\
+3&Homogénea&1.5897750203675414&0.11188552641187834&0.016666666666666666&0.016952427508441503&0.016666666666666666&0.025320565519103666&0.010707356896969895\\
+2&GFS&0.3867020319812939&0.6989768116685109&0.025&0.025320565519103666&0.025&0.03773939976903784&0.010707356896969895\\
+1&Completa&0.2578013546541957&0.796560218957572&0.05&0.050000000000000044&0.05&0.050000000000000044&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+Hochberg's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.016666666666666666$.
+
+
+Holland's procedure rejects those hypotheses that have a p-value $\le0.016952427508441503$.
+
+
+Rom's procedure rejects those hypotheses that have a p-value $\le0.013109375000000001$.
+
+
+Finner's procedure rejects those hypotheses that have a p-value $\le0.025320565519103666$.
+
+
+Li's procedure rejects those hypotheses that have a p-value $\le0.010707356896969895$.
+
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Holm / Hochberg / Holland / Rom / Finner / Li Table for $\alpha=0.05$ (QUADE)}
+\begin{tabular}{ccccccccc}
+$i$&algorithm&$z=(R_0 - R_i)/SE$&$p$&Holm/Hochberg/Hommel&Holland&Rom&Finner&Li\\
+\hline
+4&Individual&1.7908860173871277&0.07331158795794011&0.0125&0.012741455098566168&0.013109375000000001&0.012741455098566168&0.0035769177109456866\\
+3&Homogénea&1.0233634385069295&0.3061360394008037&0.016666666666666666&0.016952427508441503&0.016666666666666666&0.025320565519103666&0.0035769177109456866\\
+2&GFS&0.08528028654224415&0.9320385634920315&0.025&0.025320565519103666&0.025&0.03773939976903784&0.0035769177109456866\\
+1&Top-$k$&0.08528028654224386&0.932038563492032&0.05&0.050000000000000044&0.05&0.050000000000000044&0.05\\
+\hline
+\end{tabular}
+\end{table}
+Bonferroni-Dunn's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holm's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Hommel's procedure rejects those hypotheses that have a p-value $\le0.0125$.
+
+
+Holland's procedure rejects those hypotheses that have a p-value $\le0.012741455098566168$.
+
+
+Finner's procedure rejects those hypotheses that have a p-value $\le0.012741455098566168$.
+
+
+Li's procedure rejects those hypotheses that have a p-value $\le0.0035769177109456866$.
+
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (FRIEDMAN)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Bonf}$&$p_{Holm}$&$p_{Hoch}$&$p_{Homm}$\\
+\hline
+1&Individual&0.005110260660855882&0.02044104264342353&0.02044104264342353&0.02044104264342353&0.02044104264342353\\
+2&Homogénea&0.16151331846754202&0.6460532738701681&0.48453995540262607&0.48453995540262607&0.48453995540262607\\
+3&GFS&0.548506235500147&2.194024942000588&1.097012471000294&0.8414805811217936&0.8414805811217936\\
+4&Completa&0.8414805811217936&3.3659223244871743&1.097012471000294&0.8414805811217936&0.8414805811217936\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (FRIEDMAN)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Holl}$&$p_{Rom}$&$p_{Finn}$&$p_{Li}$\\
+\hline
+1&Individual&0.005110260660855882&0.02028488719031618&0.01949086306881862&0.02028488719031618&0.031230646391603663\\
+2&Homogénea&0.16151331846754202&0.410493624863177&0.48453995540262607&0.2969400848926864&0.5046774895814818\\
+3&GFS&0.548506235500147&0.7961533806177512&0.8414805811217936&0.6536336638862574&0.7757939646227074\\
+4&Completa&0.8414805811217936&0.8414805811217936&0.8414805811217936&0.8414805811217936&0.8414805811217936\\
+\hline
+\end{tabular}
+\end{table}
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (ALIGNED FRIEDMAN)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Bonf}$&$p_{Holm}$&$p_{Hoch}$&$p_{Homm}$\\
+\hline
+1&Individual&0.003480722742941689&0.013922890971766756&0.013922890971766756&0.013922890971766756&0.013922890971766756\\
+2&Homogénea&0.11188552641187834&0.44754210564751334&0.335656579235635&0.335656579235635&0.335656579235635\\
+3&GFS&0.6989768116685109&2.7959072466740436&1.3979536233370218&0.796560218957572&0.796560218957572\\
+4&Completa&0.796560218957572&3.186240875830288&1.3979536233370218&0.796560218957572&0.796560218957572\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (ALIGNED FRIEDMAN)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Holl}$&$p_{Rom}$&$p_{Finn}$&$p_{Li}$\\
+\hline
+1&Individual&0.003480722742941689&0.01385036692192576&0.013275700569026702&0.01385036692192576&0.016821545855852466\\
+2&Homogénea&0.11188552641187834&0.29950209070568934&0.335656579235635&0.21125268180329348&0.3548257109940078\\
+3&GFS&0.6989768116685109&0.9093850400867448&0.796560218957572&0.7982563215839608&0.7745611254428767\\
+4&Completa&0.796560218957572&0.9093850400867448&0.796560218957572&0.7982563215839608&0.796560218957572\\
+\hline
+\end{tabular}
+\end{table}
+
+
+\newpage
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (QUADE)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Bonf}$&$p_{Holm}$&$p_{Hoch}$&$p_{Homm}$\\
+\hline
+1&Individual&0.07331158795794011&0.29324635183176045&0.29324635183176045&0.29324635183176045&0.29324635183176045\\
+2&Homogénea&0.3061360394008037&1.2245441576032148&0.9184081182024111&0.9184081182024111&0.9184081182024111\\
+3&GFS&0.9320385634920315&3.728154253968126&1.864077126984063&0.932038563492032&0.932038563492032\\
+4&Top-$k$&0.932038563492032&3.728154253968128&1.864077126984063&0.932038563492032&0.932038563492032\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!htp]
+\centering\scriptsize
+\caption{Adjusted $p$-values (QUADE)}
+\begin{tabular}{ccccccc}
+i&algorithm&unadjusted $p$&$p_{Holl}$&$p_{Rom}$&$p_{Finn}$&$p_{Li}$\\
+\hline
+1&Individual&0.07331158795794011&0.26254601064811656&0.2796151149766488&0.26254601064811656&0.5189355026205419\\
+2&Homogénea&0.3061360394008037&0.665941141890066&0.9184081182024111&0.518552804181597&0.8183322773219104\\
+3&GFS&0.9320385634920315&0.9953812431477733&0.932038563492032&0.9722657303729169&0.9320385634920318\\
+4&Top-$k$&0.932038563492032&0.9953812431477733&0.932038563492032&0.9722657303729169&0.932038563492032\\
+\hline
+\end{tabular}
+\end{table}
+
+\end{landscape}\end{document}

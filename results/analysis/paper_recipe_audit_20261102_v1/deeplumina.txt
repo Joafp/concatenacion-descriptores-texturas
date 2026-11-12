@@ -1,0 +1,1055 @@
+Hindawi
+Computational Intelligence and Neuroscience
+Volume 2022, Article ID 9510987, 16 pages
+https://doi.org/10.1155/2022/9510987
+
+
+
+
+Research Article
+DeepLumina: A Method Based on Deep Features and Luminance
+Information for Color Texture Classification
+
+                                              1                       2
+          A. Philomina Simon                      and B. V. Uma
+          1
+              Department of Computer Science, University of Kerala, Thiruvananthapuram, Kerala, India
+          2
+              Department of Computer Science, Pondicherry Central University, Puducherry, India
+
+          Correspondence should be addressed to A. Philomina Simon; philomina.simon@gmail.com
+
+          Received 16 October 2021; Revised 19 February 2022; Accepted 7 March 2022; Published 14 April 2022
+
+          Academic Editor: Bai Yuan Ding
+
+          Copyright © 2022 A. Philomina Simon and B. V. Uma. This is an open access article distributed under the Creative Commons
+          Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is
+          properly cited.
+          Color texture classiﬁcation is a signiﬁcant computer vision task to identify and categorize textures that we often observe in natural
+          visual scenes in the real world. Without color and texture, it remains a tedious task to identify and recognize objects in nature.
+          Deep architectures proved to be a better method for recognizing the challenging patterns from texture images. This paper
+          proposes a method, DeepLumina, that uses features from the deep architectures and luminance information with RGB color space
+          for eﬃcient color texture classiﬁcation. This technique captures convolutional neural network features from the ResNet101
+          pretrained models and uses luminance information from the luminance (Y) channel of the YIQ color model and performs
+          classiﬁcation with a support vector machine (SVM). This approach works in the RGB-luminance color domain, exploring the
+          eﬀectiveness of applying luminance information along with the RGB color space. Experimental investigation and analysis during
+          the study show that the proposed method, DeepLumina, got an accuracy of 90.15% for the Flickr Material Dataset (FMD) and
+          73.63% for the Describable Textures dataset (DTD), which is highly promising. Comparative analysis with other color spaces and
+          pretrained CNN-FC models are also conducted, which throws light into the signiﬁcance of the work. The method also proved the
+          computational simplicity and obtained results in lesser computation time.
+
+
+
+
+1. Introduction                                                           ﬂowers, food grains, wood, fabric, and metals through color
+                                                                          texture classiﬁcation. The texture-color amalgamation is a
+The texture represents the surfaces based on roughness,                   perfect model, and it is eﬀective in classifying texture images
+regularity, repeating patterns, homogeneity, and granularity              [3]. Usually the color images are represented in RGB color
+[1]. Textured surfaces in the real world can be categorized               space for pattern recognition and computer vision appli-
+based on their homogeneity or heterogeneity, coarse or grain              cations. The signiﬁcance of the color spaces other than RGB
+details, rough or smooth patterns, regularity or irregularity,            for better color representations is not often investigated [4].
+and structural or nonstructural patterns within an image.                 Since diﬀerent color spaces have distinct color representa-
+Identifying and classifying texture patterns across nature are            tion patterns, it aﬀects the accuracy of the machine vision
+essential in machine vision applications such as automated                algorithm [5–7]. Kahu et al. [8] discussed the lack of lu-
+visual inspection, visual ﬁne-grained object classiﬁcation,               minance information in the RGB color space in image
+forest species classiﬁcation, wood classiﬁcation, and fabric              compression applications. Since RGB color space is not well
+defect classiﬁcation. Materka et al. [2] discussed texture                suited for human perception, it has no direct luminance
+classiﬁcation methods, which include statistical, structural,             information [9]. RGB color space cannot capture luminance
+model-based, and transform-based methods. Texture fea-                    information during the processing of texture images. Kahu
+tures and color are vital visual attributes for identifying the           et al. inferred that RGB color space is not eﬃcient for
+realistic view of the natural scenes such as grass, tree bark,            processing the images from natural, realistic scenarios and
+2                                                                                Computational Intelligence and Neuroscience
+
+also for machine vision applications such as emotion rec-          applying deep features and luminance extracted from dif-
+ognition and image classiﬁcation [8]. This work throws light       ferent color models and classify features using Support
+into the eﬃciency of the luminance information applied with        Vector Machine. DeepLumina uncovers the signiﬁcance of
+RGB color space which can perceive the texture features            luminance from YIQ color space and applies ResNet101
+better. Luminance represents the number of photons (light)         pretrained model for color texture classiﬁcation. The ac-
+emitted to pass through a textured surface. The human brain        curacy of DeepLumina showed a substantial improvement in
+captures the visual attributes of texture and luminance from       YIQ color space over the diﬀerent color models when tested
+a natural scene [10]. In neurophysiology and visual psy-           in the challenging texture datasets DTD and FMD. Com-
+chophysics, we ﬁnd that statistical characteristics of the         putation time is minimal for DeepLumina.
+visual scene are better perceived by humans who are based              The organization of the paper proceeds as follows.
+on the biologically inspired responses from the brain [11].        Section 2 presents concise related literature works on deep
+Johnson et al. [12] discussed that the biological responses        neural networks for texture classiﬁcation. Section 3 elabo-
+correspond to the ﬁrst-order information “luminance” and           rates the materials and methodology and explains the
+second-order response “texture” information in natural             proposed approach DeepLumina for texture classiﬁcation.
+images. This work demonstrated the signiﬁcance of lumi-            Section 4 discusses the experiments and analysis of the
+nance and texture information, the ﬁrst-order and second-          results obtained. Section 5 describes a concise description of
+order information captured from the realistic natural images       the contribution and compendium of the paper.
+as ﬁlter response strength and a mutual correlation. Okada
+et al. [13] discussed that visual texture perception constitutes   2. Related Research
+energy and luminance. In luminance, the visual texture
+features can be represented better. Deep convolutional             Texture represents the statistical characteristics and the
+neural network (CNN) behaves like the visual cortex brain.         repetitive arrangement of patterns on a surface. Discrimi-
+Deep CNN applies a kernel or ﬁlters of various sizes in a          nating and understanding the texture patterns in an image is
+texture image to generate a feature map representing the           a signiﬁcant task, especially in pattern recognition appli-
+image with its features.                                           cations since the 1960s [15] and 1980s [16, 17]. It is still a
+    With the signiﬁcant increase in computation facilities,        tedious task to classify and represent the complex textures of
+the deep learning framework continued to be a thriving             objects that we encounter in our daily life. Color texture
+research area for eﬃcient texture classiﬁcation. Literature        classiﬁcation has been an active research area over the past
+demonstrates that representing texture based on deep neural        four decades. In state-of-the-art techniques, the texture
+networks is a promising thrust area to recognize natural           classiﬁcation method selects appropriate handcrafted tex-
+textures. Last decade onwards, active progress in deep             ture descriptors and classiﬁcation is performed. The feature
+learning research grabbed attention in solving computa-            descriptors commonly used are Local Binary Pattern (LBP),
+tionally intensive machine vision tasks. Deep learning             LBP variants, Gray Level Co-occurrence Matrix (GLCM),
+models are better at perceiving the pattern or features from       and Law’s Texture, which demonstrate better texture rep-
+an image. The major challenge of deep learning for classi-         resentations. The widely used classiﬁers are K-Nearest
+ﬁcation tasks is that it requires enormous computation time        Neighbour with Chi-Squared Distance and Support Vector
+for processing an algorithm. The success of the convolu-           Machine [18].
+tional neural networks design relies upon how well the                 Deep Texture Classiﬁcation is a subclass of machine
+hyperparameters are chosen and ﬁne-tuned. Despite the              learning where the neural network automatically extracts the
+advancements in handcrafted features, convolutional neural         distinct image features which characterize the textures. The
+network (CNN) models generate better-learned feature               authors elaborated diﬀerent approaches for deep texture
+patterns corresponding to the input image. The deep net-           classiﬁcation and represented in Figure 1.
+work constructs feature with the edges, corners, contours,             First approach focuses on the usage of Convolutional
+regions based on the feature layers from CNN pretrained            Neural Network (CNN) and handcrafted features for texture
+models. In convolution operation, applying the same ﬁlter to       classiﬁcation. Also, it exploits the possibility of applying the
+input results obtain a map of activation values; they are          machine learning classiﬁer along with deep CNN features.
+feature maps [14]. Feature maps indicate the location,             CNN can function as a feature extractor as well as a classiﬁer.
+strength, orientation response of a detected feature in an         In this approach, the feature maps generated have better
+input image. These feature maps better represent deep              characteristics of the deep features and handcrafted features.
+features and the luminance information in a texture image.         Here CNN can perform feature extraction as well as clas-
+The proposed method DeepLumina is designed on RGB and              siﬁcation. The second approach is to develop and design a
+luminance-based color space in which luminance is gen-             new CNN architecture that extracts texture features and
+erated from YIQ color space and deep features from pre-            performs classiﬁcation. It is necessary to ensure the selection
+trained ResNet101 model. Even though accuracy is an                of proper optimizers and hyperparameters for classiﬁcation.
+inevitable factor in assessing the algorithm performance,          The usage of the well-known pretrained models is another
+computational time also plays a signiﬁcant part in aﬀecting        approach and such models perform transfer learning. This
+the performance and design of a vision based application.          method uses the pretrained model where the model has
+    The contributions of the proposed work are summarized          thoroughly learned features from the vast ImageNet data-
+as follows: In DeepLumina, we investigate the eﬃciency of          base. This approach is ideal when the number of images in
+Computational Intelligence and Neuroscience                                                                                                  3
+
+
+                                                Deep Learing based Approaches for Texture Classification
+
+
+
+
+                           CNN features +           CNN /Softmax +                                         Depp features with ML
+                                                                                 Transfer learning
+                         Handcrafted Features        classification                                              classifier
+
+                             Figure 1: Deep Neural Network Approaches for color texture Classiﬁcation.
+
+
+the dataset is less and computational facilities are limited.                  and eliminates the global information. Inspired by the fact
+Another is a blended approach that utilizes both machine                       that feature reduction from the high dimensional texture
+learning classiﬁer and deep learning feature generation                        features leads to the improvement in accuracy, Song et al.
+techniques.                                                                    [25] modiﬁed the Cimpoi et al. work by introducing the
+    In DeepLumina, the deep features are extracted using                       feature reduction and developing a discriminative neural
+pretrained ResNet101 model, which captures luminance                           network to reduce the feature dimensions. This work [25]
+information from YIQ color space and color information                         demonstrated the eﬃciency of the CNN features and eval-
+from RGB images. Texture classiﬁcation is performed using                      uated them in DTD, KTIPS2a, and FMD datasets. Motivated
+a machine learning based classiﬁer support vector machine                      by the fact that the deep features can represent better texture
+(SVM). A brief review of approaches to deep texture clas-                      feature space, Simon et al. [18] proposed a deep framework
+siﬁcation is discussed in this section.                                        that extracts deep features from pretrained models and used
+                                                                               a support vector machine for texture pattern classiﬁcation to
+                                                                               classify the images. This method is computationally eﬃcient
+2.1. Hybrid CNN-Handcrafted Features with Machine                              as ﬁne-tuning the CNN hyperparameters is not required.
+Learning Classiﬁer. Wang et al. [19] discussed deep neural                     Hafemann et al. presented a transfer learning based texture
+network based feature fusion for identifying the malig-                        classiﬁcation. This work [26] uses CNN to obtain a new
+nancies in breast cancer. The authors used hybrid CNN and                      feature vector representation based on softmax classiﬁcation
+handcrafted features such as texture, density, morphological                   and machine learning classiﬁers.
+features, and an extreme machine learning classiﬁer. Shi
+et al. [20] used the feature fusion for ship classiﬁcation to get
+a MultiScale-Completed Local Binary pattern (MS-CLBP)                          3. Materials and Methods
+and deep features and classiﬁed the image features using a
+support vector machine. These features capture the rotation                    In color texture classiﬁcation, deep neural networks can
+invariance of the ship images. JBene et al. [21] discussed a                   better capture color and luminance features. The proposed
+method based on handcrafted and CNN features for texture                       method DeepLumina investigates the advantage of using
+classiﬁcation. This work demonstrated that statistical fea-                    RGB and luminance information captured from real-world
+tures boost the classiﬁcation performance of CNN when the                      texture images. RGB color space is display-oriented, whereas
+deep features are concatenated with the handcrafted fea-                       human eyes are sensitive to luminance. So incorporating the
+tures—in that work, pretrained models, namely Xception                         luminance from the YIQ model have a prominent inﬂuence
+and ResNet50 networks with handcrafted features LBP                            in accuracy for the texture classiﬁcation.
+histogram, GLCM, Wavelet histogram, and Scale Invariant
+Feature transform-Fisher Vector (SIFT-FV) features for
+classiﬁcation.                                                                 3.1. Materials. In color texture classiﬁcation, the texture
+                                                                               datasets Flickr Material Dataset (FMD) and Describable
+                                                                               Texture Dataset (DTD) depict the various natural and de-
+2.2. Texture Classiﬁcation Based on Pretrained Models.                         scribable textures in daily life. DTD and FMD provide a view
+Roy et al. [22] proposed TexFusionNet, fusion-based CNN,                       of realistic textures that are commonly encountered in day-
+where the pretrained AlexNet and VGGNet last dense layers                      to-day life. These are complex datasets and are considered to
+are fused. A fully connected layer is utilized to the class                    be the most challenging for texture classiﬁcation. Describ-
+scores with categorical entropy as the loss function. Saleem                   able Textures dataset (DTD) is a colored-texture database
+et al. [23] discussed the deep learning architecture for plant                 [27] that contains the textures in the wild describing the real-
+disease detection and classiﬁcation. Cimpoi et al. [24] ex-                    world textures in nature such as cobwebbed, braided, dotted,
+amined the signiﬁcance of ﬁsher vector (FV) based feature                      blotchy, frilly. DTD has 120 images each for 47 texture
+space and proposed FV-CNN, FC-CNN for real-life de-                            categories adding up to 5640 images. The Flickr Material
+scribable texture recognition. The backbone of the FC-CNN                      Database (FMD) [28] is another challenging texture dataset
+and FV-CNN is the VGG model. The work also presents                            that captures the material appearance and visibility. FMD
+another feature, Fully Connected CNN (FC–CNN), which                           dataset has 10 classes, and each class contains 100 images. In
+extracts the shape features of a region present in the image.                  the work, Liu et al. [3] considered DTD and FMD chal-
+FV-CNN captures local features from the regions selected                       lenging because of large intraclass variations and appearance
+4                                                                                  Computational Intelligence and Neuroscience
+
+variations in the datasets. A glimpse of the FMD and DTD             system. From the above literature, we can infer that the
+dataset is shown in Figures 2 and 3 respectively.                    luminance channel is signiﬁcant and there is a need to
+                                                                     separate luminance from other color models for extracting
+3.2. Signiﬁcance of Color Spaces in Texture Classiﬁcation.           the structural details and better feature representation for
+Color models [5] represent the images with diﬀerent levels of        texture classiﬁcation problems. In CNN-based super-
+perception, and it varies based on the discriminating power          resolution [37], features are extracted from the luminance
+of the diﬀerent colors and the intensity channels. Color             channel of YCbCr color space from deep neural networks.
+spaces play a competent attribute for recognizing the visual         The signiﬁcance of the luminance information needs to be
+scenes from real-world texture images. The selection of the          better investigated for texture analysis applications. The
+color system has a signiﬁcant inﬂuence on processing color           literature shows that the color coordinate system can im-
+images. The discriminative characteristics of a color space or       prove classiﬁcation accuracy in diﬀerent applications. The
+color model vary based on the particular visual tasks and the        eﬀect of luminance in color models with deep features needs
+provided texture image data. Cernadas et al. [29] categorized        further investigation. Li et al. [38] proved in their experi-
+color systems as RGB based color space, visual perception            ments that in deep network generated images, the chro-
+based color models (HSV), and brightness-color based color           minance components are more discernible than the
+spaces, which captures luminance chrominance (YCbCr,                 luminance component. Deep generated images are more
+YUV, YIQ, L ∗ a ∗ b ∗) information. The limitation of the            distinguishable in the residual domain of chrominance
+RGB color system is due to the high correlation between the          components. The deep network captures major chromi-
+R, G, B components [4]. Texture image or pattern can better          nance features, and the image luminance information gets
+be represented with RGB model with luminance obtained                less prominence during the feature extraction. In such cases,
+from color spaces including YIQ, YCbCr, HSV, and L ∗                 the deep network may not capture the luminance infor-
+a ∗ b ∗. In this work, the signiﬁcance of luminance infor-           mation present in the image. It is worth promising to in-
+mation from the above-mentioned color spaces is widely               vestigate the inﬂuence of luminance information for color
+exploited for texture classiﬁcation. Luminance information           texture classiﬁcation. In our work, experimental analysis
+inﬂuences the representation of texture feature space. HSV           proved that texture classiﬁcation accuracy improved in-
+and L ∗ a ∗ b [30] follow nonlinear transformation, whereas          credibly when the deep network captured both color and
+YCbCr and YIQ follow a linear transformation because of              luminance information. The impact of applying the lumi-
+the visual perception of the images. The literature shows that       nance information from various color spaces and deep
+HSV and YCbCr [31] color spaces are applied for face image           features inﬂuences the classiﬁcation accuracy. The proposed
+retrieval applications and L ∗ u ∗ v ∗ and L ∗ a ∗ b ∗ in saliency   method DeepLumina exploits the possibility of using lu-
+detection. Broek et al. [32] presented a texture classiﬁcation       minance information with RGB color space, and it works in
+approach in applying texture descriptors such as color               the RGB-Luminance feature space.
+correlogram and cooccurrence matrix in six color spaces,
+including RGB, HSV, YUV, LUV, and YIQ. ColorNet is a
+CNN network developed by exploiting the concepts of the              3.4. DeepLumina—Deep Learning Framework with Lumi-
+color spaces and pretrained models for classiﬁcation. In             nance Information for Color Texture Classiﬁcation. In color
+ColorNet, Gowda et al. [6] used DenseNet model for clas-             texture classiﬁcation, deep networks can better capture color
+sifying the CIFAR10 dataset and obtained good results.               and luminance features from RGB and luminance from the
+                                                                     YIQ model, respectively. The proposed method investigated
+                                                                     the impact of RGB and luminance information obtained
+3.3. Distinctiveness of Luminance. Luminance provides the            from textures. In realistic natural images, ﬁrst-order and
+illumination or brightness in an image. This channel extracts        second-order information corresponds to luminance and
+meaningful information by considering the illumination               texture, respectively [12]. Inspired by the fact that luminance
+variance from a texture image [29]. L ∗ a ∗ b color space is         and texture are signiﬁcant features that need to be captured
+similar to the HSV model in representing images based on             from an image, we proposed DeepLumina.
+human visual perception. According to Pietikainen et al.                 The DeepLumina framework is summarized in Figure 4.
+[33], distinct texture information can be found from the             Luminance provides better visual perception. The proposed
+regions that represent high spatial frequency information            method incorporated luminance along with RGB color
+from edges and boundaries. Prabhakar et al. [34] investi-            features for deriving better texture feature space and per-
+gated that structure, edge details, and brightness variations        forming classiﬁcation by SVM. In the DeepLumina
+can be extracted from the luminance channel than chro-               framework, we investigate the eﬃciency of luminance fea-
+minance channels. Texture features can be eﬀectively cap-            tures with deep features. RGB texture images are converted
+tured from luminance rather than color. Distinct color               to YCbCr, L ∗ a ∗ b ∗, YIQ, HSV color space and the cor-
+spaces provide diverse degrees of luminance separation from          responding luminance images are extracted. The chroma
+color [35]. R, G, and B variances are all similar for a given        components are not considered since the color information
+local area of space. Ware et al. [36] analyzed that the image        can be preserved well in the RGB color space. These lu-
+feature information present in luminance channel and                 minance images, along with the RGB images, are applied to
+chroma channels are diﬀerent. So it is advisable to segregate        the ResNet101 pretrained model. RGB images and Y channel
+luminance from chroma dimensions in a color speciﬁcation             from YIQ model (luminance) images are processed
+Computational Intelligence and Neuroscience                                                                                         5
+
+
+
+
+        banded              blotchy       braided           bubbly             bumpy       chequered     cobwebbed    Crystalline
+
+
+
+
+        cracked             grooved     crosshatched        dotted             fleckled     fibrous        frilly        gauzy
+
+
+
+
+         grid             honeycombed    Interlaced         knitted            lacelike      Lined        marbled       matted
+
+
+
+
+        meshed              paisley      perforated         pitted             pleated    polka-dotted    porous       Potholed
+
+
+
+
+         scaly              smeared       spiralled        sprinkled           stained     stratified     striped       studded
+
+
+
+
+         swirly             veined        waffled           woven              wrinkled    zigzagged      freckled
+                                                      Figure 2: Glimpse of DTD dataset.
+
+
+
+
+                 Fabric                  Foliage                       Glass                  Leather                Metal
+
+
+
+
+                 Paper                   Plastic                       Stone                   Water                 Wood
+                                                      Figure 3: Glimpse of FMD dataset.
+6                                                                                                 Computational Intelligence and Neuroscience
+
+
+
+                                                Color Space Conversion               YIQ
+                                  RGB                                               Color
+                                 images                                             model
+
+
+
+
+                                                                                   Generate
+                                                                              Luminance (Y) Image
+
+
+
+
+                                  Deep Luminance Feature Extraction from ResNet 101
+
+
+
+
+        7×7     3×3    1×1 3×3 1×1            1×1 3×3 1×1                    1×1 3×3 1×1
+                max                                                                                        1×1     3×3      1×1          Avg         FC
+        conv           conv conv conv         conv conv conv                 conv conv conv                                              pool       1000
+        64,/2   pool    64   64   256          128 128 512                    258 256 1024                 conv    conv     conv
+                 /2                                                                                         512     512     2048
+
+
+
+
+                                  Residual Blocks                                       Residual Blocks
+
+
+
+
+                                                    Support Vector Machine Classifier
+
+
+
+
+                                                          Output texture Classes
+
+
+                               Figure 4: DeepLumina texture classiﬁcation- proposed framework.
+
+
+separately and then concatenated together into a feature                      cameras display devices. RGB components are sensitive to
+vector for classiﬁcation. The color features from RGB and                     lightness and shading. Texture images can be perceived
+luminance features are concatenated. The luminance                            better in the color spaces other than RGB as the RGB color
+channel has the power of discriminating the textures in a                     system does not capture the aspects of the human visual
+better way [34]. Pretrained models extract deep features and                  system. RGB is nonuniform, whereas L ∗ a ∗ b ∗ is a perpetual
+also capture luminance features from the texture images.                      uniform color space and HSV is an approximately uniform
+These features are given to the fast linear solver support                    color space. Human perception can distinguish objects with
+vector machine for classifying the real-world textures. RGB                   hue, saturation, and intensity of colors as modeled in HSI
+and the generated luminance images are trained using the                      space. Therefore, RGB color space is not eﬀective in solving
+ResNet101 model and it is compared with seven pretrained                      computer vision problems where performance is expected to
+models for analysis. The DeepLumina framework with                            match human vision [8]. So, it is necessary to investigate the
+various color models and pretrained models is depicted in                     color models other than the RGB model.
+Figure 5. The procedure for the DeepLumina is presented in                        YIQ is also a nonlinear, nonuniform color space derived
+Table 1. Support vector machine (SVM) [39] can handle high                    from RGB. Y represents Brightness/Luminance, I and Q
+dimensional texture feature space, so it can be eﬃciently                     represent the chroma or color components. The texture
+applied for texture classiﬁcation. The input images RGB are                   image in the YIQ model can be used for classiﬁcation ap-
+resized to 224 × 224 for applying in the ResNet101 model.                     plications. In this work, we derive the Y component, and
+                                                                              luminance is derived from the YIQ model for processing.
+                                                                              The RGB to YIQ color conversion equation is given below
+3.4.1. YIQ Color Space Conversion and Luminance Image                         [41]:
+Estimation. Color systems have a detailed role to play es-
+                                                                                                   Y           0.299 0.587 0.114              R
+pecially in computer vision applications. In texture classi-                                ⎡⎢⎢⎢ ⎥⎤⎥⎥ ⎢⎡⎢⎢                             ⎥⎤⎢⎡ ⎥⎤
+ﬁcation, diﬀerent color space representations aid in                                           ⎢⎢⎢ I ⎥⎥⎥ � ⎢⎢⎢ 0.595 −0.274 −0.321 ⎥⎥⎥⎥⎥⎢⎢⎢⎢⎢ G ⎥⎥⎥⎥⎥.     (1)
+                                                                                                 ⎢⎣ ⎥⎦ ⎢⎣                               ⎥⎦⎢⎣ ⎥⎦
+improving accuracy [5]. RGB color space [40] represents the                                        Q           0.211 −0.522 0.311             B
+chromaticity of a particular color and no luminance channel
+is present in this color space. It is the most popularly used                    L ∗ a ∗ b ∗ color system is based on the intermediate color
+color model as it is device-oriented and prominently used in                  space, namely CIE XYZ space. The RGB components are
+Computational Intelligence and Neuroscience                                                                                                                                                    7
+
+                                                                                                         Generation of CNN and Luminance features from
+                                                                                                                   the eight pretrained Models
+                                                    Color Conversion- Luminance image generation                                                                   Classification using SVM
+
+                                                                                                               MobileNet,ResNet50,ResNet101,DenseNet201,
+                                                                                                              AlexNet, VGG19,Inceptionv3,InceptionResNetv2
+
+
+
+
+                                                                                     RGB image                                                                             SVM Classifier
+                                                          RGB images
+
+
+
+                                                                                                             MobileNet,ResNet50,ResNet101,DenseNet201,
+                                                                                                            AlexNet, VGG19,Inceptionv3,InceptionResNetv2
+
+
+                                                                                                                                                                           SVM Classifier
+                                                                                  RGB + Y Image
+             RGB                                         RGB to YCbCr
+                                                                                    (YCbCr)
+            images
+                                      Color Space
+                                      Conversion
+                                                                                                               MobileNet,ResNet50,ResNet101,DenseNet201,
+                                                                                                              AlexNet, VGG19,Inceptionv3,InceptionResNetv2
+
+
+                                                                                   RGB + L Image                                                                           SVM Classifier
+                                                        RGB to La*b*                 (La*b*)
+
+
+
+            image
+           database                                                                                            MobileNet,ResNet50,ResNet101,DenseNet201,
+                                                                                                              AlexNet, VGG19,Inceptionv3,InceptionResNetv2
+
+
+                                                                                   RGB + Y Image
+                                                        RGB to YIQ                    (YIQ)                                                                                SVM Classifier
+
+
+
+
+                                                                                                               MobileNet,ResNet50,ResNet101,DenseNet201,
+                                                                                                              AlexNet, VGG19,Inceptionv3,InceptionResNetv2
+
+
+
+                                                                                  RGB + V Image                                                                            SVM Classifier
+                                                         RGB to HSV
+
+
+
+
+                               Figure 5: Framework of DeepLumina with color models and pretrained models.
+
+                                                                       Table 1: DeepLumina framework.
+DeepLumina -proposed method
+Step 1. Resize the input RGB images and perform color space transformation to the YIQ model
+Step 2. Estimation of luminance images (Y channel images) from YIQ color model
+Step 3. Apply step 1 and step 2 images to the pretrained ResNet101 model
+Step 4. Extraction of deep or learned feature map from the ResNet101
+Step 5. Classiﬁcation using a fast linear solver support vector machine
+
+
+
+converted into the XYZ plane, then converted to L ∗ a ∗ b ∗                                                                           Y
+color space. In DeepLumina, we consider only the L channel                                                    L∗ � 116􏼢f􏼠                􏼡􏼣 − 16
+                                                                                                                                      Y0
+of a textured image from L ∗ a ∗ b ∗ color space. RGB to
+L ∗ a ∗ b ∗ conversion is illustrated here [41, 42]:                                                                                  X        Y
+                                                                                                              a∗ � 500􏼢f􏼠                􏼡 − f􏼠 􏼡􏼣
+                              R                                                                                                       X0       Y0
+                      R′ �
+                             255                                                                                                      Y         Z
+                                                                                                              b∗ � 200􏼢f􏼠                􏼡 − f 􏼠 􏼡􏼣                              .            (2)
+                            G                                                                                                         Y0        Z0
+                      G′ �
+                           255
+                                                                                                               ⎪
+                                                                                                               ⎧ 1
+                                                                                                               ⎪                                           if x > 0.008856
+                            B                                                                                  ⎪
+                                                                                                               ⎪  3,
+                      B′ �                                                                                     ⎪
+                                                                                                               ⎨x
+                           255                                                                     wheref(x) � ⎪
+                                                                                                               ⎪
+                                                                                                               ⎪
+                                                                                                               ⎪
+                                                                                                               ⎪           16
+                   X            0.4124 0.3576 0.1805 R′                                                        ⎩ 7.787x +     ,                            otherwise
+                 ⎢
+                 ⎡
+                 ⎢   ⎥⎤⎥⎥ ⎢   ⎡
+                              ⎢                      ⎥⎤⎥⎥⎡   ⎢
+                                                             ⎢     ⎤⎥⎥⎥                                                   116
+                 ⎢
+                 ⎢
+                 ⎢
+                 ⎢      ⎥⎥⎥ ⎢ ⎢
+                              ⎢
+                              ⎢                         ⎥⎥⎥⎢ ⎢
+                                                             ⎢
+                                                             ⎢        ⎥⎥⎥
+                 ⎢
+                 ⎢ Y      ⎥
+                          ⎥ � ⎢
+                              ⎢ 0.2126 0.7152 0.0722      ⎥
+                                                          ⎥  ⎢
+                                                             ⎢
+                                                             ⎢ G ′      ⎥⎥⎥,                           In L ∗ a ∗ b ∗ color space, colors are assigned with respect
+                 ⎢
+                 ⎢        ⎥
+                          ⎥ ⎢ ⎢                           ⎥
+                                                          ⎥⎥⎥⎢            ⎥⎥
+                 ⎣ ⎥⎥⎦ ⎢
+                 ⎢
+                 ⎢            ⎢
+                              ⎣                             ⎦⎢
+                                                             ⎣ ⎥⎥⎦
+                                                             ⎢
+                                                             ⎢                                     to a reference white point. X0, Y0, Z0 denote the coordinates
+                   Z            0.0193 0.1192 0.9505 B′                                            of the reference white. L ∗ captures the luminance, a ∗
+8                                                                                       Computational Intelligence and Neuroscience
+
+extracts the color variations from green to red and b ∗                      Y             65.48 128.55 24.97             R               16
+                                                                      ⎡⎢⎢⎢ ⎤⎥⎥⎥ ⎡⎢⎢⎢                               ⎤⎥⎡⎢ ⎤⎥ ⎡⎢                     ⎤⎥
+represents the color variations from blue to yellow. In                  ⎢⎢⎢ Cb ⎥⎥⎥ � ⎢⎢⎢ −37.78 −74.16 111.93 ⎥⎥⎥⎥⎥⎢⎢⎢⎢⎢ G ⎥⎥⎥⎥⎥ + ⎢⎢⎢⎢⎢ 128 ⎥⎥⎥⎥⎥.    (3)
+DeepLumina, the RGB texture images are converted to the                    ⎢⎣ ⎥⎦ ⎢⎣                                 ⎥⎦⎢⎣ ⎥⎦ ⎢⎣                     ⎥⎦
+YCbCr model, and only the Luminance image of the YCbCr                       Cr           111.96 −93.75 −18.21 B                          128
+is constructed for processing the algorithm. YCbCr color
+system is derived from the RGB model, and it is a perpetual             HSV color system models the human visual system to
+nonlinear transformation of the RGB color model. YCbCr              perceive the luminance, hue, and saturation better than the
+color space represents an image as Y, the luma component,           RGB color components. HSV can handle noise better than
+and CbCr, the chroma components. YCbCr model is used in             L ∗ a ∗ b ∗ and RGB color spaces. HSV color space has wide
+compression algorithms such as JPEG, JPEG 2000, H.264,              applications in medical images. In this work, we only
+HEVC.                                                               consider the luminance image (V) of the texture image from
+    The color conversion from RGB to YCbCr is equated as            the HSV color system, and the equations are shown below.
+follows [43]:                                                           RGB to HSV conversion is explained here [44, 45]:
+
+
+
+                                 ⎪
+                                 ⎧
+                                 ⎪                  G−B
+                                 ⎪
+                                 ⎪ 60 ∗ 􏼠                             􏼡             R � max(R, G, B)
+                                 ⎪
+                                 ⎪        max(R, G, B) − min(R, G, B)
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎨               2 + (B − tR)
+                           Hue � ⎪ 60 ∗ 􏼠                             􏼡             G � max(R, G, B) ,
+                                 ⎪
+                                 ⎪        max(R, G, B) − min(R, G, B)
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎪
+                                 ⎪                                                                                                                      (4)
+                                 ⎪
+                                 ⎪               4 + (R − tG)
+                                 ⎪
+                                 ⎩ 60 ∗ 􏼠                             􏼡             B � max(R, G, B)
+                                          max(R, G, B) − min(R, G, B)
+
+                                    max(R, G, B) − min(R, G, B)
+                     Saturation �                               ,
+                                          max(R, G, B)
+
+                         Value � max(R, G, B).
+
+
+   The authors tested the proposed method with RGB,                 that get repeated in the network. This network has several
+YCbCr, HSV, and L ∗ a ∗ b ∗ color space to investigate the          skip connections, and it learns and trains from the residual.
+eﬃciency of the luminance with YIQ color space.                     In the inception model, the local, global, and skip con-
+                                                                    nections features are captured from a 3 × 3 bock and 5 × 5
+                                                                    block, respectively. Large numbers of ﬁlters are applied, and
+3.4.2. Generation of Deep-Luminance Feature Maps from               convolution operations are performed. ResNet101 is a CNN
+Pretrained ResNet101 Model. Deep neural networks (DNN)              with 101 layers depth. Each ResNet block is 3 layers deep.
+are an important class of CNN that is widely used to capture        ResNet models have fewer ﬁlters and less complex. The
+the feature space and used for computer vision applications,        number of trainable parameters in ResNet101 is 44,549,224.
+including texture classiﬁcation. The neural network learns              The InceptionResNet model is a hybrid combination of
+these feature patterns automatically during the training            the ResNet model and the Inception model where the re-
+process. DNN act as a feature extractor or a classiﬁer for          sidual inception blocks are designed. In DenseNet201, more
+addressing pattern recognition problems. In DeepLumina,             dense blocks are present in the model, and this eﬃciently
+deep features are extracted from ResNet101 [46]. The pre-           performs the error propagation. MobileNet has few pa-
+trained models used for comparative analysis in this work           rameters, and it is considered as a light-weighted model that
+are AlexNet [47], VGG19 [48], ResNet50 [46], ResNet101,             applies the depth separable kernels. Gerihos et al. [53] in-
+Inceptionv3 [49], InceptionResNetv2 [50], DenseNet201               vestigated the prominence of the texture features captured
+[51] and MobileNet [52]. AlexNet is the ﬁrst popular CNN            from the pretrained CNN models trained on imageNet
+model proposed in 2012. AlexNet comprised of deep 60M               dataset. The convolution neural networks have the advan-
+parameters and used ReLU activation function and dropout            tage of better classifying the textured images, even if the
+to control the overﬁtting problem. VGG19 is a moderate              global structure and shape are not preserved in the image.
+CNN that has a large number of parameters. It is better than            DeepLumina constructs a feature map from the con-
+AlexNet in addressing the overﬁtting issue. ResNet50 and            volution layers. The deep network incorporates the RGB
+ResNet101 are popular and demanding pretrained models               features and Y channel features, representing the color and
+for texture analysis. The main idea behind solving the              the luminance information, respectively. This method
+vanishing gradient problem in ResNet is the residual blocks         produces a rich set of powerful and competent texture
+Computational Intelligence and Neuroscience                                                                                     9
+
+features with which the classiﬁcation task becomes eﬃcient.        4.1. Experimental Results. The DeepLumina model is tested
+The convolutional layers capture the low and high level            on challenging datasets, namely DTD and FMD with
+features from the images. The proposed method is com-              ResNet101 CNN features using SVM classiﬁer. The batch
+putationally eﬃcient since deep features are getting trained       size for DeepLumina is selected as 27. The dataset is pro-
+by an SVM classiﬁer. The parameters for the convolution            cessed and it is split at random, with 80% of the images used
+feature layer of diﬀerent pretrained models in extracting          during training and 20% used during testing. The loss
+the deep-luminance features are given in Tables 2 and 3.           function used for multiclass texture classiﬁcation is cate-
+The parameters include the number of convolution layers            gorical cross-entropy which captures the error rate in deep
+used, input image size, kernel size, and feature layer. In         learning models. SVM performs classiﬁcation using ECOC
+glorot (xavier) initilization, weight initialization is based on   [55] model and uses sparse random as a coding parameter.
+the Guassian value with zero mean and variance based on            In the proposed work, the FMD dataset obtained an ac-
+the number of fan-in and fan-out hidden nodes. The feature         curacy of 90.15%, and the DTD dataset obtained an accuracy
+maps obtained from the pretrained methods for the                  of 73.63%, which is a good improvement when compared
+DeepLumina are visualized in Figure 6.                             with the existing state-of-the-art methods. The accuracy
+                                                                   obtained for the DeepLumina for the datasets DTD and
+                                                                   FMD is discussed in this section and presented in Tables 4
+3.4.3. Classiﬁcation Using Support Vector Machine.                 and 5. These tables illustrate the eﬃciency of the proposed
+Support Vector Machine (SVM) classiﬁer has high gener-             method DeepLumina. The experiments are conducted in
+alization capability and constructs optimal hyperplane for         system conﬁguration Intel(R) Core(TM) i7-8565U CPU @
+categorizing the texture classes. It can be considered as a        1.80 GHz, 8 GB RAM, NVIDIA GeForce MX150, Matlab.
+decision function, which is linear with a maximal margin                We can infer from the experimental results that all the
+between the vectors of texture classes. Krammer et al. [54]        luminance-based color space conversions with RGB produce
+presented an approach for building multiclass support              better results for texture classiﬁcation. These results throw
+vector machines. SVM is formulated as an optimization              light into the signiﬁcance of luminance features and also the
+problem. Diﬀerent pixel intensities need to be classiﬁed in        YIQ color model. MobileNet model, a computationally ef-
+such a way so as to maximize the margin between the                ﬁcient and light-weighted model, obtained an accuracy of
+support vectors.                                                   68.15% for YIQ. ResNet50 produced 73.01% for the YIQ
+                       1       n                                   model, and ResNet101 produced 73.63% in the YIQ model in
+                 min wT w + λ 􏽘 ψ i                                the DTD dataset. In the DeepLumina framework, ResNet 50
+                 ω,b,ψ 2
+                              i�1                                  and ResNet101 achieved competitive results in terms of
+                                                ,           (5)
+                                                                   accuracy when RGB-Luminance images and SVM are used.
+                 yi 􏼐wT ϕ xi 􏼁 + b􏼑 ≥ 1 − ψ i                      It is worth noticing that the color model YIQ produced the
+                                                                   best results in ResNet pretrained models. In our work, we
+where ψ i denotes the distance measure to the correct margin       investigated the competence of the YIQ color model for
+with ψ i ≥ 0, i � 1, . . . , n,where λ denotes a parameter for     texture classiﬁcation. The combined RGB-Luminance in-
+regularization,wT w � ‖w2 ‖ denotes the normal vector,ϕ(xi )       formation with deep networks demonstrates an excellent
+denotes the transformed new input space vector,b denotes a         improvement in texture classiﬁcation accuracy. MobileNet
+bias value,yi denotes the ith target value.                        and ResNet50 model produces a better result of 87.3% and
+    SVM proved to be a better classiﬁer for texture classi-        89.7% with the L ∗ a ∗ b ∗ color space for the FMD dataset. In
+ﬁcation since it can handle the high dimensional feature           the DeepLumina framework, ResNet101 obtained excellent
+space found in texture patterns. Kim et al. [39] exploit the       accuracy of 90.15% when RGB-Luminance images and SVM
+signiﬁcance of the SVM classiﬁer when applied for texture          are used for the FMD dataset, which is very promising.
+classiﬁcation problems. SVM uses various kernel functions               Texture data is high dimensional, and it provides a cue in
+such as linear kernel, RBF kernel, and polynomial kernel.          visual inspection and object identiﬁcation. From the ex-
+SVM is best suited for identifying texture patterns because of     perimental results, we can observe a 3% to 7% increase in the
+two signiﬁcant reasons. First is the mapping of nonlinear          accuracy is obtained when we incorporated luminance in-
+texture space to a high dimensional space. Next is the op-         formation with RGB color space in both the datasets
+timal separating hyperplane construction. In this work, we         compared to the RGB color model. Pretrained CNN-FC
+use a multiclass support vector machine classiﬁer with a fast      models tested and compared show a steady improvement of
+linear solver to obtain features during training. For multi-       accuracy, which is highly promising. FMD dataset obtained a
+class classiﬁcation, the error-correcting output code (ECOC)       high accuracy of 90.15%. We can infer that classiﬁcation on
+[55] is utilized, which uses the outputs of binary learners to     the challenging texture datasets, namely. FMD and DTD,
+anticipate multitexture classes.                                   was eﬃcient with the luminance features. DTD also gives a
+                                                                   good result for ResNet50 and ResNet101 pretrained models.
+4. Results and Discussions                                         It provides a good result of about 73.63% because it can
+                                                                   capture the ﬁne and coarse texture details from the pre-
+In this section, the experiments, result analysis, and com-        trained CNN architecture. We can also observe that the
+parison with other prior works have been discussed to              luminance from YIQ color model proved to be eﬃcient in
+analyze and evaluate the competence of DeepLumina.                 identifying the texture classes. Experiments demonstrate
+10                                                                                Computational Intelligence and Neuroscience
+
+                        Table 2: CNN parameters used for feature map generation from the Pretrained Models
+CNN parameters                        ResNet50                    AlexNet                Inceptionv3                 DenseNet201
+Convlayer name                          conv1                      conv1                  conv2d_1                   conv1 | conv
+No.of layers                              177                        25                       316                          709
+Input image size                     [224,224,3]                [227,227,3]              [299,299,3]                  [224,224,3]
+Filter size                              7×7                       11 × 11                   3×3                          7×7
+No of ﬁlters                              64                         96                       32                           64
+Stride                                   [2,2]                      [4,4]                    [2,2]                        [2,2]
+Dilation factor                          [1,1]                      [1,1]                    [1,1]                        [1,1]
+Padding size                           [3,3,3,3]                  [0,0,0,0]                [0,0,0,0]                    [3,3,3,3]
+Weight initialization                   Glorot                     Glorot                   Glorot                       Glorot
+Feature layer                           fc1000                       fc8                 Predictions                     fc1000
+
+
+                        Table 3: CNN parameters used for feature map generation from the Pretrained Models.
+CNN parameters                      ResNet101                MobileNet                  VGG19                  InceptionResNetv2
+Convlayer name                         conv1                    conv_1                 conv1_1                      conv2d_1
+No.of layers                             347                       155                     47                           825
+Input image size                    [224,224,3]              [224,224,3]              [224,224,3]                  [299,299,3]
+Filter size                             7×7                       3×3                     3×3                          3×3
+No of ﬁlters                             64                        32                      64                           32
+Stride                                  [2,2]                     [2,2]                   [1,1]                        [2,2]
+Dilation factor                         [1,1]                     [1,1]                   [1,1]                        [1,1]
+Padding size                          [3,3,3,3]                [0,1,0,1]                [1,1,1,1]                    [0,0,0,0]
+Weight initialization                  Glorot                   Glorot                   Glorot                       Glorot
+Feature layer                          fc1000                    Logits                    fc8                     Predictions
+
+
+that the FMD dataset performs better in the ResNet101               translation, and reﬂection on training data. We trained the
+model when used with color models L ∗ a ∗ b ∗, HSV, and             CNN models on augmented data with epochs varying from 5
+YIQ color models. DTD dataset performs better in ResNet50           to 20. The batch size was ﬁxed as 8. We performed tuning of
+and ResNet101 models, both with YIQ color space.                    hyperparameters of CNN with diﬀerent values. The opti-
+                                                                    mizer used is Stochastic Gradient Descent with Momentum
+                                                                    (SGDM) and the learning rate used is 1e-05. We used
+4.2. Computation Time. The computation time obtained (in            ResNet50, ResNet101, AlexNet, VGG19, Inceptionv3,
+minutes) for the proposed DeepLumina method for the                 MobileNet, DenseNet201 for analysis. ResNet models have
+benchmark datasets DTD and FMD and the comparative                  obtained an accuracy of 72.12% and 88% for DTD and FMD
+analysis is given in Tables 6 and 7. MobileNet and AlexNet          datasets. Also, VGG19 and Inceptionv3 performed better with
+take signiﬁcantly less computational time but obtains sat-          accuracies 72.61% and 88.50% for DTD and FMD, respectively.
+isfactory accuracy improvement for the DTD dataset.                 From the results obtained, we inferred that processing texture
+InceptionResNetv2 and DenseNet201 models take high                  images only in the RGB color system could not improve the
+computation time (11 to 15 mins, respectively), but results         performance. Luminance along with RGB information im-
+are of comparable accuracy. ResNet50 and ResNet101 build            proved classiﬁcation results. The results are summarized in
+computationally eﬃcient models with good accuracy for the           Table 8. The computation time for the pretrained CNN-FC
+DTD dataset. The rest of the pretrained models compared             models ranges from 0.5 hours to 16 hours based on the
+for classifying the FMD dataset take nearly 0.5 to 3 minutes.       hyperparameters speciﬁed for DTD and FMD datasets. This
+InceptionResNetv2 model obtains good accuracy, but the              analysis shows that luminance has signiﬁcance in classifying
+execution time is comparable.                                       texture images, and using SVM as a classiﬁer leads to com-
+                                                                    putational eﬃciency. The experimental results of pretrained
+                                                                    CNN-FC models with and without luminance in YIQ color
+4.3. Comparison with CNN-FC Pretrained Models. In this              space are depicted in Table 8 for DTD and FMD datasets. The
+section, the results obtained for the CNN-FC models are             accuracy-loss curve for the models with good accuracy is
+elaborated. The ResNet-FC CNN model with a fully con-               provided in Figure 7. From the experimental analysis, we
+nected layer is implemented for comparison with the pro-            inferred that DeepLumina had obtained better accuracy and
+posed method. We performed an analysis with diﬀerent end-           computational eﬃciency than pretrained CNN-FC models.
+to-end pretrained models for texture classiﬁcation and
+analyzed the results. The experiments are conducted by
+training CNN pretrained networks using the RGB and RGB-             4.4. Comparison with Prior Techniques. DeepLumina is
+Luminance information from the YIQ model and deduced                compared with other state-of-the-art texture classiﬁcation
+inferences. Data Augmentation is performed with rotation,           methods and results are highlighted in Tables 9 and 10.
+Computational Intelligence and Neuroscience                                                                                           11
+
+
+
+
+                        VGG19                                      AlexNet                                  DenseNet201
+
+
+
+
+                     MobileNetv2                                  ResNet101                              InceptionResNetv2
+
+
+
+
+                                           Inceptionv3                                  ResNet50
+                  Figure 6: Visualization of the Deep Texture Feature Maps obtained from DeepLumina Framework.
+
+
+                           Table 4: Accuracy obtained for DeepLumina on benchmark texture dataset DTD.
+                                          RGB                                       Proposed method - DeepLumina
+Pretrained models                         RGB                  RGB + Y               RGB + L            RGB + V                  RGB + Y
+ColorSpaces                              RGB 18                YCbCr                  L∗a∗b∗              HSV                     YIQ
+MobileNet + SVM                           61.37                 66.64                  67.31              66.14                   68.15
+ResNet50 + SVM                            67.23                 72.47                  72.10             70.77                    73.01
+ResNet101 + SVM                           66.92                 72.50                  72.31             72.43                    73.63
+DenseNet201 + SVM                         65.12                 70.66                  70.64             68.35                    71.37
+AlexNet + SVM                             46.35                 49.75                  49.42              48.71                   49.84
+VGG19 + SVM                               55.78                 58.60                  58.86             58.73                    59.53
+Inceptionv3 + SVM                         65.20                 70.04                  71.30              69.81                   71.18
+InceptionResNetv2 + SVM                   65.94                 70.78                  71.29             70.85                    71.39
+Best values are shown in bold and they are obtained for the proposed Method DeepLumina for Luminance from the YIQ color model.
+12                                                                                       Computational Intelligence and Neuroscience
+
+                       Table 5: Accuracy obtained for DeepLumina Method on benchmark texture dataset FMD.
+                                           RGB                                       DeepLumina - proposed method
+Pretrained models                         RGB                    RGB + Y              RGB + L            RGB + V                 RGB + Y
+ColorSpaces                              RGB [18]                YCbCr                L∗a∗b∗              HSV                     YIQ
+MobileNet + SVM                           74.60                    87.1                87.30              85.10                   85.80
+ResNet50 + SVM                            81.60                   88.45                89.70              87.85                   88.80
+ResNet101 + SVM                           81.40                   89.46                89.65              89.20                   90.15
+DenseNet201 + SVM                         80.75                   88.83                87.38              87.46                   89.17
+AlexNet + SVM                             64.30                   70.02                70.05              69.50                   71.50
+VGG19 + SVM                               78.10                   80.40                81.65              79.35                   81.68
+Inceptionv3 + SVM                         76.60                   88.70                88.15              87.55                   89.80
+InceptionResNetv2 + SVM                   82.20                   88.75                90.01              90.03                   90.05
+The best values obtained for DeepLumina on the FMD dataset are indicated in bold.
+
+                    Table 6: Computation time(in mins) for the Proposed Method - DeepLumina on DTD dataset.
+                                           RGB                                        DeepLumina: proposed method
+Pretrained models                         RGB                    RGB + Y              RGB + L            RGB + V                 RGB + Y
+ColorSpaces                              RGB [18]                YCbCr                L∗a∗b∗               HSV                    YIQ
+MobileNet + SVM                            1.76                    2.98                  2.96               3.06                   3.04
+ResNet50 + SVM                             2.95                    5.05                  5.02               5.43                   5.42
+ResNet101 + SVM                            4.91                     8.8                  8.78               8.71                   9.29
+DenseNet201 + SVM                          6.28                   11.64                 11.39              11.66                  11.51
+AlexNet + SVM                              1.89                    2.18                  2.33               2.20                   2.41
+VGG19 + SVM                                5.17                    9.16                 10.01              10.19                   9.51
+Inceptionv3 + SVM                          4.09                    7.32                  7.3               7.36                    7.39
+InceptionResNetv2 + SVM                    7.95                   15.69                 15.33              15.59                  15.53
+
+
+                     Table 7: Computation time(in mins) for the Proposed Method, DeepLumina on FMD dataset.
+                                           RGB                                        DeepLumina: proposed method
+Pretrained models                         RGB                    RGB + Y              RGB + L            RGB + V                 RGB + Y
+ColorSpaces                              RGB [18]                YCbCr                L∗a∗b∗               HSV                    YIQ
+MobileNet + SVM                            0.43                   0.64                  0.65               0.65                   0.65
+ResNet50 + SVM                             0.62                   0.97                  0.98               0.97                   0.98
+ResNet101 + SVM                            0.92                   1.57                  1.58               1.57                   1.55
+DenseNet201 + SVM                          1.29                   2.18                  2.20               2.19                   2.19
+AlexNet + SVM                              0.95                   1.37                  2.56               1.12                    1.1
+VGG19 + SVM                                1.03                   2.18                  2.20               2.19                   2.19
+Inceptionv3 + SVM                          0.87                   1.47                  1.46               1.46                   1.48
+InceptionResNetv2 + SVM                    1.81                   3.04                  3.02               3.06                   3.06
+
+
+                Table 8: Comparison with CNN-FC models with and without luminance for DTD and FMD Datasets.
+Dataset                                                   DTD                                                            FMD
+Pretrained                               RGB                          RGB + Y                                                   RGB + Y
+                                                                                                     RGB
+CNN-FC models                            RGB                         Luminance                                                 Luminance
+MobileNet                                59.49                         65.50                         68.50                       85.00
+ResNet50                                 63.20                         72.12                         75.21                       88.00
+ResNet101                                64.10                         70.50                         75.56                       87.50
+DenseNet201                              60.50                         68.50                         70.50                       80.25
+AlexNet                                  61.50                         67.11                         65.20                       81.25
+VGG19                                    64.20                         72.61                         77.50                       84.00
+Inceptionv3                              62.50                         69.50                         78.50                       88.50
+The best accuracy obtained for CNN-FC models with and without luminance for DTD and FMD datasets is indicated in bold.
+
+Cimpoi et al. [24] presented a custom ﬁsher vector CNN                     features from the texture images. Simon et al. [18] discussed
+(FV–CNN) and fully connected (FC–CNN) obtained an                          a deep framework that uses deep features from pretrained
+accuracy of 72.9% and 63.4% on the DTD dataset. This                       models and uses the support vector machine classiﬁer to
+method is based on the VGG model, which extracts local                     classify the textures in DTD and FMD datasets with 66.49%
+Computational Intelligence and Neuroscience                                                                                                                                                                       13
+
+                     100                                                                                                         100
+                      90                                                                                                          90
+                      80                                                                                                          80
+
+
+
+    Accuracy (%)                                                                                                Accuracy (%)
+                      70                                                                                                          70
+                      60                                                                                                          60
+                      50                                                                                                          50
+                      40                                                                                                          40
+                      30                                                                                                          30
+                      20                                                                                                          20
+                      10                                                                                                          10
+                       0                                                                                                           0
+                              0         1000          2000           3000          4000          5000                                     0     1000          2000          3000          4000     5000
+                                                                Iteration                                                                                              Iteration
+
+                          4                                                                                                           6
+                          3
+                   Loss   2                                                                                                    Loss   4
+
+                          1                                                                                                           2
+                          0                                                                                                           0
+                              0         1000          2000           3000          4000          5000                                     0     1000          2000          3000          4000     5000
+                                                                Iteration                                                                                              Iteration
+
+                                                               (a)                                                                                                    (b)
+                     100                                                                                                         100
+                      90                                                                                                          90
+                      80                                                                                                          80
+
+
+
+    Accuracy (%)                                                                                                Accuracy (%)
+                      70                                                                                                          70
+                      60                                                                                                          60
+                      50                                                                                                          50
+                      40                                                                                                          40
+                      30                                                                                                          30
+                      20                                                                                                          20
+                      10                                                                                                          10
+                       0                                                                                                           0
+                              0   200     400   600      800    1000        1200   1400   1600    1800   2000                             0   500      1000    1500    2000        2500     3000   3500    4000
+                                                                Iteration                                                                                              Iteration
+
+                          8                                                                                                       2.5
+                          6                                                                                                         2
+                   Loss   4                                                                                        Loss           1.5
+                                                                                                                                    1
+                          2                                                                                                       0.5
+                          0                                                                                                         0
+                              0   200     400   600      800    1000        1200   1400   1600    1800   2000                             0   500      1000    1500    2000        2500     3000   3500    4000
+                                                                Iteration                                                                                              Iteration
+
+                                                               (c)                                                                                                    (d)
+
+                                  Figure 7: Accuracy-Loss curve for pretrained CNN-FC models with luminance information: Comparison.
+
+
+                                                                            Table 9: Comparative Analysis for the DTD dataset.
+Authors                                                                                                      Method                                                                                        Accuracy
+Cimpoi et al. [24]                                                                                          FC-CNN                                                                                         63.4 ± 0.9
+Cimpoi et al. [24]                                                                                          FV-CNN                                                                                         72.9 ± 0.8
+Simon et al. [18]                                                                                     Deep features + SVM                                                                                    66.49
+Cimpoi et al. [27]                                                                                        IFV + DeCAF                                                                                         66.7
+Dai et al. [56]                                                                                         FASON (conv5)                                                                                      72.3 ± 0.6
+Dai et al. [56]                                                                                     FASON (conv4 + conv5)                                                                                  72.9 ± 0.7
+Cerezo et al. [57]                                                                                        ResNet50-FC                                                                                         60.8
+DeepLumina (Proposed)                                                                     Deep Features (ResNet101) + luminance + SVM                                                                     73.63 ± 0.5
+
+
+and 84.50% accuracy, respectively. Cimpoi [27] also pro-                                                               features obtained using CNN and designed a CNN for
+posed another method based on Improved Fisher Vector                                                                   obtaining the features, performed dimensionality reduc-
+(IFV) and Deep Convolutional-network Activation Fea-                                                                   tion. They achieved 83.2% accuracy on the FMD dataset.
+tures (DeCAF), which obtained an accuracy of 66.7% and                                                                 Cerezo et al. [57] analyzed the DTD dataset with
+65.5% for DTD and FMD dataset. Dai et al. [56] presented                                                               ResNet50-FC and obtained 60.8% accuracy. Bell et al.
+a Bilinear CNN model, FASON, that captured the second-                                                                 developed a method based on Scale Invariant Feature
+order information within the features from the deep                                                                    Transform and Improved Fisher Vector (SIFT-IFV-fc7)
+network and obtained an accuracy of 72.9% for the DTD                                                                  and got 69.6 accuracies in the FMD dataset. The Deep-
+dataset. Dai et al. incorporated a bilinear model with the                                                             Lumina obtained a promising accuracy of 73.6% and
+ﬁrst-order information fusion by gradient leaking, which                                                               90.15% for DTD and FMD datasets from the ResNet101
+captures the deep features and reduces the feature di-                                                                 Deep Features with the RGB and Luminance from YIQ
+mensions. Song et al. [25] showed the eﬃciency of the                                                                  Color Space classiﬁed by SVM.
+14                                                                                         Computational Intelligence and Neuroscience
+
+                                                Table 10: Comparative Analysis for the FMD dataset.
+Authors                                                                      Method                                                    Accuracy
+Song et al. [25]                                                            FC-CNN                                                     78.1 ± 1.6
+Song et al. [25]                                                            FV-CNN                                                     80.2 ± 1.8
+Song et al. [25]                                                      FC-CNN + FV-CNN                                                  83.2 ± 1.6
+Simon et al. [18]                                                     Deep features + SVM                                                84.50
+Cimpoi et al. [27]                                                        IFV + DeCAF                                                    65.5
+Bell et al. [58]                                                         SIFT-IFV + fc7                                                69.6 ± 0.3
+DeepLumina (proposed)                                     Deep Features (ResNet101) + luminance + SVM                                 90.15 ± 1.2
+The best accuracy value is indicated in bold.
+
+
+5. Conclusion                                                               [5] P. George, “Perceptually uniform color spaces for color
+                                                                                texture analysis: an empirical evaluation,” IEEE Transactions
+Color Texture classiﬁcation is a vital task performed in                        on Image Processing, vol. 10, no. 6, pp. 932–937, 2001.
+machine vision, especially in visual ﬁne-grained recognition                [6] S. N Gowda and C. Yuan, “Colornet: investigating the im-
+applications. The proposed work demonstrates the eﬃciency                       portance of color spaces for image clas-siﬁcation,” in Asian
+of introducing the luminance and RGB information in                             Conference on Computer Vision, pp. 581–596, Springer, Berlin,
+generating the deep features from the texture images.                           Germany, 2018.
+DeepLumina extracts a better texture feature map by in-                     [7] R. Velastegui, L. Yang, and D. Han, “The importance of color
+corporating the luminance features in the deep network. The                     spaces for image classiﬁcation using artiﬁcial neural networks:
+experimental results show that DeepLumina takes minimal                         a review,” in Proceedings of the Computational Science and Its
+                                                                                Applications - ICCSA 2021, pp. 70–83, Springer, Cagliari, Italy,
+computation time. Experimental results also demonstrate
+                                                                                September 2021.
+the strong inﬂuence of luminance in the performance of the
+                                                                            [8] S. Y. Kahu, R. B. Raut, and K. M. Bhurchandi, “Review and
+DeepLumina framework. In this work, we have tested using
+                                                                                evaluation of color spaces for image/video compression,”
+ﬁve-color models, namely RGB, YCbCr, YIQ, HSV, and                              Color Research & Application, vol. 44, no. 1, pp. 8–33, 2019.
+L ∗ a ∗ b ∗ and used eight pretrained models, namely.                       [9] X. Zhang, Y. Xin, H. Huang, and N. Xie, “Color image en-
+MobileNet, ResNet50, ResNet101, DenseNet201, AlexNet,                           hancement using optimal linear transform with hue pre-
+VGG16, Inceptionv3, and InceptionResNetv2. Using the                            serving and saturation scaling,” Int. J. Intell. Eng. Syst, vol. 8,
+DeepLumina method, higher accuracy of 73.63% and 90.15%                         no. 1–9, 2015.
+are achieved in ResNet101 on the DTD and FMD datasets,                     [10] J. B. Rivest, B. Jemel, A. Bertone, M. McKerral, and
+respectively. The proposed method also throws light into the                    L. Mottron, “Luminance- and texture-deﬁned information
+eﬃciency of YIQ color space in obtaining better texture                         processing in school-aged children with autism,” PLOS ONE,
+classiﬁcation accuracy.                                                         vol. 8, no. 10, Article ID e78978, 2013.
+                                                                           [11] J. F. Barraza and A. Martı́n, “The eﬀect of texture on
+Data Availability                                                               brightness perception in simulated scenes,” Leukos, vol. 16,
+                                                                                no. 4, pp. 279–287, 2020.
+The data used to support the ﬁndings of this paper are                     [12] A. P. Johnson and C. L. Baker, “First- and second-order
+publicly available benchmark datasets DTD and FMD,                              information in natural images: a ﬁlter-based approach to
+which can be found in the websites https://www.robots.ox.                       image statistics,” Journal of the Optical Society of America,
+ac.uk/􏽥vgg/data/dtd/ and https://people.csail.mit.edu/celiu/                    vol. 21, no. 6, pp. 913–925, 2004.
+CVPR2010/FMD/                                                              [13] K. Okada and I. Motoyoshi, “Human texture vision as multi-
+                                                                                order spectral analysis,” Frontiers in Computational Neuro-
+                                                                                science, vol. 66, 2021.
+Conflicts of Interest                                                      [14] J. Zou, T. Rui, Y. Zhou, C. Yang, and S. Zhang, “Convolutional
+The authors declare no conﬂicts of interest.                                    neural network simpliﬁcation via feature map pruning,”
+                                                                                Computers & Electrical Engineering, vol. 70, pp. 950–958,
+                                                                                2018.
+References                                                                 [15] B. Julesz, “Visual pattern discrimination,” IEEE Transactions
+ [1] M. M. P. Petrou and S. Kamata, Image Processing: Dealing                   on Information Theory, vol. 8, no. 2, pp. 84–92, 1962.
+     with Texture, John Wiley & Sons, Hoboken, NJ, USA, 2021.              [16] B. Julesz, “Textons, the elements of texture perception, and
+ [2] A. Materka and M. Strzelecki, “Texture analysis methods–a                  their interactions,” Nature, vol. 290, no. 5802, pp. 91–97, 1981.
+     review,” vol. 10, no. 1.97, COST B11 report, p. 4968, Technical       [17] T. Caelli, “On discriminating visual textures and images,”
+     university of lodz, institute of electronics, Brussels, Belgium,           Perception & Psychophysics, vol. 31, no. 2, pp. 149–159, 1982.
+     1998.                                                                 [18] P. Simon and U. V, “Deep learning based feature extraction
+ [3] L. Liu, J. Chen, P. Fieguth, G. Zhao, R. Chellappa, and                    for texture classiﬁcation,” Procedia Computer Science, vol. 171,
+     M. Pietikäinen, “From bow to cnn: two decades of texture                  pp. 1680–1687, 2020.
+     representation for texture classiﬁcation,” International Jour-        [19] Z. Wang, M. Li, H. Wang et al., “Breast cancer detection
+     nal of Computer Vision, vol. 127, no. 1, pp. 74–109, 2019.                 using extreme learning machine based on feature fusion
+ [4] M. Tkalcic and J. F Tasic, “Colour spaces: perceptual,” his-               with cnn deep features,” IEEE Access, vol. 7, Article ID
+     torical and applicational background, IEEE, vol. 1, 2003.                  105146, 2019.
+Computational Intelligence and Neuroscience                                                                                                  15
+
+[20] Q. Shi, W. Li, F. Zhang, W. Hu, X. Sun, and L. Gao, “Deep cnn            Transactions on Pattern Analysis and Machine Intelligence,
+     with multi-scale rotation invariance features for ship classi-           vol. 38, no. 2, pp. 295–307, 2015.
+     ﬁcation,” Ieee Access, vol. 6, Article ID 38656, 2018.              [36] C. Ware, Edited by C. Ware, Ed., “Chapter three - lightness,
+[21] M. Jbene, D. Ahmed, E. Maliani, and M. El Hassouni,                      brightness, contrast, and constancy,” in Information Visualization
+     “Fusion of convolutional neural network and statistical                  (Fourth Edition), Interactive Technologies, M. Kaufmann, Ed.,
+     features for texture classiﬁcation,” in Proceedings of the               vol. 69–94, fourth edition, 2021.
+     2019 International Conference on Wireless Networks and              [37] C. Dong, C. C. Loy, K. He, and X. Tang, “Learning a deep
+     Mobile Communications (WINCOM), pp. 1–4, Fez, Mo-                        convolutional network for image super-resolution,” in Pro-
+     rocco, November 2019.                                                    ceedings of the Computer Vision - ECCV 2014, pp. 184–199,
+[22] S. K. Roy, S. R. Dubey, B. Chanda, B. B. Chaudhuri, and                  Zurich, Switzerland, September 2014.
+     D. K. Ghosh, “Texfusionnet: an ensemble of deep cnn feature         [38] H. Li, B. Li, S. Tan, and J. Huang, “Identiﬁcation of deep
+     for texture classiﬁcation,” in Indian Institute of Information           network generated images using disparities in color com-
+     Technology, Design & Manufacturing, pp. 271–283, Jabalpur,               ponents,” Signal Processing, vol. 174, Article ID 107616, 2020.
+     India, 2020.                                                        [39] K. Kwang In Kim, K. Keechul Jung, Se H. Se Hyun Park, and
+[23] M. H. Saleem, J. Potgieter, and K. Mahmood Arif, “Plant                  H. J. Hang Joon Kim, “Support vector machines for texture
+     disease detection and classiﬁcation by deep learning,” Plants,           classiﬁcation,” IEEE Transactions on Pattern Analysis and
+     vol. 8, no. 11, p. 468, 2019.                                            Machine Intelligence, vol. 24, no. 11, pp. 1542–1550, 2002.
+[24] M. Cimpoi, S. Maji, and A. Vedaldi, “Deep ﬁlter banks for           [40] G. Wyszecki, Ws Stiles Color Science, p. 982, John Wiley &
+     texture recognition and segmentation,” in Proceedings of the             Sons, New York, NY, USA, 1982.
+     IEEE Conference on Computer Vision and Pattern Recognition,         [41] S. Robinson, “Color edge detection,” Optical Engineering,
+     pp. 3828–3836, Boston, MA, USA, June 2015.                               vol. 16, no. 5, pp. 479–484, 1977.
+[25] Y. Song, Q. Li, D. Feng, J. J. Zou, and W. Cai, “Texture image      [42] R. M. Rich and F. W. Billmeyer, “Unit color-diﬀerence ﬁgures
+     classiﬁcation with discriminative neural networks,” Compu-               derived from the proposed CIE 1976 L∗a∗b∗Space,” Applied
+     tational Visual Media, vol. 2, no. 4, pp. 367–377, 2016.                 Optics, vol. 13, no. 11, pp. 2475-2476, 1974.
+[26] L. G Hafemann, L. S Oliveira, P. R Cavalin, and R. Sabourin,        [43] CCIR Recommendation, 601-2.—encoding parameters of
+     “Transfer learning between texture classiﬁcation tasks using             digital televison for studios, International Telecommunications
+                                                                              Union, Geneva, Switzerland, 1990.
+     convolutional neural networks,” in 2015 International Joint
+                                                                         [44] A. R. Smith, “Color gamut transform pairs,” ACM Siggraph
+     Conference on Neural Networks (IJCNN), pp. 1–7, IEEE,
+                                                                              Computer Graphics, vol. 12, no. 3, pp. 12–19, 1978.
+     Killarney, Ireland, July2015.
+                                                                         [45] E. Chavolla, D. Zaldivar, E. Cuevas, and M. A. Perez, “Color
+[27] M. Cimpoi, S. Maji, I. Kokkinos, S. Mohamed, and A. Vedaldi,
+                                                                              spaces advantages and disadvantages in image color clustering
+     “Describing textures in the wild,” in Proceedings of the IEEE
+                                                                              segmentation,” in Advances in soft computing and machine
+     Conference on Computer Vision and Pattern Recognition,
+                                                                              learning in image processing, pp. 3–22, Springer, Berlin,
+     pp. 3606–3613, Columbus, OH, USA, June 2014.
+                                                                              Germany, 2018.
+[28] L. Sharan, R. Rosenholtz, and E. Adelson, “Material per-
+                                                                         [46] K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning
+     ception: what can you see in a brief glance?” Journal of Vision,         for image recognition,” in Proceedings of the IEEE Conference
+     vol. 9, no. 8, p. 784, 2009.                                             on Computer Vision and Pattern Recognition, pp. 770–778, Las
+[29] E. Cernadas, M. Fernández-Delgado, E. González-Ruﬁno, and              Vegas, NV, USA, June 2016.
+     P. Carrión, “Inﬂuence of normalization and color space to          [47] A. Krizhevsky, I. Sutskever, and G. E. Hinton, “Imagenet
+     color texture classiﬁcation,” Pattern Recognition, vol. 61,              classiﬁcation with deep convolutional neural networks,” in
+     pp. 120–138, 2017.                                                       Proceedings of the 26th Annual Conference on Neural Infor-
+[30] A. Woodland and F. Labrosse, “On the separation of lumi-                 mation Processing Systems 2012, F. Pereira, C. J. C. Burges, and
+     nance from colour in images,” in Proceedings of the Inter-               L. Bottou, Eds., pp. 1097–1105, Lake Tahoe, NV, USA, 2012.
+     national Conference on Vision, Video, and Graphics,                 [48] K. Simonyan and A. Zisserman, “Very deep convolutional
+     University of Edinburgh, Edinburgh, UK, pp. 29–36, 2005.                 networks for large-scale image recognition,” 2014, https://
+[31] P. Shih, L. Peichung, and J. Cheng, “Comparative assessment              arxiv.org/abs/1409.1556.
+     of content-based face image retrieval in diﬀerent color             [49] C. Szegedy, V. Vincent, Sergey Ioﬀe, J. Shlens, and Z. Wojna,
+     spaces,” International Journal of Pattern Recognition and                “Rethinking the inception architecture for computer vision,”
+     Artiﬁcial Intelligence, vol. 19, no. 7, pp. 873–893, 2005.               in Proceedings of the IEEE Conference on Computer Vision and
+[32] E. Van Den Broek and E. M van van Rikxoort, “Evaluation of               Pattern Recognition, pp. 2818–2826, Las Vegas, NV, USA,
+     color representation for texture analysis,” in Proceedings of the        June 2016.
+     16th Belgium-Netherlands Artiﬁcial Intelligence Conference,         [50] S. Christian, Ioﬀe Sergey, V. Vincent, and A. A. Alexander,
+     pp. 35–42, Groningen-The Netherlands, 2004.                              “Inception-v4 inception-resnet and the impact of residual
+[33] M. Pietikäinen, T. Mäenpää, and J. Viertola, “Color texture          connections on learning,” AAAI, vol. 4, 2017.
+     classiﬁcation with color histograms and local binary patterns,”     [51] G. Huang, Z. Liu, L. Van Der Maaten, and
+     in Workshop on Texture Analysis in Machine Vision, vol. 1,               K. Q. Weinberger, “Densely connected convolutional
+     pp. 109–112, Citeseer, New York, NY, USA, 2002.                          networks,” in Proceedings of the IEEE Conference on
+[34] K. R. Prabhakar, V. S. Srikar, and R. V. Babu, “DeepFuse: a              Computer Vision and Pattern Recognition, pp. 4700–4708,
+     deep unsupervised approach for exposure fusion with extreme              Honolulu, HI, USA, July 2017.
+     exposure image pairs,” in Proceedings of the 2017 IEEE In-          [52] M. Sandler, A. Howard, M. Zhu, A. Zhmoginov, and
+     ternational Conference on Computer Vision, pp. 4724–4732,                L.-C. Chen, “Mobilenetv2: inverted residuals and linear
+     Venice, Italy, October 2017.                                             bottlenecks,” in Proceedings of the IEEE Conference on
+[35] C. Dong, C. C. Loy, K. He, and X. Tang, “Image super-res-                Computer Vision and Pattern Recognition, pp. 4510–4520, Salt
+     olution using deep convolutional networks,” IEEE                         Lake City, UT, USA, June 2018.
+16                                                                      Computational Intelligence and Neuroscience
+
+[53] R. Geirhos, P. Rubisch, C. Michaelis, M. Bethge,
+     F. A. Wichmann, and W. Brendel, “Imagenet-trained cnns are
+     biased towards texture; increasing shape bias improves ac-
+     curacy and robustness,” 2018, https://arxiv.org/abs/1811.
+     12231.
+[54] K. Krammer and Y. Singer, “On the algorithmic imple-
+     mentation of multiclass svms,” Journal of Machine Learning
+     Research, (JMLR), vol. 2, pp. 265–292, 2001.
+[55] S. Escalera, O. Pujol, and P. Radeva, “On the decoding process
+     in ternary error-correcting output codes,” IEEE Transactions
+     on Pattern Analysis and Machine Intelligence, vol. 32, no. 1,
+     pp. 120–134, 2008.
+[56] X. Dai, Y.-H. Joe, and L. S. D. Fason, “First and second order
+     information fusion network for texture recognition,” in
+     Proceedings of the IEEE Conference on Computer Vision and
+     Pattern Recognition, pp. 7352–7360, Honolulu, HI, USA, July
+     2017.
+[57] R. Bello-Cerezo, F. Bianconi, F. Di Maria, P. Napoletano, and
+     F. Smeraldi, “Comparative evaluation of handcrafted image
+     descriptors vs. oﬀ-the-shelf cnn-based features for colour
+     texture classiﬁcation under ideal and realistic conditions,”
+     Applied Sciences, vol. 9, no. 4, p. 738, 2019.
+[58] S. Bell, U. Paul, N. Snavely, and K. Bala, “Material recognition
+     in the wild with the materials in context database,” in Pro-
+     ceedings of the IEEE Conference on Computer Vision and
+     Pattern Recognition, pp. 3479–3487, Boston, MA, USA, 2015.
+

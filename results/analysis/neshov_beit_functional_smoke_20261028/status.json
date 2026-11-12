@@ -1,0 +1,69 @@
+{
+  "status": "FUNCTIONAL_SMOKE_PASSED_NOT_A_REPLICATION_RESULT",
+  "device": "cpu",
+  "head_trained": false,
+  "quality_evaluated": false,
+  "external_test_evaluated": false,
+  "physical_latency_published": false,
+  "functional_check_only": true,
+  "weights": {
+    "checkpoint": "beitv2_base_patch16_224.in1k_ft_in22k_in1k",
+    "local_weight_path": "/home/joaquin/.cache/huggingface/hub/models--timm--beitv2_base_patch16_224.in1k_ft_in22k_in1k/snapshots/74ae649d4b577efcd55ae7257ad3867c99f173d5/model.safetensors",
+    "discarded_pretraining_head_keys": [
+      "head.bias",
+      "head.weight"
+    ],
+    "equal_regenerated_position_buffers": [
+      "blocks.0.attn.relative_position_index",
+      "blocks.1.attn.relative_position_index",
+      "blocks.10.attn.relative_position_index",
+      "blocks.11.attn.relative_position_index",
+      "blocks.2.attn.relative_position_index",
+      "blocks.3.attn.relative_position_index",
+      "blocks.4.attn.relative_position_index",
+      "blocks.5.attn.relative_position_index",
+      "blocks.6.attn.relative_position_index",
+      "blocks.7.attn.relative_position_index",
+      "blocks.8.attn.relative_position_index",
+      "blocks.9.attn.relative_position_index"
+    ],
+    "weight_loading": "strict after exact generated-buffer verification",
+    "timm_version": "1.0.28"
+  },
+  "layers_one_based": [
+    2,
+    5,
+    8,
+    11
+  ],
+  "torch_version": "2.12.1+cu126",
+  "selected_fit_rows": [
+    0,
+    1
+  ],
+  "feature_shape": [
+    2,
+    3072
+  ],
+  "logit_shape": [
+    2,
+    10
+  ],
+  "backbone_parameters": 85761984,
+  "head_parameters": 197450,
+  "checkpoint_sha256": "cee7cf4f990c27987411d71ad9627235cfb7612ea9a80276cf72b1bef84cfe38",
+  "source_sha256": {
+    "/home/joaquin/tesis_claude/results/confirmatory/sample_manifests/FMD.csv": "43f5d02a493763bff351e842d0ec29ac4fdcc9facccfa1364a028ed81d793984",
+    "/home/joaquin/tesis_claude/results/exploratory/integration_v11/replication_20261026/FMD_s42/paired/fold0.json": "da971b15f951810c556f2a12b929f6dfb6442486be9ed979f88514df5ecc8aa9",
+    "/home/joaquin/tesis_claude/src/neshov_beit_reference.py": "3b129d5f050f64b59d24300141c09712d1dd355fe235955fd4e566b77b07b52e",
+    "/home/joaquin/tesis_claude/scripts/smoke_neshov_beit_reference.py": "898f469936678920ab9dabe81d3f00a19dc812be157c2c0891a37cc38037e9c2",
+    "/home/joaquin/tesis_claude/data/confirmatory_sources/FMD/extracted/image/fabric/fabric_moderate_001_new.jpg": "db937153248855736be2d50cedc4e60c486d848e5f38f0d1ffc6a881e15383a1",
+    "/home/joaquin/tesis_claude/data/confirmatory_sources/FMD/extracted/image/fabric/fabric_moderate_002_new.jpg": "87c2433dff6b485802c64a1093c98d08483b65ab1e63ca6f4a15880a0e1a5343"
+  },
+  "limitations": [
+    "Untrained head; no F1 or accuracy claim",
+    "One-based layer interpretation and pooling choices documented",
+    "No original-author implementation/output available for parity",
+    "Software versions and development split differ from paper"
+  ]
+}

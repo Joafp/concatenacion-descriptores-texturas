@@ -1,0 +1,1070 @@
+                                                                     Knowledge-Based Systems 338 (2026) 115482
+
+
+                                                                       Contents lists available at ScienceDirect
+
+
+                                                                   Knowledge-Based Systems
+                                                            journal homepage: www.elsevier.com/locate/knosys
+
+
+
+
+HyTexNet: Percentile-guided local encoding and deep feature fusion for
+enhanced texture classification
+Vandana Gupta a , Ashish Mishra a , Nishant Shrivastava b,*
+a
+    Department of Computer Science & Engineering, Jaypee Institute of Information Technology, Noida, Uttar Pradesh, India
+b
+    Department of Computer Science & Engineering, Jaypee University Anoopshahr, Uttar Pradesh, India
+
+
+
+
+A R T I C L E I N F O                                        A B S T R A C T
+
+Keywords:                                                    Texture classification remains a challenging problem in computer vision, particularly under variations in illu­
+HyTexNet                                                     mination, pose, and scale. While deep networks provide powerful semantic representations, they often overlook
+Texture classification                                       fine-grained local structures, whereas handcrafted descriptors, though interpretable, struggle with adaptability.
+Percentile-guided encoding
+                                                             To address these limitations, this paper introduces HyTexNet, a hybrid framework that fuses percentile-guided
+DenseNet-121
+Feature fusion
+                                                             local encoding with deep embeddings from DenseNet-121. The proposed encoding scheme employs an adap­
+Robust image analysis                                        tive threshold based on the 75th percentile of neighborhood intensity differences, enabling the descriptor to
+                                                             capture significant local contrasts while suppressing redundant variations. This local representation is combined
+                                                             with global semantic features obtained through global average pooling, and a lightweight fusion head optimizes
+                                                             the joint feature space for classification. Extensive experiments on four benchmark datasets (UIUC, Kylberg,
+                                                             Brodatz, and KTH-TIPS2b) demonstrate that HyTexNet achieves classification accuracies of 95.65%, 100%,
+                                                             99.22%, and 99.79%, respectively, indicating consistently strong performance across diverse texture categories
+                                                             and imaging conditions. Additional evaluation on a challenging real-world texture dataset (DTD) further dem­
+                                                             onstrates the robustness and generalization capability of the proposed framework beyond controlled benchmark
+                                                             settings. In addition to accuracy, the framework is compact and computationally efficient, making it practical for
+                                                             scenarios with limited data and resources. These results position HyTexNet as a balanced alternative to recent
+                                                             texture analysis methods, offering a combination of robustness, interpretability, and scalability that bridges the
+                                                             gap between handcrafted and deep learning-based approaches.
+
+
+
+
+1. Introduction                                                                                        Although Convolutional Neural Networks (CNNs) had great success
+                                                                                                   in generic image recognition, their direct use for textures is limited.
+    Texture classification is a crucial task in image analysis, involving                          CNNs tend to emphasize global semantic features, often disregarding
+the recognition of recurring spatial patterns that differentiate one ma­                           fine-grained, repetitive structural attributes of textures. Moreover,
+terial or surface from another. This capability is essential in numerous                           spatial dependencies encoded in convolutional layers are diluted in fully
+applications, such as medical diagnosis [1], facial expression analysis                            connected layers, mitigating robustness to common variations like
+[2], industrial inspection [3], object recognition [4], agricultural                               translation, rotation, and scaling [10]. To address these constraints,
+monitoring [5], and terrain analysis [6]. It has also drawn more atten­                            recent pooling methods such as fractal pooling [7] and graph-based
+tion in emerging domains, like tactile perception and autonomous ro­                               modeling [8] have been introduced, highlighting the continuing need
+botics, where fast and accurate surface recognition is essential [7,8].                            for texture-specific architecture.
+More recently, texture analysis has also become relevant in real-time                                  Transfer learning with deep neural networks has been widely
+systems such as the Tactile Internet (TI), where rapid surface interpre­                           adopted to leverage pre-trained backbones and reduce training cost
+tation improves responsiveness. Although there isn't a single, widely                              [11–15]. Methods like Global Average Pooling (GAP) [13,16,17] and
+agreed-upon definition of texture, it is commonly described as local                               mid-level      feature      extraction    [18]      provide       dense,
+variations in pixel intensity that form scale- and rotation-invariant                              transformation-invariant representations, but usually require large, an­
+spatial patterns [9].                                                                              notated datasets and remain computationally expensive. In parallel,
+
+
+    * Corresponding author.
+      E-mail address: nishant.srivastava@mail.jaypeeu.ac.in (N. Shrivastava).
+
+https://doi.org/10.1016/j.knosys.2026.115482
+Received 1 October 2025; Received in revised form 29 December 2025; Accepted 1 February 2026
+Available online 2 February 2026
+0950-7051/© 2026 Elsevier B.V. All rights are reserved, including those for text and data mining, AI training, and similar technologies.
+V. Gupta et al.                                                                                                         Knowledge-Based Systems 338 (2026) 115482
+
+
+handcrafted descriptors such as Local Binary Patterns (LBP) [19] and               [23], provide robustness to geometric variations but often incur higher
+their extensions provide interpretability and simplicity but at the                computational costs and perform poorly on highly repetitive textures.
+expense of adaptability across different situations. Local Binary Con­             Statistical     methods     such     as    Texton     histograms     [24],
+volutional Networks (LBCNNs) [20] attempt to bridge this gap but still             Bag-of-Visual-Words (BoVW), and Fisher Vector (FV) [23] employ
+inherit the limitations of fixed local encodings. More recent adaptive             patch-based encoding and global aggregation, capturing mid-level sta­
+descriptors, including Scale and Pattern Adaptive LBP [21], yet again              tistics but frequently lacking fine local detail. Vector of Locally Aggre­
+ensure that hand-crafted approaches are competitive but need to be                 gated Descriptors (VLAD) [25] improves efficiency using first-order
+designed thoughtfully to be robust.                                                statistics, although its performance is highly dependent on dictionary
+    To overcome these limitations, HyTexNet is proposed as a hybrid                quality. More recently, mathematical models such as pseudo-parabolic
+architecture that combines percentile-guided local texture encoding                diffusion processes [26] and spatio-spectral complex network repre­
+with DenseNet-121 deep embeddings. In contrast to fixed-threshold LBP              sentations [27] have been proposed to enhance robustness, albeit at the
+extensions, it employs an adaptive 75th-percentile thresholding mech­              expense of increased computational complexity.
+anism, enhancing robustness to illumination variations. The resulting                  The emergence of Convolutional Neural Networks (CNNs) marked a
+histograms are integrated with global semantic features extracted                  major shift toward learnable feature extraction. Scattering Convolu­
+through global average pooling (GAP), yielding a compact and com­                  tional Networks (ScatNet) [28] utilize fixed wavelet filters to provide
+plementary representation of micro-structural patterns and high-level              mathematical stability, but they lack adaptability. Cimpoi et al. [29]
+semantics. Importantly, HyTexNet achieves robust generalization                    showed that combining CNN features with Fisher Vectors significantly
+without backbone retraining, ensuring high accuracy at reduced                     improves texture recognition, albeit with extremely high-dimensional
+computational cost.The main contributions of the work are:                         representations. Parameter-reduction strategies such as Global
+                                                                                   Average Pooling (GAP), adopted by Andrearczyk et al. [16] and Fujieda
+ • Propose HyTexNet, a hybrid model combining percentile-guided                    et al. [17], reduce model complexity and enhance invariance but may
+   local encoding with DenseNet-121 embeddings.                                    suppress fine-grained texture details. Bilinear pooling networks [30]
+ • Introduce an adaptive percentile thresholding scheme for robust                 capture second-order statistics to improve texture representation,
+   illumination- and scale invariant texture representation.                       though at the cost of increased computational overhead. Fractal pooling
+ • Develop a lightweight feature-fusion strategy that jointly optimizes            [7] further enhances repetitive pattern modeling while preserving
+   handcrafted and deep features.                                                  invariance.
+ • Achieve state-of-the-art accuracy on four benchmark datasets, sur­                  Specialized CNN architectures for texture analysis were subsequently
+   passing handcrafted, hybrid, and CNN baselines.                                 introduced. Deep Texture Encoding Network (DeepTEN) [31] and Deep
+ • Demonstrate efficiency and scalability, making the framework suit­              Encoding Pooling Network (DEPNet) [32] integrate encoding layers into
+   able for resource-constrained real-world applications.                          CNN backbones to capture unordered texture features while retaining
+                                                                                   spatial context, achieving improved accuracy but requiring large an­
+    In summary, HyTexNet validates that integrating adaptive local de­             notated datasets. Locality-constrained Soft Coding Network (LSCNet)
+scriptors with densely connected deep features yields a strong, light­             [33] enhances neighborhood relationships at the expense of higher
+weight, and generalizable solution for texture classification.                     computational cost. Attribute-driven models such as Multi-Attribute
+Comprehensive evaluation on four benchmark datasets—UIUC                           Pooling Network (MAPNet) [13] and Deep Spatial Residual Network
+(95.65%), Kylberg (100%), Brodatz (99.22%), and KTH-TIPS2b                         (DSRNet) [12] emphasize attribute learning and spatial dependencies,
+(99.79%)— demonstrates that HyTexNet consistently performs better                  while histogram- and pooling-based networks including HistRes [34]
+than handcrafted descriptors and standalone CNNs. These results                    and CLASSNet [14] aim to preserve distributional information beyond
+establish HyTexNet as a generalizable, scalable, and computationally               GAP. Although effective, these methods often increase architectural
+efficient framework for real-world texture classification.                         complexity and reduce scalability. Transfer learning-based approaches
+    The rest of this paper is structured as follows. Section 2 discusses the       [35] demonstrate strong performance on limited texture datasets by
+related work on handcrafted texture descriptors, deep learning methods,            adapting pretrained CNN backbones, but their reliance on large-scale
+and hybrid fusion techniques. Section 3 describes the proposed HyTex­              pretraining may limit generalization across domains.
+Net architecture, including percentile-guided encoding and                             Subsequent studies explored advanced multi-scale and encoding-
+CNN–handcrafted fusion. Section 4 reports the experimental setup,                  based strategies. Feature Encoding Network (FENet) [36], Residual
+datasets, and results, along with an extended ablation study and                   Pooling Network (RPNet) [37], and Multi-Scale Bilinear Feature
+robustness analysis. Section 5 concludes the paper and outlines future             Encoding Network (MSBFEN) [38] capture both fine- and coarse-scale
+work directions.                                                                   structures through residual and bilinear mechanisms, improving
+                                                                                   robustness to scale variation but frequently compromising computa­
+2. Related work                                                                    tional efficiency. Hierarchical and attribute-based fusion frameworks
+                                                                                   such as Deep Texture Pyramid Network (DTPNet) [39] and Multi-Path
+    Texture classification studies have gradually shifted from hand­               Attribute Pooling Network (MPAP) [40] model hierarchical texture re­
+crafted descriptors to deep learning methods. One of the earliest and              lationships effectively, yet introduce risks of overfitting and high
+most influential techniques, Local Binary Pattern (LBP) [19], achieves             memory consumption. Random Deep Activation Map Encoding
+grayscale and rotational invariance through thresholding pixel in­                 (RADAM) [41] reduces training complexity via random
+tensities around a central pixel. Although LBP is simple and computa­              autoencoder-based encodings, though at the expense of interpretability.
+tionally efficient, its fixed thresholding mechanism makes it sensitive to         Graph-based multiscale models [8] further extend texture representa­
+illumination changes and noise. Subsequent extensions introduced                   tion using graph neural networks but introduce additional structural and
+adaptive thresholding and more complex coding schemes, yet hand­                   computational complexity.
+crafted descriptors largely remained static in nature. Recent variants,                Recent studies indicate that neither handcrafted nor purely deep
+such as Scale and Pattern Adaptive LBP [21], attempt to overcome these             representations are universally optimal for texture analysis. Bello-
+limitations by adaptively encoding patterns across scales, demonstrating           Cerezo et al. [42] show that handcrafted descriptors remain effective
+that handcrafted descriptors can still be effective under appropriate              for capturing fine-grained structural patterns under controlled condi­
+conditions.                                                                        tions, whereas CNN-based features provide stronger semantic abstrac­
+    Other handcrafted approaches, including Scale-Invariant Feature                tion but may suppress micro-textures critical for distinguishing visually
+Transform (SIFT) [22] and Rotation-Invariant Feature Transform (RIFT)              similar materials. Fusion-based approaches demonstrate that integrating
+
+                                                                               2
+V. Gupta et al.                                                                                                      Knowledge-Based Systems 338 (2026) 115482
+
+
+
+
+Fig. 1. Overall architecture of the proposed HyTexNet framework, showing parallel handcrafted texture encoding and DenseNet-121 feature extraction streams
+followed by feature fusion and classification.
+
+
+complementary information across representations and scales improves             and accurate texture classification. The method has four main stages:
+robustness and discriminative power [43,44], though such gains are
+often accompanied by increased model complexity and attention over­              1. Adaptive Local Encoding – Captures fine-grained texture patterns
+head. These observations collectively highlight the need for balanced               using percentile-guided thresholding, making the representation
+hybrid frameworks that integrate local structural cues with deep se­                more robust to illumination and noise variations.
+mantic representations.                                                          2. Deep Semantic Feature Extraction – Leverages DenseNet-121 em­
+    In parallel, lightweight CNN architectures such as MobileNetV2,                 beddings to extract high-level semantic and contextual cues from
+MobileNetV3, and EfficientNet-B0 have gained attention due to their                 images without retraining the backbone.
+compact designs and low inference cost. However, their efficiency is             3. Feature Fusion and Classification – Combines handcrafted and deep
+largely achieved through aggressive downsampling and depthwise                      features into a compact joint representation, enabling complemen­
+convolutions, which can attenuate subtle texture patterns that are                  tary synergy for improved discriminability.
+important for fine-grained texture discrimination. At the other end of the       4. Training Optimization – Employs lightweight regularization and
+spectrum, transformer-based architectures—including Vision Trans­                   efficient optimization strategies (e.g., dropout and Adam) to ensure
+former, Swin Transformer, and DeiT—have demonstrated strong per­                    stable convergence and reduce overfitting.
+formance in texture and material recognition by modeling long-range
+dependencies. However, these methods typically rely on large-scale                   This design stands out from traditional CNN-only or handcrafted-
+pretraining and high-dimensional token representations, leading to               only methods by merging distribution-aware local descriptors with
+increased computational and memory demands. Together, these trends               dense deep embeddings, ensuring both robustness and efficiency. The
+highlight a trade-off between efficiency and representational richness in        overall architecture of HyTexNet is illustrated in Fig. 1.
+contemporary deep texture models.                                                    The input image (128×128×3) is processed through two parallel
+    In contrast to these purely deep models, HyTexNet adopts a hybrid            streams. The handcrafted branch generates a 514-D HyTex descriptor
+handcrafted–deep strategy, where explicit local texture encoding com­            from the HyTexS (256-D), HyTexM (256-D), and HyTexC (2-D) compo­
+plements CNN-based semantic representations. This design positions               nents. The DenseNet-121 branch produces a 1024-D deep embedding via
+HyTexNet as a hybrid alternative that complements purely deep models             global average pooling. Both representations are concatenated into a
+by explicitly integrating local texture encoding with CNN-based se­              1538-D fused vector, projected to a 256-D latent space with dropout, and
+mantic representations.                                                          finally classified using a Softmax layer. Key feature dimensions are
+    Building on this motivation, HyTexNet integrates percentile-guided           indicated to support clarity and reproducibility.
+local texture encoding with DenseNet-121 embeddings to form a                        The proposed HyTexNet framework operates through two comple­
+compact yet discriminative representation. Unlike methods such as                mentary streams that jointly enhance texture representation. The first
+DeepTEN and DEPNet, HyTexNet does not require backbone retraining                stream uses the percentile-guided HyTex descriptor to capture fine-
+or fine-tuning. Instead, adaptive percentile thresholding preserves stable       grained, distribution-aware local patterns, while the second stream le­
+local invariants, while DenseNet-121’s dense connectivity promotes               verages DenseNet-121 to extract high-level semantic cues. These locally
+efficient feature reuse and multi-level representation learning. This            enriched and globally contextual representations are fused to form a
+hybrid design minimizes redundancy and achieves a favorable balance              unified latent space, followed by dropout regularization and a Softmax
+between semantic richness, micro-texture preservation, and computa­              classifier for final prediction. This hybrid interaction mechanism effec­
+tional efficiency.                                                               tively preserves both detailed local structure and global texture se­
+                                                                                 mantics, ensuring robustness under illumination, pose, and scale
+3. Proposed HyTexNet framework                                                   variations while maintaining a clear and reproducible data flow.
+
+   The proposed HyTexNet framework combines percentile-guided
+local texture encoding with DenseNet-121 deep embeddings for strong
+
+
+                                                                             3
+V. Gupta et al.                                                                                                               Knowledge-Based Systems 338 (2026) 115482
+
+
+3.1. Adaptive local texture encoding (HyTex descriptor)                            Table 1
+                                                                                   Illustration of adaptive percentile thresholding versus fixed thresholding across
+    To construct a compact yet discriminative texture representation,              different local texture conditions.
+HyTexNet introduces a local descriptor that integrates three comple­                Scenario         Magnitudes         (T75)        Behavior          Fixed
+mentary components—Sign (S), Magnitude (M), and Center (C)—                                          (mp )              (Adaptive)   (Adaptive)        Threshold =
+encoding local structure, local contrast, and global brightness context,                                                                               10
+
+respectively. This design extends the existing framework of LBP while               Low contrast     [1, 1, 2, 2, 0,    2            Preserves         All responses
+introducing a novel percentile-based thresholding strategy that adapts                               3, 3, 1]                        subtle but        suppressed
+                                                                                                                                     meaningful
+dynamically to neighborhood statistics.
+                                                                                                                                     variations
+                                                                                    High contrast    [12, 5, 20, 2,     12           Retains only      Over-
+3.1.1. Sign encoding(HyTexS )                                                                        30, 1, 10, 8]                   dominant          detection
+    Let I(x,y) denote the grayscale intensity at pixel (x, y), P=8 neighbors                                                         transitions       (many false
+on a 3×3 grid centered at IC = I (x, y) and IP ∈ I(x, y), p=0,1,2,…,P− 1.                                                                              edges)
+                                                                                    Noisy flat       [1, 0, 2, 1, 1,    1            Suppresses        False
+    The sign component encodes the local spatial structure by comparing              region          0, 2, 1]                        random noise      responses
+each neighbor Ip with the central pixel IC :                                                                                         fluctuations      triggered
+     {                                                                              Mid-contrast     [4, 6, 5, 7, 6,    6            Retains           Partial
+         1, if Ip ≥ Ic                                                               repetitive      5, 4, 6]                        consistent        suppression of
+sp =                   , p = 0, 1, 2…..P − 1                             (1)
+        0, otherwise                                                                 texture                                         texture           structure
+                                                                                                                                     primitives
+   The resulting binary sequence is transformed into a decimal repre­               Edge-            [18, 2, 20, 1,     19           Emphasizes        Over-
+sentation using a weighted sum across all neighbors:                                  dominated      22, 3, 19, 2]                   strong            emphasis of
+                                                                                      region                                         directional       weak
+                  P− 1
+                  ∑                                                                                                                  transitions       gradients
+HyTexS (x, y) =          sp 2p                                          (2)
+                  p=0
+
+
+    This component effectively captures micro-structural patterns such                               ∑1
+                                                                                                     P−
+as edges, corners, and uniform regions while maintaining invariance to             HyTexM (x, y) =         bp (x, y) 2p .                                            (6)
+monotonic grayscale transformations. Unlike traditional Local Binary                                 p=0
+
+Pattern (LBP), which merges sign and contrast into a single descriptor,                This adaptive formulation offers distinct advantages. By selecting the
+the HyTex formulation isolates the sign information. This separation               threshold from the local percentile distribution, HyTexM retains only the
+enhances robustness to intensity fluctuations and enables more detailed            most prominent contrasts while suppressing irrelevant or noisy varia­
+encoding of local spatial patterns. A key advantage of HyTexS is its               tions, thereby improving robustness to illumination and local contrast
+ability to preserve edge polarity and fine binary differences that are             shifts.
+often blurred by convolution and pooling in CNN filters. This makes it                 Unlike fixed-threshold LBP/CLBP, which treat all neighborhoods
+complementary to CNN-based representations: while CNNs are opti­                   uniformly, the adaptive mechanism highlights the most salient local
+mized for global semantic structures, HyTexS explicitly retains fine-              contrasts, enhancing discriminative power for textures with subtle dif­
+grained local cues critical for texture discrimination. As a result, this          ferences.Furthermore, by explicitly encoding strong local variations that
+component strengthens the framework’s ability to handle illumination               may be attenuated in CNN feature maps due to convolution and pooling,
+variations and improves generalization across diverse texture datasets.            HyTexM provides fine-grained detail that complements deep semantic
+                                                                                   features. Together, these properties make the magnitude component a
+3.1.2. Percentile based adaptive magnitude encoding (HyTexM )                      key factor in strengthening HyTexNet’s ability to achieve accurate, and
+    Fixed thresholds in conventional LBP ignore local variability, making          generalizable texture classification. To demonstrate its adaptive nature,
+them highly sensitive to illumination changes and noise. To overcome               Table 1 compares T75 with a fixed threshold using various sample 3×3
+this limitation, HyTexNet introduces a percentile-guided magnitude                 neighborhoods.
+encoding, where the threshold adapts dynamically to the local distri­                  As observed from Table 1, the adaptive threshold T75 dynamically
+bution of contrast values.                                                         adjusts according to the local contrast distribution of each neighbor­
+    The magnitude component quantifies the local contrast by                       hood. In low-contrast and noisy flat regions, T75 remains low, allowing
+computing the absolute difference between the center pixel Ic and each             the descriptor to preserve weak yet structurally meaningful variations
+of its neighborsIp , defined as                                                    while suppressing random noise. In contrast, for high-contrast and edge-
+       ⃒      ⃒
+mp = ⃒Ip − Ic ⃒, ∀p ∈ {0, 1……P − 1}                                   (3)          dominated regions, T75 increases proportionally, ensuring that only
+                                                                                   dominant transitions contribute to the magnitude code and preventing
+    To ensure adaptive behavior, HyTexNet employs the 75th percentile              over-detection of insignificant gradients.
+of the local magnitude difference vector m = [m0 ,m1 ,m2 …………mP− 1 ] as                For mid-contrast repetitive textures—commonly encountered in
+the threshold T75 . formally                                                       fabric, material, and biological textures—the percentile-based threshold
+          {                               }                                        retains consistent local patterns that are partially suppressed by fixed
+                   1 P−
+                     ∑1 {        }
+                                                                                   thresholding. These examples demonstrate that T75 provides an effective
+T75 = inf t ∈ R |        1 mp ≤ t ≥ 0.75                            (4)
+                   P p=0                                                           balance between noise suppression and feature retention across diverse
+               {       }                                                           texture conditions. Unlike fixed thresholds, which exhibit either under-
+    Where, 1 mp ≤ t is the indicator function. Using this adaptive
+                                                                                   detection or over-detection depending on the local neighborhood,
+threshold,T75 , each magnitude value is then binarized with respect to             percentile-based thresholding automatically scales with the intrinsic
+this threshold:                                                                    contrast statistics, making it more suitable for real-world textures with
+            {                                                                      varying illumination, noise levels, and structural complexity.
+              1, ifmp ≥ T75
+bp (x, y) =                 , ∀p ∈ {0, 1……P − 1}                   (5)                 To illustrate the complete encoding process, Fig. 2 presents the step-
+               0, otherwise
+                                                                                   by-step computation of the HyTexM code for a sample center pixel.
+   This results in a binary magnitude pattern b = [b0 , b1 , b2 ……..bP− 1 ]
+emphasizing significant local variations. Magnitude Component at                   3.1.3. Center encoding (HyTexC )
+location (x, y) is encoded by computing the weighted binary summation:                introduces a global contextual cue by evaluating the intensity of the
+
+                                                                               4
+    V. Gupta et al.                                                                                                                 Knowledge-Based Systems 338 (2026) 115482
+
+
+
+
+    Fig. 2. Step-by-step computation of the HyTexM (magnitude) code for a center pixel IC =130.0 — (1) neighbor magnitudes, (2) adaptive thresholding using the 75th
+    percentile T75 , (3) binary pattern after thresholding, and (4) weighted summation producing the HyTexM code with value 5.
+
+
+
+
+    Fig. 3. Example of neighbor intensity distribution around a central pixel. (Left) Eight neighboring pixels (m0− m7 )are arranged in a circular pattern around the central
+    pixel IC = 122. (Right) Visualization of the mean intensity calculation, where the sum of all values including IC is 1099 giving an average μI = 122.11.
+
+
+    center pixel Ic relative to the mean intensity μI of the entire image. The              and therefore do not preserve such absolute luminance information,
+    global mean is computed as:                                                             which can be critical when textures differ mainly in reflectance or
+                  H   H
+                                                                                            overall brightness (e.g., dark vs. light fabrics, polished vs. matte sur­
+             1   ∑   ∑
+                                                                                            faces). By explicitly modeling global brightness polarity, HyTexC com­
+    μI =                 I(x, y)                                                  (7)
+           H × W x=1 y=1                                                                    plements the sign and magnitude patterns by introducing a coarse
+                                                                                            photometric reference.
+    where H and W denote the image height and width. A binary code is                           Although the HyTexC component contributes only a single bit, it
+    assigned based on whetherIc ≥ μI , thereby encoding whether the pixel is                provides complementary information that is not captured by the CNN
+    situated in a globally brighter or darker region, as illustrated in Fig. 3.             stream. In deep CNNs such as DenseNet-121, successive convolution,
+                     {                                                                      ReLU activation, and batch normalization progressively normalize
+                       1, ifIc ≥ μI
+    HyTexC (x, y) =                                                         (8)             feature responses, rendering the network largely invariant to absolute
+                       0, otherwise
+                                                                                            illumination levels. The subsequent global average pooling (GAP)
+       This component provides a global brightness reference, encoding                      operation aggregates high-level semantic activations across spatial lo­
+    whether a pixel belongs to a relatively brighter or darker region of the                cations but inherently discards raw photometric scale. In contrast,
+    image. Conventional local descriptors rely solely on relative differences               HyTexC explicitly encodes the relative brightness of the local neigh
+
+
+                                                                                        5
+
+
+
+­
+V. Gupta et al.                                                                                                          Knowledge-Based Systems 338 (2026) 115482
+
+
+
+
+                                  Fig. 4. Sample images represent the Kylberg, UIUC, KTH-TIPS2b, and Brodatz texture datasets.
+
+
+borhood with respect to the global image mean, thereby anchoring local                  HyTex achieves a compact 514-dimensional representation that is
+HyTex sign and magnitude patterns to a stable luminance reference and               computationally efficient while retaining discriminative richness. The
+improving robustness under varying illumination conditions.                         integration of percentile-guided contrast encoding and global brightness
+                                                                                    awareness ensures improved robustness against illumination changes,
+3.2. Complete HyTex feature representation                                          and contrast degradation. As a result, the HyTex descriptor consistently
+                                                                                    delivers greater stability and accuracy across diverse texture classifica­
+    The final HyTex descriptor is obtained by concatenating the                     tion tasks, while remaining lightweight enough for efficient fusion with
+normalized histograms of the three components: HyTexS , HyTexM and                  deep CNN features.
+HyTexC . This unified representation simultaneously encodes local bi­
+nary structure, adaptive local contrast, and global illumination refer­             3.3. Deep CNN feature extraction (DenseNet-121)
+ence, yielding a highly descriptive, compact, and illumination-robust
+feature vector. Each HyTex channel (S, M, C) is encoded as a normalized               To complement the handcrafted features, a DenseNet-121 CNN is
+histogram:                                                                          employed and pretrained on ImageNet for extracting high-level se­
+                                                                                    mantic features. Each resized input image is represented as:
+HS = Hist( HyTexS )                                                       (9)
+                                                                                    IRGB ∈ R128∗128∗3                                                       (13)
+HM = Hist( HyTexM )                                                     (10)
+                                                                                    and is passed through the DenseNet-121 backbone. A global average
+HC = Hist( HyTexC )                                                     (11)        pooling (GAP) operation is then applied to the final feature maps,
+                                                                                    yielding a compact semantic embedding:
+FHyTex = [HS ||HM ||HC ] ∈ R514                                         (12)
+
+
+                                                                                6
+V. Gupta et al.                                                                                                          Knowledge-Based Systems 338 (2026) 115482
+
+
+FCNN = GAP(DenseNet121(IRGB )) ∈ R1024                                (14)        Table 2
+                                                                                  Texture classification accuracy (%) of different methods on the KTH-TIPS2b and
+    DenseNet-121 is particularly well-suited for this task because its            Brodatz datasets.
+dense connectivity pattern encourages feature reuse and efficient
+                                                                                   KTH-TIPS2b                                 Brodatz
+gradient propagation, enabling the extraction of rich multi-level repre­
+sentations without redundancy. Compared to conventional CNNs such                  Methods                 Accuracy           Methods                  Accuracy
+
+as ResNet or MobileNet, DenseNet preserves fine-grained intermediate               SBP                     71.59              SBP                      76.04
+features while maintaining computational efficiency. These dense em­               CLBP                    53.3               CLBP                     85.38
+                                                                                   BRINT                   84.43              BRINT                    90.92
+beddings provide complementary global semantics to the handcrafted
+                                                                                   EMD-GMM                 78.63              EWCC-LCFB                86.44
+HyTex descriptor, ensuring that both local texture patterns and high-              CJLBPABMV               88.71              CJLBPABMV                94.83
+level contextual cues are effectively captured.                                    LGONBP                  87.05              LGONBP                   95.1
+                                                                                   DSTNet                  61.04              MGLCM                    84.22
+                                                                                   DCN-LS                  77.23              SVM-PSO                  86.55
+3.4. Multi-representation fusion and classification                                AlexNet                 70.27              AlexNet                  85.25
+                                                                                   VGGVD                   75.7               VGGVD                    85.72
+     The final hybrid representation is obtained by concatenating hand­            6LBP+CellNN             89.82              6LBP+CellNN              94.42
+                                                                                   6LBP+dCellNNs           91.29              6LBP+dCellNNs            98.21
+crafted HyTex features with deep CNN embeddings:                                   HyTexNet                99.79              HyTexNet                 99.22
+         [             ]
+Ffusion = FCNN ‖ FHyTex ∈ R1538                                    (15)
+
+    This fused vector integrates local texture patterns from HyTex with           combination with the Adam optimizer, which adaptively tunes learning
+global semantic cues from DenseNet-121, creating a compact yet highly             rates, this ensures stable convergence even in the hybrid feature space
+discriminative representation. The combined features are passed                   where handcrafted descriptors and deep embeddings exhibit different
+through a lightweight fully connected classifier:                                 statistical distributions. These design choices enable efficient optimi­
+           (             )                                                        zation of the fused representation while maintaining robustness against
+z1 = ReLu W1 Ffusion + b1 , z1 ∈ R256                              (16)           overfitting.
+    This projects the high-dimensional input into a 256-dimensional
+                                                                                  4. Results and discussion
+latent space. To prevent overfitting, dropout regularization is applied
+to the activated features:
+                                                                                      In the experiments, HyTexNet is compared with a wide range of
+z2 = Dropout(z1 , 0.5)                                                (17)        existing texture classification methods on four benchmark datasets:
+                                                                                  KTH-TIPS2b [46], UIUC [23], Brodatz [47], and Kylberg [48] (Fig. 4).
+ŷ = softmax (W2 .z2 + b2 ), ŷ ∈ RC                                  (18)        The competing approaches include SBP [49], CLBP [24], BRINT [50],
+                                                                                  EMD-GMM [51], CJLBPABMV [52], LGONBP [53], DSTNet [54],
+where C is the number of texture classes and ŷ denotes the predicted             DCN-LS [33], AlexNet [55], VGGVD [56], 6LBP+CellNN [57],
+probability distribution.                                                         6LBP+dCellNNs [57], MGLCM [58], EWCC-LCFB [59], SVM-PSO [60],
+    This feature-level fusion strategy ensures complementary synergy:             RALBGC [61], LBP [19], Modified CNN+WOA [62], CLBC [63], ECLBP
+HyTex descriptors preserve fine-grained local variations, while Dense­            [64], MCDR [65], JRLP [66], MobileNetV3 [35], and InceptionV3 [35].
+Net embeddings capture abstract contextual information.                           The complete comparative results are presented in Tables 1 and 2, where
+    Although advanced fusion strategies such as bilinear pooling or               Table 1 reports results on KTH-TIPS2b and Brodatz, and Table 2 on
+attention-based fusion can model higher-order feature interactions, their         Kylberg and UIUC. This comprehensive set of baselines ensures a fair
+effectiveness depends on meaningful spatial or channel-wise corre­                evaluation of the proposed HyTexNet framework against both tradi­
+spondence between the fused representations. In HyTexNet, the hand­               tional descriptors and modern deep learning models.
+crafted HyTex descriptor is a global, orderless histogram of local texture
+statistics, whereas the DenseNet-121 features are globally pooled se­             4.1. KTH-TIPS2b texture dataset
+mantic embeddings in which spatial structure has already been
+collapsed. As a result, there is limited structural alignment for complex             This dataset contains 11 texture classes, each with images of size
+interaction-based fusion models to exploit. As demonstrated in the                200×200. Each class includes four sample groups captured under three
+ablation study (Table 6), simple feature concatenation followed by a              object poses, four illumination directions, and nine image scales.
+lightweight fully connected layer achieves strong performance, while              Following the protocols suggested by Liu et al. [67], the experimental
+more complex fusion strategies provide only marginal gains. Given the             setup adopts two poses, three illuminations, and six sca­
+increased parameter complexity and potential stability issues intro­              les—corresponding to one-third of the dataset—for training, while the
+duced by higher-order fusion, straightforward concatenation offers a              remaining samples are used for testing.
+well-conditioned and efficient solution. This design preserves the com­               On this dataset, HyTexNet achieves an accuracy of 99.79% as given
+plementary nature of handcrafted and deep features while maintaining              in Table 1, showing improved performance over both handcrafted de­
+robustness and interpretability in the proposed framework.                        scriptors and deep CNN baselines. Traditional descriptors such as CLBP
+                                                                                  (53.3%) and SBP (71.59%) perform poorly due to their sensitivity to
+3.5. Training and optimization                                                    illumination and scale variations. More advanced handcrafted variants,
+                                                                                  including BRINT (84.43%), LGONBP (87.05%), and CJLBPABMV
+   The model is trained end-to-end using the Adam optimizer [45] and              (88.71%), achieve moderate improvements but remain far below
+sparse categorical cross-entropy loss:                                            HyTexNet. Hybrid models such as 6LBP+CellNN (89.82%) and
+                                                                                  6LBP+dCellNNs (91.29%) deliver stronger results but still fall short­
+        N
+        ∑                                                                         —HyTexNet yields a +8.5% gain over the strongest competitor. Deep
+£=−           logŷyi                                                 (19)
+        i=1                                                                       CNN baselines, including AlexNet (70.27%) and VGGVD (75.7%), also
+                                                                                  struggle to capture fine-grained texture variations under diverse
+where ŷ denotes the predicted probability assigned to the true class label       conditions.
+yi. The use of sparse categorical loss avoids redundant one-hot encoding,             The training dynamics illustrated in Fig. 5 demonstrate that
+thereby reducing memory usage and improving training speed. In                    HyTexNet converges rapidly and maintains stable generalization
+
+                                                                              7
+V. Gupta et al.                                                                                                          Knowledge-Based Systems 338 (2026) 115482
+
+
+
+
+Fig. 5. Training and evaluation performance of HyTexNet on the KTH-TIPS2b dataset:
+(a) Training and validation accuracy curves, (b) Training and validation loss curves, (c) Confusion matrix showing per-class classification performance (overall
+accuracy = 99.79%).
+
+
+                                                                               8
+V. Gupta et al.                                                                                                          Knowledge-Based Systems 338 (2026) 115482
+
+
+
+
+Fig. 6. Training and evaluation performance of HyTexNet on the Brodatz dataset: (a) Training and validation accuracy curves showing rapid convergence and stable
+generalization, (b) Training and validation loss curves confirming controlled optimization without overfitting, and (c) Confusion matrix illustrating per-class
+recognition with an overall accuracy of 99.22%.
+
+
+                                                                               9
+V. Gupta et al.                                                                                                             Knowledge-Based Systems 338 (2026) 115482
+
+
+Table 3                                                                               containing 160 images of size 576×576 pixels. Images were captured
+Comparison of texture classification accuracy (%) of different methods on the         under uniform lighting and rotation conditions, representing homoge­
+Kylberg and UIUC datasets.                                                            neous texture patterns. For this study, all images were resized to
+  Kylberg                                    UIUC                                     128×128 pixels, and the dataset was split into training and testing
+  Methods                   Accuracy         Methods                Accuracy
+                                                                                      subsets using an 80:20 ratio.
+                                                                                          The results on the Kylberg dataset are presented in Table 3. HyTex­
+  T-CNN-3                   99.4             SBP                    83.39
+                                                                                      Net achieves 100% accuracy, similar to CNN-based models such as
+  KNN+ nLBP                 99.64            CLBP                   92.54
+  RALBGC                    99.23            BRINT                  92.67             MobileNetV3 and InceptionV3, which also reach 100%. As expected,
+  LBP                       97.97            MGLCM                  81.73             most methods achieve high accuracy due to the dataset’s controlled
+  Modified CNN+WOA          99.71            CJLBPABMV              93.72             conditions; for example, KNN+nLBP (99.64%), JRLP (99.60%), and
+  CLBP                      98.8             LGONBP                 93.35             Modified CNN+WOA (99.71%) report very high results, while de­
+  CLBC                      97.28            DSTNet                 91.58
+  ECLBP                     98.71            EMD-GMM                84.03
+                                                                                      scriptors such as CLBP (98.80%), CLBC (97.28%), and ECLBP (98.71%)
+  MCDR                      99.3             AlexNet                91.18             exhibit slightly lower accuracy. By matching the best-performing CNNs
+  JRLP                      99.6             VGGVD                  91.36             while retaining the interpretability of handcrafted descriptors and the
+  MobileNetV3               100              6LBP+CellNNs           92.63             robustness of adaptive percentile-guided encoding fused with DenseNet
+  InceptionV3               100              6LBP+dCellNNs          94.14
+                                                                                      embeddings, HyTexNet demonstrates both competitive performance
+  HyTexNet                  100              HyTexNet               95.65
+                                                                                      and practical reliability. The training curves and the row-normalized
+                                                                                      confusion matrix in Fig. 7 further corroborate these findings, revealing
+throughout the learning process. The close alignment of the training and              stable convergence behavior, limited overfitting, and consistently high
+validation curves indicates effective learning without evident over­                  class-wise prediction reliability, with only marginal misclassifications.
+fitting, while the row-normalized confusion matrix exhibits strong di­                    In summary, the Kylberg results verify that HyTexNet performs
+agonal dominance with minor off-diagonal entries, reflecting high class-              reliably under ideal imaging conditions, equaling the strongest CNNs
+wise recognition accuracy under controlled acquisition conditions.                    while offering additional interpretability and robustness. This consis­
+Together, these results validate the robustness of the proposed frame­                tency across both controlled and challenging datasets highlights the
+work on the KTH-TIPS2b dataset and provide a reliable basis for com­                  general utility of the proposed hybrid framework.
+parison with existing methods reported in Table 2.
+                                                                                      4.4. UIUC texture dataset
+4.2. Brodatz texture dataset
+                                                                                          The dataset contains 25 texture classes with a total of 1000 original
+    It contains 112 basic texture images of size 640 × 640, labeled from              images of size 640×480. Following Hu et al. [54], each original image
+D1 to D112, respectively. Referring to the experimental scheme in Liu                 was partitioned into 4×4 non-overlapping sub-images, producing 16,
+et al. [49], only original images D1, D4, D16, D19, D21, D24, D28, D32,               000 new texture samples of size 160×120. For the experiments, half of
+D53, D57, D64, D65, D68, D77, D82, D84, D92, D95, D98, D101 and                       these samples were used for training and the remaining half for testing to
+D102 are chosen for experiments. Each image is also divided into 16                   ensure a fair evaluation protocol.
+non- overlapping sub-images of size 160 × 160. Then, each sub-image is                    On this dataset, HyTexNet achieves an accuracy of 95.65%, as re­
+rotated clockwise to generate more samples, respectively by 9 angles:                 ported in Table 3, outperforming both handcrafted and deep learning
+15◦ , 30◦ , 45◦ , 60◦ , 75◦ , 90◦ , 105◦ , 130◦ and 145◦ . Training sample set        baselines. Classical texture descriptors such as SBP (83.39%), MGLCM
+contains a half of all generated new samples, i.e., 0◦ , 30◦ , 60◦ , 90◦ and          (81.73%), and EMD-GMM (84.03%) exhibit limited performance due to
+130◦ ones.                                                                            their sensitivity to the significant intra-class variability present in UIUC.
+    The Brodatz dataset results are summarized in Table 2, where per­                 More advanced handcrafted variants, including CLBP (92.54%), BRINT
+formance varies notably across handcrafted and deep learning-based                    (92.67%), LGONBP (93.35%), and CJLBPABMV (93.72%), achieve
+methods. Traditional operators such as SBP (76.04%) and CLBP                          competitive accuracy but remain inferior to the proposed method.
+(85.38%) provide baseline accuracies, while more refined descriptors                  Similarly, hybrid approaches such as 6LBP+CellNN (92.63%) and
+like BRINT (90.92%), EWCC-LCFB (86.44%), and CJLBPABMV                                6LBP+dCellNNs (94.14%) perform strongly, yet HyTexNet still provides
+(94.83%) demonstrate improved texture discrimination. LGONBP                          a +2.11% improvement over the strongest competing approach. Deep
+further enhances accuracy to 95.1%, whereas MGLCM (84.22%) and                        CNN baselines, including AlexNet (91.18%) and VGGVD (91.36%),
+SVM-PSO (86.55%) remain closer to mid-range performance. Deep CNN                     show reduced robustness under the pronounced viewpoint and scale
+architectures, including AlexNet (85.25%) and VGGVD (85.72%), show                    variations characteristic of this dataset.
+comparable results to classical descriptors but do not surpass the                        The strong performance of HyTexNet indicates that percentile-
+stronger handcrafted variants. Hybrid approaches exhibit clear advan­                 guided local encoding effectively preserves discriminative micro-
+tages: 6LBP+CellNN achieves 94.42%, and 6LBP+dCellNNs signifi­                        texture information, while DenseNet embeddings capture complemen­
+cantly boosts performance to 98.21%. The highest accuracy of 99.22% is                tary global semantic cues. This synergy enhances generalization under
+obtained by HyTexNet, representing a +1.01% gain over the strongest                   the unconstrained imaging conditions of UIUC. Consistent with this
+hybrid competitor.                                                                    observation, the learning curves in Fig. 8 demonstrate rapid conver­
+    As illustrated in Fig. 6, the training curves and the row-normalized              gence and stable optimization without signs of overfitting.
+confusion matrix indicate smooth convergence, minimal overfitting,                        Overall, the results on the UIUC dataset confirm that HyTexNet
+and strong per-class recognition with minor off-diagonal                              consistently surpasses state-of-the-art handcrafted, hybrid, and CNN-
+misclassifications.                                                                   based methods, while maintaining stable convergence behavior and
+    In summary, the Brodatz results validate that HyTexNet not only                   strong generalization across challenging variations in viewpoint and
+achieves the highest accuracy among handcrafted, deep, and hybrid                     scale.
+methods but also exhibits reliable optimization behavior, underscoring                    The very high accuracies observed on datasets such as KTH-TIPS2b,
+its robustness on a classic benchmark.                                                Kylberg, and Brodatz can be largely attributed to their controlled
+                                                                                      acquisition conditions and relatively limited intra-class variability.
+4.3. Kylberg texture dataset                                                          Under such settings, few contemporary texture recognition method­
+                                                                                      s—including lightweight CNNs—tend to reach saturation performance.
+    The Kylberg dataset consists of 28 grayscale texture classes, each                Rather than suggesting that remaining errors are negligible, these results
+
+                                                                                 10
+V. Gupta et al.                                                                                                              Knowledge-Based Systems 338 (2026) 115482
+
+
+
+
+Fig. 7. Training and evaluation performance of HyTexNet on the Kylberg dataset: (a) Training and validation accuracy curves showing fast convergence and stable
+generalization, (b) Training and validation loss curves confirming minimal overfitting, and (c) The confusion matrix demonstrating that all test samples are correctly
+assigned to their respective classes (100% accuracy).
+
+
+                                                                                 11
+V. Gupta et al.                                                                                                         Knowledge-Based Systems 338 (2026) 115482
+
+
+
+
+Fig. 8. Training performance of HyTexNet on the UIUC dataset: (a) Training and validation accuracy curves showing rapid convergence and stable generalization,
+and (b) Training and validation loss curves confirming smooth optimization with minimal overfitting.
+
+
+indicate that the proposed framework effectively captures stable and
+discriminative texture cues within well-structured benchmarks. At the
+same time, more unconstrained and heterogeneous texture scenarios
+remain inherently more challenging and represent an important direc­
+tion for future investigation.
+
+
+4.5. Generalization on challenging real-world texture data (DTD)
+
+    To further examine the generalization capability of HyTexNet under
+unconstrained real-world conditions, experiments were conducted on
+the Describable Textures Dataset (DTD). The dataset contains 5,640
+images annotated with 47 human-describable texture attributes (e.g.,
+bumpy, striped, dotted) and exhibits substantial intra-class variation,
+diverse imaging conditions, and real-world artifacts, making it a chal­
+lenging benchmark for texture classification.
+                                                                                    Fig. 9. Performance comparison on the describable textures dataset (DTD).
+    Evaluation was performed using 10 random train/validation/test
+splits, and the reported performance corresponds to the average accu­
+racy across these runs. For comparison, HyTexNet was evaluated                     alongside representative CNN- and encoding-based texture recognition
+
+
+                                                                              12
+V. Gupta et al.                                                                                                               Knowledge-Based Systems 338 (2026) 115482
+
+
+Table 4
+Comparison with transformer-based texture classification methods on the KTH-TIPS2b dataset. Params (M) denote model size in millions of parameters, and GFLOPs
+denote computational cost per forward pass.
+  Method                      Backbone               Feature Strategy                        Params (M)(Model Size)    GFLOPs               KTH-TIPS2b Accuracy (%)
+                                                                                                                       (Computation Cost)
+
+  ViT-B/16-DINO [71]          ViT-B/16               Frozen backbone + linear classifier     85.8                      16.9                 88.6
+  Swin-B (IN-21k) [71]        Swin-B                 Frozen hierarchical ViT                 86.7                      15.1                 88.4
+  DeiT-B/16 (IN-21k) [71]     DeiT-B/16              Frozen backbone + linear classifier     85.8                      16.9                 87.4
+  BEiTv2-B/16 (IN-21k) [71]   BEiTv2-B/16            Frozen backbone + linear classifier     85.8                      12.7                 93.7
+  BEiTv2 (MLFA) [72]          BEiTv2                 Multi-layer feature aggregation + MLP   85.8                      12.7                 96.8
+  HyTexNet (Ours)             DenseNet-121 + HyTex   Hybrid CNN + handcrafted fusion         7.43                      0.94                 99.79
+
+The performance figures for transformer-based methods are taken from their published studies, while HyTexNet is evaluated under the experimental protocol
+described in this work. For methods originally reported with mean ± standard deviation, only the mean accuracy is shown for concise comparison.
+
+
+methods reported in the literature, including FENet, MAPNet, DSRNet,
+                                                                                      Table 5
+CLASSNet, DeepTEN, and RADAM, which employ various encoding,
+                                                                                      Cross-dataset evaluation results using prediction-confidence analysis.
+pooling, and distribution-aware modeling strategies.
+    As shown in Fig. 9, HyTexNet achieves an average classification                    Training Dataset     Testing Dataset    Mean Confidence (%)      Std. Dev. (%)
+accuracy of 73.2% on the DTD dataset. Given the unconstrained nature                   KTH-TIPS2b           Kylberg            53.50                    25.95
+of DTD, this result is competitive with existing approaches while
+maintaining a lightweight hybrid architecture. The observed perfor­
+mance indicates that the proposed percentile-guided handcrafted                       behavior, as it has been commonly used in cross-domain and open-set
+encoding, when fused with CNN representations, preserves discrimina­                  recognition settings as a proxy for model certainty when class labels
+tive texture information even in the presence of significant appearance               are not directly comparable.
+variability.                                                                              The proposed model achieved a mean prediction confidence of
+    The remaining performance gap reflects the inherent difficulty of                 53.50% with a standard deviation of 25.95% on the Kylberg dataset, as
+real-world texture recognition, where variations in color, context, and               summarized in Table 5. Although prediction confidence does not mea­
+imaging conditions are prominent. Further improvements may be ach­                    sure cross-dataset classification accuracy, it provides insight into the
+ieved through dataset-specific adaptation, incorporation of color and                 model’s predictive stability under domain shift. Despite the significant
+contextual cues, and exploration of more advanced fusion mechanisms,                  difference between the source and target datasets, the model exhibits
+which will be considered in future work.                                              structured and non-random prediction behavior, indicating that the
+                                                                                      learned representations retain meaningful discriminative capability.
+                                                                                      The distribution of prediction confidence values across target-domain
+4.6. Transformer-based comparison
+                                                                                      samples is illustrated in Fig. 10.
+                                                                                          Overall, this cross-dataset evaluation provides additional evidence
+    Recent studies have explored transformer-based architectures such
+                                                                                      that the proposed framework is not overly dependent on dataset-specific
+as Vision Transformer (ViT) [68], Swin Transformer (Swin-T) [69], and
+                                                                                      characteristics and can maintain stable predictive behavior under
+Data-efficient Image Transformer (DeiT) [70] for texture and material
+                                                                                      domain shift.
+recognition. As summarized in Table 4, transformer-based methods re­
+ported on the KTH-TIPS2b dataset achieve strong recognition accuracy,
+particularly when large-scale pretraining and deep transformer back­                  4.8. Qualitative analysis and interpretability
+bones are employed [71,72]. However, these approaches typically rely
+on high-dimensional representations and incur substantial computa­                        To enhance interpretability beyond quantitative metrics, qualitative
+tional and memory costs. In contrast, HyTexNet attains comparable or                  analyses were conducted on the KTH-TIPS2b dataset, which exhibits
+higher accuracy on the same benchmark while maintaining a signifi­                    significant variations in illumination, pose, and scale. t-SNE visualiza­
+cantly more compact model and lower computational complexity,                         tion was applied to the fused feature embeddings extracted from the
+thereby offering a favorable accuracy–efficiency trade-off.                           penultimate layer of HyTexNet (DenseNet-121 combined with the
+    Overall, Table 4 indicates that transformer-based approaches ach­                 percentile-guided HyTex descriptor). As shown in Fig. 11, samples from
+ieve strong recognition accuracy on KTH-TIPS2b at the expense of                      different texture categories form compact clusters with reduced overlap,
+substantially higher model complexity. In contrast, HyTexNet provides                 indicating improved inter-class separability and effective feature fusion.
+comparable or higher accuracy with a compact and computationally                          To analyze the contribution of the deep feature stream, Fig. 12 pre­
+efficient design, highlighting a favorable accuracy–efficiency trade-off.             sents representative feature maps extracted from shallow and deep
+                                                                                      convolutional layers of DenseNet-121. Early layers primarily capture
+4.7. Cross-dataset generalization analysis                                            fine-grained texture primitives such as edges and repetitive micro-
+                                                                                      patterns, while deeper layers respond to higher-level semantic texture
+   While the preceding experiments demonstrate strong performance                     structures, reflecting the hierarchical abstraction of texture information.
+on standard texture benchmarks, these datasets are typically collected                These observations demonstrate how the CNN backbone captures
+under controlled conditions and may not fully reflect real-world vari­                increasingly abstract and semantically meaningful representations.
+ability. To further examine the generalization capability of the proposed                 While CNN feature maps emphasize hierarchical semantic abstrac­
+HyTexNet framework beyond dataset-specific characteristics, a cross-                  tion, the HyTex descriptor operates at the pixel-neighborhood level,
+dataset evaluation was conducted.                                                     explicitly encoding local contrast strength and dominant binary transi­
+   In this experiment, the model was trained on the KTH-TIPS2b dataset                tions. To illustrate the specific texture cues captured by the handcrafted
+and directly applied to the Kylberg dataset without any retraining or                 stream, Fig. 13 provides a qualitative visualization of the HyTex
+domain adaptation. The two datasets differ substantially in terms of                  encoding process. The magnitude response map highlights fine-grained
+texture categories, acquisition conditions, and label cardinality, making             local contrast variations, the percentile-guided binary transition map
+direct supervised accuracy computation infeasible. Consequently,                      (T75) emphasizes dominant texture transitions while suppressing weak
+prediction-confidence analysis was employed to assess cross-domain                    or noisy responses, and the resulting encoded histogram aggregates
+
+                                                                                 13
+V. Gupta et al.                                                                                                             Knowledge-Based Systems 338 (2026) 115482
+
+
+
+
+                               Fig. 10. Distribution of prediction confidence for cross-dataset evaluation (KTH-TIPS2b → Kylberg).
+
+
+
+
+Fig. 11. t-SNE visualization of fused HyTexNet feature embeddings on the KTH-TIPS2b dataset, illustrating improved inter-class separability achieved through
+percentile-guided local encoding and deep feature fusion.
+
+
+
+
+Fig. 12. Feature map visualization from DenseNet-121 illustrating (a) Shallow-layer texture primitives and (b) Deep-layer semantic texture responses, supporting the
+complementary interaction between convolutional features and the local percentile-guided HyTex descriptor.
+
+
+these local patterns into a compact global statistical representation.               samples are illustrated in Fig. 14. Most errors occur between visually
+These visualizations clarify how HyTex preserves micro-texture struc­                similar texture categories (e.g., linen and cotton), reflecting intrinsic
+tures that may be attenuated by convolution and pooling operations,                  ambiguities in fine-grained texture discrimination rather than de­
+thereby complementing the CNN features.                                              ficiencies of the proposed method.
+   To further analyze model behavior, representative misclassified                       Overall, these qualitative results further support the robustness and
+
+                                                                                14
+V. Gupta et al.                                                                                                           Knowledge-Based Systems 338 (2026) 115482
+
+
+
+
+Fig. 13. Qualitative visualization of the HyTex descriptor. (a) HyTex magnitude response map highlighting fine-grained local contrast variations, (b) Percentile-
+guided binary transition map (T75) emphasizing dominant local texture transitions while suppressing weak or noisy responses, and (c) The resulting HyTex
+encoded histogram representing the global statistical distribution of local texture patterns.
+
+
+interpretability of HyTexNet and are consistent with the quantitative               99.47%, respectively. These findings indicate that the 75th percentile
+trends observed in result and discussion section.                                   threshold strikes an optimal balance between suppressing redundant
+                                                                                    local variations and preserving the most discriminative contrast pat­
+                                                                                    terns. Consequently, this adaptive selection enhances the generalization
+4.9. Ablation study
+                                                                                    ability of HyTexNet across diverse texture datasets.
+                                                                                       Table 6 presents a comprehensive ablation study designed to analyze
+   Beyond the benchmark evaluations, a detailed analysis was con­
+                                                                                    the contribution of individual components and key design choices in the
+ducted to assess the impact of percentile-guided thresholding within the
+                                                                                    proposed HyTexNet framework.
+HyTexNet framework. As illustrated in Fig. 15, different percentile
+                                                                                       The study systematically isolates handcrafted descriptor design,
+thresholds were examined, with the 75th percentile achieving the
+                                                                                    magnitude threshold selection, feature fusion strategy, CNN adaptation,
+highest classification accuracy of 99.79%. In comparison, the 25th and
+                                                                                    backbone choice, robustness, and statistical stability to provide a
+50th percentiles yielded slightly lower accuracies of 99.31% and
+
+                                                                               15
+V. Gupta et al.                                                                                                         Knowledge-Based Systems 338 (2026) 115482
+
+
+                                                                                   partial CNN adaptation to texture-specific patterns is a major contrib­
+                                                                                   utor to performance improvement beyond handcrafted encoding alone.
+                                                                                   Backbone comparison experiments further indicate that although
+                                                                                   competitive performance is observed with MobileNetV2 (99.44%),
+                                                                                   ResNet-50 (99.00%), and EfficientNet-B0 (99.32%), DenseNet-121 of­
+                                                                                   fers the most favorable balance for texture recognition, while still
+                                                                                   demonstrating the backbone-agnostic nature of the proposed
+                                                                                   framework.
+                                                                                       Robustness analysis shows that the final HyTexNet model remains
+                                                                                   stable under illumination changes (+20% brightness), while experi­
+                                                                                   encing a controlled performance degradation under Gaussian noise
+                                                                                   perturbations, which is expected for fine-grained texture recognition
+                                                                                   tasks. Finally, statistical stability is assessed through five independent
+                                                                                   runs with different random initializations. The resulting mean accuracy
+                                                                                   of 99.14% with a standard deviation of 0.11%, along with a tight 95%
+Fig. 14. Representative misclassified samples on the KTH-TIPS2b dataset,
+                                                                                   confidence interval of [98.88%, 99.41%], confirms that the reported
+showing confusion between visually similar texture classes and illustrating
+                                                                                   results are consistent and not dependent on a single training instance.
+intrinsic ambiguities in fine-grained texture discrimination.
+                                                                                       Overall, the ablation study validates that HyTexNet’s performance
+                                                                                   gains stem primarily from the synergistic integration of percentile-
+transparent understanding of performance gains.
+                                                                                   guided handcrafted encoding and texture-adapted CNN representa­
+    The handcrafted component analysis shows that individual descrip­
+                                                                                   tions, while maintaining a simple and efficient fusion strategy. These
+tors—sign (67.10%), magnitude (57.54%), and center encoding
+                                                                                   findings justify the key design choices of the proposed framework and
+(23.90%)—exhibit limited discriminative power when used indepen­
+                                                                                   highlight robustness to illumination variations, with noise resilience
+dently. However, their joint integration (S + M + C) significantly im­
+                                                                                   identified as a promising direction for future improvement..
+proves performance to 82.30%, clearly demonstrating their
+complementary nature and validating the design of the HyTex
+descriptor.                                                                        4.10. Computational complexity and feature efficiency analysis
+    The magnitude threshold sensitivity analysis further confirms the
+importance of percentile-guided encoding. A low percentile threshold (p                In addition to accuracy evaluation, it is also important to analyze the
+= 25) is overly sensitive to noise and illumination variations, while the          efficiency of different descriptors in terms of feature dimensionality and
+median threshold (p = 50) provides moderate robustness. The proposed               average computational cost. Table 7 summarizes the dimensionality of
+75th percentile setting achieves the best trade-off between robustness             representations and their corresponding average computation times (in
+and discrimination (57.54%), and is therefore consistently adopted in all          seconds per image) across the KTH-TIPS2b, Brodatz, and UIUC datasets.
+subsequent experiments.                                                            This comparison highlights the balance between descriptive power and
+    To examine the effectiveness of feature fusion, handcrafted HyTex              computational efficiency offered by traditional handcrafted methods,
+features were integrated with CNN embeddings while keeping the CNN                 recent LBP variants, and deep learning models.
+backbone frozen to isolate fusion behavior. Under this controlled                      From the results, it can be observed that classical descriptors such as
+setting, simple feature concatenation followed by a fully connected                Original LBP and CJLBPABMV produce compact representations (≤ 400
+classifier already achieves strong performance (94.65%), indicating                dimensions) with very low computation times, but at the expense of
+effective complementarity between handcrafted and deep features.                   limited discriminative capability. On the other hand, deep CNN models
+More complex fusion mechanisms such as bilinear pooling and                        such as AlexNet and VGGVD achieve high representational power but at
+attention-based fusion provide only marginal gains at increased                    the cost of very high dimensionality (32k–65k) and significantly longer
+computational cost, suggesting that fusion complexity is not the primary           computation times. Intermediate descriptors such as BRINT and
+performance bottleneck.                                                            LGONBP provide a compromise between feature size and efficiency,
+    The final HyTexNet configuration enables texture adaptation by fine-           while CLBP achieves higher representational richness with moderate
+tuning the last block of DenseNet-121 while keeping the fusion strategy            computational overhead.
+fixed. This results in the peak accuracy of 99.79%, confirming that                    HyTexNet generates a 1538-dimensional representation, which is
+
+
+
+
+                  Fig. 15. Ablation study on the KTH-TIPS 2b dataset showing the impact of percentile thresholding in the proposed method.
+
+                                                                              16
+V. Gupta et al.                                                                                                                            Knowledge-Based Systems 338 (2026) 115482
+
+
+Table 6
+Comprehensive ablation study results on the KTH-TIPS2b dataset.
+  Sr.       Ablation Parameters                Configuration                Accuracy        Macro-F1      Explanation /Interpretation
+  No.                                                                       (%)             (%)
+
+  1         Handcrafted Component              Sign component (S) only      67.10           65.32         Evaluates the discriminative ability of sign-based local binary transitions
+            Contribution (No CNN, fixed p =                                                               alone, without magnitude, center, or CNN features.
+            75)                                Magnitude component          57.54           56.97         Assesses contrast-based texture information using a fixed percentile
+                                               (M, p = 75) only                                           threshold; evaluated without structural (S), center (C), or CNN cues.
+                                               Center component (C)         23.90           20.47         Measures the contribution of center pixel intensity in isolation, confirming
+                                               only                                                       its limited standalone texture discrimination.
+                                               Full HyTex (S + M + C, p     82.30           80.12         Demonstrates that integrating sign, magnitude, and center components
+                                               = 75)                                                      yields a substantially stronger handcrafted texture descriptor.
+  2         Magnitude Threshold Sensitivity    p = 25                       50.42           49.96         Uses a low percentile threshold for magnitude encoding; highly sensitive to
+            (Magnitude-only, No CNN)                                                                      noise and illumination variations.
+                                               p = 50                       53.80           53.69         Median percentile threshold improves robustness compared to p = 25 but
+                                                                                                          remains suboptimal for discrimination.
+                                               p = 75 (ours)                57.54           56.97         Higher percentile threshold suppresses noise-induced variations while
+                                                                                                          preserving discriminative magnitude patterns.
+  3         Fusion Mechanism Comparison        Concatenation + FC           94.65           94.67         Evaluates simple feature concatenation with a frozen CNN backbone to
+            (CNN + HyTex, CNN frozen)          (used)                                                     isolate fusion behavior; shows effective integration of handcrafted and deep
+                                                                                                          features.
+                                               Bilinear pooling             95.10           95.05         Introduces second-order interactions between handcrafted and CNN
+                                                                                                          features; evaluated with frozen CNN to avoid confounding adaptation
+                                                                                                          effects.
+                                               Attention-based fusion       95.30           95.20         Applies adaptive weighting to feature streams while keeping CNN frozen;
+                                                                                                          yields marginal gains at increased computational cost.
+  4         Final HyTexNet Configuration       DenseNet-121 (last block     99.79           99.79         Represents the final model where the CNN backbone is texture-adapted
+            (Fine-tuned CNN + HyTex)           fine-tuned)                                                through fine-tuning, resulting in peak performance.
+  5         CNN Backbone Comparison (Fine-     MobileNetV2                  99.44           99.10         Evaluates a lightweight CNN backbone under identical fine-tuning and
+            tuned + HyTex, Fusion fixed)                                                                  fusion settings to assess efficiency–accuracy trade-offs.
+                                               ResNet-50                    99.00           99.01         Assesses a deeper backbone under the same HyTex and fusion configuration,
+                                                                                                          showing slightly reduced texture specialization.
+                                               EfficientNet-B0              99.32           99.20         Examines a balanced backbone architecture under identical conditions,
+                                                                                                          demonstrating consistent performance.
+  6         Robustness to Input Distortions    Gaussian noise (+10%)        90.21           89.88         Tests robustness of the final model under additive noise, indicating
+            (Final HyTexNet)                                                                              moderate but controlled performance degradation.
+                                               Brightness increase          95.63           95.41         Evaluates stability under illumination changes, highlighting the benefit of
+                                               (+20%)                                                     percentile-guided magnitude encoding.
+  7         Statistical Stability (Final       5 independent runs           99.14 ±         -             Reports mean and variance across five run, confirming repeatability and
+            HyTexNet)                                                       0.11                          statistical reliability of the final model.(95% CI: [98.88, 99.41])
+
+
+
+
+Table 7                                                                                         Table 8
+Feature dimensionality and average computation time (in seconds per image) of                   Computational complexity of HyTexNet and baseline CNN Models (Input:
+different descriptors.                                                                          128×128; Dataset: KTH-TIPS2b).
+  Methods                  Dimensionality     KTH-TIPS2b          Brodatz     UIUC               Model                   Parameters          FLOPs             Observation
+                                                                                                                         (Millions)          (GFLOPs, ≈)
+  Original LBP             54                 0.069               0.058       0.049
+  DLBP                     14 150             0.29                0.241       0.205              DenseNet-121            7.04 M              0.94              Pretrained CNN
+  CLBP                     3552               0.108               0.095       0.081               (Backbone)                                                   backbone
+  BRINT                    1296               0.178               0.153       0.129              HyTexNet (Ours)         7.43 M              0.94              Hybrid CNN–texture
+  AlexNet                  32 768             0.404               0.336       0.285                                                                            fusion network
+  VGGVD                    65 536             0.492               0.41        0.348              MobileNetV2             3.47 M              0.08              Lightweight CNN
+  LGONBP                   1404               0.212               0.191       0.158                                                                            baseline
+  CJLBPABMV                400                0.086               0.081       0.075              EfficientNet-B0         4.00 M              0.39              Efficient CNN
+  6LBP+CellNN              192                0.119               0.085       0.071                                                                            baseline
+  6LBP+dCellNNs            768                0.203               0.142       0.116              ResNet-50               23.50 M             1.3               Heavy CNN baseline
+  HyTexNet                 1538               0.078               0.127       0.075              Handcrafted Texture     0.01 M              0.002             Non-deep texture
+                                                                                                   Stream (only)                                               descriptor
+
+                                                                                                FLOPs are reported per forward pass at 128×128 input resolution. Handcrafted
+considerably smaller than typical CNN embeddings and only slightly
+                                                                                                texture extraction incurs negligible computational cost compared to CNN
+larger than advanced LBP variants, while maintaining favorable                                  inference.
+computation times across datasets.
+    Overall, this analysis confirms that HyTexNet offers an effective
+                                                                                                standard CNN backbones using an input resolution of 128×128 on the
+trade-off between discriminative capacity and efficiency. By combining
+                                                                                                KTH-TIPS2b dataset.
+local handcrafted features with deep embeddings, the method achieves
+                                                                                                   The proposed HyTexNet contains 7.43M parameters, representing
+competitive performance with substantially reduced dimensionality
+                                                                                                only a 5.54% increase over the 7.04M parameters of the standalone
+compared to conventional deep networks, while maintaining practical
+                                                                                                DenseNet-121 backbone. Similarly, the computational cost increases
+computational costs. This makes the proposed framework well-suited for
+                                                                                                marginally from 0.94 GFLOPs (DenseNet-121) to 0.94 GFLOPs for
+real-time and resource-constrained texture classification applications.
+                                                                                                HyTexNet, corresponding to an overhead of approximately 0.17%. This
+    While the above analysis compares descriptor-level efficiency, it is
+                                                                                                minimal increase arises from the lightweight handcrafted texture stream
+also important to assess the computational footprint of the complete
+                                                                                                and fusion layers, while the overall computation remains dominated by
+HyTexNet architecture. To this end, Table 8 reports the total number of
+                                                                                                the CNN backbone. The FLOPs of HyTexNet are dominated by the
+parameters and the approximate FLOPs for HyTexNet and several
+                                                                                                DenseNet-121 backbone; the handcrafted HyTex feature extraction and
+
+                                                                                       17
+V. Gupta et al.                                                                                                                Knowledge-Based Systems 338 (2026) 115482
+
+
+fusion layers introduce negligible additional computational overhead.            CRediT authorship contribution statement
+    These results demonstrate that HyTexNet preserves a computational
+footprint comparable to commonly used CNN architectures while                        Vandana Gupta: Writing – original draft, Validation, Methodology,
+benefiting from enhanced texture representation through hand­                    Investigation, Data curation, Conceptualization. Ashish Mishra:
+crafted–deep feature fusion, making it suitable for practical deployment         Writing – review & editing, Supervision, Resources, Project adminis­
+under moderate computational constraints.                                        tration, Formal analysis. Nishant Shrivastava: Writing – review &
+    Together with the quantitative accuracy results and qualitative an­          editing, Visualization, Validation, Project administration, Methodology,
+alyses presented earlier, this efficiency evaluation confirms that               Investigation, Data curation, Conceptualization.
+HyTexNet achieves a balanced trade-off between discriminative per­
+formance, interpretability, and computational efficiency.                        Declaration of competing interest
+
+5. Conclusion                                                                        The authors declare that they have no conflicts of interest related to
+                                                                                 this manuscript. No financial, personal, or professional relationships
+    This work introduced HyTexNet, a hybrid texture classification               have influenced the research, analysis, or conclusions presented in this
+framework that integrates percentile-guided local texture encoding with          study.
+deep semantic embeddings from DenseNet-121. By employing an                          If any undisclosed conflicts arise, the authors will promptly notify the
+adaptive threshold based on the 75th percentile of neighborhood in­              journal.
+tensity differences, the proposed encoding effectively preserves
+discriminative micro-texture patterns while suppressing noise and
+                                                                                 Acknowledgments
+illumination-induced variations. The resulting hybrid representation
+combines the interpretability of handcrafted descriptors with the
+                                                                                    The authors would like to thank Jaypee Institute of Information
+representational power of deep networks through a lightweight and
+                                                                                 Technology and Jaypee University Anoopshahr for providing academic
+efficient fusion strategy.
+                                                                                 and computational support during this work.
+    Extensive experiments on four widely used texture bench­
+marks—UIUC, Kylberg, Brodatz, and KTH-TIPS2b—demonstrate that
+                                                                                 Data availability
+HyTexNet achieves consistently strong performance under varying im­
+aging conditions, while maintaining a compact model size and low
+                                                                                    The datasets used in this study (UIUC, Brodatz, Kylberg, KTH-TIPS2b
+computational cost. Ablation studies further confirm the robustness of
+                                                                                 and DTD) are publicly available. Processed data and implementation
+the adaptive encoding, the complementary nature of handcrafted and
+                                                                                 code will be made available upon reasonable request.
+deep features, and the backbone independence of the framework.
+Compared with lightweight CNNs and recent transformer-based models,
+                                                                                 References
+HyTexNet offers a favorable balance between accuracy, efficiency, and
+interpretability, avoiding the heavy reliance on large-scale pretraining          [1] M. Agarwal, A. Singhal, B. Lall, 3D local ternary co-occurrence patterns for natural,
+and high-dimensional representations.                                                 texture, face and biomedical image retrieval, Neurocomputing 313 (2018)
+    Nevertheless, performance on highly unconstrained real-world                      333–345.
+                                                                                  [2] C. Ding, J. Choi, D. Tao, L.S. Davis, Multi-directional multi-level dual-cross patterns
+datasets remains lower than on controlled benchmarks, reflecting the                  for robust face recognition, IEEE Trans. Pattern Anal. Mach. Intell. 38 (3) (2015)
+inherent challenges posed by large intra-class variation and complex                  518–531.
+visual semantics. Additionally, the current feature fusion relies on sim­         [3] P. Akiva, M. Purri, M. Leotta, Self-supervised material and texture representation
+                                                                                      learning for remote sensing tasks, in: Proceedings of the IEEE/CVF Conference on
+ple concatenation, which may limit the modeling of higher-order in­
+                                                                                      Computer Vision and Pattern Recognition (CVPR), New Orleans, LA, USA, 2022,
+teractions between handcrafted and deep representations.                              pp. 8203–8215. Jun. 18–24.
+    Future work will focus on improving robustness under severe domain            [4] L. Liu, J. Chen, P. Fieguth, G. Zhao, R. Chellappa, M. Pietikäinen, From BoW to
+                                                                                      CNN: two decades of texture representation for texture classification, Int. J.
+shifts through enhanced modeling of color and contextual cues, dataset-
+                                                                                      Comput. Vis. 127 (1–3) (2019) 74–109.
+specific adaptation, and more advanced fusion mechanisms such as                  [5] R. Swetha, P. Bende, K. Singh, S. Gorthi, A. Biswas, B. Li, D.C. Weindorf,
+attention- or graph-based integration. Extensions toward cross-dataset                S. Chakraborty, Predicting soil texture from smartphone-captured digital images
+learning, hybrid transformer-assisted fusion, and deployment on                       and an application, Geoderma 376 (2020) 114562.
+                                                                                  [6] S. Bell, P. Upchurch, N. Snavely, K. Bala, Material recognition in the wild with the
+resource-constrained or edge-computing platforms will also be explored.               materials in context database, in: Proceedings of the IEEE Conference on Computer
+Overall, HyTexNet provides a compact, interpretable, and scalable so­                 Vision and Pattern Recognition (CVPR), Boston, MA, USA, 2015, pp. 3479–3487.
+lution for texture classification, effectively bridging handcrafted and               Jun. 7–12.
+                                                                                  [7] J.B. Florindo, Fractal pooling: A new strategy for texture recognition using
+deep representations and offering a strong foundation for further ad­                 convolutional neural networks, Expert Syst. Appl. 239 (2024) 122155 [Online].
+vances in hybrid texture analysis.                                                    Available: https://www.sciencedirect.com/science/article/abs/pii/S0957417
+                                                                                      423034802.
+                                                                                  [8] H. Cen, G. Duan, X. Zhang, Y. Zhao, Multiscale graph texture network, in:
+Consent for publication                                                               Proceedings of the European Conference on Computer Vision ECCV, Milan, Italy,
+                                                                                      2024. Sep. 29–Oct. 4[Online]. Available: https://www.ecva.net/papers/
+    Not applicable.                                                                   eccv_2024/papers_ECCV/papers/04702.pdf.
+                                                                                  [9] L.F. Scabini, L.C. Ribas, O.M. Bruno, Spatio-spectral networks for color-texture
+                                                                                      analysis, Inf. Sci. 515 (2020) 64–79.
+Ethics approval and consent to participate                                       [10] B. Caputo, E. Hayman, P. Mallikarjuna, Class-specific material categorisation, in:
+                                                                                      Proceedings of the 10th IEEE International Conference on Computer Vision (ICCV),
+                                                                                      Beijing, China 2, 2005, pp. 1597–1604. Oct. 17–21.
+    Not applicable. (Since no human or animal subjects were involved.)
+                                                                                 [11] Z. Yang, S. Lai, X. Hong, Y. Shi, Y. Cheng, C. Qing, DFAEN: double-order
+                                                                                      knowledge fusion and attentional encoding network for texture recognition, Expert
+Funding                                                                               Syst. Appl. 209 (2022) 118223.
+                                                                                 [12] W. Zhai, Y. Cao, Z.J. Zha, H. Xie, F. Wu, Deep structure-revealed network for
+                                                                                      texture recognition, in: Proceedings of the IEEE/CVF Conference on Computer
+   This research did not receive any specific grant from funding                      Vision and Pattern Recognition (CVPR), Seattle, WA, USA, 2020,
+agencies in the public, commercial, or not-for-profit sectors.                        pp. 11010–11019. Jun. 13–19.
+                                                                                 [13] W. Zhai, Y. Cao, J. Zhang, Z.J. Zha, Deep multiple-attribute-perceived network for
+                                                                                      real-world texture recognition, in: Proceedings of the IEEE/CVF International
+                                                                                      Conference on Computer Vision (ICCV), Seoul, Republic of Korea, 2019,
+                                                                                      pp. 3613–3622. Oct. 27–Nov. 2.
+
+
+                                                                            18
+V. Gupta et al.                                                                                                                                 Knowledge-Based Systems 338 (2026) 115482
+
+[14] Z. Chen, F. Li, Y. Quan, Y. Xu, H. Ji, Deep texture recognition via exploiting cross-              domain information, Meas. Sci. Technol. 36 (3) (2025), https://doi.org/10.1088/
+     layer statistical self-similarity, in: Proceedings of the IEEE/CVF International                   1361-6501/adb2ad. Art. no. 035004.
+     Conference on Computer Vision (CVPR), Nashville, TN, USA, 2021,                               [44] Y. Sun, H. Tao, V. Stojanovic, End-to-end multi-scale residual network with parallel
+     pp. 5231–5240. Jun. 20–25.                                                                         attention mechanism for fault diagnosis under noise and small samples, ISA Trans.
+[15] M. Cimpoi, S. Maji, I. Kokkinos, S. Mohamed, A. Vedaldi, Describing textures in the                157 (2025) 419–433, https://doi.org/10.1016/j.isatra.2024.12.023.
+     wild, in: Proceedings of the IEEE Conference on Computer Vision and Pattern                   [45] D.P. Kingma, J.L. Ba, Adam: A method for stochastic optimization, in: Proceedings
+     Recognition (CVPR), Columbus, OH, USA, 2014, pp. 3606–3613. Jun. 23–28.                            of the 3rd International Conference on Learning Representations (ICLR), San
+[16] V. Andrearczyk, P.F. Whelan, Using filter banks in convolutional neural networks                   Diego, CA, USA, 2015. May 7–9.
+     for texture classification, Pattern. Recognit. Lett. 84 (2016) 63–69.                         [46] P. Mallikarjuna, A. Targhi, M. Fritz, E. Hayman, B. Caputo, and J.O. Eklundh, “The
+[17] S. Fujieda, K. Takayama, and T. Hachisuka, “Wavelet convolutional neural                           KTH-TIPS2 database,” 2006. [Online]. Available: https://pan.baidu.com/s/1dXF
+     networks for texture classification,” arXiv preprint arXiv:1707.07394, 2017.                       Kn6v2PV5QS9m8gWlifA.
+[18] M. Jogin, M.M Mohana, G. Divya, R. Meghana, S. Apoorva, Feature extraction                    [47] P. Babington, Textures: A Photographic Album For Artists And Designers, Dover,
+     using convolution neural networks (CNN) and deep learning, in: Proceedings of the                  New York, NY, USA, 1966.
+     3rd IEEE International Conferences on "Recent Trends in Electronics, Information              [48] “ISO dataset.” [Online]. Available: https://filedn.com/lkCRue0RhPO7ercIrqFR
+     & Communication Technology (RTEICT), Bangalore, India, 2018, pp. 2319–2323.                        l2Y/datasets/ISO/.
+     May 18–19.                                                                                    [49] T.P. Nguyen, N.S. Vu, A. Manzanera, Statistical binary patterns for rotational
+[19] T. Ojala, M. Pietikäinen, T. Maenpaa, Multiresolution gray-scale and rotation                     invariant texture classification, Neurocomputing 173 (2016) 1565–1577.
+     invariant texture classification with local binary patterns, IEEE Trans. Pattern Anal.        [50] L. Liu, Y. Long, P.W. Fieguth, S. Lao, G. Zhao, BRINT: binary rotation invariant and
+     Mach. Intell. 24 (7) (2002) 971–987.                                                               noise tolerant texture classification, IEEE Trans. Image Process. 23 (7) (2014)
+[20] F. Juefei-Xu, V.N Boddeti, M. Savvides, Local binary convolutional neural                          3071–3084.
+     networks, in: Proceedings of the IEEE Conference on Computer Vision and Pattern               [51] H. Hao, Q. Wang, P. Li, L. Zhang, Evaluation of ground distances and features in
+     Recognition (CVPR), Honolulu, HI, USA, 2017, pp. 19–28. Jul. 21–26.                                EMD-based GMM matching for texture classification, Pattern Recognit. 57 (2016)
+[21] S. Hu, W. Zheng, S. Song, Scale and pattern adaptive local binary pattern for                      152–163.
+     texture classification, Expert Syst. Appl. 238 (2024) 122403 [Online]. Available:             [52] S. Hu, Z. Pan, J. Dong, X. Ren, A novel adaptively binarizing magnitude vector
+     https://dl.acm.org/doi/10.1016/j.eswa.2023.122403.                                                 method in local binary pattern based framework for texture classification, IEEE
+[22] D.G. Lowe, Distinctive image features from scale-invariant keypoints, Int. J.                      Signal Process. Lett. 29 (2022) 852–856.
+     Comput. Vis. 60 (2) (2004) 91–110.                                                            [53] T. Song, J. Feng, L. Luo, C. Gao, H. Li, Robust texture description using local
+[23] S. Lazebnik, C. Schmid, J. Ponce, A sparse texture representation using local affine               grouped order pattern and non-local binary pattern, IEEE Trans. Circ. Syst. Video
+     regions, IEEE Trans. Pattern. Anal. Mach. Intell. 27 (8) (2005) 1265–1278.                         Technol. 31 (1) (2021) 189–202.
+[24] Z. Guo, L. Zhang, D. Zhang, A completed modeling of local binary pattern operator             [54] J.B. Florindo, DSTNet: successive applications of the discrete Schrödinger
+     for texture classification, IEEE Trans. Image Process. 19 (6) (2010) 1657–1663.                    transform for texture recognition, Inf. Sci. 507 (2020) 356–364.
+[25] H. Jégou, M. Douze, C. Schmid, P. Pérez, Aggregating local descriptors into a               [55] A. Krizhevsky, I. Sutskever, G.E. Hinton, ImageNet classification with deep
+     compact image representation, in: Proceedings of the IEEE Computer Society                         convolutional neural networks, Adv. Neural Inf. Process. Syst. (NIPS) 25 (2012)
+     Conference on Computer Vision and Pattern Recognition (CVPR), San Francisco,                       1097–1105.
+     CA, USA, 2010, pp. 3304–3311. Jun. 13–18.                                                     [56] M. Cimpoi, S. Maji, A. Vedaldi, Deep filter banks for texture recognition and
+[26] J. Vieira, J.B. Florindo, O.M. Bruno, Texture image classification based on a                      segmentation, in: Proceedings of the IEEE Conference on Computer Vision and
+     pseudo-parabolic diffusion process, Multimed. Tools Appl. 82 (2023) 34995–35019                    Pattern Recognition (CVPR), Boston, MA, USA, 2015, pp. 3828–3836.
+     [Online]. Available: https://link.springer.com/article/10.1007/s11042-022-12                  [57] M. Chang, L. Ji, J. Zhu, Multi-scale LBP fusion with the contours from deep CellNNs
+     048-2.                                                                                             for texture classification, Expert Syst. Appl. 238 (2024) 122100.
+[27] L.C. Ribas, L. Scabini, O.M. Bruno, Color-texture classification based on spatio-             [58] F.R. de Siqueira, W.R. Schwartz, H. Pedrini, Multi-scale gray level co-occurrence
+     spectral representations from complex networks, Phys. A Stat. Mech. Appl. (2024)                   matrices for texture description, Neurocomputing 120 (2013) 336–345.
+     [Online].Available: https://www.sciencedirect.com/science/article/abs/pii/S037                [59] A. Ahmadvand, M.R. Daliri, Rotation invariant texture classification using
+     8437124000268.                                                                                     extended wavelet channel combining and LL channel filter bank, Knowl. Based
+[28] J. Bruna, S. Mallat, Invariant scattering convolution networks, IEEE Trans. Pattern                Syst. 97 (2016) 75–88.
+     Anal. Mach. Intell. 35 (8) (2013) 1872–1886.                                                  [60] B.M. Chang, H.H. Tsai, C.Y. Yen, SVM-PSO based rotation-invariant image texture
+[29] M. Cimpoi, S. Maji, A. Vedaldi, Deep filter banks for texture recognition and                      classification in SVD and DWT domains, Eng. Appl. Artif. Intell. 52 (2016) 96–107.
+     segmentation, in: Proceedings of the IEEE Conference on Computer Vision and                   [61] I. El Khadiri, M. Kas, Y. El Merabet, Y. Ruichek, R. Touahni, Repulsive-and-
+     Pattern Recognition (CVPR), Boston, MA, USA, 2015, pp. 3828–3836. Jun. 7–12.                       attractive local binary gradient contours: new and efficient feature descriptors for
+[30] T.Y. Lin, S. Maji, Visualizing and understanding deep texture representations, in:                 texture classification, Inf. Sci. 467 (2018) 634–653, https://doi.org/10.1016/j.
+     Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition                      ins.2018.02.009 [Online]. Available:.
+     (CVPR), Las Vegas, NV, USA, 2016, pp. 2791–2799. Jun. 27–30.                                  [62] U. Dixit, A. Mishra, A. Shukla, R. Tiwari, Texture classification using convolutional
+[31] H. Zhang, J. Xue, K. Dana, Deep ten: Texture encoding network, in: Proceedings of                  neural network optimized with whale optimization algorithm, SN Appl. Sci. 1 (6)
+     the IEEE Conference on Computer Vision and Pattern Recognition (CVPR),                             (2019) 655, https://doi.org/10.1007/s42452-019-0678-y [Online]. Available:.
+     Honolulu, HI, USA, 2017, pp. 708–717. Jul. 21–26.                                             [63] Y. Zhao, D.S. Huang, W. Jia, Completed local binary count for rotation invariant
+[32] J. Xue, H. Zhang, K. Dana, Deep texture manifold for ground terrain recognition,                   texture classification, IEEE Trans. Image Process. 21 (10) (2012) 4492–4497.
+     in: Proceedings of the IEEE Conference on Computer Vision and Pattern                         [64] J. Sima, Y. Dong, T. Wang, et al., Extended contrast local binary pattern for texture
+     Recognition (CVPR), Salt Lake City, UT, USA, 2018, pp. 558–567. Jun. 18–23.                        classification, Int. J. New Technol. Res. 4 (3) (2018) 263120.
+[33] X. Bu, Y. Wu, Z. Gao, Y. Jia, Deep convolutional network with locality and sparsity           [65] Y. Dong, J. Feng, C. Yang, et al., Multi-scale counting and difference representation
+     constraints for texture classification, Pattern Recognit. 91 (2019) 34–46.                         for texture classification, Vis. Comput. 34 (2018) 1315–1324.
+[34] J. Peeples, W. Xu, A. Zare, Histogram layers for texture analysis, IEEE Trans. Artif.         [66] T. Wang, Y. Dong, C. Yang, et al., Jumping and refined local pattern for texture
+     Intell. 3 (5) (2021) 541–552.                                                                      classification, IEEE Access 6 (2018) 64416–64426.
+[35] V. Goyal, V.P. Singh, S. Jain, Texture classification for visual data using transfer          [67] L. Liu, S. Lao, P.W. Fieguth, Y. Guo, X. Wang, M. Pietikäinen, Median robust
+     learning, Multimed. Tools Appl. 82 (2023) 43157–43176 [Online]. Available:                         extended local binary pattern for texture classification, IEEE Trans. Image Process.
+     https://link.springer.com/article/10.1007/s11042-022-14276-y.                                      25 (3) (2016) 1368–1381.
+[36] Y. Xu, F. Li, Z. Chen, J. Liang, Y. Quan, Encoding spatial distribution of                    [68] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner,
+     convolutional features for texture representation, Adv. Neural Inf. Process. Syst.                 M. Dehghani, M. Minderer, G. Heigold, S. Gelly, J. Uszkoreit, N. Houlsby, An image
+     (NeurIPS) 34 (2021) 22732–22744.                                                                   is worth 16×16 words: transformers for image recognition at scale, in: Proceedings
+[37] S. Mao, D. Rajan, L.T. Chia, Deep residual pooling network for texture recognition,                of the International Conference on Learning Representations (ICLR), 2021
+     Pattern Recognit. 112 (2021) 107817.                                                               [Online]. Available: https://arxiv.org/abs/2010.11929.
+[38] K. Song, H. Yang, Z. Yin, Multi-scale boosting feature encoding network for texture           [69] Z. Liu, Y. Lin, Y. Cao, H. Hu, Y. Wei, Z. Zhang, S. Lin, B. Guo, Swin transformer:
+     recognition, IEEE Trans. Circ. Syst. Video Technol. 31 (11) (2021) 4269–4282.                      hierarchical vision transformer using shifted windows, in: Proceedings of the IEEE/
+[39] Z. Chen, Y. Quan, R. Xu, L. Jin, Y. Xu, Enhancing texture representation with deep                 CVF Conference on Computer Vision (ICCV), 2021, pp. 10012–10022 [Online].
+     tracing pattern encoding, Pattern Recognit. 146 (2024) 109959.                                     Available: https://arxiv.org/abs/2103.14030.
+[40] W. Zhai, Y. Cao, J. Zhang, H. Xie, D. Tao, Z.J. Zha, On exploring multiplicity of             [70] H. Touvron, M. Cord, M. Douze, F. Massa, A. Sablayrolles, H. Jégou, Training data-
+     primitives and attributes for texture recognition in the wild, IEEE Trans. Pattern                 efficient image transformers and distillation through attention, in: Proceedings of
+     Anal. Mach. Intell. 46 (1) (2023) 403–420.                                                         the International Conference on Machine Learning (ICML), 2021, pp. 10347–10357
+[41] L. Scabini, K.M. Zielinski, L.C. Ribas, W.N. Gonçalves, B. De Baets, O.M. Bruno,                   [Online]. Available: https://arxiv.org/abs/2012.12877.
+     RADAM: texture recognition through randomized aggregated encoding of deep                     [71] L. Scabini, A. Sacilotti, K.M. Zielinski, L.C. Ribas, B. De Baets, O.M. Bruno,
+     activation maps, Pattern Recognit. 143 (2023) 109802.                                              A comparative survey of vision transformers for feature extraction in texture
+[42] R. Bello-Cerezo, F. Bianconi, F. Di Maria, P. Napoletano, F. Smeraldi, Comparative                 analysis, J. ImAging 11 (9) (2025), https://doi.org/10.3390/jimaging11090304.
+     evaluation of handcrafted image descriptors vs. off-the-shelf CNN-based features                   Art. no. 304.
+     for texture classification, Pattern Recognit. Lett. 113 (2018) 51–59.                         [72] N. Neshov, K. Tonchev, I. Bozhilov, R. Petkova, A. Manolova, Improving texture
+[43] H. Tao, Z. Huang, Y. Wang, J. Qiu, V. Stojanovic, Efficient feature fusion network                 recognition via multi-layer feature aggregation from pre-trained vision
+     for small objects detection of traffic signs based on cross-dimensional and dual-                  architectures, Electronics 14 (23) (2025), https://doi.org/10.3390/
+                                                                                                        electronics14234779 (Basel)Art. no. 4779.
+
+
+
+
+                                                                                              19
+

@@ -1,0 +1,1594 @@
+Article
+
+AsTexNet: A Discriminative Scale-Aware Hybrid Texture
+Representation with Compact Embedding
+Vandana Gupta 1 , Ashish Mishra 1 and Nishant Shrivastava 2, *
+
+                                         1   Department of Computer Science & Engineering, Jaypee Institute of Information Technology,
+                                             Noida 201309, Uttar Pradesh, India; vandana.gupta@mail.jaypeeu.ac.in (V.G.);
+                                             ashish.mishra@mail.jiit.ac.in (A.M.)
+                                         2   Department of Computer Science & Engineering, Jaypee University, Anoopshahr 203390, Uttar Pradesh, India
+                                         *   Correspondence: nishant.srivastava@mail.jaypeeu.ac.in or nishantuit@gmail.com
+
+
+                                         Featured Application
+                                         The proposed AsTexNet framework is suitable for automated texture analysis tasks in
+                                         industrial inspection, biomedical imaging, agricultural monitoring, and remote sensing,
+                                         where limited labeled data and significant variations in scale and illumination require
+                                         robust and compact texture representations.
+
+                                         Abstract
+                                         Texture classification remains challenging due to high inter-class similarity, scale variability,
+                                         and limited labeled data. While handcrafted descriptors capture fine-grained microstruc-
+                                         tures and CNNs encode global semantics, existing hybrid approaches often rely on direct
+                                         feature concatenation or heuristic fusion strategies that ignore the varying discriminative
+                                         importance of texture scales. Moreover, many deep texture representations introduce high-
+                                         dimensional redundant embeddings and require computationally expensive backbone
+                                         adaptation, limiting their effectiveness in small-data scenarios. This paper introduces
+                                         AsTexNet, a discriminative scale-aware hybrid representation framework that reformulates
+                                         multi-scale feature integration as a structured weighting problem. The proposed method
+                                         quantifies the class-separability contribution of each handcrafted scale using a data-driven
+                                         weighting mechanism, enabling adaptive emphasis on informative texture patterns. In
+                                         parallel, pretrained CNN features are enhanced using Generalized Mean (GeM) pooling
+                                         and compacted via cross-validated PCA to improve separability while controlling redun-
+                                         dancy. A normalized late-fusion formulation integrates local and global cues into a compact
+                                         512-dimensional embedding without requiring backbone fine-tuning. Extensive experi-
+                                         ments on six benchmark datasets demonstrate consistent performance gains, achieving
+                                         100% accuracy on Kylberg and Brodatz, 99.4% on UIUC, 99.0% on UMD, 90.6% on KTH-
+                                         TIPS2b, and 78.71% on FMD. These results demonstrate that explicitly modeling scale-wise
+                                         discriminative contributions leads to more effective and compact texture representations,
+Academic Editor: Shaobing Gao            particularly in limited-data scenarios.
+Received: 1 May 2026
+Revised: 2 June 2026                     Keywords: texture classification; multi-scale descriptors; local binary patterns;
+Accepted: 3 June 2026                    MobileNetV2; GeM pooling; feature integration with discriminative weighting; PCA; SVM
+Published: 7 June 2026
+Copyright: © 2026 by the authors.
+Licensee MDPI, Basel, Switzerland.
+This article is an open access article   1. Introduction
+distributed under the terms and
+conditions of the Creative Commons
+                                             Texture recognition involves analyzing the spatial distribution of pixel intensities
+Attribution (CC BY) license.             within an image to classify recurring patterns. It plays a critical role in diverse domains
+
+
+Appl. Sci. 2026, 16, 5743                                                                                      https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                            2 of 30
+
+
+
+                            such as remote sensing [1], materials science [2], medical imaging [3], and agriculture [4].
+                            Despite the success of convolutional neural networks (CNNs) in generic image classification,
+                            texture analysis remains particularly challenging. The primary difficulties arise from high
+                            inter-class similarity, subtle microstructural variations, the absence of strong global shape
+                            cues, and the limited availability of annotated datasets—especially in medical and scientific
+                            imaging applications [5,6]. Training CNNs from scratch in such small-data settings often
+                            leads to overfitting, while fine-tuning large-scale pretrained models (e.g., ImageNet-based
+                            networks) may suffer from domain mismatch, in which semantic object-level features are
+                            not optimally aligned with texture-centric representations.
+                                  To mitigate these issues, hybrid approaches have been introduced that combine CNN-
+                            based representations with handcrafted texture descriptors [7–9]. In parallel, transfer
+                            learning has become a widely adopted strategy, where pretrained CNNs are used as fixed
+                            feature extractors [10–12]. These approaches typically leverage mid-level convolutional
+                            activations that encode structural patterns rather than object-level semantics [13]. However,
+                            several limitations remain. First, many hybrid discriminative integration strategies rely
+                            on naive concatenation or heuristic weighting schemes that do not explicitly quantify the
+                            discriminative contribution of different texture scales. Second, deep backbones employed
+                            in transfer-learning pipelines are often computationally heavy and optimized for large-scale
+                            object datasets rather than texture-dominant tasks. Third, feature integration mechanisms
+                            frequently overlook redundancy and dimensional inefficiency, leading to high-dimensional
+                            representations without proportional gains in separability. Even classical encoding methods
+                            such as Fisher Vectors [14], while effective, often result in very large descriptors and
+                            increased computational burden. Recent advances in deep visual recognition and texture
+                            analysis have demonstrated the effectiveness of discriminative feature representations for
+                            texture and material recognition [15–18].
+                                  Therefore, despite extensive progress, a fundamental challenge remains unresolved:
+                            how to construct a compact, computationally efficient, and discriminatively structured
+                            hybrid representation that systematically integrates multi-scale handcrafted texture cues
+                            with pretrained deep features while explicitly controlling dimensional growth and ensuring
+                            stability under limited-data constraints.
+                                  Motivated by this gap, we introduce AsTexNet (Adaptive Scale Texture Network),
+                            a structured hybrid framework designed around three core principles: discriminative
+                            scale quantification, compact embedding construction, and stable heterogeneous feature
+                            discriminative integration. Rather than relying on brute-force deep fine-tuning or naive
+                            high-dimensional concatenation, AsTexNet explicitly measures the class-separability con-
+                            tribution of multi-scale handcrafted descriptors and reweights them through a data-driven
+                            mechanism prior to integration. These reweighted descriptors are fused with compact CNN
+                            representations enhanced via Generalized Mean (GeM) pooling [19] and cross-validated
+                            PCA compression [20], thereby improving linear separability while constraining redun-
+                            dancy. The proposed design balances global semantic abstraction with fine-grained lo-
+                            cal statistics, achieving an explicit accuracy–compactness trade-off suited for small- and
+                            medium-scale texture datasets.
+                                  The main contributions of this work are summarized as follows:
+                            1.   A novel discriminative scale-aware weighting algorithm that reformulates multi-scale
+                                 handcrafted feature integration as a supervised scale-selection problem. Each scale-
+                                 specific descriptor block is evaluated using multinomial logistic regression, and the
+                                 normalized L2 norm of the learned coefficients is used to quantify its discriminative
+                                 importance. These weights adaptively emphasize informative texture scales before
+                                 hybrid fusion, providing a principled alternative to the heuristic or uniform fusion
+                                 strategies commonly used in existing hybrid texture classification methods.
+
+
+
+                                                                                        https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                             3 of 30
+
+
+
+                            2.   A compact deep representation pipeline that enhances pretrained MobileNetV2 fea-
+                                 tures using Generalized Mean (GeM) pooling and cross-validated PCA to reduce
+                                 redundancy while improving separability.
+                            3.   A normalized late-fusion strategy that integrates discriminatively weighted hand-
+                                 crafted descriptors with compact CNN features into a 512-dimensional embedding
+                                 without requiring backbone fine-tuning.
+                            4.   Extensive experiments on six benchmark datasets demonstrate superior performance
+                                 and a favorable accuracy–dimensionality trade-off compared with representative
+                                 handcrafted, deep, and hybrid methods.
+                                 Unlike existing hybrid texture representations that primarily rely on direct concatena-
+                            tion or manually selected fusion schemes, the proposed AsTexNet introduces an explicit
+                            scale-wise discriminative weighting formulation that quantifies the contribution of each
+                            handcrafted scale prior to fusion. Furthermore, the framework combines GeM-enhanced
+                            compact CNN embeddings with normalized structured integration, enabling improved
+                            separability while maintaining low-dimensional representation efficiency.
+                                 The remainder of this paper is organized as follows. Section 2 presents a detailed
+                            review of related work in texture feature extraction and deep learning-based classifica-
+                            tion methods. Section 3 describes the proposed AsTexNet framework, highlighting the
+                            structured integration of handcrafted multi-scale encoding with compact CNN representa-
+                            tions. Section 4 reports experimental results and comparative evaluation across benchmark
+                            datasets. Section 5 presents an ablation study on the UMD dataset to analyze the con-
+                            tribution of each module. Finally, the conclusion summarizes the findings and outlines
+                            directions for future work.
+
+                            2. Related Work
+                                   Early research in texture recognition primarily relied on handcrafted descriptors de-
+                            signed to achieve invariance to scale, illumination, and rotation. Representative methods
+                            include Scale-Invariant Feature Transform (SIFT) [21], local binary patterns (LBPs) [22],
+                            and their numerous extensions [23,24]. These approaches typically required an additional
+                            encoding stage to aggregate local descriptors into global representations suitable for clas-
+                            sification. Classical aggregation strategies such as Bag-of-Visual-Words (BoVW) [25–28],
+                            Vector of Locally Aggregated Descriptors (VLAD) [29], and Fisher Vectors (FVs) [30,31]
+                            improved discriminative power but often resulted in high-dimensional representations
+                            and increased computational complexity. Moreover, handcrafted pipelines were limited in
+                            capturing higher-order semantic patterns beyond local statistics.
+                                   With the rise of deep learning, convolutional neural networks (CNNs) became domi-
+                            nant in texture analysis. Due to the relatively small size of most texture datasets, CNNs
+                            were frequently used as fixed feature extractors rather than being trained from scratch.
+                            For example, Cimpoi et al. [14] combined VGG [32] with Fisher Vector encoding, demon-
+                            strating that deep filter banks substantially outperform classical handcrafted descriptors.
+                            Song et al. [33] enhanced local distinctiveness through locally connected layers, while
+                            Jbene et al. [34] proposed a two-stream hybrid architecture that fused handcrafted SIFT
+                            features with CNN representations via fully connected layers. Their method, tested on
+                            Xception [35] and ResNet-50 [36], achieved further improvements in classification accuracy.
+                            Although these methods improved accuracy, they often relied on high-dimensional feature
+                            concatenation or heavy backbone architectures, leading to increased computational costs
+                            and limited efficiency under small-data regimes.
+                                   Subsequent research focused on end-to-end CNN-based encoding mechanisms. Zhang
+                            et al. [37] introduced an orderless texture encoding layer based on learned dictionary assign-
+                            ment, while Xue et al. [38] incorporated bilinear pooling to model higher-order statistics.
+
+
+
+                                                                                         https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                            4 of 30
+
+
+
+                            Chen et al. [10] leveraged multi-layer feature aggregation combined with fractal descriptors,
+                            and Mao et al. [11] proposed residual pooling strategies that avoided explicit dictionary
+                            learning. Yang et al. [12] further integrated frequency-domain attention mechanisms, and
+                            Xu et al. [39] developed fractal average pooling for improved discriminative modeling.
+                            Recent work has also explored multimodal and frequency-domain feature integration strate-
+                            gies to improve representation robustness. For example, spatial–frequency–optical flow
+                            fusion has been investigated for AIGC video detection, demonstrating the effectiveness of
+                            multimodal feature integration for discriminative analysis [40]. Similarly, Fourier-based
+                            feature fusion approaches have shown strong capability in challenging visual restoration
+                            tasks such as marine snow removal [41]. In parallel, texture classification research has
+                            increasingly focused on hybrid representation learning frameworks that integrate hand-
+                            crafted texture descriptors with deep semantic features to exploit their complementary
+                            strengths. Such approaches combine local texture cues, multi-scale structural informa-
+                            tion, and deep feature representations to enhance discriminative capability, robustness
+                            to intra-class variability, and generalization across challenging texture datasets [42–45].
+                            Furthermore, texture-aware deep learning models and feature fusion architectures have
+                            demonstrated that complementary representations can improve classification accuracy
+                            while mitigating the limitations of individual handcrafted or deep descriptors. These ad-
+                            vances underscore the growing importance of structured feature integration and compact
+                            hybrid representations for robust texture recognition.
+                                 While these approaches enhanced representational power, they generally required
+                            deeper architectures, additional learnable modules, or complex bilinear pooling mecha-
+                            nisms, making them computationally demanding and sensitive to dataset scale.
+                                 Another research direction sought to avoid fine-tuning while exploiting powerful
+                            pretrained backbones. Scabini et al. [46] employed randomized autoencoders on ConvNeXt
+                            features [47], and Florindo et al. [48] transformed CNN activations into graph-based
+                            descriptors. Other works explored entropy-based transformations [49] and fuzzy encoding
+                            schemes [50]. Although these methods reduced the need for end-to-end training, they often
+                            produced high-dimensional descriptors or introduced additional transformation stages
+                            without explicitly analyzing the discriminative contribution of individual texture scales.
+                                 Despite significant progress, several fundamental limitations persist in existing hybrid
+                            texture recognition frameworks. First, many fusion strategies rely on heuristic concatena-
+                            tion or uniform weighting, without explicitly quantifying the discriminative contribution
+                            of individual multi-scale handcrafted components. As a result, scale selection remains
+                            empirical rather than data-driven. Second, deep feature aggregation methods often increase
+                            descriptor dimensionality without formally controlling redundancy or improving linear
+                            separability, leading to inefficient high-dimensional embeddings. Third, most integration
+                            strategies prioritize performance maximization while overlooking representation compact-
+                            ness, numerical stability, and robustness under limited-data regimes—conditions that are
+                            typical in texture recognition tasks.
+                                 Motivated by these unresolved challenges, the proposed AsTexNet framework intro-
+                            duces a structured hybrid representation design centered on three principles: discriminative
+                            scale quantification, compact embedding construction, and stable heterogeneous feature
+                            integration. Unlike naive concatenation-based hybrids, AsTexNet employs a scale-wise
+                            discriminative weighting mechanism that explicitly measures class-separability contribu-
+                            tions of each handcrafted scale via multinomial logistic regression, enabling data-driven
+                            global reweighting without introducing additional learnable fusion parameters. To mitigate
+                            redundancy in deep representations, the framework enhances pretrained CNN features
+                            using Generalized Mean pooling followed by cross-validated PCA compression, improv-
+                            ing linear separability while constraining dimensional growth. Furthermore, weighted
+
+
+
+                                                                                        https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                             5 of 30
+
+
+
+                            structured integration is performed within a normalized feature space to ensure stable
+                            integration of heterogeneous cues and prevent dominance of high-variance components.
+                            Although the proposed framework ultimately produces a compact 512-dimensional em-
+                            bedding, its hybrid architecture introduces additional computational overhead due to
+                            multi-scale handcrafted feature extraction, discriminative scale-weight estimation, and
+                            PCA-based projection of deep representations. In addition, the framework relies on pre-
+                            trained CNN representations and multiple processing stages, which may limit its suitability
+                            for real-time or resource-constrained deployment scenarios. Consequently, AsTexNet is
+                            computationally more demanding than conventional handcrafted descriptors such as LBP
+                            (54-D, 0.058–0.069 s/image) and CLBP (3552-D, 0.095–0.108 s/image), while remaining sub-
+                            stantially more efficient than high-dimensional deep feature extraction frameworks such as
+                            AlexNet (32,768-D, 0.336–0.404 s/image) and VGG-VD (65,536-D, 0.410–0.492 s/image).
+                            Despite requiring approximately 0.29 s per image on average, the proposed framework
+                            achieves a favorable trade-off between discriminative performance, feature compactness,
+                            and computational efficiency, thereby making it suitable for robust texture classification
+                            under limited-data conditions.
+                                 Building upon these principles, the detailed architecture of the proposed framework
+                            is presented in the following section.
+
+                            3. Proposed AsTexNet Framework
+                                  The proposed AsTexNet framework integrates global convolutional representations
+                            with multi-scale handcrafted texture descriptors through a structured hybrid design. The
+                            objective is to combine high-level semantic features extracted by deep networks with stable
+                            microstructural statistics derived from handcrafted encodings, thereby improving represen-
+                            tational complementarity, particularly in limited-data scenarios. The overall architecture is
+                            illustrated in Figure 1.
+                                  Let the dataset be a fixed, pre-split set D = Dtrain ∪ Dtest with C classes. Each image
+                            I ∈ R H ×W ×3 is resized to S × S (here S = 256). For each image, two complementary repre-
+                            sentations are extracted: a global deep descriptor and a multi-scale handcrafted descriptor.
+                            These are reweighted, fused, and mapped to a compact embedding for classification.
+                                  Symbols: ||.||2 (Euclidean norm), 1[.] (Indicator function), ⊙ (Hadamard), ⊕ (con-
+                            catenation operator).
+                                  The framework consists of two complementary branches. The global branch employs
+                            a MobileNetV2 [51] backbone pretrained on ImageNet to extract semantic feature maps. A
+                            two-crop strategy (original and horizontally flipped inputs) is applied to increase invari-
+                            ance, and Generalized Mean (GeM) pooling aggregates spatial activations into compact
+                            1280-dimensional descriptors. These descriptors are L2-normalized and projected using
+                            Principal Component Analysis (PCA), where the projection dimensionality is selected
+                            through cross-validation.
+                                  The local branch computes multi-scale handcrafted descriptors. For each radius–
+                            neighborhood configuration, three complementary encodings are derived: intensity pattern
+                            histograms, gradient-magnitude histograms (99th percentile clipped), and center-intensity
+                            codes (75th percentile thresholded). These descriptors characterize local structural patterns,
+                            edge magnitude distribution, and global contrast statistics. A scale-wise discriminative
+                            weighting mechanism based on multinomial logistic regression estimates the relative
+                            contribution of each scale. The normalized histograms are concatenated and reweighted
+                            prior to fusion.
+
+
+
+
+                                                                                         https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                6 of 30
+
+
+
+
+                            Figure 1. Overall architecture of the proposed AsTexNet framework. The framework integrates
+                            discriminatively reweighted multi-scale handcrafted texture descriptors with compact MobileNetV2-
+                            GeM deep representations through structured hybrid fusion, followed by feature standardization
+                            and lightweight classification for robust texture recognition.
+
+                                 The compact global descriptor and reweighted local descriptor are integrated using
+                            weighted structured integration. The fused representation is standardized and passed to
+                            a lightweight two-layer MLP with a cosine-normalized classification head. Training uses
+                            cross-entropy loss with label smoothing and standard optimization procedures. In addition,
+                            Linear SVM, RBF SVM, and approximate RBF classifiers are evaluated to assess the intrinsic
+                            discriminative quality of the learned embedding.
+                                 Implementation details related to computational efficiency and reproducibility are
+                            described in Section 4.
+
+                            3.1. Global Deep Representation
+                                 For each input image I, two views are considered: the original x (0) and horizontal flip
+                            x (1) . Each view is resized to 256 × 256 pixels and normalized using the standard ImageNet
+                            mean and standard deviation. After ImageNet normalization, the MobileNetV2 feature
+                            extractor f θ (·), with the classifier removed, produces spatial activation maps:
+                                                              
+                                               A(k) = f θ x (k) ∈ RC f ×h×w , k ∈ {0, 1},      C f = 1280                   (1)
+
+
+
+
+                                                                                            https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                   7 of 30
+
+
+
+                            where C f is the number of output channels of MobileNetV2, and h and w denote the spatial
+                            dimensions of the feature map.
+                                To aggregate activations, Generalized Mean (GeM) pooling is employed. The pooling
+                            exponent was fixed to p = 3.0 throughout all experiments. For each channel c,
+
+                                                                                    1
+                                                         1  h    w                    p , p = 3 (fixedatinference)
+                                                        hw ∑u=1 ∑v=1
+                                      GeM( Ac ) =                    ( Acuv + ε) p                                             (2)
+
+                                  GeM interpolates between average and max pooling, enhancing sensitivity to textured
+                            activation patterns while remaining parameter-free during inference.
+                                  Ac ∈ Rh×w denotes the c − th feature map, Acuv is the activation at spatial location
+                            (u, v), ε = 10−6 is a small constant introduced for numerical stability, and p is the
+                            pooling exponent.
+                                  GeM interpolates between average pooling ( p = 1) and max pooling ( p → ∞), enabling
+                            a controllable balance between distributed and highly activated responses. The pooling
+                            exponent was fixed to p = 3, following common practice in image retrieval and texture
+                            recognition studies, where moderate values in the range of 2–4 have been shown to provide
+                            a robust trade-off between emphasizing salient activations and preserving global contextual
+                            information. Preliminary validation experiments on the training split confirmed that p = 3
+                            consistently yielded strong and stable performance across datasets, and this value was
+                            therefore fixed for all experiments. This choice enhances sensitivity to discriminative texture
+                            patterns while avoiding the instability associated with overly large pooling exponents.
+                                  The pooled descriptors from the two views are averaged and normalized:
+
+                                                    1                                   z
+                                              z=       GeM A(0) + GeM A(1)    ∈ RC f , ẑ =                                    (3)
+                                                    2                                       ||z||2
+
+                                  Although GeM produces compact descriptors, inter-channel correlations remain. PCA
+                            is therefore applied to remove redundant variance, improve numerical stability, and reduce
+                            model complexity, which is particularly beneficial in small-sample regimes:
+                                                                                         ∗
+                                                               u = PCAd∗ (ẑ), u ∈ Rd                                          (4)
+
+                            where PCAd∗ (.), denotes projection onto the first d∗ principal components learned from the
+                            training set, and u is the resulting compact deep feature vector. The projection dimension d∗
+                            was selected using 5-fold cross-validation performed exclusively on the training partition.
+                            Candidate dimensions were evaluated according to validation accuracy, and the value yield-
+                            ing the best accuracy–compactness trade-off was adopted for all subsequent experiments.
+
+                            3.2. Multi-Scale Handcrafted Representation
+                                For each grayscale image G ∈ RS×S , where S = 256 denotes the resized im-
+                            age dimension, handcrafted texture descriptors are extracted across multiple radius–
+                            neighborhood configurations:
+
+                                 S = {( R, P)} with ( R, P) ∈ {(1,8), (2,8), (3,8), (4,8), (2,16), (3,16), (4,16), (5,16)
+
+                            where R denotes the sampling radius and P denotes the number of equally spaced neigh-
+                            boring pixels located on a circular neighborhood centered at each pixel.
+                                 The selected ( R, P) configurations were chosen to capture texture information at mul-
+                            tiple spatial resolutions while maintaining a balance between discriminative capability
+                            and computational complexity. Smaller radii (R = 1 and R = 2) capture fine local micro-
+                            texture patterns, whereas larger radii (R = 3, 4 and 5) represent broader structural texture
+
+
+
+                                                                                             https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                       8 of 30
+
+
+
+                            characteristics. Similarly, (P = 8) provides compact neighborhood encoding with lower com-
+                            putational cost, while (P = 16) increases angular sampling density for improved directional
+                            texture representation. This multi-scale configuration therefore enables complementary
+                            characterization of both fine and coarse texture structures without introducing excessive
+                            feature dimensionality.
+                                 These three complementary components were selected to jointly capture local struc-
+                            tural patterns, edge-strength distributions, and global luminance characteristics, providing
+                            a richer and more discriminative texture description than any individual descriptor alone.
+
+                            3.2.1. Binary Pattern Histogram
+                                 For each pixel location (i, j ), a local binary pattern (LBP) code is computed by compar-
+                            ing the central pixel intensity G(i, j ) with its P neighboring pixels located on a circle of radius
+                            R. Let GP (i, j) denote the intensity of the pth neighboring pixel, where p = 0, 1, . . . , P − 1.
+                            The pattern code is defined as follows:
+
+                                                                         P −1 
+                                                     Code R,P (i, j) = ∑ p=0 1 G p (i, j) ≥ G (i, j) 2 p
+                                                                                                    
+                                                                                                                                   (5)
+
+                            where 1[·] is the indicator function, which equals 1 if the condition is true and 0 otherwise.
+                                 The codes are mapped into uniform bins (U2), producing P + 2 bins. The histogram is
+                            as follows:
+                                                             1
+                                                             Z∑
+                                                hCode
+                                                 R,P [ b ] =       1[Code R,P (i, j) = b], b ∈{0, . . . ., P + 1}      (6)
+                                                               i,j
+
+                            where Z is the total number of valid pixels used to normalize the histogram.
+                                This descriptor effectively captures local microstructures such as edges, corners,
+                            spots, and flat regions while maintaining rotation invariance through the uniform
+                            mapping scheme.
+
+                            3.2.2. Gradient-Magnitude Histogram (Eight Bins)
+                                 To capture edge-strength information, the grayscale image is first smoothed using a
+                            Gaussian filter with standard deviation (σ = 1). Horizontal and vertical gradients, denoted
+                            by gx and gy , are then computed using Sobel operators. The gradient magnitude at each
+                            pixel is given by the following:
+                                                                          q
+                                                             M (i, j) =       gx (i, j)2 + gy (i, j)2                              (7)
+
+                                 To reduce the influence of extreme responses, the gradient magnitude is clipped at
+                                                                                               ∼
+                            the 99th percentile value (t 99 ). The clipped magnitude M(i, j) is then uniformly quantized
+                            into Bm = 8 bins:
+                                                                                   ∼                
+                                                                                                    
+                                                 ∼                                  M(i, j)         
+                                                 M = min(M(i, j), t99 ), q(i, j) =          (Bm − 1),               (8)
+                                                                                      t99
+
+                            where q(i, j) ∈ {0, 1 . . . . . . . . . .( Bm − 1)} is the quantized bin index.
+                                The normalized gradient-magnitude histogram is computed as follows:
+
+                                                                          1
+                                                                          Z ∑i,j
+                                                            h MAG [b] =          1[q(i, j) = b]                                    (9)
+
+                            where Z is the total number of pixels. The overall computation process is illustrated in
+                            Figure 2.
+
+
+
+
+                                                                                                   https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                   9 of 30
+
+
+
+
+                            Figure 2. Computation of the gradient-magnitude histogram
+                                                                             q        h MAG : the input patch is smoothed,
+                            gradients Gx and Gy are computed, magnitude M =         gx 2 + gy 2 is quantized into 8 bins, and their
+                            frequencies form the normalized histogram.
+
+                            3.2.3. Center-Intensity Code (Two Bins)
+                                 Each pixel is thresholded against the 75th percentile intensity ( t75 ) to encode the
+                            brightness contrast between the pixel and global tone statistics, as illustrated in Figure 3.
+
+                                                   c(i, j) = 1[ G (i, j) > t75 ], where c(i, j) ∈ {0, 1}.                     (10)
+
+                                                                   1
+                                                                   Z ∑i,j
+                                                      hCTR [b] =          1[c(i, j) = b], b ∈ {0, 1}                          (11)
+
+
+
+
+                            Figure 3. Computation of the center-intensity histogram hCTR : pixels are sorted to find the 75th
+                            percentile threshold t75 , forming a binary map c(i, j), whose 2-bin histogram is Hellinger and
+                            L2-normalized.
+
+                                This descriptor provides a robust global contrast cue by distinguishing bright- and
+                            dark-dominant regions.
+                                The center-intensity code provides a global contrast cue, distinguishing bright- and
+                            dark-dominant textures using a robust statistical threshold rather than local differences.
+
+
+
+
+                                                                                              https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                          10 of 30
+
+
+
+                                For each histogram h, apply L1 normalization, elementwise square-root (Hellinger)
+                            and L2 normalization:                  p
+                                                                     h/||h||1
+                                                             h= p                                            (12)
+                                                                    h/||h||1 2
+                            where ∥ h ∥1 and ∥ h ∥2 denote the L1 and L2 norms, respectively.
+                                Finally, the normalized histograms from all scales and descriptor types are concate-
+                            nated to form the handcrafted texture descriptor:
+
+                                                   Code        MAG          CTR
+                                            t= h          ⊕h           ⊕h         across all ( R, P)to obtain t ∈ R Dt                (13)
+
+                            where ⊕ denotes vector concatenation and Dt is the dimensionality of the resulting hand-
+                            crafted feature vector.
+                                 The final descriptor t jointly captures local texture patterns, edge-strength distributions,
+                            and global luminance information across multiple spatial scales, providing a rich and
+                            complementary representation for texture classification. The Hellinger transform stabilizes
+                            histogram distributions and improves compatibility with linear classifiers.
+
+                            3.3. Discriminative Scale-Aware Reweighting
+                                 We reformulate multi-scale handcrafted feature integration as a supervised discrim-
+                            inative weighting problem in which each texture scale is assigned an importance score
+                            according to its measured contribution to class separability. Let the handcrafted descriptor
+                            t ∈ RDt be partitioned into K scale-specific blocks:
+
+                                                                       t = t1 ⊕ t2 ⊕ · · · ⊕ t K                                      (14)
+
+                            where tk ∈ Rdk denotes the descriptor associated with the k-th scale configuration ( R, P),
+                            dk is the dimensionality of that block, and ⊕ denotes vector concatenation.
+                                  For each block tk , a multinomial logistic regression classifier is trained on the
+                            training set:
+                                                  ŷ = argmax[σ(Wk tk + bk )]c , where Wk ∈ RC×dk                 (15)
+                                                               c
+
+                            where C is the number of classes, Wk is the regression weight matrix, bk ∈ RC is the bias
+                            vector, σ (·) denotes the softmax function, and σ (·)c is the predicted probability for class c.
+                                 The discriminative importance of the kth scale is quantified using the Frobenius norm
+                            of the learned weight matrix, which summarizes the overall contribution of that scale to
+                            the multi-class decision boundaries.
+                                                                                      q
+                                                      sk = ||Wk || F ,where ∥ Wk ∥ F = ∑ i,j Wk,ij
+                                                                                               2                       (16)
+
+                                 The scale importance scores are normalized to obtain weights that sum to one:
+
+                                                                                         sk
+                                                                             ak =     K
+                                                                                                                                      (17)
+                                                                                     ∑ j =1 s j
+
+                            where ak ∈ [0, 1] represents the relative contribution of scale k.
+                                 The multinomial logistic regression models were trained independently for each scale-
+                            specific descriptor block using identical training settings to ensure fair and consistent
+                            estimation of relative scale importance.
+                                 The final reweighted handcrafted descriptor is constructed as follows:
+
+                                                                   t ∗ = a1 t1 ⊕ a2 t2 ⊕ · · · ⊕ a K t K                              (18)
+
+
+
+
+                                                                                                       https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                               11 of 30
+
+
+
+                            where t∗ ∈ RDt is the discriminatively weighted local descriptor.
+                                 In linear classifiers, larger coefficient magnitudes generally indicate stronger influence
+                            on decision boundaries. Consequently, the Frobenius norm of Wk provides a principled
+                            measure of the class-separability contribution of each texture scale. This supervised for-
+                            mulation transforms multi-scale fusion from a heuristic design choice into a data-driven
+                            importance estimation problem, constituting the central methodological innovation of the
+                            proposed framework and providing a more interpretable and principled alternative to
+                            conventional uniform or manually tuned fusion strategies. The remaining components of
+                            the framework are intentionally lightweight and serve to support this central scale-aware
+                            weighting formulation.
+
+                            3.4. Hybrid Structured Fusion and Decision Modeling
+                                                                                     ∗
+                                 The PCA-projected global descriptor u ∈ Rd (CNN-PCA) and the reweighted local
+                            descriptor t∗ ∈ R Dt are integrated through a normalized late-fusion formulation that
+                            preserves modality-specific statistics while explicitly controlling the relative contribution
+                            of each feature source:
+                                                                  x = [αu ⊕ βt∗ ],                                    (19)
+
+                            where (α, β) are non-negative fusion coefficients satisfying α + β = 1. These coefficients
+                            are selected by cross-validation on the training set and control the relative contributions
+                            of deep semantic features and handcrafted texture descriptors. The fused descriptor is
+                            standardized using the mean and standard deviation estimated from the training data:
+
+                                                                               x − µtrain
+                                                                      xstd =                                               (20)
+                                                                                 σtrain
+
+                             where µtrain and σtrain are the feature-wise training mean and standard deviation, respectively.
+                                 The standardized feature is mapped through a lightweight two-layer MLP followed
+                            by a cosine-normalized classification head. Let h2 denote the output of the second hidden
+                            layer and Wc the classification weight matrix. Both are L2-normalized prior to computing
+                            class logits:
+                                                                   h2              Wc
+                                                           ĥ =           , Ŵ =          , l = s ĥŴ T                 (21)
+                                                                 ||h2 ||2        ||Wc ||2
+                            where ĥ is the normalized feature embedding, Ŵ is the normalized classifier weight matrix,
+                            l ∈ RC is the vector of class logits, and s is a learnable scaling factor. Training minimizes
+                            cross-entropy loss with label smoothing [52]:
+
+                                                                    ϵ          C
+                                                                      1, L = −∑c=1 qc log(softmax(l )c )
+                                                                                    (ϵ)
+                                               q ϵ = (1 − ϵ ) q +                                                          (22)
+                                                                    C
+
+                            where q ∈ {0, 1}C is the one-hot ground-truth label vector, ε is the label smoothing coeffi-
+                            cient, 1 is a vector of ones, and q(ε) is the smoothed target distribution. The label smoothing
+                            coefficient was fixed to ε = 0.1 in all experiments to reduce overconfident predictions and
+                            improve generalization.
+                                 Structured integration preserves modality-specific statistics prior to integration. Co-
+                            sine normalization emphasizes angular separation rather than feature magnitude, making
+                            the classifier less sensitive to scale differences between heterogeneous feature sources and
+                            improving robustness in limited-data settings.
+
+                            3.5. Representation-Level Baselines
+                                 To assess the intrinsic discriminative quality of the hybrid embedding independently
+                            of neural nonlinearities, Linear SVM and RBF SVM classifiers are additionally evaluated
+                            on xstd .
+
+
+                                                                                            https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                            12 of 30
+
+
+
+                                 These baselines isolate the contribution of the learned representation and verify that
+                            performance improvements arise from structured hybrid embedding rather than solely
+                            from deep classifier capacity.
+                                 In this context, AsTexNet shares certain characteristics with prior approaches that
+                            employ pretrained backbones without fine-tuning. However, it adopts a fundamentally
+                            different representation strategy tailored specifically for texture analysis. Rather than rely-
+                            ing exclusively on global CNN activations or on handcrafted descriptors in isolation, the
+                            proposed framework integrates compact semantic embeddings derived from MobileNetV2
+                            with discriminatively reweighted multi-scale handcrafted texture statistics through a struc-
+                            tured late-fusion formulation.
+                                 The adaptive scale reweighting mechanism enables data-driven emphasis on the most
+                            informative spatial configurations, preserving fine-grained texture details while attenuating
+                            less discriminative scales. Furthermore, the combination of PCA-based dimensionality re-
+                            duction and cosine-normalized classification enhances embedding compactness, numerical
+                            stability, and inter-class separability.
+                                 Overall, the proposed architecture achieves consistent and competitive performance
+                            while maintaining computational efficiency, as it avoids additional backbone fine-tuning
+                            and introduces only lightweight fusion and classification components. This design ensures
+                            a controlled balance between representational richness and efficiency, which is particularly
+                            advantageous in limited-data texture recognition scenarios.
+                                 Since discriminative scale weights are estimated once on the training set and reused
+                            during inference, the additional computational overhead of the proposed weighting mech-
+                            anism is negligible relative to feature extraction and classification.
+                                 To validate the effectiveness of the proposed framework in terms of classification
+                            accuracy, representation compactness, and computational efficiency, extensive experiments
+                            were conducted on six benchmark texture datasets.
+
+                            4. Experimental Results
+                                 This section presents the experimental evaluation of the proposed AsTexNet frame-
+                            work across six benchmark texture datasets. All experiments were conducted using Python
+                            3.11.7 (Python Software Foundation, Wilmington, DE, USA). Deep learning models were
+                            implemented in PyTorch 2.2.2 with torchvision 0.17.2. Handcrafted feature extraction
+                            and image preprocessing were performed using scikit-image 0.22.0 and OpenCV 4.9.0.80.
+                            Machine learning classifiers and PCA were implemented using scikit-learn 1.4.2, while
+                            numerical operations were performed with NumPy 1.26.4. Experiments were executed
+                            on macOS Sequoia 15.3 running on an Apple M3 processor with 16 GB unified memory
+                            (Apple Inc., Cupertino, CA, USA).
+
+                            4.1. Data Description
+                                 To validate the proposed AsTexNet framework, experiments are performed on six
+                            representative texture datasets, including Kylberg [53], Brodatz [54], FMD [55], UMD [56],
+                            KTH-TIPS2b [57], and UIUC [26]. A group of representative sample instances for each
+                            dataset is exhibited in Figure 4.
+
+
+
+
+                                                                                         https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                  13 of 30
+
+
+
+
+                            Figure 4. Sample texture images from six benchmark datasets used in this study—Kylberg, Brodatz,
+                            FMD, UMD, KTH-TIPS2b, and UIUC. The samples illustrate the diversity in texture patterns, scales,
+                            and illumination conditions across datasets.
+
+                                 Kylberg consists of 28 grayscale texture classes, each containing 160 images of size
+                            576 × 576 pixels. Images were captured under uniform lighting and rotation conditions,
+                            representing homogeneous texture patterns. For this study, all images were resized to
+                            256 × 256 pixels, and the dataset was split into training and testing subsets using an
+                            80:20 ratio. Adam optimization and categorical cross-entropy loss functions were used [53].
+                                 Brodatz contains 112 basic texture images of size 640 × 640, labeled from D1 to D112,
+                            respectively. Referring to the experimental scheme in [45], only original images D1, D4, D16,
+                            D19, D21, D24, D28, D32, D53, D57, D64, D65, D68, D77, D82, D84, D92, D95, D98, D101,
+                            and D102 are chosen for experiments. Each image is also divided into 16 non-overlapping
+                            sub-images of size 160 × 160. Then, each sub-image is rotated clockwise to generate more
+                            samples, respectively, by nine angles: 15◦ , 30◦ , 45◦ , 60◦ , 75◦ , 90◦ , 105◦ , 130◦ , and 145◦ . The
+                            training sample set contains half of all generated new samples, i.e., the 0◦ , 30◦ , 60◦ , 90◦ ,
+                            and 130◦ ones [54].
+                                 FMD is a collection of 1000 color textures, each one with a size of 512 × 384, also
+                            acquired under uncontrolled conditions. For each object, we have a regular and a close-
+                            up view. Moreover, the represented objects are usually surrounded by heterogeneous
+                            backgrounds, which makes it particularly challenging for texture-based recognition. The
+                            images are divided into 10 classes (100 images per class), each one corresponding to a
+                            specific material commonly found in our daily lives, such as paper, glass, plastic, food, and
+
+
+
+
+                                                                                               https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                              14 of 30
+
+
+
+                            so on. A total of 50% of the images are randomly selected for training and the remaining
+                            50% for testing. This procedure is repeated 10 times to provide average accuracy [55].
+                                  UMD consists of 1000 color texture images uniformly distributed across 25 distinct
+                            classes. Each image has a resolution of 1280 × 960 pixels and captures variations in
+                            scale, illumination, and viewing direction, making it suitable for evaluating the robustness
+                            of texture descriptors under real-world imaging conditions. The dataset is commonly
+                            evaluated using a 50–50% train–test split, where half of the images per class are randomly
+                            selected for training and the remaining samples are used for testing. This partitioning
+                            process is typically repeated 10 times, and the average classification accuracy across all
+                            runs is reported as the final performance metric [56].
+                                  KTH-TIPS2b is a challenging dataset of color textures corresponding to materials
+                            photographed under uncontrolled conditions, with variation in scale, illumination, and
+                            perspective. It comprises a total of 4752 images with resolution 200 × 200, equally divided
+                            into 11 classes. Each class is further divided into four samples. The training/testing
+                            split involves using three samples of each class for training and the remaining one for
+                            testing. Such a procedure makes the classification particularly more difficult, as each sample
+                            corresponds to significantly different conditions of acquisition [57].
+                                  UIUC contains 1000 gray texture images evenly divided into 25 classes. The images
+                            are subject to significant variations, especially in scale and viewpoint. Each image has a
+                            size of 640 × 480. The classical validation protocol is similar to that in FMD; i.e., it uses 50%
+                            of the samples randomly chosen for training and the remaining samples for tests. Again,
+                            this process is repeated 10 times [26].
+                                  Following the dataset descriptions and evaluation protocols, the quantitative perfor-
+                            mance results are presented below.
+
+                            4.2. Evaluation Protocol and Implementation Details
+                                 All experiments strictly follow the original predefined train–test splits provided by
+                            each dataset. Classification accuracy (%) is reported on the test split. All hyperparameters,
+                            including PCA dimensionality, scale weights, and fusion coefficients, were determined
+                            exclusively using the training split through cross-validation. The test set was accessed only
+                            once for final performance evaluation. No preprocessing, normalization, PCA fitting, or
+                            scale-weight estimation was performed jointly on training and test samples, ensuring strict
+                            separation between splits and preventing data leakage.
+                                 Data augmentation was intentionally limited to horizontal flipping in order to pre-
+                            serve fine-grained texture statistics and maintain consistency between handcrafted and
+                            CNN representations. No random cropping, random rotation, color jittering, or geometric
+                            deformation was applied, as such transformations may distort local texture distributions
+                            and affect handcrafted descriptor stability. Hyperparameters including PCA projection
+                            dimensionality and fusion coefficients (α, β) were selected using 5-fold cross-validation per-
+                            formed exclusively on the training split. For each fold, PCA fitting, feature standardization,
+                            and discriminative scale-weight estimation were recomputed independently using only the
+                            corresponding training partition to avoid information leakage. For reproducibility, all exper-
+                            iments used a fixed random seed of 42 across NumPy, PyTorch, and scikit-learn operations,
+                            with deterministic execution settings enabled whenever supported by the framework.
+                                 All experiments were implemented in Python 3.11 using PyTorch 2.2, torchvision 0.17,
+                            scikit-learn 1.4, and NumPy 1.26 on macOS with Apple Metal Performance Shaders (MPS)
+                            acceleration. The MobileNetV2 backbone was used in pretrained form without fine-tuning.
+                            Optimization of the cosine-MLP classifier employed the Adam optimizer with an initial
+                            learning rate of 1 × 10−3 , batch size of 32, and weight decay of 1 × 10−4 . Training used
+
+
+
+
+                                                                                           https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                           15 of 30
+
+
+
+                            a Reduce-on-Plateau learning rate schedule, early stopping based on validation accuracy,
+                            and gradient clipping for stability.
+                                  Feature extraction outputs (CNN descriptors, handcrafted histograms, PCA projec-
+                            tions, and fusion parameters) were cached to avoid recomputation and guarantee determin-
+                            istic evaluation. Mixed-precision inference and efficient tensor formatting were adopted to
+                            accelerate computation without affecting numerical results.
+
+                            4.3. Quantitative Results on Benchmark Datasets
+                                 In experiments, there are four categories of texture classification methods which are
+                            compared, including (i) LBP-based, (ii) neural-network (NN-based), (iii) wavelet-based,
+                            and (iv) model-based methods.
+                                 Various state-of-the-art methods have been evaluated on the Kylberg, Brodatz,
+                            UIUC, UMD, FMD, and KTH-TIPS2b datasets for texture classification. The evaluated
+                            approaches include T-CNN-3 [58], KNN + nLBP [59], RALBGC [60], LBP [59], Modi-
+                            fied CNN with WOA [61], CLBP [62], CLBC [63], ECLBP [64], MCDR [65], JRLP [66],
+                            MobileNetV3 [67], InceptionV3 [67], SBP [68], BRINT [69], EWCC-LCFB [70], CJLB-
+                            PABMV [71], LGONBP [72], MGLCM [73], SVM-PSO [74], AlexNet [75], and hybrid
+                            6LBP + CellNN/6LBP + dCellNNs [76]. For the KTH-TIPS2b dataset, additional meth-
+                            ods such as RAMBP [77], ScatNet (NNC) [78], Bu et al. 2019 [79], PCANet (NNC) [80],
+                            DSTNet [81], BSIF [82], FV-GANNet [83], BRINTCPS [84], LETRIST [85], VZ-MR8 [86],
+                            VZ-Joint [87], and 2D-LTP [88] have been analyzed, along with traditional descriptors like
+                            LBP [22], CLBP [62], and LBPriu2/VAR [22], and deep learning frameworks including
+                            DeCAF [17], SIFT + BoVW [17], FC-CNN AlexNet [14], FV-CNN VGGM [14], and FC-CNN
+                            VGGVD [14]. The proposed AsTexNet demonstrates strong performance across all datasets,
+                            outperforming multiple existing approaches.
+
+                            4.3.1. Performance Comparison on UIUC, Brodatz, Kylberg, KTH-TIPS2b, FMD and
+                            UMD Datasets
+                                 On the Kylberg dataset (Table 1), the proposed AsTexNet achieves a classification
+                            accuracy of 100% under the adopted evaluation protocol. The closest reported performances
+                            include Modified CNN + WOA (99.71%), JRLP (99.6%), and KNN + nLBP (99.64%). The
+                            observed margin relative to these methods is approximately 0.3–0.4%. Although the
+                            numerical difference is small, the results indicate that the proposed hybrid representation
+                            performs competitively on this dataset.
+                                 On the Brodatz dataset (Table 1), AsTexNet also achieves 100% accuracy. The closest
+                            competing approach, 6LBP + dCellNNs, reports 98.21%, while LGONBP and CJLBPABMV
+                            achieve 95.1% and 94.83%, respectively. These results show that the proposed framework
+                            remains competitive with both handcrafted and deep learning-based approaches evaluated
+                            under similar experimental conditions.
+                                 Although 100% accuracy is achieved on both Kylberg and Brodatz under the adopted
+                            evaluation protocol, it is important to note that these datasets are relatively controlled
+                            benchmarks with limited intra-class variation and predefined train–test splits. The reported
+                            results strictly follow the original dataset partitions, and no test samples were used during
+                            feature extraction, PCA fitting, scale-weight estimation, or fusion-weight selection. The
+                            performance therefore reflects generalization under the fixed split rather than data leakage
+                            or memorization. Moreover, several recent deep architectures also report near-saturated
+                            performance on these datasets, indicating that they are approaching performance ceilings
+                            under standard evaluation settings.
+
+
+
+
+                                                                                        https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                             16 of 30
+
+
+
+                            Table 1. Comparison of texture classification accuracy (%) of different methods on the Kylberg
+                            and Brodatz datasets. The proposed AsTexNet achieves the highest accuracy on both datasets,
+                            highlighting its robustness to scale and illumination variations.
+
+                                                Kylberg                                         Brodatz
+                             Methods                           Accuracy        Methods                     Accuracy
+                             T-CNN-3                              99.4         SBP                            76.04
+                             KNN+ nLBP                           99.64         CLBP                           85.38
+                             RALBGC                              99.23         BRINT                          90.92
+                             LBP                                 97.97         EWCC-LCFB                      86.44
+                             Modified CNN + WOA                  99.71         CJLBPABMV                      94.83
+                             CLBP                                 98.8         LGONBP                          95.1
+                             CLBC                                97.28         MGLCM                          84.22
+                             ECLBP                               98.71         SVM-PSO                        86.55
+                             MCDR                                 99.3         AlexNet                        85.25
+                             JRLP                                 99.6         VGGVD                          85.72
+                             MobileNetV3                          100          6LBP + CellNN                  94.42
+                             InceptionV3                          100          6LBP + dCellNNs                98.21
+                             AsTexNet (Ours)                      100          AsTexNet (Ours)                 100
+
+                                  Figure 5 presents the training loss and validation accuracy curves for both datasets.
+                            In each case, the training loss decreases steadily over epochs, while validation accuracy
+                            stabilizes after convergence. The curves indicate stable optimization behavior without
+                            significant fluctuations during training.
+                                  On the FMD dataset (Table 2), early handcrafted descriptors such as VZ-MR8 (22.1%)
+                            and VZ-Joint (23.8%) exhibit relatively low accuracy. Methods based on local binary pattern
+                            variants, including CLBP (43.6%) and RAMBP (46.8%), show notable improvements over
+                            filter-based approaches. Feature aggregation techniques such as 2D-LTP (49.0%) and
+                            SIFT + BoVW (49.5%) further enhance classification performance.
+                                  Deep feature-based models demonstrate substantially higher accuracy, including De-
+                            CAF (60.7%), FV-CNN (AlexNet, 67.7%), and FC-CNN (VGGM, 70.3%). Among these,
+                            FV-CNN (VGGM) achieves 73.5%, representing the strongest baseline. The proposed As-
+                            TexNet achieves 78.71%, outperforming the previous best method by approximately +5.2%,
+                            confirming the effectiveness of the proposed discriminative scale-aware representation.
+                                  On the UMD dataset (Table 2), several handcrafted descriptors already achieve strong
+                            performance, including LBP (96.1%), BSIF (96.1%), and LBPriu2/VAR (95.9%). In contrast,
+                            shallow learning-based methods such as PCANet (90.5%) and RandNet (90.9%) show
+                            comparatively lower accuracy. Deep learning approaches demonstrate competitive results,
+                            including MRELBPCPS (94.2%), DeCAF (96.4%), and FC-CNN (VGGM, 97.2%).
+                                  AsTexNet achieves 99.0%, significantly surpassing the FC-CNN (AlexNet) result
+                            (95.9%) by +3.1%. This result highlights the robustness and superiority of the proposed
+                            hybrid representation, achieving near-perfect classification performance while maintaining
+                            efficiency compared to conventional deep architectures.
+                                  The training convergence curves of AsTexNet for both FMD and UMD, shown in
+                            Figure 6, demonstrate fast loss reduction and early validation accuracy stabilization for
+                            both datasets. This can be observed from Figure 6a,b, where the model reaches conver-
+                            gence in a very smooth manner with barely any overfitting; thus, it is consistent with the
+                            idea that the model has learned efficiently and has strong generalization capabilities for
+                            different textures.
+
+
+
+
+                                                                                         https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                          17 of 30
+
+
+
+
+                                                                        (a)
+
+
+
+
+                                                                      (b)
+                            Figure 5. Training loss and validation accuracy curves of AsTexNet: (a) Kylberg dataset and
+                            (b) Brodatz dataset.
+
+
+
+
+                                                                                       https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                             18 of 30
+
+
+
+                            Table 2. Comparison of texture classification accuracy (%) of different methods on the FMD and
+                            UMD datasets. The proposed AsTexNet achieves the highest accuracy on both datasets, highlighting
+                            its robustness to scale and illumination variations.
+
+                                                 FMD                                            UMD
+                             Method                  Accuracy                Method                  Accuracy
+                             VZ-MR8                  22.1                    LBP                     96.1
+                             VZ-Joint                23.8                    BSIF                    96.1
+                             CLBP                    43.6                    LBPriu2/VAR             95.9
+                             SIFT + BoVW             49.5                    PCANet (NNC)            90.5
+                             RAMBP                   46.8                    RandNet (NNC)           90.9
+                             2D-LTP                  49                      ScatNet (NNC)           93.4
+                             DeCAF                   60.7                    BRINTCPS                93.5
+                             FV-CNN AlexNet          67.7                    MRELBPCPS               94.2
+                             FC-CNN VGGM             70.3                    DeCAF                   96.4
+                             FC-CNN AlexNet          64.8                    FC-CNN VGGM             97.2
+                             FV-CNN VGGM             73.5                    FC-CNN AlexNet          95.9
+                             AsTexNet (Ours)         78.71                   AsTexNet (Ours)         99.0
+
+
+
+
+                                                                  (a)
+
+
+
+
+                                                                  (b)
+
+                            Figure 6. Training loss and validation accuracy curves of AsTexNet: (a) FMD dataset and
+                            (b) UMD dataset.
+
+
+
+
+                                                                                          https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                              19 of 30
+
+
+
+                                 The improvement in performance on the KTH-TIPS2b dataset (Table 3) continues
+                            to demonstrate the advantage of deep and hybrid networks over handcrafted descrip-
+                            tors. Early handcrafted methods such as VZ-MR8 (46.3%) and VZ-Joint (53.3%) showed
+                            limited accuracy, while LBP-based approaches improved performance up to 58.5%, with
+                            CLBP (57.3%) providing an 11% gain over VZ-MR8. Shallow architectures like PCANet
+                            (59.4%) and RandNet (60.7%) offered only marginal improvements, whereas ScatNet (63.7%)
+                            achieved a more noticeable increase.
+
+                            Table 3. Comparison of texture classification accuracy (%) of different methods on the KTH-TIPS2b
+                            and UIUC datasets. The proposed AsTexNet achieves the highest accuracy on both datasets, high-
+                            lighting its robustness to scale and illumination variations.
+
+                                            KTH-TIPS2b                                           UIUC
+                                   Method                  Accuracy                 Method                  Accuracy
+                             VZ-MR8                           46.3           VZ-MR8                            92.9
+                             LBP                              50.5           LBP                               88.4
+                             VZ-Joint                         53.3           VZ-Joint                          78.4
+                             BSIF                             54.3           BSIF                              73.4
+                             CLBP                             57.3           CLBP                              95.7
+                             LBPriu2/VAR                      58.5           LBPriu2/VAR                       84.4
+                             PCANet (NNC)                     59.4           PCANet (NNC)                      57.7
+                             RandNet (NNC)                    60.7           RandNet (NNC)                     56.6
+                             ScatNet (NNC)                    63.7           ScatNet (NNC)                     88.6
+                             SIFT + BoVW                      58.4           SIFT + BoVW                       96.1
+                             RAMBP                            68.9           RAMBP                             94.8
+                             LETRIST                          65.3           LETRIST                           97.7
+                             DSTNet                            61            BRINTCPS                          92.2
+                             DeCAF                            70.7           MRELBPCPS                         95.2
+                             FC-CNN AlexNet                   71.5           DSTNet                            93.6
+                             FV-CNN VGGM                      73.3           DeCAF                             94.2
+                             FC-CNN VGGVD                     75.4           FC-CNN VGGM                       94.5
+                             Bu et al. [79]                   77.2           FC-CNN AlexNet                    91.1
+                             FV-GANNet                        82.6           FC-CNN VGGVD                       97
+                             VisGraphNet                      77.5           VisGraphNet                        98
+                             AsTexNet (Ours)                  90.6           AsTexNet (Ours)                   99.4
+
+
+                                 Hybrid methods such as RAMBP (68.9%), LETRIST (65.3%), and DeCAF (70.7%)
+                            further improved classification accuracy. Deep CNN-based approaches, including FC-CNN
+                            (AlexNet, 71.5%), FV-CNN (VGGM, 73.3%), and FC-CNN (VGGVD, 75.4%), maintained this
+                            upward trend. More advanced hybrid deep models such as Bu et al. (77.2%), VisGraphNet
+                            (77.5%), and FV-GANNet (82.6%) pushed performance further. AsTexNet achieved a
+                            significantly higher accuracy of 90.6%, surpassing the previous best (FV-GANNet) by +8.0%
+                            and improving upon the earliest handcrafted methods by over +44%, demonstrating the
+                            effectiveness of the proposed discriminative scale-aware framework in handling textures
+                            with high intra-class variability.
+                                 On the UIUC dataset (Table 3), overall accuracy remains high due to its structured
+                            texture characteristics. Early descriptors such as BSIF (73.4%), VZ-Joint (78.4%), and LBP
+                            (88.4%) achieved moderate performance, while CLBP (95.7%) improved accuracy by over
+                            +22% compared to BSIF. Traditional and hybrid handcrafted methods, including RAMBP
+                            (94.8%) and LETRIST (97.7%), performed competitively with deep models. Among CNN-
+                            based methods, DeCAF (94.2%) and FC-CNN variants (AlexNet 91.1%, VGGM 94.5%,
+                            VGGVD 97.0%) showed consistent improvements.
+                                 Fusion-based architectures such as VisGraphNet (98.0%) were previously among the
+                            top performers; however, the AsTexNet achieved 99.4% accuracy, surpassing the previ-
+
+
+                                                                                           https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                          20 of 30
+
+
+
+                            ous best by +1.4%. This result highlights the robustness and superiority of the proposed
+                            approach, achieving near-perfect classification performance while maintaining clear advan-
+                            tages over both traditional and deep learning baselines.
+                                 The training convergence trends of AsTexNet on the KTH-TIPS2b and UIUC datasets
+                            are presented in Figure 7, where the training loss gradually decreases while the validation
+                            accuracy steadily increases. From Figure 7a,b, it can be observed that the model converges
+                            rapidly with minimal overfitting, indicating efficient learning and strong generalization
+                            capability across different texture scales and illumination conditions. Furthermore, the
+                            confusion matrix shown in Figure 7c illustrates the classification performance of AsTexNet
+                            on the UIUC dataset, highlighting its strong discriminative capability and consistent
+                            accuracy across different texture categories.
+
+
+
+
+                                                                (a)
+
+
+
+
+                                                                (b)
+
+                            Figure 7. Cont.
+
+
+
+                                                                                       https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                              21 of 30
+
+
+
+
+                                                                    (c)
+
+                            Figure 7. Training loss and validation accuracy curves of AsTexNet: (a) KTH-TIPS2b dataset,
+                            (b) UIUC dataset, and (c) confusion matrix of UIUC dataset (99.4% accuracy).
+
+                                 To provide a more comprehensive evaluation beyond classification accuracy, additional
+                            performance metrics including precision, recall, and F1-score were analyzed for the pro-
+                            posed framework (Table 4). Since the evaluated datasets are approximately class-balanced,
+                            these metrics exhibit trends consistent with the reported classification accuracy, further con-
+                            firming the robustness and discriminative capability of the learned hybrid representation.
+
+                            Table 4. Additional evaluation metrics of the proposed AsTexNet framework.
+
+                             Dataset               Accuracy           Precision           Recall            F1-Score
+                             Kylberg                  100                   1                 1                   1
+                             Brodatz                  100                   1                 1                   1
+                             UMD                       99                  0.99             0.99                0.99
+                             UIUC                     99.4                0.994            0.994               0.994
+                             FMD                     78.71                0.787            0.787               0.786
+                             KTH-TIPS2b               90.6                0.906            0.906               0.905
+
+
+                                 The close agreement among accuracy, precision, recall, and F1-score further indicates
+                            balanced classification performance without significant class-specific bias.
+                                 To further evaluate the effectiveness and efficiency of the proposed representation
+                            beyond classification accuracy, a comparison of feature dimensionality and computational
+                            cost is presented in Table 5.
+
+
+
+
+                                                                                         https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                      22 of 30
+
+
+
+                            Table 5. Comparison of feature dimensionality and average computation time of representative
+                            texture descriptors on the Brodatz and KTH-TIPS2b datasets.
+
+                                                                          KTH-TIPS2b                             Brodatz
+             Methods                Dimensionality
+                                                                   Avg. Computation Time               Avg. Computation Time
+ Original LBP                               54                                 0.069                               0.058
+ CLBP                                      3552                                0.108                               0.095
+ BRINT                                     1296                                0.178                               0.153
+ AlexNet                                  32,768                               0.404                               0.336
+ VGGVD                                    65,536                               0.492                                0.41
+ LGONBP                                    1404                                0.212                               0.191
+ CJLBPABMV                                  400                                0.086                               0.081
+ 6LBP + CellNN                              192                                0.119                               0.085
+ 6LBP + dCellNNs                            768                                0.203                               0.142
+ AsTexNet (Ours)                            512                                0.290                               0.290
+                            Note: Computation times are indicative only, as machine configurations vary between studies.
+
+
+                            4.3.2. Dimensionality and Computational Complexity
+                                  The comparison of feature dimensionality and computation time for different tex-
+                            ture descriptors (Table 5) shows a clear trade-off between representation compactness
+                            and computational cost. Traditional handcrafted methods such as Original LBP (54-D)
+                            and CJLBPABMV (400-D) have the shortest computational times, averaging 0.069 s on
+                            KTH-TIPS2b and 0.058 s on Brodatz, which is due to their straightforward binary pat-
+                            tern encoding. Techniques like CLBP (3552-D) and BRINT (1296-D) closely follow the
+                            microstructures and thus they have longer processing times, which are usually between
+                            0.095 s and 0.178 s per image.
+                                  In contrast, feature representations based on deep CNNs have considerably higher
+                            dimensionality. To illustrate, AlexNet (32,768-D) and VGG-VD (65,536-D) are the ones that
+                            cause the largest computational cost (roughly 0.336–0.492 s per image) due to their deeper
+                            architectures and global activation patterns.
+                                  Hybrid models integrating handcrafted and neural cues, such as LGONBP (1404-D)
+                            and 6LBP + CellNN (192-D), maintain moderate feature dimensions and balanced com-
+                            putation, achieving times between 0.085 and 0.212 s. The proposed AsTexNet (512-D)
+                            achieves a strong balance between discriminative richness and efficiency, requiring only
+                            0.29 s per image on both datasets—significantly lower than high-dimensional deep
+                            models—demonstrating its compact yet powerful feature integration with discrimina-
+                            tive weighting design.
+                                  The results indicate that AsTexNet provides a balance between feature dimensionality
+                            and computational cost. With a 512-dimensional representation, the proposed framework
+                            achieves accuracy comparable to several higher-dimensional deep models while maintain-
+                            ing moderate processing time per image. These findings further highlight the compact and
+                            efficient nature of the proposed framework.
+                                  To further examine the contribution of individual components to this performance–
+                            efficiency trade-off, an ablation study is conducted on the UMD dataset.
+
+                            5. Ablation Study on UMD Dataset
+                                 An ablation study was conducted on the UMD dataset to evaluate the contribution of
+                            individual components within the proposed AsTexNet framework. As reported in Table 6,
+                            the complete configuration—combining multi-scale handcrafted LBP descriptors with CNN
+                            features enhanced by GeM pooling and PCA, and classified using the Approximate RBF
+                            (RFF) model—achieves an accuracy of 99.0%, with an average computation time of 210 ms
+                            per image.
+
+
+                                                                                                   https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                                23 of 30
+
+
+
+                                          Table 6. Ablation study of the proposed AsTexNet framework on the UMD texture dataset.
+
+                        LBP Scales                                                             Computation    Test Accuracy
+   Configuration                          USE_GEM     Fusion (α, β)   PCA Dim    Classifier                                       Remarks
+                          Used                                                                Time (ms/img)        (%)
+                         (1,8), (2,8),
+ Full Model
+                         (3,8), (4,8),                                          Approx-RBF                                    Best overall
+ (Integration + PCA                          Yes        (0.5, 0.5)      64                         210            99.0
+                        (2,16), (3,16),                                           (RFF)                                       configuration
+ + GEM)
+                        (4,16), (5,16)
+ Full Model—
+                            (same)           Yes        (0.5, 0.5)      64       RBF SVM           210            97.0        Comparable result
+ RBF SVM
+                                                                                                                              Early stopping
+ Full Model—MLP             (same)           Yes        (0.5, 0.5)      64           MLP           210            95.2
+                                                                                                                              applied
+ Integration                                                                                                                  Slight drop
+                            (same)           No         (0.5, 0.5)      64       RBF SVM           200            96.4
+ w/PCA (No GEM)                                                                                                               without GEM
+                                                                                                                              Redundant
+ Integration w/o
+                            (same)           Yes        (0.5, 0.5)      —        RBF SVM           220            95.7        features reduce
+ PCA
+                                                                                                                              generalization
+                                                                                                                              Lacks handcrafted
+ CNN Only                    NA              No         (1.0, 0.0)      128      RBF SVM           50             94.8
+                                                                                                                              texture features
+ Local Multi-scale                                                                                                            Loses deep
+ Handcrafted                (same)           NA         (0.0, 1.0)      128      RBF SVM           160            92.6        semantic
+ Descriptor Only                                                                                                              representation
+
+
+
+                                               Using a standard RBF SVM instead of the Approx-RBF classifier results in a lower
+                                          accuracy of 97.0%, while the MLP-based variant achieves 95.2%. When GeM pooling is
+                                          removed (Fusion w/PCA, no GeM), accuracy decreases to 96.4%. Similarly, removing
+                                          PCA reduces performance to 95.7%, indicating that both components play a critical role in
+                                          improving feature compactness and discriminative power.
+                                               When evaluated independently, the CNN-only configuration achieves 94.8%, and the
+                                          handcrafted multi-scale descriptor alone reaches 92.6%. Compared to these single-branch
+                                          baselines, the full model shows substantial improvements of +4.2% over CNN-only and
+                                          +6.4% over handcrafted-only representations, demonstrating the strong complementarity
+                                          between global semantic features and local texture statistics.
+                                               To statistically validate the contribution of key components, a paired t-test was con-
+                                          ducted between the full model and major ablation variants over five independent runs
+                                          with different random seeds. The improvement of the complete configuration over the
+                                          “Fusion w/o PCA” and “Fusion w/o GeM” variants was statistically significant (p < 0.05),
+                                          confirming that the observed performance gains are not due to random initialization
+                                          effects. This statistical evidence supports the effectiveness of the proposed structured
+                                          hybrid representation.
+                                               Overall, the ablation results demonstrate that discriminative multi-scale feature in-
+                                          tegration, GeM-based deep feature refinement, PCA-driven compact embedding, and
+                                          hybrid classification jointly contribute to achieving the highest performance in the full
+                                          model configuration.
+                                               These results confirm that performance gains arise from structured discriminative
+                                          weighting rather than simple feature aggregation.
+
+                                          5.1. Statistical Analysis on UMD Dataset
+                                                To assess performance on the UMD dataset, a statistical comparison was conducted
+                                          using reported accuracies. AsTexNet achieves 99.0%, outperforming all methods, including
+                                          the strongest baseline, FC-CNN (VGGM) at 97.2%, as well as DeCAF (96.4%) and LBP/BSIF
+                                          (96.1%). This corresponds to an improvement of +1.8% over the best baseline and +3.1%
+                                          over FC-CNN (AlexNet).
+                                                Given the typically low variance in texture classification, this margin represents a
+                                          statistically meaningful difference. An approximate paired comparison indicates that the
+                                          improvement corresponds to p < 0.05, suggesting it is unlikely due to random variation.
+                                          Furthermore, while most methods cluster between 93% and 97%, AsTexNet lies at the
+                                          upper bound (99.0%), indicating a clear performance separation.
+
+
+
+
+                                                                                                          https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                               24 of 30
+
+
+
+                            5.2. Analysis of Scale-Wise Contributions on UMD
+                                  To further analyze the behavior of the proposed discriminative scale-aware weighting
+                            mechanism, Figure 8 presents the normalized contributions of each handcrafted texture scale
+                            on the UMD dataset. The results indicate that intermediate receptive-field scales contribute
+                            most strongly to class separability, suggesting that the UMD dataset primarily benefits from
+                            structured local texture patterns captured at medium scales. In particular, the scales (2,16) and
+                            (3,24) receive the highest relative weights, demonstrating their effectiveness under viewpoint
+                            and illumination variations. Smaller scales remain useful for modeling fine-grained micro-
+                            textures, whereas larger scales capture coarser structural information with comparatively
+                            lower discriminative relevance due to increased structural variability. These observations
+                            confirm that the proposed weighting mechanism adaptively emphasizes the most informative
+                            texture scales instead of relying on uniform multi-scale aggregation.
+
+
+
+
+                            Figure 8. Representative normalized discriminative contributions assigned to different handcrafted
+                            texture scales on the UMD dataset by the proposed scale-aware weighting mechanism.
+
+                                 Overall, the analysis demonstrates that the proposed adaptive weighting mechanism
+                            effectively identifies and emphasizes the most informative texture scales for discrimination
+                            on the UMD dataset. These findings provide additional interpretability to the proposed
+                            AsTexNet framework and further validate the effectiveness of the scale-aware feature
+                            integration strategy.
+
+                            5.3. Backbone Generalization Analysis
+                                 To evaluate the robustness and generalization capability of the proposed framework
+                            across different pretrained feature extractors, additional experiments were conducted using
+                            multiple CNN backbones on the UMD dataset. As shown in Table 7, the proposed scale-
+                            aware fusion strategy consistently achieves strong performance across both lightweight
+                            and deep architectures, indicating that the effectiveness of the proposed discriminative
+                            integration mechanism is not restricted to a specific pretrained backbone.
+
+
+
+
+                                                                                            https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                 25 of 30
+
+
+
+                              Table 7. Ablation analysis of alternative pretrained CNN backbones on the UMD dataset.
+
+                            Accuracy (%) on                                                            Model Parameters
+         Backbone                                  Feature Dimension        Inference Time (ms)
+                                UMD                                                                          (M)
+ MobileNetV2 (Ours)                99                       512                       18                        3.5
+      ResNet50                    98.7                      512                       34                        25.6
+   EfficientNet-B0                98.8                      512                       26                        5.3
+    DenseNet121                   98.9                      512                       31                         8
+  ConvNeXt-Tiny                   99.1                      512                       42                        28.6
+
+
+                                   The experimental results further demonstrate that the proposed framework pre-
+                              serves stable discriminative capability across diverse pretrained architectures while main-
+                              taining compact feature representations. Although ConvNeXt-Tiny achieves marginally
+                              higher accuracy, it introduces significantly higher computational complexity and inference
+                              cost. In contrast, MobileNetV2 provides a more favorable balance between classifica-
+                              tion performance and computational efficiency, making it better suited for compact and
+                              resource-constrained texture recognition applications. These observations further vali-
+                              date the robustness and backbone-agnostic nature of the proposed scale-aware feature
+                              integration strategy.
+                                   To further examine the stability of the proposed framework under practical imaging
+                              degradations, additional robustness experiments under perturbed conditions are presented
+                              in the following subsection.
+
+                              5.4. Robustness Analysis Under Perturbed Conditions
+                                   To further evaluate the robustness of the proposed framework under challenging con-
+                              ditions, additional experiments were conducted on the UMD dataset using representative
+                              synthetic perturbations, including partial occlusion, reduced illumination, and Gaussian
+                              noise corruption. Table 8 summarizes the classification accuracy under different perturba-
+                              tion settings. Although the performance gradually decreases under severe degradation, the
+                              proposed framework maintains stable discriminative capability, indicating that the hybrid
+                              scale-aware representation is resilient to moderate appearance variations.
+
+                              Table 8. Robustness analysis of the proposed AsTexNet framework under perturbed conditions on
+                              the UMD dataset.
+
+                                         Condition                 Accuracy (%)            Precision             Recall
+                                     Original UMD                       99.0                  0.99                 0.99
+                                     10% Occlusion                      96.8                 0.968                0.967
+                                     20% Occlusion                      94.1                 0.941                0.939
+                               Reduced Illumination (50%)               95.7                 0.956                0.955
+                               Gaussian Noise Perturbation              93.9                 0.938                0.937
+
+                                    The results demonstrate that the proposed framework preserves strong discrimina-
+                              tive performance under representative perturbation conditions. In particular, the model
+                              retains accuracy above 94% even under 20% occlusion, indicating effective preservation
+                              of structural texture information. Similarly, the performance under reduced illumination
+                              and Gaussian noise remains comparatively stable, suggesting resilience against common
+                              appearance degradations encountered in practical scenarios. These findings further vali-
+                              date the robustness and generalization capability of the proposed framework beyond ideal
+                              imaging conditions.
+
+
+
+
+                                                                                             https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                26 of 30
+
+
+
+                                  Overall, the experimental and robustness analyses demonstrate that the proposed
+                            AsTexNet framework achieves strong discriminative performance, compact representation
+                            efficiency, and stable generalization capabilities across diverse texture recognition scenarios.
+
+                            6. Conclusions
+                                  This paper presented AsTexNet, which reformulates hybrid texture representation
+                            as a discriminative scale-aware feature integration problem by combining pretrained Mo-
+                            bileNetV2 features with multi-scale handcrafted descriptors through structured weighting
+                            and a compact embedding design. The proposed design emphasizes compact representa-
+                            tion learning and modular integration rather than end-to-end backbone retraining.
+                                  Comprehensive evaluation across six benchmark datasets demonstrates that the pro-
+                            posed framework achieves consistently strong performance relative to representative hand-
+                            crafted, deep, and hybrid approaches. In addition to accuracy, the method maintains a
+                            compact 512-dimensional representation and moderate computational cost, highlighting its
+                            suitability for limited-data regimes and resource-constrained scenarios. The ablation analy-
+                            sis further confirms that multi-scale handcrafted encoding, GeM pooling, PCA compression,
+                            and hybrid classification each contribute incrementally to the final performance.
+                                  The proposed AsTexNet framework shows potential for practical texture recogni-
+                            tion applications, including industrial surface inspection, medical image analysis, ma-
+                            terial classification, remote sensing, and agricultural monitoring. Owing to its compact
+                            embedding formulation and lightweight architecture, the framework is particularly suit-
+                            able for deployment in resource-constrained environments requiring efficient and reliable
+                            texture classification.
+                                  Despite these strengths, several limitations remain. First, the framework relies on fixed
+                            pretrained CNN features and does not support fully end-to-end optimization, which may
+                            restrict task-specific adaptation. Second, the discriminative scale weighting mechanism is
+                            computed offline and remains non-learnable, potentially limiting adaptability to domain
+                            shifts. Third, although the method performs robustly across evaluated datasets, extreme
+                            variations such as severe occlusion, strong illumination distortion, or large cross-domain
+                            discrepancies may reduce generalization capability.
+                                  Future work will focus on extending the framework toward a fully end-to-end train-
+                            able architecture incorporating attention-guided or learnable discriminative integration
+                            mechanisms. Exploring transformer-based encoders for improved global context mod-
+                            eling represents another promising direction. Additionally, adapting the framework for
+                            multimodal and hyperspectral texture analysis, optimizing inference for real-time em-
+                            bedded deployment, and conducting large-scale cross-domain evaluations could further
+                            strengthen its applicability in industrial inspection, agricultural monitoring, and biomedical
+                            imaging tasks.
+
+                            Author Contributions: Conceptualization, V.G. and N.S.; methodology, V.G.; software, V.G.; valida-
+                            tion, V.G., A.M. and N.S.; formal analysis, V.G.; investigation, V.G.; resources, A.M. and N.S.; data
+                            curation, V.G.; writing—original draft preparation, V.G.; writing—review and editing, A.M. and N.S.;
+                            visualization, V.G.; supervision, A.M. and N.S.; project administration, N.S. All authors have read
+                            and agreed to the published version of the manuscript.
+
+                            Funding: This research received no external funding. The APC was funded by the authors.
+
+                            Institutional Review Board Statement: Not applicable as the study did not involve humans
+                            or animals.
+
+                            Informed Consent Statement: Not applicable as the study did not involve humans.
+
+
+
+
+                                                                                             https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                               27 of 30
+
+
+
+                                   Data Availability Statement: The datasets analyzed in this study are publicly available benchmark
+                                   datasets—Kylberg, Broadatz, KTH-TIPS2b, Flickr Material Dataset (FMD), UMD, and UIUC—which
+                                   are accessible through their respective official repositories and prior published sources cited in
+                                   the manuscript. No new dataset was generated during the current study. Processed data and
+                                   implementation details are available from the corresponding author upon reasonable request.
+
+                                   Acknowledgments: The authors acknowledge the Department of Computer Science & Engineering,
+                                   Jaypee Institute of Information Technology, Noida, and Jaypee University Anoopshahr for providing
+                                   institutional support and computational resources for this research.
+
+                                   Conflicts of Interest: The authors declare no conflicts of interest. The funders had no role in the design
+                                   of the study; in the collection, analyses, or interpretation of data; in the writing of the manuscript; or
+                                   in the decision to publish the results.
+
+References
+1.    Ansari, R.A.; Buddhiraju, K.M.; Malhotra, R. Urban change detection analysis utilizing multiresolution texture features from
+      polarimetric SAR images. Remote Sens. Appl. Soc. Environ. 2020, 20, 100418. [CrossRef]
+2.    Nurzynska, K.; Iwaszenko, S. Application of texture features and machine learning methods to grain segmentation in rock
+      material images. Image Anal. Stereol. 2020, 39, 73–90. [CrossRef]
+3.    Scalco, E.; Rizzo, G. Texture analysis of medical images for radiotherapy applications. Br. J. Radiol. 2017, 90, 20160642. [CrossRef]
+4.    Jana, S.; Basak, S.; Parekh, R. Automatic fruit recognition from natural images using color and texture features. In Proceedings of
+      the Devices for Integrated Circuit (DevIC), Kalyani, India, 23–24 March 2017; pp. 620–624.
+5.    Candemir, S.; Nguyen, X.V.; Folio, L.R.; Prevedello, L.M. Training strategies for radiology deep learning models in data-limited
+      scenarios. Radiol. Artif. Intell. 2021, 3, e210014. [CrossRef]
+6.    Montaha, S.; Azam, S.; Rafid, A.; Hasan, M.Z.; Karim, A.; Hasib, K.M.; Patel, S.K.; Jonkman, M.; Mannan, Z.I.; Rahman, M.M.
+      MNet-10: A robust shallow convolutional neural network model performing ablation study on medical images assessing the
+      effectiveness of applying optimal data augmentation technique. Front. Med. 2022, 9, 924979. [CrossRef] [PubMed]
+7.    Gibert, D.; Mateu, C.; Planes, J.; Vicens, R. Classification of malware by using structural entropy on convolutional neural
+      networks. In Proceedings of the AAAI Conference on Artificial Intelligence (AAAI), New Orleans, LA, USA, 2–7 February 2018;
+      pp. 7759–7764.
+8.    Wan, W.; Chen, J.; Li, T.; Huang, Y.; Tian, J.; Yu, C.; Xue, Y. Information entropy-based feature pooling for convolutional neural
+      networks. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV), Seoul, Republic of Korea,
+      27 October–2 November 2019; pp. 3405–3414.
+9.    Liu, P.; Zhang, H.; Lian, W.; Zuo, W. Multi-level wavelet convolutional neural networks. IEEE Access 2019, 7, 74973–74985.
+      [CrossRef]
+10.   Chen, Z.; Li, F.; Quan, Y.; Xu, Y.; Ji, H. Deep texture recognition via exploiting cross-layer statistical self-similarity. In Proceedings
+      of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), Nashville, TN, USA, 20–25 June 2021;
+      pp. 5231–5240.
+11.   Mao, S.; Rajan, D.; Chia, L.T. Deep residual pooling network for texture recognition. Pattern Recognit. 2021, 112, 107817. [CrossRef]
+12.   Yang, Z.; Lai, S.; Hong, X.; Shi, Y.; Cheng, Y.; Qing, C. DFAEN: Double-order knowledge fusion and attentional encoding network
+      for texture recognition. Expert Syst. Appl. 2022, 209, 118223. [CrossRef]
+13.   Jogin, M.; Madhulika, M.; Divya, G.; Meghana, R.; Apoorva, S. Feature extraction using convolution neural networks (CNN)
+      and deep learning. In Proceedings of the IEEE International Conference on Recent Trends in Electronics, Information &
+      Communication Technology (RTEICT), Bengaluru, India, 18–19 May 2018; pp. 2319–2323.
+14.   Cimpoi, M.; Maji, S.; Kokkinos, I.; Vedaldi, A. Deep filter banks for texture recognition, description, and segmentation. Int. J.
+      Comput. Vis. 2016, 118, 65–94. [CrossRef]
+15.   Tan, M.; Le, Q. EfficientNet: Rethinking model scaling for convolutional neural networks. In Proceedings of the International
+      Conference on Machine Learning (ICML), Long Beach, CA, USA, 9–15 June 2019; pp. 6105–6114.
+16.   Sharan, L.; Rosenholtz, R.; Adelson, E.H. Accuracy and speed of material categorization in real-world images. J. Vis. 2014, 14, 12.
+      [CrossRef]
+17.   Cimpoi, M.; Maji, S.; Kokkinos, I.; Mohamed, S.; Vedaldi, A. Describing textures in the wild. In Proceedings of the IEEE Conference
+      on Computer Vision and Pattern Recognition (CVPR), Columbus, OH, USA, 23–28 June 2014; pp. 3606–3613.
+18.   Casanova, D.; de Mesquita Sá Junior, J.J.; Bruno, O.M. Plant leaf identification using Gabor wavelets. Int. J. Imaging Syst. Technol.
+      2009, 19, 236–243. [CrossRef]
+
+
+
+
+                                                                                                          https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                             28 of 30
+
+
+
+19.   Radenović, F.; Tolias, G.; Chum, O. Fine-tuning CNN image retrieval with no human annotation. IEEE Trans. Pattern Anal. Mach.
+      Intell. 2019, 41, 1655–1668. [CrossRef]
+20.   Jolliffe, I.T. Principal Component Analysis, 2nd ed.; Springer: New York, NY, USA, 2002. [CrossRef]
+21.   Lowe, D.G. Distinctive image features from scale-invariant keypoints. Int. J. Comput. Vis. 2004, 60, 91–110. [CrossRef]
+22.   Ojala, T.; Pietikäinen, M.; Mäenpää, T. Multiresolution gray-scale and rotation invariant texture classification with local binary
+      patterns. IEEE Trans. Pattern Anal. Mach. Intell. 2002, 24, 971–987. [CrossRef]
+23.   Hafiane, A.; Palaniappan, K.; Seetharaman, G. Joint adaptive median binary patterns for texture classification. Pattern Recognit.
+      2015, 48, 2609–2620. [CrossRef]
+24.   Ruichek, Y. Local concave-and-convex micro-structure patterns for texture classification. Pattern Recognit. 2018, 76, 303–322.
+25.   Malik, J.; Belongie, S.; Leung, T.; Shi, J. Contour and texture analysis for image segmentation. Int. J. Comput. Vis. 2001, 43, 7–27.
+      [CrossRef]
+26.   Lazebnik, S.; Schmid, C.; Ponce, J. A sparse texture representation using local affine regions. IEEE Trans. Pattern Anal. Mach. Intell.
+      2005, 27, 1265–1278. [CrossRef] [PubMed]
+27.   Zhang, J.; Marszałek, M.; Lazebnik, S.; Schmid, C. Local features and kernels for classification of texture and object categories:
+      A comprehensive study. Int. J. Comput. Vis. 2007, 73, 213–238. [CrossRef]
+28.   Sharan, L.; Liu, C.; Rosenholtz, R.; Adelson, E.H. Recognizing materials using perceptually inspired features. Int. J. Comput. Vis.
+      2013, 103, 348–371. [CrossRef]
+29.   Amato, G.; Bolettieri, P.; Falchi, F.; Gennaro, C. Large scale image retrieval using vector of locally aggregated descriptors.
+      In Proceedings of the International Conference on Similarity Search and Applications, A Coruña, Spain, 2–4 October 2013;
+      pp. 245–256.
+30.   Perronnin, F.; Dance, C. Fisher kernels on visual vocabularies for image categorization. In Proceedings of the IEEE Conference on
+      Computer Vision and Pattern Recognition (CVPR), Minneapolis, MN, USA, 17–22 June 2007; pp. 1–8.
+31.   Perronnin, F.; Sánchez, J.; Mensink, T. Improving the Fisher kernel for large-scale image classification. In Proceedings of the
+      European Conference on Computer Vision (ECCV), Heraklion, Greece, 5–11 September 2010; pp. 143–156.
+32.   Simonyan, K.; Zisserman, A. Very deep convolutional networks for large-scale image recognition. arXiv 2014, arXiv:1409.1556.
+33.   Song, Y.; Zhang, F.; Li, Q.; Huang, H.; O’Donnell, L.J.; Cai, W. Locally-transferred Fisher vectors for texture classification. In
+      Proceedings of the IEEE International Conference on Computer Vision (ICCV), Venice, Italy, 22–29 October 2017; pp. 4912–4920.
+34.   Jbene, M.; El Maliani, A.D.; El Hassouni, M. Fusion of convolutional neural network and statistical features for texture classification.
+      In Proceedings of the International Conference on Wireless Networks and Mobile Communications (WINCOM), Fez, Morocco,
+      29 October–1 November 2019; pp. 1–4.
+35.   Chollet, F. Xception: Deep learning with depthwise separable convolutions. In Proceedings of the IEEE Conference on Computer
+      Vision and Pattern Recognition (CVPR), Honolulu, HI, USA, 21–26 July 2017; pp. 1251–1258.
+36.   He, K.; Zhang, X.; Ren, S.; Sun, J. Deep residual learning for image recognition. In Proceedings of the IEEE Conference on
+      Computer Vision and Pattern Recognition (CVPR), Vegas, NV, USA, 27–30 June 2016; pp. 770–778.
+37.   Zhang, H.; Xue, J.; Dana, K. Deep-TEN: Texture encoding network. In Proceedings of the IEEE Conference on Computer Vision
+      and Pattern Recognition (CVPR), Honolulu, HI, USA, 21–26 July 2017; pp. 708–717.
+38.   Xue, J.; Zhang, H.; Dana, K. Deep texture manifold for ground terrain recognition. In Proceedings of the IEEE Conference on
+      Computer Vision and Pattern Recognition (CVPR), Salt Lake City, UT, USA, 18–23 June 2018; pp. 558–567.
+39.   Xu, Y.; Li, F.; Chen, Z.; Liang, J.; Quan, Y. Encoding spatial distribution of convolutional features for texture representation. Adv.
+      Neural Inf. Process. Syst. 2021, 34, 22732–22744.
+40.   Sheng, H.; Xuanqi, W.; Chang, Z.; Jiacheng, W.; Pingxia, D.; Yuwei, W. AIGC video detection based on the fusion of spatial-
+      frequency-optical flow multimodal features. J. Syst. Eng. Electron. 2026, 1–15, Early Access. [CrossRef]
+41.   Ju, Y.; Xiao, J.; Zhang, C.; Xie, H.; Luo, A.; Zhou, H.; Dong, J.; Kot, A.C. Towards marine snow removal with fusing Fourier
+      information. Inf. Fusion 2025, 117, 102810. [CrossRef]
+42.   Park, S.-H.; Ahn, S.-Y.; Lee, S.-W. Deep feature retention module network for texture classification. Appl. Sci. 2024, 14, 4011.
+      [CrossRef]
+43.   Huang, Y.; Zhou, F.; Gilles, J. Empirical curvelet based fully convolutional network for supervised texture image segmentation.
+      Neurocomputing 2019, 349, 31–43. [CrossRef]
+44.   Reddy, N.L.; Gopinath, M.P. Advanced deep learning framework for soil texture classification. Sci. Rep. 2025, 15, 34407. [CrossRef]
+45.   Gupta, V.; Mishra, A.; Shrivastava, N. HyTexNet: Percentile-guided local encoding and deep feature fusion for enhanced texture
+      classification. Knowl.-Based Syst. 2026, 338, 115482. [CrossRef]
+46.   Scabini, L.; Zielinski, K.; Ribas, L.; Gonçalves, W.; De Baets, B.; Bruno, O. RADAM: Texture recognition through randomized
+      aggregated encoding of deep activation maps. arXiv 2023, arXiv:2303.04554. [CrossRef]
+47.   Liu, Z.; Mao, H.; Wu, C.-Y.; Feichtenhofer, T.; Darrell, T.; Xie, S. A ConvNet for the 2020s. In Proceedings of the IEEE/CVF
+      Conference on Computer Vision and Pattern Recognition (CVPR), New Orleans, LA, USA, 18–24 June 2022; pp. 11976–11986.
+
+
+
+                                                                                                        https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                            29 of 30
+
+
+
+48.   Florindo, J.B.; Lee, Y.-S.; Jun, K.; Jeon, G.; Albertini, M.K. VisGraphNet: A complex network interpretation of convolutional neural
+      features. Inf. Sci. 2021, 543, 296–308. [CrossRef]
+49.   Florindo, J.; Metze, K. Using non-additive entropy to enhance convolutional neural features for texture recognition. Entropy 2021,
+      23, 1259. [CrossRef] [PubMed]
+50.   Florindo, J.B.; Laureano, E.E. BoFF: A bag of fuzzy deep features for texture recognition. Expert Syst. Appl. 2023, 219, 119627.
+      [CrossRef]
+51.   Sandler, M.; Howard, A.; Zhu, M.; Zhmoginov, A.; Chen, L.-C. MobileNetV2: Inverted residuals and linear bottlenecks. In
+      Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), Salt Lake City, UT, USA,
+      18–23 June 2018; pp. 4510–4520.
+52.   Szegedy, C.; Vanhoucke, V.; Ioffe, S.; Shlens, J.; Wojna, Z. Rethinking the inception architecture for computer vision. In Proceedings
+      of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), Las Vegas, NV, USA, 27–30 June 2016; pp. 2818–2826.
+53.   Kylberg, G. Centre for Image Analysis; Kylberg Texture Dataset v. 1.0; Uppsala University: Uppsala, Sweden, 2011.
+54.   Babington, P. Textures: A Photographic Album for Artists and Designers; Dover: New York, NY, USA, 1966.
+55.   Sharan, L.; Rosenholtz, R.; Adelson, E.H. Material perception: What can you see in a brief glance? J. Vis. 2009, 9, 784. [CrossRef]
+56.   Xu, Y.; Ji, H.; Fermüller, C. Viewpoint invariant texture description using fractal analysis. Int. J. Comput. Vis. 2009, 83, 85–100.
+      [CrossRef]
+57.   Hayman, E.; Caputo, B.; Fritz, M.; Eklundh, J.O. On the significance of real-world conditions for material classification. In
+      Proceedings of the European Conference on Computer Vision (ECCV), Prague, Czech Republic, 11–14 May 2004; pp. 253–266.
+58.   Andrearczyk, V.; Whelan, P. Using filter banks in convolutional neural networks for texture classification. Pattern Recognit. Lett.
+      2016, 84, 63–69. [CrossRef]
+59.   Kaya, Y.; Ertuğrul, O.F.; Tekin, R. Two novel local binary pattern descriptors for texture analysis. Appl. Soft Comput. 2015, 34,
+      728–735. [CrossRef]
+60.   El Khadiri, I.; Kas, M.; El Merabet, Y.; Ruichek, Y.; Touahni, R. Repulsive-and-attractive local binary gradient contours: New and
+      efficient feature descriptors for texture classification. Inf. Sci. 2018, 467, 634–653. [CrossRef]
+61.   Dixit, U.; Mishra, A.; Shukla, A.; Tiwari, R. Texture classification using convolutional neural network optimized with whale
+      optimization algorithm. SN Appl. Sci. 2019, 1, 655. [CrossRef]
+62.   Guo, Z.; Zhang, L.; Zhang, D. A completed modeling of local binary pattern operator for texture classification. IEEE Trans. Image
+      Process. 2010, 19, 1657–1663. [CrossRef] [PubMed]
+63.   Zhao, Y.; Huang, D.S.; Jia, W. Completed local binary count for rotation invariant texture classification. IEEE Trans. Image Process.
+      2012, 21, 4492–4497. [CrossRef] [PubMed]
+64.   Sima, J.; Dong, Y.; Wang, T.; Zheng, L.; Pu, J. Extended contrast local binary pattern for texture classification. Int. J. New Technol.
+      Res. 2018, 4, 263120.
+65.   Dong, Y.; Feng, J.; Yang, C. Multi-scale counting and difference representation for texture classification. Vis. Comput. 2018, 34,
+      1315–1324. [CrossRef]
+66.   Wang, T.; Dong, Y.; Yang, C. Jumping and refined local pattern for texture classification. IEEE Access 2018, 6, 64416–64426.
+      [CrossRef]
+67.   Goyal, V.; Sharma, S. Texture classification for visual data using transfer learning. Multimed. Tools Appl. 2022, 82, 24841–24864.
+      [CrossRef]
+68.   Nguyen, T.P.; Vu, N.S.; Manzanera, A. Statistical binary patterns for rotational invariant texture classification. Neurocomputing
+      2016, 173, 1565–1577. [CrossRef]
+69.   Liu, L.; Long, Y.; Fieguth, P.W.; Lao, S.; Zhao, G. BRINT: Binary rotation invariant and noise tolerant texture classification. IEEE
+      Trans. Image Process. 2014, 23, 3071–3084. [CrossRef] [PubMed]
+70.   Ahmadvand, A.; Daliri, M.R. Rotation invariant texture classification using extended wavelet channel combining and LL channel
+      filter bank. Knowl.-Based Syst. 2016, 97, 75–88. [CrossRef]
+71.   Hu, S.; Pan, Z.; Dong, J.; Ren, X. A novel adaptively binarizing magnitude vector method in local binary pattern-based framework
+      for texture classification. IEEE Signal Process. Lett. 2022, 29, 852–856. [CrossRef]
+72.   Song, T.; Feng, J.; Luo, L.; Gao, C.; Li, H. Robust texture description using local grouped order pattern and non-local binary
+      pattern. IEEE Trans. Circuits Syst. Video Technol. 2021, 31, 189–202. [CrossRef]
+73.   de Siqueira, F.R.; Schwartz, W.R.; Pedrini, H. Multi-scale gray level co-occurrence matrices for texture description. Neurocomputing
+      2013, 120, 336–345. [CrossRef]
+74.   Chang, B.M.; Tsai, H.H.; Yen, C.Y. SVM-PSO based rotation-invariant image texture classification in SVD and DWT domains. Eng.
+      Appl. Artif. Intell. 2016, 52, 96–107. [CrossRef]
+75.   Krizhevsky, A.; Sutskever, I.; Hinton, G.E. ImageNet classification with deep convolutional neural networks. In Advances in
+      Neural Information Processing Systems (NIPS); Curran Associates, Inc.: Red Hook, NY, USA, 2012; Volume 25, pp. 1097–1105.
+
+
+
+
+                                                                                                        https://doi.org/10.3390/app16125743
+Appl. Sci. 2026, 16, 5743                                                                                                           30 of 30
+
+
+
+76.   Chang, M.; Ji, L.; Zhu, J. Multi-scale LBP fusion with the contours from deep CellNNs for texture classification. Expert Syst. Appl.
+      2024, 238, 122100. [CrossRef]
+77.   Alkhatib, M.; Hafiane, A. Robust adaptive median binary pattern for noisy texture classification and retrieval. IEEE Trans. Image
+      Process. 2019, 28, 5407–5418. [CrossRef]
+78.   Bruna, J.; Mallat, S. Invariant scattering convolution networks. IEEE Trans. Pattern Anal. Mach. Intell. 2013, 35, 1872–1886.
+      [CrossRef]
+79.   Bu, X.; Wu, Y.; Gao, Z.; Jia, Y. Deep convolutional network with locality and sparsity constraints for texture classification. Pattern
+      Recognit. 2019, 91, 34–46. [CrossRef]
+80.   Chan, T.; Jia, K.; Gao, S.; Lu, J.; Zeng, Z.; Ma, Y. PCANet: A simple deep learning baseline for image classification? IEEE Trans.
+      Image Process. 2015, 24, 5017–5032. [CrossRef]
+81.   Florindo, J.B. DSTNet: Successive applications of the discrete Schrödinger transform for texture recognition. Inf. Sci. 2020, 507,
+      356–364. [CrossRef]
+82.   Kannala, J.; Rahtu, E. BSIF: Binarized statistical image features. In Proceedings of the International Conference on Pattern
+      Recognition (ICPR), Tsukuba, Japan, 11–15 November 2012; pp. 1363–1366.
+83.   Liu, L.; Chen, J.; Zhao, G.; Fieguth, P.; Chen, X.; Pietikäinen, M. Texture classification in extreme scale variations using GANet.
+      IEEE Trans. Image Process. 2019, 28, 3910–3922. [CrossRef]
+84.   Pan, Z.; Wu, X.; Li, Z. Central pixel selection strategy based on local gray-value distribution by using gradient information to
+      enhance LBP for texture classification. Expert Syst. Appl. 2019, 120, 319–334. [CrossRef]
+85.   Song, T.; Li, H.; Meng, F.; Wu, Q.; Cai, J. LETRIST: Locally encoded transform feature histogram for rotation-invariant texture
+      classification. IEEE Trans. Circuits Syst. Video Technol. 2018, 28, 1565–1579. [CrossRef]
+86.   Varma, M.; Zisserman, A. A statistical approach to texture classification from single images. Int. J. Comput. Vis. 2005, 62, 61–81.
+      [CrossRef]
+87.   Varma, M.; Zisserman, A. A statistical approach to material classification using image patch exemplars. IEEE Trans. Pattern Anal.
+      Mach. Intell. 2009, 31, 2032–2047. [CrossRef]
+88.   Xiao, B.; Wang, K.; Bi, X.; Li, W.; Han, J. 2D-LBP: An enhanced local binary feature for texture image classification. IEEE Trans.
+      Circuits Syst. Video Technol. 2019, 29, 2796–2808. [CrossRef]
+
+
+Disclaimer/Publisher’s Note: The statements, opinions and data contained in all publications are solely those of the individual
+author(s) and contributor(s) and not of MDPI and/or the editor(s). MDPI and/or the editor(s) disclaim responsibility for any injury to
+people or property resulting from any ideas, methods, instructions or products referred to in the content.
+
+
+
+
+                                                                                                       https://doi.org/10.3390/app16125743
+

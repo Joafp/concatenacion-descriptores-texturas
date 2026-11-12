@@ -1,0 +1,62 @@
+{
+  "status": "SAVED_TRAINING_PRIMAL_GRADIENTS_INSPECTED_REVIEW_REQUIRED",
+  "complete_conditions": 46,
+  "learners": 2441,
+  "missing": [
+    {
+      "dataset": "dtd",
+      "task": "DeepLumina_DTD_s42_f3",
+      "execution_status": "requires_review"
+    }
+  ],
+  "training_features_only": true,
+  "refit_or_test_inference": false,
+  "definition": "norm(primal gradient at saved solution) / norm(primal gradient at zero), L2 squared hinge with regularized intercept",
+  "interpretation": "Descriptive stationarity diagnostic; not the liblinear dual stopping test, not an F1-impact estimate, and no threshold asserts convergence.",
+  "sources": [
+    "https://github.com/cjlin1/liblinear/blob/master/README",
+    "https://www.csie.ntu.edu.tw/~cjlin/liblinear/FAQ_src.html",
+    "https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html"
+  ],
+  "python": "3.12.13 (main, Jun 23 2026, 15:18:55) [Clang 22.1.3 ]",
+  "numpy": "2.4.4",
+  "scikit_learn": "1.9.0",
+  "datasets": {
+    "fmd": {
+      "capped_count": 41,
+      "not_capped_count": 649,
+      "median_gradient_ratio_capped": 4.592696494436858e-05,
+      "median_gradient_ratio_not_capped": 5.323202719701729e-06
+    },
+    "curet": {
+      "capped_count": 178,
+      "not_capped_count": 0,
+      "median_gradient_ratio_capped": 0.07152774141961966,
+      "median_gradient_ratio_not_capped": null
+    },
+    "outex": {
+      "capped_count": 92,
+      "not_capped_count": 0,
+      "median_gradient_ratio_capped": 0.02562896772151813,
+      "median_gradient_ratio_not_capped": null
+    },
+    "soil": {
+      "capped_count": 423,
+      "not_capped_count": 102,
+      "median_gradient_ratio_capped": 0.0018719332034009518,
+      "median_gradient_ratio_not_capped": 9.586805904830831e-06
+    },
+    "kth": {
+      "capped_count": 166,
+      "not_capped_count": 34,
+      "median_gradient_ratio_capped": 0.0002664528226787158,
+      "median_gradient_ratio_not_capped": 6.31025634276101e-07
+    },
+    "dtd": {
+      "capped_count": 753,
+      "not_capped_count": 3,
+      "median_gradient_ratio_capped": 0.005893296523901201,
+      "median_gradient_ratio_not_capped": 4.1058736275257875e-07
+    }
+  }
+}

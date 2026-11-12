@@ -1,5 +1,10 @@
 # Nueva etapa: métodos publicados frente al panel local
 
+> Actualización del 04-11-2026: la hoja de ruta vigente, el cierre DeepLumina
+> por dataset y las discrepancias detectadas con el cuadro de defensa están en
+> [PLAN_MAESTRO_ACTUALIZADO_2026-11-04.md](PLAN_MAESTRO_ACTUALIZADO_2026-11-04.md).
+> Los estados de este documento se conservan como historial.
+
 ## Material Passport
 
 - Origin Skill: academic-research-suite / experiment-agent.

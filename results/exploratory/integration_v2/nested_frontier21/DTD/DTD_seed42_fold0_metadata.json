@@ -1,0 +1,54 @@
+{
+  "dataset": "DTD",
+  "seed": 42,
+  "outer_fold": 0,
+  "outer_train_rows": 4512,
+  "external_test_rows_not_evaluated": 1128,
+  "base_block_selection": "best individual macro-F1 from inner ranking per producer fold",
+  "base_blocks_by_cv_fold": {
+    "0": "siglip_base",
+    "1": "dinov2_large",
+    "2": "siglip_base",
+    "3": "siglip_base"
+  },
+  "inner_group_column": "group",
+  "library": [
+    "beitv2_base_final",
+    "convnext_v2_t",
+    "deit_s",
+    "densenet121",
+    "dinov2",
+    "dinov2_large",
+    "dinov2_small",
+    "drlbp",
+    "efficientnet_b0",
+    "eva02_base",
+    "gabor",
+    "glcm",
+    "hog",
+    "lbp",
+    "mae_base",
+    "resnet101",
+    "resnet50",
+    "siglip_base",
+    "swin_t",
+    "vgg16",
+    "vit_b16"
+  ],
+  "cv_folds": 4,
+  "calibration_folds": 4,
+  "escalation_quantiles": [
+    0.1,
+    0.25,
+    0.5
+  ],
+  "subset_size": 4,
+  "ensemble_member_counts": [
+    3,
+    5
+  ],
+  "sampling_beta": 8.0,
+  "decision": "report full frontier; no single point selected because an operational loss tolerance is not specified",
+  "cost_note": "extractor latency plus gate overhead projection; excludes classifier and is not a physical measurement",
+  "elapsed_seconds": 1120.914543886
+}

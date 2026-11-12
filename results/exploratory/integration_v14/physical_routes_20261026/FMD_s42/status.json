@@ -1,0 +1,199 @@
+{
+  "status": "blocked_parity_or_runtime",
+  "condition": "FMD_s42",
+  "producer_fold": 0,
+  "device": "cpu",
+  "physical_timing_validated": false,
+  "external_test_evaluated": false,
+  "new_inferential_tests": 0,
+  "protocol_sha256": "54e2416d9ca5f1e86ab4b27c2a877b67ae1bc23ce86bff64eb293fc1c401fbf7",
+  "source_sha256": "e17fe2a6be0a0ca5c8324f5eb9fca2990acaf73df5e75792836139d744a38246",
+  "route_source_sha256": "3ad4237e5ab5c7ed095bddcac3e260d2a1d425aab12c82cb122139d82ece1c2e",
+  "recipes": {
+    "carlos_permanent": {
+      "members": [
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_small",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "eva02_base",
+          "siglip_base",
+          "vit_b16"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "dinov2_large",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "eva02_base",
+          "resnet101",
+          "siglip_base"
+        ],
+        [
+          "beitv2_base_final",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "dinov2_small",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "dinov2_large",
+          "eva02_base",
+          "siglip_base"
+        ]
+      ]
+    },
+    "static_B60": {
+      "members": [
+        [
+          "eva02_base"
+        ],
+        [
+          "siglip_base"
+        ]
+      ],
+      "blocks": [
+        "eva02_base",
+        "siglip_base"
+      ],
+      "training_macro_f1": 0.979400568735783,
+      "projected_ms": 31.0,
+      "classifier_calls": 2
+    },
+    "previous_pool_B60": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "convnext_v2_t",
+          "dinov2",
+          "eva02_base",
+          "siglip_base"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.8000583648681641,
+      "training_macro_f1": 0.984975214860451,
+      "training_projected_ms": 21.516679174484054,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.101313320825516
+    },
+    "hybrid_carlos_B60": {
+      "base": "siglip_base",
+      "members": [
+        [
+          "dinov2_large",
+          "dinov2_small",
+          "eva02_base",
+          "siglip_base"
+        ],
+        [
+          "dinov2",
+          "eva02_base",
+          "siglip_base",
+          "vit_b16"
+        ]
+      ],
+      "quantile": 0.1,
+      "threshold": 0.8000583648681641,
+      "training_macro_f1": 0.9830879185912116,
+      "training_projected_ms": 43.103508442776736,
+      "training_escalation_fraction": 0.10131332082551595,
+      "training_classifier_calls": 1.2026266416510318
+    }
+  },
+  "rows": [
+    7,
+    193,
+    394,
+    589,
+    785,
+    998
+  ],
+  "fit_indices_sha256": "42aabe70e48995c3b96cbd8067ade7491d36afa4726f9ab1dd41a7dd49631122",
+  "audit_sha256": "c2dffbc96d6fd3a72d7b5070285d4b660034ac2c7141b684eb32ebc0bf167628",
+  "repeats": 3,
+  "seed": 42,
+  "warmup_rows": 2,
+  "sample_rule": "linspace in producer validation order, without score or label filtering",
+  "timing_scope": "batch1 image decode/preprocessing/extraction/transfer/scoring/routing; resident CPU models; model load and SVM fit excluded",
+  "required_blocks": [
+    "beitv2_base_final",
+    "convnext_v2_t",
+    "dinov2",
+    "dinov2_large",
+    "dinov2_small",
+    "eva02_base",
+    "resnet101",
+    "siglip_base",
+    "vit_b16"
+  ],
+  "fitted_models": 13,
+  "extractor_max_abs_error": {
+    "beitv2_base_final": 7.301568984985352e-07,
+    "convnext_v2_t": 2.409517765045166e-05,
+    "dinov2": 8.903443813323975e-07,
+    "dinov2_large": 7.096678018569946e-07
+  },
+  "error": "AssertionError: ('dinov2_small', 193, 'embedding parity', 0.00018890993669629097)"
+}

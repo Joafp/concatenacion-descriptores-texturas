@@ -1,0 +1,871 @@
+                                                           Expert Systems With Applications 238 (2024) 122100
+
+
+                                                                 Contents lists available at ScienceDirect
+
+
+                                                      Expert Systems With Applications
+                                                        journal homepage: www.elsevier.com/locate/eswa
+
+
+
+
+Multi-scale LBP fusion with the contours from deep CellNNs for texture
+classification✩
+Mingzhe Chang, Luping Ji ∗, Jiewen Zhu
+School of Computer Science and Engineering, University of Electronic Science and Technology of China, Chengdu 611731, PR China
+
+
+
+ARTICLE               INFO                              ABSTRACT
+
+Dataset link: https://github.com/UESTC-nnLab            In texture classification, local binary pattern (LBP) is currently one of the most widely-concerned feature
+/LBP_Contour                                            encoding models. Most existing LBP-based texture classification methods are usually limited to single-kind
+                                                        texture features. In fact, an across-domain fusion of LBP features with other features, such as image contours,
+Keywords:
+Texture classification                                  could be another potential path to promote texture classification. To enhance the feature modeling ability of
+Local binary pattern                                    LBP-based methods, this paper firstly designs a Cellular Neural Network (CellNN) with recurrent convolutions,
+Cellular neural network                                 initially trained by a simplified simulated-annealing algorithm, to extract informative image contours. For
+Image contour extraction                                better reliability, a new three-channel contour extractor of deep CellNNs (𝑖.𝑒., dCellNNs) is proposed. This
+Multi-scale across-domain feature fusion                extractor contains the initially-trained CellNNs of more than three layers, and it is further optimized by fine-
+                                                        tuning parameters. Moreover, a new weighted-base algorithm is designed to fulfill the fusion of the multi-scale
+                                                        texture features by LBPs and the contour features by dCellNNs to enhance feature representation. Finally, these
+                                                        enhanced features are concatenated together to generate the final multi-scale features of given texture image.
+                                                        On texture datasets KTH, Brodatz, OTC12 and UIUC, experiment results verify that the across-domain fusion
+                                                        of multi-scale LBPs and dCellNNs is efficient in capturing & enhancing texture features. With moderate feature
+                                                        dimensionality and computational costs, it could improve texture classification, acquiring an obvious accuracy
+                                                        increase on previous state-of-the-art ones, e.g., a rise of 2.58% on KTH-TIPS2b, a rise of 3.11% on Brodatz, a
+                                                        rise of 0.71% on OTC12 and a rise of 0.42% on UIUC.
+
+
+
+1. Introduction                                                                             pattern recognition and computer vision. However, it still faces various
+                                                                                            challenges, such as the change of image illuminations, the rotation of
+    Texture and contours are considered to be two types of different-                       image angles, and the difference of spatial scales (Liu, Fieguth, Guo,
+domain features in images. They could often provide some important                          Wang, & Pietikäinen, 2017). Therefore, it is still an open research topic
+feature clues for image analysis and recognition (Ojala, Pietikainen, &                     worth of continuous exploration, currently.
+Maenpaa, 2002). Texture feature is the attribution of surface structures                        In texture classification, capturing the discriminative features in
+on an object, depicting the local patterns that appear repeatedly and are                   texture images is believed to be the most challenging task (Liu et al.,
+arranged randomly at different scales (Smith & Chang, 1996). Contour                        2019; Ojala et al., 2002). All kinds of feature modeling schemes have
+is the discontinuity of some image features, such as texture and pixel                      been proposed to address this problem. Altogether, these schemes could
+grayscale, describing the shape differences between a visual object and                     be grouped into three main categories (Song, Feng, Luo, Gao, & Li,
+its background in different image regions (Wu, Xu, Cheng, Wang, & Li,
+                                                                                            2021): statistic, model-based and filtering ones. In details, the statistical
+2021).
+                                                                                            methods for feature extraction often utilize the local pattern distri-
+    In general, texture, contour, shape and color are usually four of
+                                                                                            bution in pixel neighbors. For examples, the gray-level co-occurrence
+the most important features to recognize a visual object. Due to the
+                                                                                            matrix (Roberti de Siqueira, Robson Schwartz, & Pedrini, 2013), the
+extensive applications of textures, such as in image retrieval (Smith &
+                                                                                            LBP-based ones (Alpaslan, 2022; Ji, Ren, Liu and Pu, 2018) and the LTP
+Chang, 1996), face recognition (Kim, Lee, & Ro, 2015), and medical
+image processing (Starkov et al., 2019), texture classification has grad-                   (El khadiri et al., 2022; Ji, Ren, Pu and Liu, 2018) are usually regarded
+ually attracted attention from researchers (Song, Feng, Wang, & Xie,                        as typical statistic schemes. As for model-based ones, they usually
+2020). Currently, it has become one of the most important topics in                         estimate model parameters on images and then extract texture features
+
+
+
+ ✩ Source codes are open at https://github.com/UESTC-nnLab/LBP_Contour.
+ ∗ Corresponding author.
+     E-mail addresses: 202121080601@std.uestc.edu.cn (M. Chang), jiluping@uestc.edu.cn (L. Ji), 202121081224@std.uestc.edu.cn (J. Zhu).
+
+https://doi.org/10.1016/j.eswa.2023.122100
+Received 3 November 2022; Received in revised form 7 October 2023; Accepted 9 October 2023
+Available online 16 October 2023
+0957-4174/© 2023 Elsevier Ltd. All rights reserved.
+M. Chang et al.                                                                                                            Expert Systems With Applications 238 (2024) 122100
+
+
+
+
+Fig. 1. The differences between existing LBP-based models and ours: (a) multi-scale scheme on different LBP sampling, (b) our fusion scheme with contour maps. In our model,
+contour maps are obtained from a three-channel contour extractor (𝑖.𝑒., dCellNNs).
+
+
+by estimated parameters, 𝑒.𝑔., the Random field model (Orlando, Proko-                   accuracy (Ouyang, Cui, Dong, Li, & Niu, 2022; Qiu et al., 2022). Essen-
+fyeva, & Blaschko, 2017) and the Markov random field model (Yasseen                      tially, this kind of schemes exactly utilizes the multiple-type features
+Almakady & Sasan Mahmoodi, 2020). In contrast, filtering methods                         from different sensors to optimize decision.
+usually extract texture features by the local energy of images in spectral                   Analogously, if existing LBP models are regarded as a virtual sensor
+domain, e.g., the Fourier transform (Maani, Kalra, & Yang, 2013), Gabor                  for capturing texture features, the performance of texture classification
+filter (Li & Huang, 2017), and Wavelet Transform (Ahmadvand & Daliri,                    algorithms is likely to be further improved by adding the supplemen-
+2016).                                                                                   tary features from extra virtual sensor. In consideration of availability
+    Besides, another kind of schemes with neural networks is also an                     and accessibility, image contour is usually an important candidate
+important modeling branch for texture features. This type of texture                     worth trying.
+classification approaches usually rely on pre-trained networks to gen-                       Inspired by the analysis on multi-kind features above, on our pre-
+erate features. In the past ten years, some typical neural network                       vious work (Ji et al., 2020) this paper explores the fusion feasibility of
+schemes have also been proposed in succession. For example, we could                     multi-scale LBP features and image contours to further improve texture
+see the PCANet (Chan et al., 2015), the Deep-TEN network (Zhang,                         classification performance. To our knowledge, this work is the first
+Xue, & Dana, 2017) and convolution network schemes (Gmez-Ros,                            to propose the across-domain fusion of multi-scale LBP features and
+Tabik, et al., 2019; Ji, Chang, Shen, & Zhang, 2020; Uzen, Turkoglu,                     contour features, as shown in Fig. 1(b).
+& Hanbay, 2021), as well as the transfer learning method (Anam &                             In this new fusion scheme, it is necessary to extract image contour
+Rushdi, 2019) for texture classification.                                                features. Although many methods could be taken for contour extrac-
+    In texture feature modeling methods, the LBP (Ojala et al., 2002),                   tion, in consideration of our experience (Ji et al., 2020) and the high
+as a quite simple yet highly-efficient texture feature encoding model,                   efficiency of neural networks and machine learning, we finally choose
+has attracted a great deal of research attention. Following an origi-                    the cellular neural network (CellNN), originally proposed in Chua and
+nal LBP scheme, there are many improved versions proposed in the                         Yang (1988). It is one of widely-used learnable models. In structure, it is
+past decades. For example, we can see some representative ones in                        a locally-connected and two-dimensional nonlinear processing network.
+open publications, such as the three-descriptor CLBP (Guo, Zhang,                        In the past decades, this model and its newer versions have been
+& Zhang, 2010a), median-robust MRELBP (Liu et al., 2016), central                        widely explored in image processing fields, such as the retinal vessel
+pixel selection LBP (Pan, Hu, Wu, & Wang, 2021; Pan, Wu, & Li,                           segmentation (Perfetti, Ricci, Casali, & Costantini, 2007), color image
+2019) and LGONBP (Song et al., 2021). In 2022, two state-of-the-art                      processing (Hu, Feng, Duan, & Liu, 2015) and image corner detection
+methods, CJLBPABMV (Hu, Pan, Dong, & Ren, 2022) and GRLBP (Shu,                          (Cuevas, Daz-Cortes, & Mezura-Montes, 2019).
+Pan, Shi, Song, & Wu, 2022) were proposed. The former proposes a                             Traditional CellNN is usually a single or multi-layer (not more than
+novel adaptively binarizing magnitude vector method for LBP frame-                       three layers) model (Hu, Feng, Duan, & Liu, 2017), and its parameters
+work, and the latter presents a global information scheme to refine                      are often set empirically, often not considering parameter learning (Ji
+local patterns for texture representation and classification. Seen on                    et al., 2020). This shortcoming often makes the generalization ability of
+the whole, these schemes have been extended from single descriptor                       CellNN-based models seem limited, much sensitive to different datasets.
+to multiple-descriptor combination, and from single sampling scale                       To obtain good generalization ability, in new scheme we design a
+to multiple-scale fusion, as Fig. 1(a) shows. Despite of all this, they                  learnable CellNN model for capture texture contour features. It is
+are being confronted with performance bottleneck, because they only                      initially trained by a simplified simulated-annealing (SSA) algorithm on
+extract a single-type features by LBP schemes.                                           the DRIVE (an available dataset for contour extraction Niemeijer, Staal,
+    By the brief analysis above, we observe that almost all existing                     Van Ginneken, Loog, & Abramoff, 2004). Then, we propose a three-
+methods usually only utilize single-type features to recognize image                     channel deep model of CellNNs (dCellNNs) more than three layers for
+textures. They seldom concern a performance improvement scheme                           texture contour extraction by initially-trained CellNNs. Furthermore,
+of texture classification by multi-type independent features. However,                   to obtain better contour extraction ability, this deep model is further
+from the perspective of image recognition, single-kind features is not                   optimized by fine-tuning all pre-trained CellNN parameters with an
+usually very robust and reliable. The fusion of multi-kind different-                    Adam gradient optimizer (Kingma & Ba, 2015).
+domain image features could often promote the robustness and re-                             Utilizing this dCellNNs, three different-scale contour-feature maps
+liability of recognition decision. This is just the reason to explain                    on a given texture image could be generated. In the meanwhile, a group
+the emergence of multi-resolution features (Ojala et al., 2002) and                      of LBP-feature maps on multiple sampling scales are also generated. To
+multi-scale ones (Roberti de Siqueira et al., 2013) for image textures.                  increase the reliability of single-kind features, each LBP feature map
+    Moreover, we could see many similar examples to promote perfor-                      of a sampling scale is fused together with all three contour feature
+mance by the combination use of multi-kind features. For example,                        maps to generate a new fusion feature map, according to the Weighted-
+the fusion of multi-source sensors is a popular optimization scheme                      base Fusing (WBF) algorithm designed by us. In WBF, it takes the
+for object detection & recognition in increasing decision reliability and                maximal element from an original LBP feature map as a reference
+
+                                                                                     2
+M. Chang et al.                                                                                                       Expert Systems With Applications 238 (2024) 122100
+
+
+base for weighting contour feature map. Then, three weighted contour-               of time 𝑡. Therefore, it always keeps unchanged in any time step, 𝑖.𝑒., it
+feature maps are added to a given LBP-feature map to generate a new                 always shares a same 𝑈 in all recurrent time steps. Moreover, in order
+single-scale feature fusion map with texture contours.                              to accelerate training, we always set the size of convolution kernels 𝐴
+    Furthermore, to obtain better scale robustness, this scheme takes               and 𝐵 to a constant 3 × 3.
+a popular concatenation strategy of multi-scale features. In details, it                Similar to the LSTM (Bhunia et al., 2019), CellNN is also logically
+extracts the pattern distribution histogram features from the fusion fea-           unfolded into a serial linking pattern with recurrent time 𝑡, as shown in
+ture maps of all scales. Then, all histogram features of different scales           Fig. 2. In this illustration, 𝑡∗ represents the recurrent time when CellNN
+are further concatenated together to construct the final features for a             converges to a stable status (𝑖.𝑒., CellNN’s output no longer changes
+given texture image. Moreover, in our scheme a fully-connected neural               with the increase of recurrent time 𝑡). Besides the input 𝑈 , convolution
+classifier is adopted for texture classification. It is trained separately,         kernels 𝐴 and 𝐵 are also shared in all the recurrent times of unfolded
+independent on the fine-tuning of dCellNNs.                                         CellNN.
+    Altogether, the main contributions of this paper are listed as follows:
+                                                                                    2.2. Initial parameter learning
+    (I) It is the first to propose a new multi-scale across-domain fusion
+scheme of LBPs and dCellNNs to enhance texture feature modeling.
+                                                                                        As described before, CellNNs are used to design a deep model of
+In this scheme, multi-scale LBP feature maps are fused together with
+                                                                                    texture contour extractor. To reduce training complexity, CellNN is
+the image contours from dCellNNs, to construct across-domain texture
+                                                                                    initially trained in advance of contour extractor. In training, 𝐴, 𝐵 and
+feature extraction model.
+                                                                                    𝐼 are the three targets to be trained & optimized, and they are trained
+    (II) It is also the first to extend traditional CellNN to a deep learning       by a supervised-learning rule. Under this rule, 𝑌 (𝑡∗ ) is treated as the
+model. Different from traditional ones, dCellNNs usually contains more              real response of CellNN to the input 𝑈 of original image 𝑖𝑚𝑔, and 𝑂     ̂
+than 3 layers, so as to obtain better feature modeling ability by deep              is taken as the expected output (𝑖.𝑒., the Ground Truth, GT) through
+learning.                                                                           CellNN. The loss function, designed for training CellNN, is based on
+    (III) A new three-channel extractor of dCellNNs for contour feature             the Dice Coefficient (DC) in Milletari, Navab, and Ahmadi (2016). In
+extraction is proposed. This extractor is optimized by a coarse-to-                 unbalanced distribution of foreground and background pixels, DC often
+fine two-stage learning strategy. The first stage is the initial training           performs well, and it is defined as follows:
+of single CellNN by designed SSA algorithm, and the second is the                                         ⟨            ⟩
+                                                                                        (         ) 2× 𝑂    ̂ ∩ 𝑌 (𝑡∗ )
+fine-tuning parameters of dCellNNs.                                                       ̂     ∗
+                                                                                    𝐷𝐶 𝑂, 𝑌 (𝑡 ) = ⟨ ⟩ ⟨              ⟩                                   (2)
+    (IV) To enhance multi-scale texture features, a new weighted-base                                   ̂ + 𝑌 (𝑡∗ )
+                                                                                                        𝑂
+algorithm (WBA) is designed to fulfill the across-domain fusion of LBP              where symbol ‘∩’ represents an operator for segmenting the overlapped
+features and contour features. Three contour feature maps are simulta-              regions between two images, and ‘⟨...⟩’ indicates to compute the pixel
+neously generated by the extractor of dCellNNs. Then, the feature map               number of given image region.
+of each LBP sampling scale is fused with all three contour maps by                      Based on the DC, defined by Eq. (2), in training the Loss( function
+WBA.                                                                                                                                                        )
+                                                                                    for parameter optimization is designed as 𝐿𝑜𝑠𝑠 = 1 − 𝐷𝐶 ̂     𝑂, 𝑌 (𝑡∗ ) .
+                                                                                    Therefore, the expected optimization objective of supervised learning
+2. Initial training of CellNN                                                       could be mathematically expressed by:
+                                                                                             {        (          )}
+   In our method, CellNN is a neural component to design a deep                      arg min 1 − 𝐷𝐶 ̂  𝑂, 𝑌 (𝑡∗ ) ,                                       (3)
+                                                                                       {𝐴,𝐵,𝑧}
+model of texture contour extractor. For a texture image of size 𝑀 × 𝑁,
+                                                                                    where 𝐴, 𝐵 and 𝑧 are three neural parameters to be optimized in
+the CellNN responding to this image is designed as a 2-dimensional
+                                                                                    training, and they keep the same definitions as in Eq. (1).
+neuron array of same 𝑀 ×𝑁, as shown in Fig. A.9. In details, 𝑀 and 𝑁
+                                                                                        Motivated by the training method proposed in Adhikari, Kim, Yang,
+indicate the row number and column number of neurons in a CellNN,
+                                                                                    and Chua (2018), we design a simplified simulated-annealing algorithm
+respectively.
+                                                                                    (SSA) to initially train single CellNN in advance, without utilizing a
+                                                                                    Metropolis Rule to jump out of locally-optimal solution.
+2.1. Discrete CellNN model                                                              In designed SSA, 𝑇 ∗ is the maximal number of training epochs, and
+                                                                                    the update stride set of parameters is presented by 𝛥𝑤 = {𝛥𝐴, 𝛥𝐵, 𝛥𝑧}.
+    For a single neuron of CellNN, its dynamic state of continuous model            Therefore, the tentative learning rule to implement Eq. (3) is defined
+is presented by Eq. (A.1) (Chua & Yang, 1988). In image processing, it              by
+usually utilize a discrete model of CellNN, rather than a continuous
+one (Cuevas et al., 2019; Ji et al., 2020; Kellner, Magnussen, & Nossek,            ⎧𝑤(𝜏) = 𝑤(𝜏 − 1) + 𝛥𝑤
+                                                                                    ⎪      {        𝜏
+1994). For simplification, firstly we set the network constants 𝐶 = 𝑅𝑥 =            ⎨        𝜂 × 𝛼 𝑇 ∗ × Not(𝑑𝑖𝑟𝑒𝑐𝑡𝑖𝑜𝑛), 𝑖𝑓 𝐿𝑜𝑠𝑠(𝜏) ≥ 𝐿𝑜𝑠𝑠(𝜏 − 1)                   (4)
+1. Therefore, the continuous model of CellNN could be transformed into              ⎪ 𝛥𝑤 =
+                                                                                    ⎩        𝛥𝑤, 𝑖𝑓 𝐿𝑜𝑠𝑠(𝜏) < 𝐿𝑜𝑠𝑠(𝜏 − 1)
+a discrete one, as follows:
+                                                                                    where 𝐿𝑜𝑠𝑠(𝜏) indicates the error loss of real 𝑌 (𝑡∗ ) and expected 𝑂̂ at
+⎧
+⎪𝑋(𝑡) = 𝐴 ⊗ 𝑌 (𝑡 − 1) + 𝐵 ⊗ 𝑈 + 𝑧                                                   the 𝜏th training epoch, 𝜂 is a small positive constant and 𝛼 represents a
+⎨                   1                                                    (1)        decay rate. Moreover, 𝑑𝑖𝑟𝑒𝑐𝑡𝑖𝑜𝑛 ∈ {−1, 1} and Not(𝑑𝑖𝑟𝑒𝑐𝑡𝑖𝑜𝑛) represents
+⎪𝑌 (𝑡) = 𝑓 (𝑋(𝑡)) = 2 (|𝑋(𝑡) + 1| − |𝑋(𝑡) − 1|)                                     an operator to yield the negation of 𝑑𝑖𝑟𝑒𝑐𝑡𝑖𝑜𝑛.
+⎩
+where ‘⊗’ represents a convolution operator, matrices 𝑋, 𝑌 , 𝑈 and                  3. Methodology
+𝑧 indicate the dynamic state, the output, the input and the state
+bias of CellNN, respectively. Moreover, 𝑡 indicates the discrete time                   In our method, a texture image is processed simultaneously by pre-
+of recurrent convolutions. As reported by Ji et al. (2020), 𝐴 and 𝐵                 trained three-channel contour extractor (𝑖.𝑒., dCellNNs) and multi-scale
+represent two convolution kernels. One is specially for convoluting the             LBP encoders. The former is to generate three contour feature maps,
+feedback 𝑌 (𝑡 − 1) at 𝑡 − 1 to CellNN, and the other is for convoluting the         and the latter is to obtain the LBP feature maps of multiple sampling
+input 𝑈 to CellNN.                                                                  scales. Fig. 3 shows the overall framework of proposed method.
+    In image applications, 𝑈 is often normalized from an original image                 In this framework, three-channel contour extractor consists of mul-
+𝑖𝑚𝑔 ∈ [0, 255]𝑀×𝑁 to the decimal range 𝑈 ∈ [−1, 1]𝑀×𝑁 or [0, 1]𝑀×𝑁 ,                tiple CellNNs, and LBP feature encoders can implement a feature en-
+due to the recurrent convergence requirement of CellNN. From Eq. (1),               coding on different image sampling scales. Moreover, a fully-connected
+it could be observed that the input matrix 𝑈 to CellNN is independent               neural network is designed as a neural classifier of texture features.
+
+                                                                                3
+M. Chang et al.                                                                                                              Expert Systems With Applications 238 (2024) 122100
+
+
+
+
+Fig. 2. The recurrent convolutions of CellNN, unfolded by recurrent time steps. 𝑡∗ denotes the maximal recurrence convolution times of CellNN. Learnable parameters 𝐴, 𝐵 and 𝑧
+are shared in different recurrent step 𝑡, where 𝑡 = 1, 2, .., 𝑡∗ .
+
+
+
+
+Fig. 3. The overall framework of proposed method. A given texture image is processed by a three-channel contour feature extractor and multi-scale LBP feature encoders. Then,
+generated contour maps and LBP maps are fused across-domain to enhance feature representation. Finally, the features of pattern distributions from fused feature maps are
+concatenated together to obtain the texture feature vector 𝐻 for neural classifier.
+
+
+3.1. Contour extractor design                                                                Furthermore, the terminal feature map output 𝑂, and the final
+                                                                                          contour image 𝑌 ∗ from dCellNNs could be computed by
+    In order to obtain more efficient contours for texture feature repre-                 ⎧
+sentation, we propose a three-channel deep-learning model on initially-                   ⎪ 𝑂 = {𝑊𝑜 } ⊗ {𝑂2 , 𝑂1 , 𝑂0.5 }
+                                                                                          ⎨ ∗           1                                                                  (6)
+trained CellNNs, 𝑖.𝑒., dCellNNs, as illustrated in Fig. 4.                                ⎪𝑌 = 𝑓 (𝑂) = (|𝑂 + 1| − |𝑂 − 1|)
+                                                                                          ⎩             2
+                                                                                          where 𝑓 (.) is the activation function of CellNN, as defined in Eq. (A.1).
+3.1.1. Parameter explanations                                                                Like the initial learning of CellNN, the global Loss of fine-tuning con-
+    In Fig. 4, 𝑖𝑚𝑔 represents a given texture image and 𝑘, where 𝑘 ∈                      tour extractor also adopts the 𝐷𝐶 metric, defined by Eq. (2). Therefore,
+{0.5, 1, 2}, indicates the channel label corresponding to a sampling                      the optimization objective of dCellNNs is
+scale. 𝑈𝑘 , 𝐶𝑘 and 𝑂𝑘 indicate the sampling result from 𝑖𝑚𝑔, the output                               {         (     )}
+                                                                                          arg min       1 − 𝐷𝐶 𝑂, ̂ 𝑌∗ ,                                          (7)
+from a sampling-scale channel and the feature map reshaped into a                             {𝐴,𝐵,𝑧}×𝑛
+                                                                                              𝑘𝑒𝑟×(9𝑛+3)
+same size, respectively. 𝑂 is the terminal output of dCellNNs. Addition-
+ally, 𝑌𝑘 (𝑡) indicates the 𝑡th recurrent convolution result of CellNN, and                where ‘𝑘𝑒𝑟’ represents a convolution kernel to be optimized, and (9𝑛+3)
+𝐺𝑘 ∈ {𝑌0.5𝑘 (𝑡∗ ), 𝑌 𝑘 (𝑡∗ ), 𝑌 𝑘 (𝑡∗ )} represents the output set of three contour       indicates the total number of convolution kernels.
+                    1          2
+images through the channel with sampling scale 𝑘.                                            In fine-tuning, we still utilize a classic Adam optimizer (Kingma &
+                                                                                          Ba, 2015) to perform the parameter optimization of contour extractor.
+    In terms of operation, ‘⊗’ presents a convolution operator with
+kernel size 1 × 1 and ‘reshape’ indicates an operator to transform an
+                                                                                          3.2. Multi-scale LBP fusion with contours
+image into a new one of expected size. Based on the definitions of
+CellNN in Section 2, the learnable parameters in this three-channel
+                                                                                              For a given texture image, its 𝐿𝐵𝑃𝑟𝑟𝑖𝑢2     texture feature map on a
+contour extractor include: the self-contained parameters {𝐴, 𝐵, 𝑧} of                                                               𝑠 ,𝑃𝑠
+                                                                                          sampling scale (𝑟𝑠 , 𝑃𝑠 ), where 𝑠 = 1, 2, … , 𝑆, is directly generated
+each CellNN, the 9 × 𝑛 convolution kernels for convoluting the output
+                                                                                          through Eq. (B.3). By this means, a group of LBP feature maps on 𝑆
+of 𝑛 CellNN layers, and the 3 convolution kernels for modulating the
+                                                                                          sampling scales could be generated from a given texture image 𝑖𝑚𝑔.
+final output of contour extractor. Therefore, there are totally 12 × 𝑛 + 3                These 𝑆 feature maps of LBP are named 𝐿1 , 𝐿2 , …, and 𝐿𝑆 , respectively.
+parameters to be further optimized by fine-tuning.                                            In order to enhance feature representation, each of these LBP maps
+                                                                                          is further fused with the three contour feature maps {𝑂0.5 , 𝑂1 , 𝑂2 },
+3.1.2. Fine-tuning contour extractor                                                      output from the three-channel contour extractor (𝑖.𝑒., dCellNNs) de-
+                                                                                          signed in Fig. 4. This fusion scheme of LBP multi-scale feature maps
+   According to the network structure in Fig. 4, the terminal output
+                                                                                          and contour feature maps has been illustrated in Fig. 5. After this
+image 𝐶𝑘 of each channel could be computed by
+                                                                                          enhancement of across-domain feature fusion, the pattern distributions
+    { }       { 𝑘 ∗                         }                                             of enhanced feature maps are to be captured for constructing final
+𝐶𝑘 = 𝑊𝑘 𝑛 ⊗ 𝑌0.5  (𝑡 ), 𝑌1𝑘 (𝑡∗ ), 𝑌2𝑘 (𝑡∗ ) 𝑛                   (5)
+                                                                                          texture features.
+where 𝑊𝑘 indicates the output convolution kernel of the last CellNN                           In this feature map fusion of across modality, a new weighted-base
+layer of contour extraction channel 𝑘.                                                    fusing (WBF) is specially designed. In details, this fusion algorithm is
+
+                                                                                      4
+M. Chang et al.                                                                                                                      Expert Systems With Applications 238 (2024) 122100
+
+
+
+
+Fig. 4. The network structure of dCellNNs to extract contour feature maps: (a) the global structure of dCellNs, containing three fixed sampling channels, 𝑛 (𝑛 > 3) CellNN recurrent
+layers and an output reshaping layer; (b) the local details of CellNN recurrent layer (CRL), containing the logical unfold of 𝑡 (𝑡 = 1, … , 𝑡∗ ) recurrent convolutions in a single-layer
+CellNN, and the mutual reshaping module of terminal feature maps.
+
+
+
+
+Fig. 5. Multi-scale texture feature fusion of LBPs with the contour maps from three-channel extractor, i.e., dCellNNs. 𝐿𝑠 indicates the LBP feature map extracted by sampling scale
+(𝑟𝑠 , 𝑃𝑠 ), 𝐹𝑠 is the enhanced feature map by the fusion on the 𝑆th LBP sampling scale, and Hist(.) represents a function to compute distribution histogram features from enhanced
+feature map 𝐹𝑠 . All the distribution features enhanced on different scales are concatenated together to obtain the final feature representation of a given texture image.
+
+
+mathematically presented by Eq. (8), as follows:                                                  Moreover, in Fig. 5, function Hist(.) is used to generate the pat-
+                                                                                               tern distribution histogram ℎ𝑠 of 𝐹𝑠 . In details, ℎ𝑠 [𝑞], 𝑖 ∈ {0, 1, 2, … ,
+⎧𝑏𝑎𝑠𝑒 = max(𝐿𝑠 ) + 1                                                                           𝑚𝑎𝑥(𝐹𝑠 )}, represents the 𝑞-th histogram element in ℎ𝑠 , and it is com-
+⎪
+⎨          ∑2                                                                        (8)       puted by
+⎪𝐹𝑠 = 𝐿𝑠 +     (2𝑖 × 𝑏𝑎𝑠𝑒 × 𝑂𝑘(𝑖) ), 𝑘(𝑖) ∈ {0.5, 1, 2}
+⎩          𝑖=0
+                                                                                                          𝑀−1 ∑
+                                                                                                          ∑   𝑁−1
+                                                                                                                   (              )     {                     }
+                                                                                               ℎ𝑠 [𝑞] =           𝛿 𝐹𝑠 (𝑚, 𝑛) == 𝑞 , 𝑞 ∈ 0, 1, 2, … , 𝑚𝑎𝑥(𝐹𝑠 )                       (9)
+where ‘max(𝐿𝑠 )’ represents a function to acquire the maximal element                                     𝑚=0 𝑛=0
+from LBP feature map 𝐿𝑠 . This algorithm means that it uses the maxi-                          where ‘𝛿(.)’ represents a logically-equal operator. If and only if 𝐹𝑠 (𝑚, 𝑛)
+mum of an LBP feature map as a reference base for weighting contour                            is equal to 𝑞, 𝛿(.) = 1, otherwise 𝛿(.) = 0.
+maps. Then, three weighted contour-feature maps are added together                                 Finally, all the histograms ℎ1 , ℎ2 , … and ℎ𝑆 , are concatenated to-
+                                                                                                                    [                     ]
+on 𝐿𝑠 to generate a new enhanced feature fusion map 𝐹𝑠 .                                       gether, 𝑖.𝑒., 𝐻 = ℎ1 , ℎ2 , … , ℎ𝑠 , … , ℎ𝑆 , to form the final multi-scale
+
+                                                                                           5
+M. Chang et al.                                                                                                                  Expert Systems With Applications 238 (2024) 122100
+
+
+                                                                                               scales. In experiments, we follow the same training and test scheme as
+                                                                                               in Liu et al. (2016) to design experiments: the sample images of 2 object
+                                                                                               poses, 3 illuminations and 6 scales (𝑖.𝑒., a third of KTH-TIPS2b samples)
+                                                                                               are adopted to train texture feature extraction models and classifiers.
+                                                                                                   Brodatz (Babington, 1966): it contains 112 basic texture images of
+                                                                                               size 640 × 640, labeled from D1 to D112, respectively. Referring to
+                                                                                               the experimental scheme in Liu, Long, Fieguth, Lao, and Zhao (2014),
+                                                                                               only original images D1, D4, D16, D19, D21, D24, D28, D32, D53,
+                                                                                               D57, D64, D65, D68, D77, D82, D84, D92, D95, D98, D101 and D102
+Fig. 6. A challenging instance for contour extraction, from dataset DRIVE. Its challenge
+lies in the weak contrast between blood-vessel contours and background.                        are chosen for experiments. Each image is also divided into 16 non-
+                                                                                               overlapping sub-images of size 160 × 160. Then, each sub-image is
+                                                                                               rotated clockwise to generate more samples, respectively by 9 angles:
+                                                                                               15◦ , 30◦ , 45◦ , 60◦ , 75◦ , 90◦ , 105◦ , 130◦ and 145◦ . Training sample set
+feature vector 𝐻 of a given texture image. In texture classification, 𝐻
+                                                                                               contains a half of all generated new samples, 𝑖.𝑒., 0◦ , 30◦ , 60◦ , 90◦ and
+is exactly the feature vector to be utilized for training a neural classifier
+                                                                                               130◦ ones.
+and recognizing textures.
+
+                                                                                               4.2. Contour extractor training
+4. Experiment results
+
+                                                                                                   In experiments, dataset DRIVE (Niemeijer et al., 2004) is adopted
+4.1. Materials
+                                                                                               to train texture contour extractor of dCellNNs by a two-stage scheme.
+                                                                                                   (1) Stage I: single CellNN training
+    Our experiments are simulated and performed in a software envi-
+                                                                                                   In this stage, the SSA algorithm, designed in Section 2.2, is used to
+ronment of Python + Pytorch, and on a computer with CPU Intel (R)
+                                                                                               train a single CellNN model on DRIVE.
+Core (TM) i7-7700, RAM 16 GB and GPU NVIDIA GTX 1050 Ti.
+                                                                                                   By the supervised-learning of SSA, a single CellNN obtains a group
+    (1) DRIVE for training dCellNNs
+                                                                                               of initial parameters {𝐴, 𝐵, 𝑧}, approximately at the 185th epoch. This
+    DRIVE dataset (Niemeijer et al., 2004) contains 40 digital retinal
+                                                                                               group of CellNN parameters is numerically exhibited as follows:
+images. The segmentation results of all retinal images are instructed
+by an experienced ophthalmologist. The 20 images (No. 1 ∼ No. 20) of                                ⎛0.5262     0.9055    0.2454⎞       ⎛ 7.7186        −1.5338       6.8890 ⎞
+them are chosen ascontour extraction training set and the remainders                            𝐴 = ⎜0.2462     1.0622    0.1786⎟ , 𝐵 = ⎜−2.0018        −9.3462      −2.0894⎟ ,
+                                                                                                    ⎜                           ⎟       ⎜                                    ⎟
+are taken as test set.                                                                              ⎝0.0734     0.5022    0.2538⎠       ⎝ 3.2417        −3.1585       0.0830 ⎠
+    The main reason, why we choose DRIVE to train dCellNNs, is that
+                                                                                                𝑧 = −0.0701
+no available training set of texture contour extraction currently exists.                                                                                                    (10)
+Therefore, DRIVE has to be taken as a substitute for training texture
+contour extractor. Fig. 6 exhibits a sample, full of contour extraction                        For visual comparison, a texture contour map extracted by an initially-
+challenges.                                                                                    trained CellNN on sample ‘1.2.03.bmp’ (Brodatz) is displayed in
+    (2) Texture Datasets                                                                       Fig. 8(b).
+    In experiments, there are four representative texture datasets chosen                          (2) Stage II: fine-tuning dCellNNs
+for experiments, including OTC12, UIUC, KTH-TIPS2b and Brodatz.                                    The contour extractor (𝑖.𝑒., dCellNNs) consists of three-channel
+For intuitive purposes, a group of representative sample instances                             CellNNs. On initial training, extractor is further optimized by fine-
+for each dataset are exhibited in Fig. 7. Different from most deep-                            tuning parameters. In this stage, an Adam optimizer (Kingma & Ba,
+learning experiments, only training set and test set are divided in our                        2015) is adopted. Fig. 8(c)–(f) display the 4 texture contour maps
+experiments. No validation set is considered, because our method will                          generated by the optimized extractor of dCellNNs on same ‘1.2.03.bmp’.
+have to be compared with some important non-machine-learning ones,
+such as DRLBP (Mehta & Egiazarian, 2016), LGONBP (Song et al.,
+2021) and CJLBPABMV (Hu et al., 2022). The adoption of validation                              4.3. Ablation study
+will be beneficial to our method, further aggravating the unfairness of
+comparisons.                                                                                       To determine the optimal hyper-parameter model of texture contour
+    Outex_TC_00012 (Ojala et al., 2002) (OTC12): it contains a total                           extractor (𝑖.𝑒., dCellNNs), three groups of ablation comparison experi-
+of 9120 texture images of size 128 × 128, with 24 texture categories,                          ments have been carried out on datasets. They include: (i) CellNN vs.
+3 illuminations (𝑖𝑛𝑐𝑎, 𝑡𝑙84 and ℎ𝑜𝑟𝑖𝑧𝑜𝑛) per category, 9 angles for both                       dCellNNs, (ii) single LBP scale fusion and (iii) LBP multi-scale fusion
+tl84 and horizon (only 1 angle for inca), and 20 samples per angle. For                        with dCellNNs.
+fair comparison, according to the experiment scheme in Ji et al. (2020)                            (1) Single CellNN vs. dCellNNs
+and Song et al. (2021), only the 480 images of 24 categories with inca                             This group of ablation experiments are conducted on contour
+and angle 0◦ are taken for training, and the others (8640 images) are                          dataset DRIVE (Niemeijer et al., 2004). Their numeric test results are
+used for test. Therefore, the ratio of model training to classification test                   shown in Table 1.
+is exactly 1 ∶ 18 in experiments.                                                                  In Table 1, it is found that fine-tuning dCellNNs in stage-II is
+    UIUC (Lazebnik, Schmid, & Ponce, 2005): it contains 25 texture                             efficient and necessary to optimize the contour extractor of dCellNNs.
+classes, totally 1000 original images of size 640 × 480. Referring to Hu                       For example, the DC obtained by an initially-trained CellNN in stage
+et al. (2022), to generate more samples, we divide each original image                         I is only 0.5417, however it increases to 0.7727 when 𝑛 = 4, once
+into a group of 4 × 4 non-overlapping sub-images, obtaining 16 000                             the contour extractor of dCellNNs is further optimized by fine-tuning
+new texture samples of size 160 × 120. In experiments, a half of them                          parameters in stage-II. Moreover, the extraction ability of dCellNNs
+are used for training models, and the others are used for classification                       severely decreases as 𝑛 increases, e.g., when 𝑛 = 6 DC and accuracy
+test in a fair means.                                                                          decrease to 0.6478 and 84.02%, respectively. One of possible reasons
+    KTH-TIPS2b (Mallikarjuna et al., 2006): it contains 11 texture                             is that the sample number of training dCellNNs is limited (only 20
+image classes. Each class of image size 200 × 200 contains 4 sample                            images), too small to train a deeper one well.
+groups with 3 object poses, 4 illumination directions and 9 image                                  (2) Single-scale LBP fusion
+
+                                                                                           6
+M. Chang et al.                                                                                                                Expert Systems With Applications 238 (2024) 122100
+
+
+
+
+Fig. 7. Challenging instances of 4 texture datasets. The challenge of OTC12 mainly lies in angle rotation and illumination change, the challenge of UIUC lies in angle rotation
+and scale change, the challenge of KTH-TIPS2b lies in scale change, and the challenge of Brodatz also lies in angle rotation and scale change. Blue texts indicate class labels.
+
+
+                  Table 1
+                  The numeric comparisons of texture contour extraction. Bold number denotes the higher one. These metrics follow the settings in Niemeijer
+                  et al. (2004). Bold number denotes the best metric in column comparisons.
+                   Models                  CRL𝑛             DC            Accuracy          AUC(ROC)          AUC(PR)           Specificity        Sensitivity
+                   CellNN (stage I)        single           0.5417        85.89%            0.7529            0.5502            0.8646             0.6552
+                                           𝑛=4              0.7727        94.40%            0.9492            0.8405            0.9708             0.7602
+                   dCellNNs                𝑛=6              0.6478        84.02%            0.8548            0.7094            0.8321             0.8955
+                   (stage II)              𝑛=8              0.6380        87.00%            0.7883            0.6059            0.8979             0.6787
+                                           𝑛 = 10           0.6372        87.07%            0.7887            0.6058            0.8990             0.6765
+
+
+                  Table 2
+                  The numeric comparisons of texture classification accuracy, through the single-scale LBP feature fusion with texture contour features on four
+                  texture datasets, 𝑛=4 for dCellNNs. ‘‘+’’ indicates an across-domain feature fusion. Bold number denotes the higher one.
+                   Accuracy(%) on OTC12                                                     Accuracy(%) on UIUC
+                   (r,P)        Only LBP            LBP+CellNN        LBP+dCellNNs          (r,P)        Only LBP         LBP+CellNN          LBP+dCellNNs
+                   (1,8)        68.72               72.00            85.42                  (1,8)        47.25            64.43               74.88
+                   (3,12)       80.02               83.48            90.72                  (3,12)       58.81            69.71               80.39
+                   (5,16)       79.87               83.46            86.89                  (5,16)       59.85            70.46               79.49
+                   Accuracy(%) on KTH-TIPS2b                                                Accuracy(%) on Brodatz
+                   (r,P)        Only LBP            LBP+CellNN        LBP+dCellNNs          (r,P)        Only LBP         LBP+CellNN          LBP+dCellNNs
+                   (1,8)        70.49               79.58            82.13                  (1,8)        58.27            71.50               91.37
+                   (3,12)       73.49               78.03            83.78                  (3,12)       85.17            91.21               96.53
+                   (5,16)       71.31               77.21            81.42                  (5,16)       79.89            97.68               97.70
+
+
+
+    In order to evaluate the performance differences of the single-scale                        For example, on UIUC, on LBP sampling (𝑟, 𝑃 ) = (1,8), the classifi-
+LBP feature fusion with texture image contours, we design a series of                       cation accuracy achieved by ONLY LBP features is 47.25%, however
+comparative experiments on four given texture datasets. Table 2 reports                     through the fusion of LBP with CellNN features, it rises to 64.43%,
+four groups of numeric experiment results, one group for one dataset.                       about 17.18% higher than before. Once LBP is cooperated with
+    From Table 2, we observe three obvious findings: (i) the LBP feature                    dCellNNs, it rises to 74.88%, achieving a big promotion of 27.63% on
+fusion with contour features is efficient, (ii) the three-channel texture                   only LBP (without across-domain fusion).
+contour extractor of dCellNNs outperforms single CellNN, and (iii)                              On almost all datasets, the LBP fusion with dCellNNs often obtains
+different LBP sampling (𝑟, 𝑃 ), even fused with a same contour extractor,                   higher accuracy than with CellNN. For example, on OTC12, dCellNNs
+always obtains different feature modeling ability, resulting in different                   could help LBP sampling (𝑟 = 3, 𝑃 = 12) to raise the accuracy
+accuracy.                                                                                   from 80.02% to 90.72%, however CellNN only brings a promotion
+
+                                                                                        7
+M. Chang et al.                                                                                                               Expert Systems With Applications 238 (2024) 122100
+
+                  Table 3
+                  The accuracy (%) comparisons of texture classification on four datasets, by the different feature fusion modes of multi-scale sampling LBP
+                  features and texture contour features, layer number 𝑛=4 in dCellNNs. Bold number denotes the highest one.
+                   Multi-scale fusion schemes                                         KTH-TIPS2b              Brodatz            OTC12                UIUC
+                   (1,8)+(2,16)+dCellNNs                                              89.20                   96.23              98.86                93.13
+                   (1,8)+(2,16)+(3,8)+(3,24)+dCellNNs                                 89.58                   97.57              98.90                93.41
+                   (1,8)+(2,16)+(3,8)+(3,24)+(5,12)+(7,16)+CellNN                     89.80                   94.42              91.86                92.63
+                   (1,8)+(2,16)+(3,8)+(3,24)+(5,12)+(7,16)+dCellNNs                   91.29                   98.21              99.18                94.14
+
+
+
+                                                                                               +(3,24)+(5,12)+(7,16)’, abbreviated as ‘6LBP’. Thus In our scheme, the
+                                                                                               optimal across-domain fusion mode of 6LBP and dCellNNs is similarly
+                                                                                               abbreviated as 𝟔𝐋𝐁𝐏 + 𝐝𝐂𝐞𝐥𝐥𝐍𝐍𝐬.
+
+                                                                                               4.4. Performance comparisons
+
+                                                                                                   In experiments, there are four types of texture classification meth-
+                                                                                               ods to be compared with ours, including (i) LBP-based methods, (ii)
+                                                                                               neural-network-based (NN-based) ones, (iii) wavelet-based ones and
+                                                                                               (iv) model-based ones.
+                                                                                                   In details, the ten LBP-based methods chosen for comparisons
+                                                                                               contain the original LBP (Ojala et al., 2002), CLBP (Guo et al., 2010a),
+                                                                                               LBPV (Guo, Zhang, & Zhang, 2010b), BRINT (Liu et al., 2014), SBP
+                                                                                               (Nguyen, Vu, & Manzanera, 2016), LSP (Du, Yan, & Ma, 2016), DRLBP
+                                                                                               (Mehta & Egiazarian, 2016), LGONBP (Song et al., 2021) and
+                                                                                               CJLBPABMV (Hu et al., 2022). In addition, three chosen NN-based ones
+                                                                                               include the AlexNet (Krizhevsky, Sutskever, & Hinton, 2012), VGGVD
+                                                                                               (Cimpoi, Maji, & Vedaldi, 2015) and DCN-LS (Bu, Wu, Gao, & Jia,
+Fig. 8. The texture contour extraction example on Brodatz ‘1.2.03.bmp’: (a) original           2019). Moreover, two wavelet-based are the EWCC-LCFB (Ahmadvand
+sample, (b) the output from single initially-trained CellNN of stage I, (c) the output 𝑂       & Daliri, 2016) and SVM-PSO (Chang, Tsai, & Yen, 2016). Additionally,
+from fine-tuning dCellNNs of stage II, (d) the feature map 𝑂2 from dCellNNs, (e) the           three model-based ones are the DSTNet (Florindo, 2020), EMD-GMM
+𝑂1 from dCellNNs, and (f) the 𝑂0.5 from dCellNNs.
+                                                                                               (Hao, Wang, Li, & Zhang, 2016) and MGLCM (Roberti de Siqueira et al.,
+                                                                                               2013).
+                                                                                                   (1) Numeric Accuracy Comparisons
+from 80.02% to 83.48%, approximately 7.24% lower than the former                                   Table 4 numerically exhibits the accuracy comparisons of all meth-
+accuracy.                                                                                      ods on four datasets. In this table, two obvious findings could be
+    Moreover, even fused with a same contour extractor, different LBP                          obviously observed. One is that our multi-scale across-domain fusion
+sampling would always acquire different accuracy. For example, on                              method could often surpass other compared ones, including the two
+KTH-TIPS2b, the sampling (𝑟 = 1, 𝑃 = 8) of LBP fused with dCellNNs                             state-of-the-art (SOTA) ones, 𝑖.𝑒., LGONBP (2021) and CJLBPABMV
+obtains 82.13%. In the meanwhile, the accuracy by the sampling (𝑟 =                            (2022). And the other is that the non-LBP methods, including NN-based
+3, 𝑃 = 12) of LBP fused with same dCellNNs is 83.78%, gaining an                               AlexNet, VGGVD and DCN-LS, cannot usually outperform the latest
+obvious increase of 1.65%. In addition, for the (𝑟 = 5, 𝑃 = 16) also                           LBP-based ones.
+with same dCellNNs, its accuracy even decreases to 81.42%, obviously                               For example, our ‘6LBP+CellNN’ gets 89.82% on KTH-TIPS2b,
+lower than the former two.                                                                     while ‘6LBP + dCellNNs’ reaches up to 91.29%. The latter is even
+    (3) Multi-scale LBP feature concatenation & fusion                                         2.58% higher than the SOTA CJLBPABMV (88.71%). Similarly, our
+    In this part, in order to obtain an optimal combination of LBP                             mode ‘6LBP+dCellNN’ could achieve 98.21%, 99.18% and 94.14% on
+sampling scales, we additionally design a group of comparative ablation                        Brodatz, OTC12 and UIUC, respectively. However, as the SOTA one,
+experiments, also on four datasets. Table 3 exhibits our experiment                            LGONBP only obtains 95.10% on Brodatz and 98.47% on OTC12. And
+comparisons.                                                                                   on UIUC, SOTA CJLBPABMV only acquires 93.72%. By comparison, ours
+    Jointly from Tables 2 and 3, it could be found that, (i) the across-                       could outperform previous SOTA ones, approximately by 3.11%, 0.71%
+domain fusion of multi-scale LBP features and texture contour features                         and 0.42% on Brodatz, OTC12 and UIUC, respectively.
+could usually obviously promote texture classification accuracy, and                               As for some NN-based ones, such as AlexNet and VGGVD, they could
+(ii) the fusion mode of the LBP features on six sampling scales and                            only obtain median accuracies. For example, on KTH-TIPS2b, AlexNet
+the contour features through dCellNNs could often achieve the highest                          and VGGVD barely achieve 70.27% and 75.70%, respectively. They
+classification accuracy, almost on all four texture datasets.                                  look better than early LBP-based methods (𝑒.𝑔., SBP), however obvi-
+    For example, on KTH-TIPS2b, the accuracy by ‘(1, 8)+dCellNNs’                              ously weaker than the SOTA CJLBP (Hu et al., 2022). One of possible
+is only 82.13% (in Table 2), however the accuracy by ‘(1, 8)+(2,                               reasons is that the texture features extracted by NN-based ones are
+16)+dCellNNs’ reaches to 89.20% (in Table 3), gaining an obvious                               usually not rotation-invariant. Another reason is that these approaches
+rise of 7.07%. This rise is mainly attributed to the extra participation                       could often not be trained sufficiently by the limited training samples
+of LBP sampling scale (2,16). Similarly, the accuracy on KTH-TIPS2-b                           of texture images.
+could even rises up to 91.29% when fusion mode ‘(1,8)+(2,16)+(3,8)                                 (2) Dimensionality and Computation Complex
++(3,24)+(5,12)+(7,16)+dCellNNs’ is applied. However, still on same                                 Besides classification accuracy, we have also tested the computa-
+KTH-TIPS2b, ‘(1,8)+(2,16)+(3,8)+(3,24)+(5,12)+(7,16)+CellNN’ only                              tional costs of representative methods in texture feature extraction
+achieves 89.80%, far less than the former.                                                     stage. Table 5 numerically compares the feature dimensionality and
+    More LBP sampling scales will severely increase the feature dimen-                         average time consumption of different extraction methods on four
+sionality and computation consumption of texture images. Therefore,                            texture datasets.
+based on Table 3, it is experimentally determined that the optimal                                 By numeric comparison, two obvious findings could be easily ob-
+multi-scale sampling mode of LBP could be the ‘(1,8)+(2,16)+(3,8)                              served. The first is that the dimensionality of our multi-scale features
+
+                                                                                           8
+M. Chang et al.                                                                                                              Expert Systems With Applications 238 (2024) 122100
+
+Table 4
+The accuracy (%) comparisons of different methods on four benchmark datasets, layer number 𝑛 = 4 in dCellNNs. Bold number denotes the state-of-the-art one in compared
+methods, and the bold number in blue denotes the result achieved by our across-domain fusion.
+ KTH-TIPS2b                                    Brodatz                                       OTC12                                       UIUC
+ Methods                   Accuracy            Methods                  Accuracy             Methods                 Accuracy            Methods                    Accuracy
+ SBP                       71.59               SBP                      76.04                LBP                     86.85               SBP                        83.39
+ CLBP                      53.30               CLBP                     85.38                CLBP                    90.09               CLBP                       92.54
+ BRINT                     84.43               BRINT                    90.92                BRINT                   86.46               BRINT                      92.67
+ EMD-GMM                   78.63               EWCC-LCFB                86.44                LSP                     66.62               MGLCM                      81.73
+ CJLBPABMV                 88.71               CJLBPABMV                94.83                CJLBPABMV               95.21               CJLBPABMV                  93.72
+ LGONBP                    87.05               LGONBP                   95.10                LGONBP                  98.47               LGONBP                     93.35
+ DSTNet                    61.04               MGLCM                    84.22                LBPV                    85.23               DSTNet                     91.58
+ DCN-LS                    77.23               SVM-PSO                  86.55                DRLBP                   89.19               EMD-GMM                    84.03
+ AlexNet                   70.27               AlexNet                  85.25                AlexNet                 73.35               AlexNet                    91.18
+ VGGVD                     75.70               VGGVD                    85.72                VGGVD                   82.23               VGGVD                      91.36
+ 6LBP+CellNN               89.82               6LBP+CellNN              94.42                6LBP+CellNN             91.86               6LBP+CellNN                92.63
+ 6LBP+dCellNNs             91.29               6LBP+dCellNNs            98.21                6LBP+CellNNs            99.18               6LBP+dCellNNs              94.14
+
+
+
+
+Table 5
+The feature dimensionality and average computation time (s, seconds) of different extraction methods on four datasets. The maximal one and minimal one are marked by the bold
+numbers in blue and in black, respectively.
+ Methods                                            Dimensionality                   KTH-TIPS2b                    Brodatz                   OTC12                     UIUC
+ Original LBP (Ojala et al., 2002)                  54                               0.069                         0.058                     0.046                     0.049
+ DLBP (Mehta & Egiazarian, 2016)                    14 150                           0.290                         0.241                     0.193                     0.205
+ CLBP (Guo et al., 2010a)                           3552                             0.108                         0.095                     0.076                     0.081
+ BRINT (Liu et al., 2014)                           1296                             0.178                         0.153                     0.115                     0.129
+ AlexNet (Krizhevsky et al., 2012)                  32 768                           0.404                         0.336                     0.269                     0.285
+ VGGVD (Cimpoi et al., 2015)                        65 536                           0.492                         0.410                     0.328                     0.348
+ LGONBP (Song et al., 2021)                         1404                             0.212                         0.191                     0.124                     0.158
+ CJLBPABMV (Hu et al., 2022)                        400                              0.086                         0.081                     0.073                     0.075
+ 6LBP+CellNN (ours)                                 192                              0.119                         0.085                     0.064                     0.071
+ 6LBP+dCellNNs (ours)                               768                              0.203                         0.142                     0.105                     0.116
+
+
+
+is moderate, even smaller than the most ones in Table 5. For example,                     5. Discussions
+‘6LBP+dCellNNs’ has a feature dimensionality of 768. In contrast, the
+multi-scale BRINT is 1296. Especially, neural VGGVD reaches up to                             Inspired by an across-domain feature fusion, this paper aims at
+the largest dimensionality, 65 536. In details, the LBP-based multi-                      proposing a new feature fusion method of LBPs with image contours
+scale methods, such as BRINT and CJLBPABMV , adopt a joint of three                       to improve texture classification. Totally, experiment results are highly
+LBP operators and multi-scale concatenating, while ours only uses                         consistent with our expectations. They well support the hypothesis that
+single LBP operator and the across-domain fusion with contour features.                   reasonable across-domain feature fusion could strengthen the represen-
+Therefore, even if adopting same scales, our method could often have                      tation ability of texture images.
+less feature dimensionality than other multi-scale LBP ones.                                  (1) Contour extractor of dCellNNs
+     The second finding is that, compared with others, the computa-                           Traditional CellNN is a single-layer & two-dimensional neural array
+tion cost by our method is moderate, lower than by NN-based ones,                         model with limited parameters. Enlightened by classic deep neural
+while higher than by the one with SOTA classification performance,                        networks, we wonder if the contour extraction ability of CellNN could
+                                                                                          be further promoted once it is extended into popular deep structure.
+𝑖.𝑒., CJLBPABMV . For example, on KTH-TIPS2b, the average time by
+                                                                                          The experiments in Table 1 validates that the CellNN-based deep model,
+‘6LBP+CellNN’ is 0.119 s second, and that by ‘6LBP+dCellNNs’ is
+                                                                                          trained by two stages (𝑖.𝑒., initial training and fine-tuning parameters),
+0.203 s. In contrast, NN-based AlexNet and VGGVD consume 0.404 s
+                                                                                          can improve contour extraction performance on single CellNN. For
+and 0.492 s, respectively. Compared with the two latest LBP-based
+                                                                                          example, CellNN only obtains a contour accuracy of 85.89%, while
+LGONBP (Song et al., 2021) and CJLBPABMV (Hu et al., 2022), on
+                                                                                          dCellNNs can obtain an accuracy of up to 94.40%.
+KTH-TIPS2b our ‘6LBP+dCellNNs’ averagely needs 0.203 s, higher than
+                                                                                              The reasons, we speculate, could include two primary aspects. One
+the cost by CJLBPABMV (0.086 s second), while slightly less than that
+                                                                                          is that the contour extractor of dCellNNs consists three image sampling
+by LGONBP (0.212 s). Similarly on other datasets, the time cost of
+                                                                                          channels (1 ∶ 0.5, 1 ∶ 1 and 1 ∶ 2). Therefore, it can capture image
+‘6LBP+dCellNNs’ is still higher than that of SOTA CJLBPABMV , while
+                                                                                          features on three different scales, improving scale adaptivity. The other
+less than that of LGONBP.                                                                 lies in that this extractor consists of multiple recurrent-CellNN layers,
+     Moreover, we observe that the computation cost of feature classifier                 with more learnable parameters. On this structure, coarse-to-fine two-
+in our method is obviously tiny, relative to that of extraction. In exper-                stage learning could exactly enable dCellNNs to obtain better image
+iments, the mode of ‘6LBP+CellNN’ only averagely consumes 0.029 s,                        contour approximation ability.
+0.032 s, 0.028 s and 0.027 s on KTH-TIPS2b, Brodatz, OTC12 and UIUC,                          (2) Fusion of LBP and dCellNNs
+respectively. In contrast, ‘6LBP+dCellNNs’ averagely needs 0.032 s,                           In classic methods, LBP is used to capture the pattern distribution
+0.043 s, 0.030 s and 0.033 s respectively on a same dataset. Therefore,                   features of pixel neighbors (Ojala et al., 2002). In texture classification,
+the total computation cost of our method with ‘6LBP+dCellNNs’ is ap-                      previous LBP-based methods mainly pay their attention to the design of
+proximately 0.235 s, 0.185 s, 0.135 s and 0.149 s. The slight difference                  more texture descriptors or multi-scale feature fusion, seldom jumping
+of classification time by two combination modes on a same dataset                         out of LBP features and then considering more image clues. We are
+mainly depends on feature dimensionality. In general, the bigger the                      intrigued that if it could enhance the feature modeling ability of
+dimensionality is, the higher the time cost is.                                           LBPs by employing some new image clues of non-LBP domain such
+
+                                                                                      9
+M. Chang et al.                                                                                                         Expert Systems With Applications 238 (2024) 122100
+
+
+as contours and then designing reliable across-domain fusion method.              Declaration of competing interest
+Comparison experiments prove that it could indeed do so. As a result,
+our method (6LBP+dCellNNs) could even acquire better performance                      The authors declare that they have no known competing finan-
+than SOTA one. For example, our method acquires 99.18%, while SOTA                cial interests or personal relationships that could have appeared to
+one (LGONBP) only achieves 98.47% one OTC12.                                      influence the work reported in this paper.
+    The most possible reasons rely mainly in two points. One is that
+image contours could have efficiently enhance the feature modeling                Data availability
+ability of traditional LBPs. It could help LBPs to capture more dis-
+criminative texture representation features. The other is that our fusion            Codes are open at https://github.com/UESTC-nnLab/LBP_Contour.
+approach (𝑖.𝑒., WBF) could effectively magnify the feature differences
+of different texture types in feature space, by the weighted-base and             Acknowledgments
+incremental adding on initial LBP maps.
+    (3) Semi-supervised learning schemes                                             This work is supported by the National Natural Science Foundation
+    Seen from the viewpoint of learning model, our method is a typical            of China (NSFC) under Grant No. 61972072.
+fully-supervised one. The reason why we adopt a supervised-learning
+scheme is mainly that almost all texture classification datasets are              Appendix A. Cellular neural network
+with completed class labels for each image sample. Since every sample
+has an explicit class label of its own, by now seldom semi-supervised                 The Cellular Neural Network (CellNN), originally proposed by Chua
+scheme (Van Engelen & Hoos, 2020) has been adopted in this task of                and Yang (1988) in 1988, is essentially a locally-interconnected, dual-
+traditional texture classification.                                               valued, and non-linear signal processing unit. The basic component in
+    For the semi-supervised methods such as graph-based learning                  a CellNN is called neuron. Each neuron directly affects the behavior
+(Chong, Ding, Yan, & Pan, 2020), one of the most obvious advantages is            of its neighbor ones, under the control of two convolution kernels, as
+that they could enable classification models to learn simultaneously on           illustrated in Fig. A.9.
+labeled samples and non-labeled ones. Therefore, they are very suitable               The dynamic state of neuron 𝑁(𝑖, 𝑗) in a two-dimensional CellNN,
+to the classification task, in which not all training samples have been           and its output activation function are mathematically described by
+labeled, usually because of too large training sample number, or too              Eq. (A.1).
+high manual-annotation cost. For example, Protopapadakis proposes a
+semi-supervised building extraction method on low-cost satellite near-            ⎧ 𝑑𝑥 (𝑡)                           ∑                          ∑
+                                                                                  ⎪𝐶 𝑖𝑗              1
+infrared images (Protopapadakis, Doulamis, Doulamis, & Maltezos,                              =−       𝑥𝑖𝑗 (𝑡) +              𝐴𝑘𝑙 𝑦𝑘𝑙 (𝑡) +              𝐵𝑘𝑙 𝑢𝑘𝑙 + 𝑧𝑖𝑗
+                                                                                  ⎪      𝑑𝑡         𝑅𝑥           (𝑘𝑙)∈𝑁𝑟 (𝑖𝑗)               (𝑘𝑙)∈𝑁𝑟 (𝑖𝑗)
+2021).                                                                            ⎨
+                                                                                  ⎪           (       ) 1 (|               | |               |)
+    Despite all this, it is still believed that semi-supervised learning          ⎪𝑦𝑖𝑗 (𝑡) = 𝑓 𝑥𝑖𝑗 (𝑡) = 2 ||𝑥𝑖𝑗 (𝑡) + 1|| − ||𝑥𝑖𝑗 (𝑡) − 1||
+could also applied for texture classification, when we remove the                 ⎩
+class labels of partial samples, or extend new non-labeled samples.                                                                                                      (A.1)
+In this new situation, semi-supervised learning could often obtain
+good classification effect. It seems a very interesting research idea, for        where 𝑥𝑖𝑗 (𝑡) represents the state of the neuron on the 𝑖th row and
+both traditional texture classification and semi-supervised learning. In          𝑗th column at time 𝑡. Expression 𝑦𝑘𝑙 (𝑡) represents the output of the
+the future, we will make a deep exploration on this interesting yet               neighbor neuron 𝑁(𝑘, 𝑙) around 𝑁(𝑖, 𝑗), and 𝑢𝑘𝑙 indicates the input
+challenging issue.                                                                signal to neighbor neuron 𝑁(𝑘, 𝑙) also at time 𝑡. 𝑅𝑥 and 𝐶 are two
+    The main limitation of our work is that it has not yet be validated           network constants for CellNN. More importantly, both 𝐴𝑘𝑙 and 𝐵𝑘𝑙 are
+on larger-size datasets, e.g., the one with more than 1000 classes. In the        the learnable parameters at the coordinates (𝑘, 𝑙) of convolution kernel
+future, more effective image features, more efficient feature extractors          𝐴 and 𝐵, respectively. Symbol 𝑧𝑖,𝑗 is the learnable bias to neuron 𝑁(𝑖, 𝑗).
+and better across-domain fusion schemes would be worth of further                    Moreover, a group of neighbor neurons of given neuron 𝑁(𝑖, 𝑗) is
+research and exploration.                                                         represented by 𝑁𝑟 (𝑖, 𝑗), and 𝑁(𝑖, 𝑗) is locally-connected to its neighbors
+                                                                                  within radius 𝑟, as shown in Fig. A.9(a). The neighbor range of neuron
+6. Conclusions                                                                    𝑁(𝑖, 𝑗), 𝑁𝑟 (𝑖, 𝑗) is mathematically described by
+
+                                                                                  𝑁𝑟 (𝑖, 𝑗) = {𝑁(𝑘𝑙)| max{|𝑘 − 𝑖|, |𝑙 − 𝑗|} ≤ 𝑟}                                         (A.2)
+    This paper firstly designs a new three-channel texture contour ex-
+tractor, including dCellNNs and a coarse-to-fine two-stage training                   Under certain constraints, after a limited number of iterations, each
+strategy. Utilizing the texture contours from dCellNNs, it proposes               neuron in CellNN will eventually converge to 1 or −1 due to the
+a new weighted-base fusion method to fulfill the across-domain en-                modulation to neuron state by the activation function in Eq. (A.1), as
+hancement of multi-scale LBP features. The experiments on benchmark               illustrated in Fig. A.9(b). In other words, the final output of each neuron
+datasets show that the extractor of dCellNNs is better than that of               will be always 1 or −1.
+CellNN in generating texture contours, and the multi-scale fusion of                  Cellular neural networks have been used in a wide range of different
+LBPs and dCellNNs is efficient in promoting texture classification per-           fields, such as the fingerprint recognition (Su, Du, Cheng, & Su, 2005),
+formance. By feature fusion, our new method could often outperform                color image processing (Hu et al., 2015, 2017), texture image analy-
+previous SOTA ones, with moderate computation time costs. In future               sis (Ji et al., 2020; Kellner et al., 1994), hardware friendly learning
+work, more effective image feature clues and even more efficient                  (Adhikari et al., 2018) and image corner detection (Cuevas et al., 2019).
+across-domain fusion methods for them could be worth of further
+exploration.                                                                      Appendix B. Local binary pattern
+
+CRediT authorship contribution statement                                              The Local Binary Pattern (LBP), a pixel-level local feature descriptor
+                                                                                  (Ojala et al., 2002), has been proposed to classify material textures
+    Mingzhe Chang: Methodology, Conceptualization, Software, Inves-               in partial images for many years. LBP encodes the relative gray value
+tigation, Writing – original draft. Luping Ji: Validation, Writing –              between a center pixel and its neighbor ones, forming a binary code
+review & editing, Supervision, Funding acquisition. Jiewen Zhu: Inves-            chain. And then the binary code chain is transformed into a decimal
+tigation, Data curation, Formal analysis, Writing – review & editing.             integer, representing a pattern code for a type of local-neighbor pixel
+
+                                                                             10
+M. Chang et al.                                                                                                              Expert Systems With Applications 238 (2024) 122100
+
+
+
+                                                                                                    {∑                              (       )
+                                                                                                           𝑃 −1 (        )              𝑟𝑖
+                                                                                          𝑟𝑖𝑢2             𝑝=0 𝑠 𝑔𝑝 − 𝑔𝑐        if 𝑈 𝐿𝐵𝑃𝑟,𝑃   ≤2
+                                                                                       𝐿𝐵𝑃𝑟,𝑃  =                                                                          (B.3)
+                                                                                                   𝑃 +1                otherwise
+                                                                                        (       )      (         )   (       )|
+                                                                                            𝑟𝑖       |
+                                                                                       𝑈 𝐿𝐵𝑃𝑟,𝑃   = |𝑠 𝑔𝑝−1 − 𝑔𝑐 − 𝑠 𝑔0 − 𝑔𝑐 |
+                                                                                                     |                        |
+                                                                                                𝑃∑−1                                                                      (B.4)
+                                                                                                     | (       )   (         )|
+                                                                                              +      |𝑠 𝑔𝑝 − 𝑔𝑐 − 𝑠 𝑔𝑝−1 − 𝑔𝑐 |
+                                                                                                     |                        |
+                                                                                                     𝑝=1
+
+                                                                                       where ‘𝑠ℎ𝑖𝑓 𝑡(𝐿𝐵𝑃𝑟,𝑃 , 𝑖)’ is a cyclic-shift function to binary 𝐿𝐵𝑃𝑟,𝑃 ,
+                                                                                       and ‘𝑈 (𝐿𝐵𝑃𝑟,𝑃 𝑟𝑖 )’ represents a counter that counts the total number of
+                                                                                                                                                         𝑟𝑖 .
+                                                                                       bit-to-bit transitions from ‘0’ to ‘1’ or ‘1’ to ‘0’ in binary 𝐿𝐵𝑃𝑟,𝑃
+                                                                                            By the 𝐿𝐵𝑃𝑟,𝑃   𝑟𝑖𝑢2 encoding on texture images, the total number of
+
+                                                                                       possible LBP codes could be significantly compressed from 256 to 𝑃 + 2,
+                                                                                                  𝑟𝑖𝑢2 ∈ {0, 1, … , 𝑃 + 1}. Therefore, the feature histogram of
+                                                                                       𝑖.𝑒., 𝐿𝐵𝑃𝑟,𝑃
+                                                                                       LBP generated from texture images could always be reduced to a tiny
+                                                                                       dimensionality of 𝑃 + 2, meanwhile achieving an obvious improvement
+                                                                                       of feature sparsity.
+                                                                                            On 𝐿𝐵𝑃𝑟,𝑃𝑟𝑖𝑢2 , more other multi-scale ones could also be seen, e.g., the
+
+                                                                                       MRELBP in Liu et al. (2016) and the multi-resolution gLBP in Ji, Ren,
+                                                                                       Liu et al. (2018). This type of modeling schemes often extracts multiple
+                                                                                       distribution histograms of LBP by different sampling (𝑟, 𝑃 ) on a same
+Fig. A.9. Two-dimensional CellNN and its local connection patterns: (a) local          image, and then concatenates these histograms of different scales into a
+neighbors, (b) neuron activation function, (c) neuron’s dynamic state model.           fused one, so as to obtain more robust and more discriminative features
+                                                                                       for texture classification, as in Ma, Chen, and Liao (2018) and Xu et al.
+                                                                                       (2020).
+
+                                                                                       References
+
+                                                                                       Adhikari, S. P., Kim, H., Yang, C., & Chua, L. O. (2018). Building cellular neural
+                                                                                           network templates with a hardware friendly learning algorithm. Neurocomputing,
+                                                                                           312, 276–284.
+                                                                                       Ahmadvand, A., & Daliri, M. R. (2016). Rotation invariant texture classification using
+                                                                                           extended wavelet channel combining and LL channel filter bank. Knowledge-Based
+                                                                                           Systems, 97, 75–88.
+                                                                                       Alpaslan, N. (2022). Neutrosophic set based local binary pattern for texture
+                                                                                           classification. Expert Systems with Applications, 209, Article 118350.
+                                                                                       Anam, A. M., & Rushdi, M. A. (2019). Classification of scaled texture patterns with
+                                                                                           transfer learning. Expert Systems with Applications, 120, 448–460.
+                                                                                       Babington, P. (1966). Textures: A photographic album for artists and designers. New York,
+                                                                                           USA: Dover.
+   Fig. B.10. The illustration of LBP sampling and encoding on a texture image.
+                                                                                       Bhunia, A. K., Konwer, A., Bhunia, A. K., Bhowmick, A., Roy, P. P., & Pal, U. (2019).
+                                                                                           Script identification in natural scene image and video frames using an attention
+                                                                                           based convolutional-LSTM network. Pattern Recognition, 85, 172–184.
+distribution. For a given center pixel, it is encoded by the LBP feature               Bu, X., Wu, Y., Gao, Z., & Jia, Y. (2019). Deep convolutional network with locality
+                                                                                           and sparsity constraints for texture classification. Pattern Recognition, 91, 34–46.
+model, as follows:
+                                                                                       Chan, T. H., Jia, K., Gao, S., Lu, J., Zeng, Z., & Ma, Y. (2015). PCANet: A simple deep
+           𝑃∑−1                              {                                             learning baseline for image classification? IEEE Transactions on Image Processing, 24,
+                 (       )                     1, 𝑥 ≥ 0
+𝐿𝐵𝑃 𝑟,𝑃 =       𝑠 𝑔𝑝 − 𝑔𝑐 × 2𝑝 , 𝑠.𝑡. 𝑠(𝑥) =                       (B.1)                   5017–5032.
+            𝑝=0
+                                               0, 𝑥 < 0                                Chang, B. M., Tsai, H. H., & Yen, C. Y. (2016). SVM-PSO based rotation-invariant image
+                                                                                           texture classification in SVD and DWT domains. Engineering Applications of Artificial
+where 𝑟 is a sampling radius, and 𝑃 is the total number of sampling                        Intelligence, 52, 96–107.
+neighbor points on the circle of radius 𝑟 centered at the center pixel to              Chong, Y., Ding, Y., Yan, Q., & Pan, S. (2020). Graph-based semi-supervised learning:
+be encoded. Moreover, 𝑔𝑐 and 𝑔𝑝 represent the gray value of the center                     A review. Neurocomputing, 408, 216–230.
+pixel and the gray value of its 𝑝th neighbor point, respectively.                      Chua, L. O., & Yang, L. (1988). Cellular neural networks: Theory. IEEE Transactions on
+                                                                                           Circuits and Systems, 35(10), 1257–1272.
+    The encoding illustration of LBP with (𝑟 = 1, 𝑃 = 8) is shown in
+                                                                                       Cimpoi, M., Maji, S., & Vedaldi, A. (2015). Deep filter banks for texture recognition and
+Fig. B.10. In this example, center pixel has a gray value of 34, and                       segmentation. In Proceedings of the IEEE conference on computer vision and pattern
+it will be encoded into the decimal integer 227 by LBP encoding. For                       recognition (pp. 3828–3836).
+an image, once all of its pixels are encoded by this scheme, the LBP                   Cuevas, E., Daz-Cortes, M.-A., & Mezura-Montes, E. (2019). Corner detection of
+                                                                                           intensity images with cellular neural networks (CNN) and evolutionary techniques.
+feature map of this image can be generated, and then the distribution
+                                                                                           Neurocomputing, 347, 82–93.
+histogram on this map is often be used as a feature vector for texture                 Du, S., Yan, Y., & Ma, Y. (2016). Local spiking pattern and its application to rotation-
+image classification (Guo et al., 2010a; Mehta & Egiazarian, 2016).                        and illumination-invariant texture classification. Optik, 127, 6583–6589.
+    Decimal LBP codes fall into the range of {0, 1, … , 255}, so the feature           El khadiri, I., El merabet, Y., Ruichek, Y., Chetverikov, D., El mokhtar, R., &
+histogram extracted from an image is inevitably with a dimensionality                      Tarawneh, A. S. (2022). Local ternary pattern based multi-directional guided mixed
+                                                                                           mask (MDGMM-LTP) for texture and material classification. Expert Systems with
+of 256. In order to compress dimension and reduce sparsity, a rotation
+                                                                                           Applications, 205, Article 117646.
+invariance (𝑟𝑖) scheme and its improvement named (𝑟𝑖𝑢2) are also                       Florindo, J. B. (2020). DSTNet: Successive applications of the discrete schroedinger
+proposed in Ojala et al. (2002). They are respectively presented as                        transform for texture recognition. Information Sciences, 507, 356–364.
+follows:                                                                               Gmez-Ros, A., Tabik, S., et al. (2019). Towards highly accurate coral texture images
+
+     𝑟𝑖
+              {                                             }                              classification using deep convolutional neural networks and data augmentation.
+𝐿𝐵𝑃𝑟,𝑃   = min 𝑠ℎ𝑖𝑓 𝑡(𝐿𝐵𝑃𝑟,𝑃 , 𝑖) , 𝑠.𝑡. 𝑖 = 0, 1, … , 𝑃 − 1 .         (B.2)               Expert Systems with Applications, [ISSN: 0957-4174] 118, 315–328.
+
+
+                                                                                  11
+M. Chang et al.                                                                                                                            Expert Systems With Applications 238 (2024) 122100
+
+
+Guo, Z., Zhang, L., & Zhang, D. (2010a). A completed modeling of local binary                       Milletari, F., Navab, N., & Ahmadi, S.-A. (2016). V-Net: Fully convolutional neural
+     pattern operator for texture classification. IEEE Transactions on Image Processing,                networks for volumetric medical image segmentation. In 2016 fourth international
+     19, 1657–1663.                                                                                     conference on 3d vision (3DV) (pp. 565–571).
+Guo, Z., Zhang, L., & Zhang, D. (2010b). Rotation invariant texture classification using            Nguyen, T. P., Vu, N. S., & Manzanera, A. (2016). Statistical binary patterns for
+     LBP variance (LBPV) with global matching. Pattern Recognition, 43, 706–719.                        rotational invariant texture classification. Neurocomputing, 173, 1565–1577.
+Hao, H., Wang, Q., Li, P., & Zhang, L. (2016). Evaluation of ground distances and                   Niemeijer, M., Staal, J., Van Ginneken, B., Loog, M., & Abramoff, M. (2004). Com-
+     features in EMD-based GMM matching for texture classification. Pattern Recognition,                parative study of retinal vessel segmentation methods on a new publicly available
+     57, 152–163.                                                                                       database. In Proceedings of SPIE - the international society for optical engineering, Vol.
+Hu, X., Feng, G., Duan, S., & Liu, L. (2015). Multilayer RTD-memristor-based cellular                   5370 I (pp. 648–656). San Diego, CA, United States.
+     neural networks for color image processing. Neurocomputing, [ISSN: 0925-2312]                  Ojala, T., Pietikainen, M., & Maenpaa, T. (2002). Multiresolution gray-scale and rotation
+     162, 150–162.                                                                                      invariant texture classification with local binary patterns. IEEE Transactions on
+Hu, X., Feng, G., Duan, S., & Liu, L. (2017). A memristive multilayer cellular neural                   Pattern Analysis and Machine Intelligence, 24(7), 971–987.
+     network with applications to image processing. IEEE Transactions on Neural Networks            Orlando, J. I., Prokofyeva, E., & Blaschko, M. B. (2017). A discriminatively trained
+     and Learning Systems, 28(8), 1889–1901.                                                            fully connected conditional random field model for blood vessel segmentation in
+Hu, S., Pan, Z., Dong, J., & Ren, X. (2022). A novel adaptively binarizing magnitude                    fundus images. IEEE Transactions on Biomedical Engineering, 64, 16–27.
+     vector method in local binary pattern based framework for texture classification.              Ouyang, Z., Cui, J., Dong, X., Li, Y., & Niu, J. (2022). SaccadeFork: A lightweight
+     IEEE Signal Processing Letters, 29, 852–856.                                                       multi-sensor fusion-based target detector. Information Fusion, 77, 172–183.
+Ji, L., Chang, M., Shen, Y., & Zhang, Q. (2020). Recurrent convolutions of binary-                  Pan, Z., Hu, S., Wu, X., & Wang, P. (2021). Adaptive center pixel selection strategy in
+     constraint Cellular Neural Network for texture recognition. Neurocomputing, 387,                   local binary pattern for texture classification. Expert Systems with Applications, 180,
+     161–171.                                                                                           Article 115123.
+Ji, L., Ren, Y., Liu, G., & Pu, X. (2018). Training-based gradient LBP feature models               Pan, Z., Wu, X., & Li, Z. (2019). Central pixel selection strategy based on local
+     for multiresolution texture classification. IEEE Transactions on Cybernetics, 48,                  gray-value distribution by using gradient information to enhance LBP for texture
+     2683–2696.                                                                                         classification. Expert Systems with Applications, 120, 319–334.
+Ji, L., Ren, Y., Pu, X., & Liu, G. (2018). Median local ternary patterns optimized with             Perfetti, R., Ricci, E., Casali, D., & Costantini, G. (2007). Cellular neural networks with
+     rotation-invariant uniform-three mapping for noisy texture classification. Pattern                 virtual template expansion for retinal vessel segmentation. IEEE Transactions on
+     Recognition, 79, 387–401.                                                                          Circuits and Systems II: Express Briefs, 54(2), 141–145.
+Kellner, A., Magnussen, H., & Nossek, J. A. (1994). Texture classification, texture                 Protopapadakis, E., Doulamis, A., Doulamis, N., & Maltezos, E. (2021). Stacked
+     segmentation and text segmentation with discrete-time cellular neural networks.                    autoencoders driven by semi-supervised learning for building extraction from near
+     In Proceedings of the third IEEE international workshop on cellular neural networks and            infrared remote sensing imagery. Remote Sensing, 13(3), 371.
+     their applications (CNNA-94) (pp. 243–248). IEEE.                                              Qiu, S., Zhao, H., Jiang, N., Wang, Z., Liu, L., An, Y., et al. (2022). Multi-sensor
+Kim, H.-I., Lee, S. H., & Ro, Y. M. (2015). Multispectral texture features from visible and             information fusion based on machine learning for real applications in human
+     near-infrared synthetic face images for face recognition. In 2015 IEEE international               activity recognition: State-of-the-art and research challenges. Information Fusion, 80,
+     symposium on multimedia (ISM) (pp. 593–596).                                                       241–265.
+Kingma, D. P., & Ba, J. L. (2015). Adam: A method for stochastic optimization. In The               Roberti de Siqueira, F., Robson Schwartz, W., & Pedrini, H. (2013). Multi-scale gray
+     3rd international conference on learning representations, ICLR 2015, San Diego, CA,                level co-occurrence matrices for texture description. Neurocomputing, 120, 336–345.
+     USA, May 7-9, 2015, conference track proceedings. San Diego, CA, United states.                Shu, X., Pan, H., Shi, J., Song, X., & Wu, X.-J. (2022). Using global information to refine
+Krizhevsky, A., Sutskever, I., & Hinton, G. E. (2012). ImageNet classification with                     local patterns for texture representation and classification. Pattern Recognition, 131,
+     deep convolutional neural networks. In F. Pereira, C. J. C. Burges, L. Bottou, &                   Article 108843.
+     K. Q. Weinberger (Eds.), Advances in neural information processing systems, Vol. 25            Smith, J. R., & Chang, S.-F. (1996). Automated binary texture feature sets for image
+     (pp. 1097–1105). Curran Associates, Inc..                                                          retrieval. In 1996 IEEE international conference on acoustics, speech, and signal
+Lazebnik, S., Schmid, C., & Ponce, J. (2005). A sparse texture representation using local               processing conference proceedings, Vol. 4 (pp. 2239–2242). IEEE.
+     affine regions. IEEE Transactions on Pattern Analysis and Machine Intelligence, 27(8),         Song, T., Feng, J., Luo, L., Gao, C., & Li, H. (2021). Robust texture description using
+     1265–1278. http://dx.doi.org/10.1109/TPAMI.2005.151.                                               local grouped order pattern and non-local binary pattern. IEEE Transactions on
+Li, C., & Huang, Y. (2017). Deep decomposition of circularly symmetric Gabor Wavelet                    Circuits and Systems for Video Technology, 31(1), 189–202.
+     for rotation-invariant texture image classification. In 2017 IEEE international                Song, T., Feng, J., Wang, S., & Xie, Y. (2020). Spatially weighted order binary pattern
+     conference on image processing (ICIP) (pp. 2702–2706).                                             for color texture classification. Expert Systems with Applications, 147, Article 113167.
+Liu, L., Chen, J., Fieguth, P., Zhao, G., Chellappa, R., & Pietikäinen, M. (2019). From             Starkov, P., Aguilera, T. A., Golden, D. I., Shultz, D. B., Trakul, N., Maxim, P. G., et al.
+     BoW to CNN: Two decades of texture representation for texture classification.                      (2019). The use of texture-based radiomics CT analysis to predict outcomes in early-
+     International Journal of Computer Vision, 127, 74–109.                                             stage non-small cell lung cancer treated with stereotactic ablative radiotherapy. The
+Liu, L., Fieguth, P., Guo, Y., Wang, X., & Pietikäinen, M. (2017). Local binary features                British Journal of Radiology, 92(1094), Article 20180228.
+     for texture classification: Taxonomy and experimental study. Pattern Recognition,              Su, T.-J., Du, Y.-Y., Cheng, Y.-J., & Su, Y.-H. (2005). A fingerprint recognition system
+     62, 135–160.                                                                                       using cellular neural networks. In 2005 9th international workshop on cellular neural
+Liu, L., Lao, S., Fieguth, P. W., Guo, Y., Wang, X., & Pietikäinen, M. (2016). Median                   networks and their applications (pp. 170–173).
+     robust extended local binary pattern for texture classification. IEEE Transactions on          Uzen, H., Turkoglu, M., & Hanbay, D. (2021). Texture defect classification with multiple
+     Image Processing, 25(3), 1368–1381.                                                                pooling and filter ensemble based on deep neural network. Expert Systems with
+Liu, L., Long, Y., Fieguth, P. W., Lao, S., & Zhao, G. (2014). BRINT: Binary rotation                   Applications, 175, Article 114838.
+     invariant and noise tolerant texture classification. IEEE Transactions on Image                Van Engelen, J. E., & Hoos, H. H. (2020). A survey on semi-supervised learning. Machine
+     Processing, 23(7), 3071–3084.                                                                      Learning, 109(2), 373–440.
+Ma, D., Chen, Z., & Liao, Q. (2018). Tree-shaped sampling based hybrid multi-                       Wu, Q., Xu, G., Cheng, Y., Wang, Z., & Li, Z. (2021). Deformed contour segment
+     scale feature extraction for texture classification. In 2018 25th IEEE international               matching for multi-source images. Pattern Recognition, 117, Article 107968.
+     conference on image processing (ICIP) (pp. 2087–2091).                                         Xu, R., Cong, Z., Ye, X., Hirano, Y., Kido, S., Gyobu, T., et al. (2020). Pulmonary
+Maani, R., Kalra, S., & Yang, Y.-H. (2013). Rotation invariant local frequency descriptors              textures classification via a multi-scale attention network. IEEE Journal of Biomedical
+     for texture classification. IEEE Transactions on Image Processing, 22(6), 2409–2419.               and Health Informatics, 24(7), 2041–2052.
+Mallikarjuna, P., Targhi, A., Fritz, M., Hayman, E., Caputo, B., & Eklundh, J.-                     Yasseen Almakady, J. C. M., & Sasan Mahmoodi, B. (2020). Rotation invariant features
+     O.    (2006).     The     KTH-TIPS2     database.     URL     https://pan.baidu.com/s/             based on three dimensional Gaussian Markov random fields for volumetric texture
+     1dXFKn6v2PV5QS9m8gWlifA [online].                                                                  classification. Computer Vision and Image Understanding, 194, Article 102931.
+Mehta, R., & Egiazarian, K. (2016). Dominant rotated local binary patterns (DRLBP)                  Zhang, H., Xue, J., & Dana, K. (2017). Deep TEN: Texture encoding network. In
+     for texture classification. Pattern Recognition Letters, 71, 16–22.                                Proceedings of the 30th IEEE conference on computer vision and pattern recognition
+                                                                                                        (pp. 2896–2905).
+
+
+
+
+                                                                                               12
+

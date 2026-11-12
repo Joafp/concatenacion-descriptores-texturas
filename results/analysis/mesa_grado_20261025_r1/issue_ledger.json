@@ -1,0 +1,147 @@
+{
+  "review_id": "mesa_grado_20261025_r1",
+  "type": "local_issue_ledger_not_formal_ARS_adjudication",
+  "degree_level_confirmed": "grado",
+  "rubric_institutional": "not_provided",
+  "round_limit": "One evidence-backed initial review. Re-review only after approved corrections or new evidence; no repeated scoring of unchanged material.",
+  "no_numeric_quality_score": true,
+  "author_triage": "not_collected",
+  "items": [
+    {
+      "id": "J01",
+      "severity": "MAYOR",
+      "criterion": "Comparación competitiva bajo recursos comparables",
+      "anchors": [
+        "paper/generated_editorial/controles_hibrido.tex:8",
+        "paper/chapters/04_diseno_experimental.tex:67",
+        "paper/chapters/05_resultados.tex:128"
+      ],
+      "finding": "Los controles estáticos del piloto cuestan más que B60 y no incluyen selección estática optimizada bajo el mismo presupuesto. P0 aísla la compuerta respecto de un rescate fijo, pero no sustituye ese competidor.",
+      "minimum_remedy": "Comparar con un control estático elegido dentro del entrenamiento con la misma biblioteca y presupuesto proyectado, usando las mismas particiones, y reportar la curva completa.",
+      "acceptance": "Tabla y predicciones emparejadas con selección sin validación productora, mismo perfil y presupuestos; reconocer empates o derrotas sin cambiar la métrica a posteriori.",
+      "work": "CONTROL_COMPARATIVO",
+      "state": "OPEN",
+      "claim_scope": "Necesario para sostener ventaja frente a selección estática bajo presupuesto; no para afirmar solo que se implementó una política."
+    },
+    {
+      "id": "J02",
+      "severity": "MAYOR_CONDICIONAL",
+      "criterion": "Validez de la eficiencia práctica",
+      "anchors": [
+        "paper/chapters/03_metodologia.tex:85",
+        "paper/chapters/04_diseno_experimental.tex:82",
+        "paper/chapters/A_especificaciones.tex:129"
+      ],
+      "finding": "La ruta híbrida no tiene cronometraje físico propio; el perfil omite la latencia completa de los clasificadores y el régimen de carga. Las mediciones históricas pertenecen a otra política.",
+      "minimum_remedy": "Si se reclama eficiencia práctica, medir la ruta exacta y sus controles; si el alcance se limita al modelo proyectado, acordarlo expresamente y conservar esa limitación sin convertirla en validación física.",
+      "acceptance": "O bien tiempos pareados y fidelidad de representación de la ruta nueva, con protocolo de residencia/carga; o bien alcance aprobado como estudio bajo modelo de adquisición, sin afirmaciones de aceleración real.",
+      "work": "MEDICION_O_DELIMITACION_DE_ALCANCE",
+      "state": "OPEN",
+      "claim_scope": "No invalida la aritmética del costo proyectado; impide inferir ahorro físico del híbrido."
+    },
+    {
+      "id": "J03",
+      "severity": "MAYOR",
+      "criterion": "Estabilidad y alcance del resultado central",
+      "anchors": [
+        "paper/chapters/01_introduccion.tex:28",
+        "paper/chapters/04_diseno_experimental.tex:27",
+        "paper/chapters/05_resultados.tex:91",
+        "paper/chapters/06_discusion.tex:49"
+      ],
+      "finding": "El algoritmo nuevo se evalúa en un dataset y una semilla. La cobertura histórica de seis datasets no valida la nueva integración ni permite estimar estabilidad del punto B60.",
+      "minimum_remedy": "Fijar antes de nuevas corridas un protocolo de réplica con semillas adicionales y al menos un dominio contrastante si se mantiene una conclusión de método transferible; alternativamente acordar alcance de caso exploratorio.",
+      "acceptance": "Resultados íntegros de la réplica con selección congelada y exposición previa declarada, o reformulación explícita y aprobada como caso único sin generalización; no exigir victoria ni significancia.",
+      "work": "REPLICA_O_DELIMITACION_DE_ALCANCE",
+      "state": "OPEN",
+      "claim_scope": "La suficiencia institucional de un caso único no se decide sin rúbrica; la limitación es técnica, no un rechazo automático de una tesis de grado."
+    },
+    {
+      "id": "J04",
+      "severity": "MAYOR_DOCUMENTAL",
+      "criterion": "Correspondencia manuscrito-evidencia y atribución de componentes",
+      "anchors": [
+        "paper/chapters/01_introduccion.tex:21",
+        "paper/chapters/04_diseno_experimental.tex:67",
+        "paper/chapters/05_resultados.tex:130",
+        "paper/chapters/05_resultados.tex:135",
+        "paper/chapters/07_conclusion.tex:10",
+        "paper/chapters/07_conclusion.tex:13",
+        "docs/fsc_tex/CONTROL_PODA_COMPUERTA_OUTEX_2026-10-25.md"
+      ],
+      "finding": "El PDF sigue declarando pendiente el control P0 ya disponible. Su comparación 10,665 a 1,654 llamadas no separa la reducción por poda de la compuerta.",
+      "minimum_remedy": "Incorporar P0 y sincronizar resumen, diseño, resultados, discusión y conclusión; separar el 69,76 % de poda del 51,72 % adicional de adquisición y distinguir llamadas.",
+      "acceptance": "Tabla de mismo rescate permanente/condicional y ruta forzada con denominadores claros; ninguna frase obsoleta de ausencia; marginal/B60 con más llamadas queda explícito.",
+      "work": "ESCRITURA_DESDE_EVIDENCIA_EXISTENTE",
+      "state": "OPEN",
+      "claim_scope": "El control ya existe en caché y no requiere un nuevo entrenamiento para su incorporación."
+    },
+    {
+      "id": "J05",
+      "severity": "MAYOR",
+      "criterion": "Comparabilidad y alcance de la inferencia histórica",
+      "anchors": [
+        "paper/chapters/04_diseno_experimental.tex:44",
+        "paper/chapters/04_diseno_experimental.tex:87",
+        "paper/chapters/05_resultados.tex:24",
+        "paper/chapters/B_procedencia.tex:9"
+      ],
+      "finding": "La inferencia estática N=6 mantiene una variante KTH con reserva de protocolo, mientras la cascada excluye KTH. La reserva se reconoce, pero falta mostrar su impacto sobre la conclusión inferencial.",
+      "minimum_remedy": "Añadir sensibilidad excluyendo KTH o reconciliar el protocolo antes de sostener una conclusión principal; conservar el análisis archivado identificado.",
+      "acceptance": "Todos los contrastes distinguen protocolo y unidad; se muestra si la conclusión cambia al excluir KTH, sin sustituir solo una media ni tratarlo como otra réplica.",
+      "work": "AUDITORIA_Y_SENSIBILIDAD",
+      "state": "OPEN",
+      "claim_scope": "No se afirma que todos los resultados KTH sean falsos ni que incluir ese dataset viole por sí mismo independencia entre datasets."
+    },
+    {
+      "id": "J06",
+      "severity": "MAYOR_DE_ARGUMENTACION",
+      "criterion": "Definición de utilidad del compromiso y selección de política",
+      "anchors": [
+        "paper/chapters/01_introduccion.tex:19",
+        "paper/chapters/03_metodologia.tex:87",
+        "paper/chapters/05_resultados.tex:128",
+        "paper/chapters/05_resultados.tex:132"
+      ],
+      "finding": "Ventaja mezcla costo y calidad sin un criterio operativo de aceptación. B60 es descriptivamente favorable y retrospectivo; B120 no mejora monotónicamente y hay una excedencia fuera de selección.",
+      "minimum_remedy": "Definir qué se entiende por utilidad y factibilidad para el estudio; separar selección de presupuesto de evaluación, y fijar la regla antes de la réplica.",
+      "acceptance": "Regla de comparación y selección explícita, curva completa, incumplimientos visibles y tratamiento predefinido; no introducir un margen de no inferioridad retroactivo ni exigir que el p sea significativo.",
+      "work": "DEFINICION_Y_PROTOCOLO",
+      "state": "OPEN",
+      "claim_scope": "Las curvas descriptivas actuales siguen siendo válidas; falta criterio para recomendar una política operativa."
+    },
+    {
+      "id": "J07",
+      "severity": "MAYOR_DE_REPRODUCIBILIDAD",
+      "criterion": "Identificación de datos y entrega técnica reproducible",
+      "anchors": [
+        "paper/chapters/04_diseno_experimental.tex:42",
+        "paper/chapters/A_especificaciones.tex:12",
+        "paper/chapters/D_reproducibilidad.tex:4",
+        "paper/chapters/D_reproducibilidad.tex:6"
+      ],
+      "finding": "El manuscrito identifica SoilOriginal por tamaño y deduplicación, pero no su proveedor/versión en ese pasaje. El paquete reproducible requiere relacionar datos, extractores y artefactos con una receta ejecutable y una versión identificable, no solo un enlace general al repo.",
+      "minimum_remedy": "Documentar fuente y versión del dataset, manifiesto y selección de originales; preparar una receta mínima para reconstruir una tabla del híbrido/P0 y detallar extracción/checkpoints, separando datos redistribuibles de no incluidos.",
+      "acceptance": "Otra persona puede identificar las mismas imágenes y reproducir una tabla desde una entrega identificada; los pasos desde caché y desde RGB se distinguen. Se documentan dependencias y archivos faltantes sin inventar licencias.",
+      "work": "DOCUMENTACION_Y_PRUEBA_DE_REPRODUCCION",
+      "state": "OPEN",
+      "claim_scope": "No se afirma que esos materiales no existan en algún archivo del repositorio; el punto es la entrega y su trazabilidad explícita."
+    },
+    {
+      "id": "J08",
+      "severity": "MENOR",
+      "criterion": "Justificación e interpretación de la batería estadística",
+      "anchors": [
+        "paper/chapters/04_diseno_experimental.tex:87",
+        "paper/chapters/05_resultados.tex:22",
+        "paper/articulo/borrador_profesor/generated/classifier_global.tex:12"
+      ],
+      "finding": "La batería informa Friedman, Iman-Davenport, alineado y Quade, pero debe dejar claro cuál fundamenta la comparación principal y cómo leer su desacuerdo. Iman-Davenport no es una réplica independiente de evidencia.",
+      "minimum_remedy": "Explicar elección del contraste principal y papel de las comprobaciones complementarias, manteniendo visibles los no rechazos del Friedman alineado.",
+      "acceptance": "Una lectura permite distinguir prueba principal, familia Holm y sensibilidad sin contabilizar varias pruebas relacionadas como confirmaciones independientes.",
+      "work": "ACLARACION_ESTADISTICA",
+      "state": "OPEN",
+      "claim_scope": "No se exige coincidencia de todos los tests ni se denuncia un p-valor aritméticamente incorrecto."
+    }
+  ]
+}
