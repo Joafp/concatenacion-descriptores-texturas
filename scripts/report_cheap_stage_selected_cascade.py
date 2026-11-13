@@ -101,7 +101,7 @@ def load_and_merge_data(rows_path: Path, ledger_path: Path) -> pd.DataFrame:
                "resnet_f1": ("resnet50_only", "macro_f1"), "resnet_ms": ("resnet50_only", "component_ms"),
                "topk_f1": ("topk_direct", "macro_f1"), "topk_ms": ("topk_direct", "component_ms")}
     for _, row in rows.iterrows():
-        path = rows_path.parent / f"{row['dataset']}_{row['protocol']}_result.json"
+        path = rows_path.parent / f"{row['dataset']}_{row['protocol']}_result.json".replace(":", "__")
         record = json.loads(path.read_text(encoding="utf-8"))
         if (record["dataset"], record["protocol"]) != (row["dataset"], row["protocol"]):
             raise ValueError(f"Identity mismatch: {path.name}")

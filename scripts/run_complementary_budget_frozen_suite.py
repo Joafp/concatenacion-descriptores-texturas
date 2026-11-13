@@ -51,7 +51,7 @@ def condition_key(condition: dict[str, object]) -> str:
         protocol = f"official{condition['official_split']}{suffix}"
     else:
         protocol = f"fold{condition['fold']}"
-    return f"{dataset}_{protocol}_svm_s42_b128"
+    return f"{dataset}_{protocol}_svm_s42_b128".replace(":", "__")
 
 
 def command_for(condition: dict[str, object], output: Path) -> list[str]:

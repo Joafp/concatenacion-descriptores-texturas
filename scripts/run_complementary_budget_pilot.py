@@ -298,7 +298,7 @@ def run(args) -> dict:
     }
     result_root = args.output.resolve()
     result_root.mkdir(parents=True, exist_ok=True)
-    key = f"{dataset}_{protocol}_{args.classifier}_s{args.seed}_b{args.dimension_budget}"
+    key = f"{dataset}_{protocol}_{args.classifier}_s{args.seed}_b{args.dimension_budget}".replace(":", "__")
     if args.classifier != "svm":
         raise ValueError("first implementation currently supports the SVM pilot only")
     predictions_path = result_root / f"{key}_predictions.csv"

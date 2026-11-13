@@ -98,7 +98,7 @@ def run_condition(args):
     folder = args.output / ds
     folder.mkdir(parents=True, exist_ok=False)
     archive = CASCADE / 'cheap_stage_selected_primary22'
-    stem = f'{ds}_{protocol}'
+    stem = f'{ds}_{protocol}'.replace(':', '__')
     sources = [archive / (stem + suffix) for suffix in
                ('_result.json', '_selection_pretest.json', '_predictions.json')]
     result, pretest, predictions = [json.loads(p.read_text()) for p in sources]

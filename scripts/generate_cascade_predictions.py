@@ -80,9 +80,10 @@ def main() -> None:
         for path in paths:
             entry = json.loads(path.read_text(encoding="utf-8"))
             protocol = entry["protocol"]
-            result_file = args.output / f"{dataset}_{protocol}_result.json"
-            pretest_file = args.output / f"{dataset}_{protocol}_selection_pretest.json"
-            pred_file = args.output / f"{dataset}_{protocol}_predictions.json"
+            stem = f"{dataset}_{protocol}".replace(":", "__")
+            result_file = args.output / f"{stem}_result.json"
+            pretest_file = args.output / f"{stem}_selection_pretest.json"
+            pred_file = args.output / f"{stem}_predictions.json"
 
             if not result_file.exists() or not pretest_file.exists():
                 raise FileNotFoundError(f"Faltan artefactos para {dataset} {protocol}")

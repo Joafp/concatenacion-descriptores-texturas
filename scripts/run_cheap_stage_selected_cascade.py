@@ -159,7 +159,8 @@ def main() -> None:
             raise ValueError(f"{dataset}: expected {EXPECTED[dataset]} archives, found {len(paths)}")
         for path in paths[: args.limit]:
             entry = json.loads(path.read_text(encoding="utf-8"))
-            result_file = args.output / f"{dataset}_{entry['protocol']}_result.json"
+            stem = f"{dataset}_{entry['protocol']}".replace(":", "__")
+            result_file = args.output / f"{stem}_result.json"
             if not args.force and result_file.exists():
                 rec = json.loads(result_file.read_text(encoding="utf-8"))
                 ev_new = rec["selected_cheap_stage"]
@@ -197,7 +198,7 @@ def main() -> None:
             cand_oof = {c: oof_for_blocks(cache, [c], train, y, inner_groups, 42) for c in allowed}
             sel_new = select(cand_oof, topk_oof, y_tr, labels, topk, costs, allowed)
             sel_resnet = select(cand_oof, topk_oof, y_tr, labels, topk, costs, ["resnet50"])
-            (args.output / f"{dataset}_{entry['protocol']}_selection_pretest.json").write_text(
+            (args.output / f"{stem}_selection_pretest.json").write_text(
                 json.dumps({"selected_cheap_stage": sel_new, "resnet50_only": sel_resnet}, indent=2) + "\n",
                 encoding="utf-8")
 
@@ -217,7 +218,7 @@ def main() -> None:
                       "seconds": time.perf_counter() - t0,
                       "source_archive": {"path": str(path), "sha256": sha(path)},
                       "cost_profile": str(DEFAULT_KTH_COST if dataset == "KTHTIPS2b" else DEFAULT_PROXY_COST)}
-            (args.output / f"{dataset}_{entry['protocol']}_result.json").write_text(
+            (args.output / f"{stem}_result.json").write_text(
                 json.dumps(record, indent=2) + "\n", encoding="utf-8")
             out_rows.append({"dataset": dataset, "protocol": entry["protocol"],
                              "new_route": ev_new["route"], "new_cheap": ev_new["cheap"],

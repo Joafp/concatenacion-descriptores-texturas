@@ -232,7 +232,7 @@ def main() -> None:
                       "source_archive": {"path": str(path), "sha256": sha(path)},
                       "source_per_sample": {"path": str(path.with_name(path.stem + "_per_sample.csv")),
                                             "sha256": sha(path.with_name(path.stem + "_per_sample.csv"))}}
-            (args.output / f"{dataset}_{entry['protocol']}_selection.json").write_text(
+            (args.output / f"{dataset}_{entry['protocol']}_selection.json".replace(":", "__")).write_text(
                 json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
             output_rows.append({"dataset": dataset, "protocol": entry["protocol"],
                                 "selected_route": selection["selected"]["route"],

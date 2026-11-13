@@ -86,7 +86,7 @@ def test_bad_metrics_are_rejected(tmp_path):
     import json
     rows = pd.read_csv(DEFAULT_ROWS_CSV)
     row = rows.iloc[0]
-    source = DEFAULT_ROWS_CSV.parent / f"{row.dataset}_{row.protocol}_result.json"
+    source = DEFAULT_ROWS_CSV.parent / f"{row.dataset}_{row.protocol}_result.json".replace(":", "__")
     record = json.loads(source.read_text())
     record["selected_cheap_stage"]["macro_f1"] += 0.1
     (tmp_path / source.name).write_text(json.dumps(record))
@@ -120,7 +120,7 @@ def test_all_27_predictions_exist_and_reproduce_metrics():
     pred_dir = DEFAULT_ROWS_CSV.parent
     assert len(list(pred_dir.glob("*_predictions.json"))) == 27
     for _, row in rows.iterrows():
-        pred_file = pred_dir / f"{row.dataset}_{row.protocol}_predictions.json"
+        pred_file = pred_dir / f"{row.dataset}_{row.protocol}_predictions.json".replace(":", "__")
         assert pred_file.exists(), f"Falta {pred_file}"
         data = json.loads(pred_file.read_text(encoding="utf-8"))
         y_true = np.array(data["y_true"])
