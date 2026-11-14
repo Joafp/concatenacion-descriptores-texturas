@@ -1,19 +1,47 @@
 % ============================================================
-% Manuscrito completo para revisión con el tutor
+% Manuscrito: Concatenación Top-k de descriptores para clasificar texturas
 % Template: Elsevier CAS Single Column (cas-sc)
-% Contenido actual: artículo completo con resultados confirmatorios
+% Estructura tomada de la versión anterior (main_previo.tex):
+%   §1 introducción; §2 trabajos relacionados; §3 método;
+%   §4 resultados experimentales; §5 discusión; §6 conclusión.
+% Compilar con pdfLaTeX + BibTeX. Requiere figures/concatenacion_v02.pdf,
+% references.bib y los archivos de la clase CAS (cas-sc.cls, cas-common.sty,
+% cas-model2-names.bst).
 % ============================================================
 
 \documentclass[a4paper,fleqn]{cas-sc}
 
 \usepackage[T1]{fontenc}
-\usepackage[authoryear,longnamesfirst]{natbib}
-\usepackage[spanish,es-tabla]{babel}
+% Latin Modern solo para el texto. La clase CAS carga STIX para las fórmulas;
+% \usepackage{lmodern} reemplazaba parte de esas fuentes y desordenaba los
+% símbolos matemáticos (por ejemplo, \in salía como «Ë» y (x) como «.x/»).
+\renewcommand{\rmdefault}{lmr}
+\renewcommand{\sfdefault}{lmss}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage[numbers,sort&compress]{natbib}
+% babel spanish hyphenation not available in minimal TeX Live (hyphen-spanish missing) -- fallback to english hyphenation; content remains in Spanish
+\usepackage[english]{babel}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\contentsname}{Contenido}
+\renewcommand{\refname}{Referencias}
+\addto\captionsenglish{\renewcommand{\tablename}{Tabla}\renewcommand{\figurename}{Figura}\renewcommand{\refname}{Referencias}}
 \usepackage{amsmath,amsfonts,amssymb}
+% unicode-math se retiró: solo funciona con XeLaTeX/LuaLaTeX y con pdfLaTeX
+% rompía los símbolos matemáticos del PDF anterior.
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{makecell}
 \usepackage{placeins}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
 \usepackage{hyperref}
+\newenvironment{resulttable}{\begin{table}[pos=htbp]}{\end{table}}
+
+\RenewDocumentCommand{\printorcid}{}{}
 
 \def\tsc#1{\csdef{#1}{\textsc{\lowercase{#1}}\xspace}}
 
@@ -23,13 +51,13 @@
 \def\textpagefraction{.001}
 
 % --- Titulo y metadata ---
-\shorttitle{Selección y concatenación de descriptores heterogéneos}
+\shorttitle{Concatenación Top-$k$: uso directo y activación por margen}
 \shortauthors{C. Ayala y J. Delgado}
 
-\title[mode=title]{Selección y concatenación de descriptores heterogéneos para la clasificación de texturas}
+\title[mode=title]{Concatenación Top-$k$ de descriptores para clasificar texturas: comparación del uso directo y la activación por margen}
 
 \tnotemark[1]
-\tnotetext[1]{Borrador de trabajo de Tesis de Grado, Facultad Politécnica, Universidad Nacional de Asunción (UNA-FP). Documento preparado para revisión con el tutor; el bloque experimental primario ha finalizado y permanece sujeto a revisión académica.}
+\tnotetext[1]{Borrador de trabajo de Tesis de Grado, Facultad Politécnica, Universidad Nacional de Asunción (UNA-FP). Documento preparado para revisión con el tutor.}
 
 % --- Autores ---
 \author[1]{Carlos Ayala}
@@ -52,353 +80,617 @@
 \cortext[1]{Autor de correspondencia}
 \fntext[1]{Ambos autores contribuyeron al diseño y ejecución del estudio. Tutor: Prof. José Vázquez.}
 
-% --- Resumen ---
-\begin{abstract}
-Este trabajo estudia la selección y concatenación de descriptores heterogéneos para clasificación de texturas. Se comparan 20 representaciones clásicas y aprendidas mediante un protocolo anidado que separa la selección del subconjunto de su evaluación externa. El estudio contrasta el mejor descriptor individual, la concatenación completa, Greedy Forward Selection (GFS) y la mejor selección restringida a una familia sobre DTD, FMD y CUReT, con SVM lineal y ResMLP. Las 66 condiciones externas produjeron 264 evaluaciones principales y 6.600 controles con subconjuntos aleatorios. En DTD y FMD, GFS mejora el macro-F1 medio de la concatenación completa; en CUReT presenta diferencias de solo 0,0007 y 0,0004 sobre ocho biparticiones aleatorias, dentro del margen de equivalencia práctica predefinido. Los subconjuntos contienen entre 3,6 y 6,1 extractores en promedio y reducen la dimensionalidad entre 71,5\% y 85,2\%. GFS supera en promedio al mejor individual en las seis combinaciones dataset--clasificador, aunque la composición elegida muestra estabilidad moderada o baja. La evidencia indica que la selección de bloques puede producir representaciones compactas sin pérdida práctica de desempeño, pero no respalda que mezclar familias sea universalmente superior.
-\end{abstract}
-
-% --- Highlights ---
-\begin{highlights}
-\item Se comparan 20 descriptores clásicos y aprendidos mediante evaluación anidada en tres datasets de texturas.
-\item GFS mejora o iguala prácticamente la concatenación completa usando entre 71,5\% y 85,2\% menos dimensiones.
-\item La utilidad de mezclar familias depende del dataset y no determina una composición universal de descriptores.
+% --- Aspectos destacados ---
+\begin{highlights}[Aspectos destacados]
+\item Top-4 usa el 15\,\% de las dimensiones y queda cerca de la concatenación completa.
+\item La activación por margen conserva el macro-F1 de Top-$k$ con 75,5\,\% menos costo.
+\item El margen elige qué imágenes escalar mejor que un sorteo en 27 de 27 condiciones.
+\item En un panel online, la política por margen tarda entre 22 y 54 ms por imagen.
+\item Las pruebas no detectan diferencias entre el uso directo y la activación por margen.
 \end{highlights}
+
+\begin{abstract}
+La concatenación de descriptores heterogéneos mejora la clasificación de texturas, pero obliga a extraer todos los bloques en cada imagen. Este trabajo compara dos formas de usar una concatenación Top-$k$, formada por los $k$ descriptores mejor posicionados en un ranking calculado solo con el entrenamiento: el uso directo, que la calcula para toda imagen, y la activación por margen, que primero clasifica con un descriptor barato y calcula Top-$k$ solo cuando la diferencia entre las dos clases más puntuadas es menor que un umbral fijado con el entrenamiento. Sobre una biblioteca de 22 descriptores, seis datasets (DTD, FMD, CUReT, Outex, Soil y KTH-TIPS2-b) y dos clasificadores, SVM lineal y ResMLP, la curva de desempeño se aplana alrededor de $k=4$. Top-4 usa cerca del 15\,\% de las 20.652 dimensiones y obtiene un macro-F1 medio de 0,9366 con SVM y 0,9331 con ResMLP, frente a 0,9391 y 0,9288 de la concatenación completa. En 27 condiciones con SVM, la activación por margen obtiene 0,9345 frente a 0,9341 de la misma Top-$k$ usada siempre, con un costo proyectado 75,5\,\% menor; un piloto en GPU midió 90 frente a 291 ms por imagen. Con la misma cantidad de imágenes escaladas, el margen supera a un escalamiento aleatorio en las 27 condiciones. En un panel online de 94 condiciones, una política por margen con rescate de cuatro bloques tarda entre 22 y 54 ms por imagen, frente a 71--334 ms de Top-4, con un macro-F1 medio similar. Las pruebas no detectan diferencias entre ambos usos, lo que no equivale a demostrar equivalencia.
+\end{abstract}
 
 % --- Palabras clave ---
 \begin{keywords}
-clasificación de texturas \sep concatenación de descriptores \sep selección de características \sep fusión de representaciones
+clasificación de texturas \sep concatenación de descriptores \sep selección Top-$k$ \sep activación por margen \sep clasificación en cascada \sep costo de inferencia
 \end{keywords}
 
+% La clase `cas-sc` superpone la caja lateral de keywords con una caja de ancho
+% cero; el margen se amplía solo en este punto para evitar un falso overfull.
+\hfuzz=.25\textwidth
 \maketitle
+\hfuzz=0.1pt
 
 % ============================================================
 % 1. INTRODUCCION
 % ============================================================
 \section{Introducción}\label{sec:introduccion}
 
-La clasificación de texturas es un problema fundamental en visión por computador y constituye un componente relevante en aplicaciones como la inspección de materiales, la recuperación de imágenes por contenido, la teledetección y el análisis automatizado de superficies \citep{bel2022texture}. A diferencia de tareas dominadas por la forma global de los objetos, el reconocimiento de texturas depende de regularidades locales, distribuciones espaciales, respuestas en frecuencia y patrones que pueden variar con la escala, la iluminación y el punto de vista. Esta diversidad explica por qué no existe un descriptor que resulte óptimo para todos los dominios y condiciones de adquisición \citep{cimpoi2014dtd,cimpoi2016fisher}.
+La clasificación de texturas depende de señales locales, distribuciones espaciales y respuestas en frecuencia que cambian con el dominio, la escala, la iluminación y el punto de vista \citep{cimpoi2014dtd,cimpoi2016fisher,liu2019survey}. Los descriptores clásicos resumen propiedades diseñadas, como microestructuras, coocurrencias y gradientes \citep{ojala2002lbp,haralick1979glcm,dalal2005hog}; las redes convolucionales, los Transformers y los modelos autosupervisados producen características aprendidas con arquitecturas y objetivos de preentrenamiento diferentes \citep{he2016resnet,tan2019efficientnet,dosovitskiy2021vit,liu2021swin,oquab2024dinov2}. Ninguna de estas representaciones captura necesariamente todas las variaciones, y combinarlas es una estrategia habitual para mejorar el reconocimiento \citep{sanchez2013image,cimpoi2016fisher,zhang2017deepten}.
 
-Los primeros sistemas de clasificación se apoyaron en descriptores diseñados manualmente. Local Binary Patterns codifica microestructuras locales mediante comparaciones de intensidad \citep{ojala2002lbp}; las matrices de coocurrencia representan relaciones estadísticas entre niveles de gris \citep{haralick1979glcm}; y los histogramas de gradientes describen la distribución local de orientaciones \citep{dalal2005hog}. Estos métodos ofrecen interpretabilidad y bajo costo, pero su capacidad queda condicionada por las propiedades definidas durante su diseño. Las redes convolucionales ampliaron el espacio representacional mediante características aprendidas en grandes conjuntos de imágenes \citep{he2016resnet,tan2019efficientnet}. Posteriormente, los Vision Transformers y los métodos autosupervisados introdujeron representaciones globales y preentrenamientos con menor dependencia de etiquetas \citep{dosovitskiy2021vit,liu2021swin,caron2021dino,oquab2024dinov2}. Como resultado, actualmente conviven descriptores con sesgos inductivos, dimensionalidades y costos muy diferentes.
+La forma más directa de combinarlas es concatenar los vectores de varios extractores y entrenar un único clasificador sobre el espacio conjunto. El costo de esa concatenación crece con cada bloque, porque para clasificar una imagen deben ejecutarse todos los extractores que la componen. En la biblioteca de 22 descriptores utilizada aquí, la concatenación completa suma 20.652 dimensiones y, en el panel online de este trabajo, tarda entre 1,55 y 1,82 segundos por imagen. Ese costo puede reducirse por dos vías complementarias: usar menos bloques o calcularlos en menos imágenes.
 
-La coexistencia de estas familias plantea una alternativa a la selección de un único extractor: combinar varias representaciones de la misma imagen. La concatenación de características conserva la información producida por cada descriptor y permite que un clasificador posterior determine su utilidad conjunta. Trabajos previos han mostrado que la fusión de características manuales y profundas puede mejorar la clasificación de texturas \citep{sanchez2013image,cimpoi2016fisher,zhang2017deepten}. Sin embargo, incorporar más vectores no garantiza una representación mejor. Los componentes pueden ser redundantes, operar en escalas incompatibles o incrementar la dimensionalidad hasta perjudicar la generalización y el costo computacional. Por ello, el problema no consiste solamente en decidir si se deben concatenar descriptores, sino en determinar cuáles aportan información complementaria y cuándo conviene incorporarlos.
+La primera vía conduce a una concatenación Top-$k$: se ordenan los descriptores por su desempeño individual en validación interna y se concatenan los $k$ primeros. Su uso directo calcula esos $k$ bloques para toda imagen. La segunda vía proviene de la inferencia condicional, en la que un modelo barato resuelve los casos sencillos y uno costoso se reserva para los difíciles \citep{viola2001rapid,teerapittayanon2016branchynet,han2021dynamic}. Aplicada a Top-$k$, una etapa barata clasifica cada imagen con un único descriptor y la concatenación se calcula solo cuando el margen entre sus dos clases más puntuadas es pequeño. Esta activación por margen puede ahorrar extracción sin cambiar el modelo Top-$k$, pero solo funciona si el margen identifica las imágenes en las que la etapa barata se equivoca.
 
-Una parte de la literatura evalúa combinaciones pequeñas o concatenaciones definidas de antemano. Este enfoque permite demostrar que dos representaciones pueden complementarse, pero ofrece información limitada sobre el comportamiento de espacios más amplios y heterogéneos. También dificulta separar tres efectos: la calidad de los descriptores individuales, el beneficio de aumentar la dimensionalidad y la utilidad específica de seleccionar un subconjunto. Esta distinción es especialmente importante cuando se comparan descriptores clásicos, redes convolucionales, Transformers y modelos autosupervisados bajo diferentes clasificadores y tamaños de muestra.
+La pregunta de estudio es \emph{cuánto desempeño se resigna al reemplazar la concatenación completa por una Top-$k$ corta, y cuánto costo se ahorra al activarla solo cuando la etapa barata duda, frente a usarla siempre}. Para responderla se evaluaron 22 descriptores sobre DTD, FMD, CUReT, Outex, Soil y KTH-TIPS2-b con SVM lineal y ResMLP, bajo un protocolo anidado que realiza toda selección dentro del entrenamiento. Primero se traza la curva de desempeño en función de $k$ y se fija $k=4$; luego se compara Top-4 con el descriptor individual elegido internamente y con la concatenación completa en 47 condiciones externas por clasificador. La activación por margen se evalúa en 27 condiciones con SVM, frente a la misma Top-$k$ usada siempre y frente a un escalamiento aleatorio con igual cantidad de imágenes. Por último, se miden latencias por imagen en un piloto físico y en un panel online de 94 condiciones.
 
-El presente trabajo estudia la siguiente pregunta: \emph{¿en qué condiciones la concatenación de descriptores heterogéneos mejora la clasificación de texturas, y qué balance ofrece la selección de subconjuntos entre desempeño y dimensionalidad?} Para responderla se evaluaron 20 extractores distribuidos en cuatro familias: cinco descriptores clásicos, seis redes convolucionales, cuatro Vision Transformers y cinco representaciones con preentrenamiento autosupervisado o multimodal. La etapa exploratoria abarcó seis colecciones. Después de auditar la procedencia, el orden de las muestras y la independencia de las particiones, el bloque confirmatorio quedó restringido a DTD, FMD y CUReT, con SVM lineal y ResMLP como clasificadores primarios. Esta reducción obedeció a criterios de integridad de datos y no al rendimiento observado.
+El trabajo aporta tres resultados. Muestra que, con el ranking interno, la curva de macro-F1 se aplana alrededor de cuatro bloques, que ocupan cerca del 15\,\% de las dimensiones de la biblioteca. Compara de forma pareada el uso directo de Top-$k$ y su activación por margen, con un control que separa el efecto del margen del efecto de escalar más imágenes. Y contrasta esas políticas con mediciones de latencia por imagen y con cuatro métodos recientes de concatenación evaluados sobre las mismas particiones. No se propone un nuevo extractor ni un nuevo algoritmo de selección: el objetivo es medir qué se gana y qué se pierde con cada forma de usar una concatenación corta.
 
-El diseño compara cuatro configuraciones. La primera selecciona el mejor descriptor individual como referencia. La segunda concatena los 20 extractores en una representación fija. La tercera emplea Greedy Forward Selection (GFS) para construir un subconjunto incremental a partir del macro-F1 interno. La cuarta restringe la misma búsqueda a una familia representacional. Esta comparación permite separar el efecto de la dimensionalidad, la selección de bloques y la heterogeneidad, además de analizar la dependencia de la solución respecto del dataset y del clasificador.
-
-Los resultados confirmatorios muestran un patrón condicionado por el dominio. GFS mejora el macro-F1 medio de la concatenación completa en DTD y FMD; en CUReT queda entre 0,0004 y 0,0007 por debajo sobre ocho biparticiones aleatorias, una diferencia dentro del margen de equivalencia práctica de 0,01, mientras utiliza entre un quinto y un cuarto de las dimensiones. Frente al mejor descriptor individual, GFS obtiene una diferencia media positiva en las seis combinaciones dataset--clasificador. La composición seleccionada cambia entre particiones y presenta estabilidad moderada o baja, por lo que la complementariedad no puede reducirse a una combinación universal.
-
-La contribución del trabajo es principalmente empírica y metodológica. En primer lugar, se ofrece una comparación homogénea de representaciones visuales heterogéneas sobre varios datasets y clasificadores. En segundo lugar, se distingue el efecto de concatenar todas las características del efecto de seleccionar componentes complementarios. En tercer lugar, se cuantifica el compromiso entre macro-F1, número de extractores y dimensionalidad. Finalmente, se documentan configuraciones en las que la concatenación no mejora, lo cual permite delimitar las condiciones de utilidad del enfoque y evita interpretar la fusión como una operación universalmente beneficiosa.
-
-El resto del artículo se organiza de la siguiente manera. La segunda sección revisa los descriptores de texturas y las estrategias de fusión relacionadas. La tercera describe los datasets, extractores, clasificadores y protocolos de selección y evaluación. La cuarta presenta los resultados confirmatorios. La quinta analiza la complementariedad, el costo dimensional y las amenazas a la validez. Finalmente, la sexta sección resume las conclusiones del estudio.
+El resto del artículo se organiza de la siguiente manera. La segunda sección revisa la concatenación de descriptores, la inferencia condicional y los métodos recientes de concatenación para texturas. La tercera describe la biblioteca, el ranking interno, la concatenación Top-$k$ y la activación por margen. La cuarta presenta los datasets, los clasificadores, el protocolo anidado, el análisis estadístico y los resultados experimentales. La quinta discute los hallazgos y sus limitaciones. Finalmente, la sexta sección concluye.
 
 % ============================================================
 % 2. TRABAJOS RELACIONADOS
 % ============================================================
 \section{Trabajos relacionados}\label{sec:trabajos}
 
-\subsection{Representaciones diseñadas y aprendidas para texturas}
+\subsection{Concatenación y selección de bloques}
 
-La descripción computacional de texturas se ha abordado históricamente mediante representaciones que resumen regularidades locales sin requerir aprendizaje supervisado. Las matrices de coocurrencia caracterizan dependencias estadísticas entre intensidades \citep{haralick1979glcm}; LBP codifica configuraciones binarias en vecindarios locales y admite extensiones invariantes a rotación y escala \citep{ojala2002lbp}; HOG agrega orientaciones de gradiente en regiones espaciales \citep{dalal2005hog}; y DRLBP refuerza la invariancia frente a cambios de orientación \citep{mehta2011drlbp}. Estos descriptores expresan propiedades diferentes de una misma imagen, por lo que no son intercambiables: una representación basada en microestructuras no conserva necesariamente la misma información que otra basada en coocurrencias, frecuencia u orientación.
+Los descriptores de textura resumen señales distintas de una misma imagen: microestructuras (LBP), coocurrencias, orientación de gradientes y patrones en frecuencia \citep{haralick1979glcm,ojala2002lbp,dalal2005hog,mehta2016drlbp}. Las representaciones aprendidas introducen sesgos adicionales derivados de arquitecturas convolucionales, Transformers y objetivos de preentrenamiento supervisado, autosupervisado o multimodal \citep{he2016resnet,tan2019efficientnet,dosovitskiy2021vit,liu2021swin,caron2021dino,oquab2024dinov2,he2022mae,radford2021clip,zhai2023siglip}. Vectores de distinto origen pueden contener información redundante, pero también señales complementarias aprovechables por un clasificador conjunto.
 
-Las representaciones aprendidas trasladaron parte de esa decisión de diseño al proceso de preentrenamiento. Las redes convolucionales jerárquicas, como ResNet y EfficientNet, producen activaciones que pueden reutilizarse como vectores de características \citep{he2016resnet,tan2019efficientnet}. En reconocimiento de texturas, la agregación de respuestas convolucionales mostró que modelos entrenados originalmente para objetos también capturan estadísticas locales útiles \citep{cimpoi2016fisher}. Los Vision Transformers ampliaron este repertorio mediante interacciones de largo alcance entre regiones de la imagen \citep{dosovitskiy2021vit,liu2021swin}. A su vez, los objetivos autosupervisados y multimodales generan espacios de representación sin depender exclusivamente de las etiquetas del problema de destino \citep{caron2021dino,oquab2024dinov2,he2022mae,zhai2023siglip}. En este trabajo, estas arquitecturas no se tratan como fines en sí mismas, sino como fuentes heterogéneas de descriptores que pueden contener información coincidente o complementaria.
+La fusión por concatenación conserva las coordenadas de cada representación y permite entrenar un único clasificador sobre el espacio conjunto, sin introducir un módulo de fusión parametrizado. Los Fisher vectors \citep{sanchez2013image}, los bancos de filtros profundos \citep{cimpoi2016fisher} y DeepTEN \citep{zhang2017deepten} mostraron que reunir respuestas distintas puede mejorar la representación de texturas. El vector resultante, sin embargo, crece con cada extractor incorporado y puede acumular escalas incompatibles, variables redundantes y dimensiones poco informativas.
 
-\subsection{Fusión y concatenación de características}
+Elegir qué bloques concatenar es un problema de selección de características por grupos. Los métodos \emph{wrapper} valoran subconjuntos con el propio clasificador y exploran combinaciones, por ejemplo mediante búsqueda secuencial hacia adelante; los filtros puntúan cada variable o bloque por separado y conservan los mejores \citep{kohavi1997wrappers,guyon2003feature}. Top-$k$ pertenece a esta segunda familia: evalúa cada descriptor una sola vez y no examina sus interacciones, lo que la hace barata y estable, aunque puede reunir bloques redundantes. En ambos casos, la selección debe realizarse dentro del entrenamiento y separarse de la evaluación externa \citep{kohavi1997wrappers,guyon2003feature}.
 
-La fusión de características combina información antes de la decisión final del clasificador. Una estrategia directa consiste en concatenar los vectores extraídos de una misma imagen. A diferencia de la fusión de decisiones, esta operación conserva explícitamente las coordenadas de cada representación y permite entrenar un único clasificador sobre el espacio conjunto. Su sencillez constituye una ventaja experimental: la mejora puede atribuirse a la interacción entre descriptores sin introducir un módulo de fusión altamente parametrizado. No obstante, el vector resultante crece con cada extractor incorporado y puede acumular escalas incompatibles, variables redundantes y dimensiones poco informativas.
+\subsection{Inferencia condicional y costo de adquisición}
 
-Los Fisher vectors mostraron que la agregación de descriptores locales puede producir representaciones de alto rendimiento para clasificación de imágenes \citep{sanchez2013image}. En texturas, los bancos de filtros profundos combinaron activaciones convolucionales con esquemas de agregación estadística y establecieron una relación efectiva entre características aprendidas y modelos clásicos de orden local \citep{cimpoi2016fisher}. DeepTEN integró una capa de codificación residual para recuperar priors estadísticos propios de las texturas dentro de una arquitectura profunda \citep{zhang2017deepten}. Estos trabajos respaldan la utilidad de combinar señales, pero estudian mecanismos de agregación o arquitecturas específicas. El problema considerado aquí es distinto: dados múltiples extractores ya disponibles y congelados, se busca determinar qué subconjunto conviene concatenar bajo un presupuesto dimensional y un clasificador común.
+Las cascadas reducen el costo medio de inferencia al aplicar primero clasificadores baratos y reservar los costosos para los casos que aquellos no resuelven. El detector de Viola y Jones descarta la mayoría de las ventanas con etapas simples y aplica etapas más complejas solo a las restantes \citep{viola2001rapid}. En redes profundas, BranchyNet agrega salidas tempranas que terminan la inferencia cuando la predicción es suficientemente confiable \citep{teerapittayanon2016branchynet}, y MSDNet organiza clasificadores intermedios para operar bajo presupuestos de cómputo por imagen o por lote \citep{huang2017msdnet}. Han et al. reúnen estas y otras redes dinámicas que adaptan su cómputo a cada entrada \citep{han2021dynamic}.
 
-La concatenación completa proporciona una referencia importante, aunque no constituye por sí sola un procedimiento de selección. Si todos los descriptores se incorporan de manera automática, una mejora puede deberse a una única representación dominante, mientras que el resto solo aumenta el costo. De forma análoga, una concatenación acumulativa en orden fijo mezcla la utilidad del descriptor añadido con su posición en la secuencia. Para separar estos efectos es necesario comparar, bajo las mismas particiones, al mejor descriptor individual, la concatenación de todos los componentes y una búsqueda explícita de subconjuntos.
+Otra línea trata cada característica como una medición con costo de adquisición. Greedy Miser incorpora ese costo al entrenamiento para clasificar bajo un presupuesto en test \citep{xu2012greedy}; Nan y Saligrama aprenden una compuerta que decide, para cada entrada, si basta un modelo de bajo costo o debe consultarse uno de alto costo \citep{nan2017adaptive}; y EDDI elige de forma secuencial qué variable adquirir según la información esperada \citep{ma2019eddi}. La activación por margen estudiada aquí es una versión simple de esa idea: los extractores congelados son las mediciones costosas, la confianza se mide con la diferencia entre las dos mayores puntuaciones de la etapa barata y el umbral se fija con márgenes fuera de pliegue del entrenamiento, sin entrenar una compuerta adicional.
 
-\subsection{Selección de subconjuntos y vacío experimental}
+\subsection{Concatenación en texturas y métodos recientes}
 
-La selección de características suele operar sobre coordenadas individuales. En cambio, cada candidato de este estudio es un bloque completo generado por un extractor, de modo que la unidad de selección conserva su identidad, dimensión y familia representacional. Greedy Forward Selection (GFS) resulta adecuado para este escenario porque construye el conjunto de forma incremental: en cada paso evalúa qué bloque no seleccionado produce la mayor mejora al añadirse a la combinación vigente. El procedimiento no garantiza el óptimo global, pero hace tratable un espacio de búsqueda combinatorio y genera una trayectoria interpretable entre desempeño y costo.
-
-La evidencia disponible deja tres aspectos que motivan esta investigación. Primero, las comparaciones suelen concentrarse en una representación o en combinaciones diseñadas previamente, por lo que describen de manera incompleta la redundancia entre familias heterogéneas. Segundo, no siempre se contrasta la selección con subconjuntos aleatorios del mismo tamaño, requisito necesario para distinguir una elección informada de una ganancia atribuible únicamente a concatenar más dimensiones. Tercero, seleccionar y evaluar sobre las mismas particiones puede producir estimaciones optimistas. Por ello, el protocolo de este trabajo separa la etapa exploratoria de una evaluación confirmatoria anidada: la selección se realiza exclusivamente dentro de los datos de entrenamiento de cada partición externa y el desempeño se estima sobre observaciones no utilizadas para escoger el subconjunto.
-
-En síntesis, la literatura demuestra que tanto los descriptores diseñados como los aprendidos pueden representar información relevante de textura, y que la agregación de características puede mejorar la discriminación. La contribución buscada no es proponer otro extractor ni atribuir el resultado a una arquitectura particular. El foco está en evaluar sistemáticamente la \emph{concatenación de descriptores como problema de selección de bloques}, cuantificando cuándo la complementariedad justifica el aumento de dimensionalidad y cuándo una representación más compacta ofrece una solución equivalente o superior.
+Varios trabajos recientes concatenan representaciones para clasificar texturas. Neshov et al. agregan capas internas y finales de arquitecturas preentrenadas, entre ellas BEiTv2, y entrenan una MLP sobre la concatenación; informan que el efecto de la agregación depende de la arquitectura \citep{neshov2025aggregation}. Scabini et al. comparan 25 variantes Transformer como extractores congelados y encuentran que BEiTv2-B/16 obtiene el mejor promedio entre sus modelos \citep{scabini2025survey}. DeepLumina combina características profundas con información de luminancia para texturas en color \citep{simon2022deeplumina}; HyTexNet fusiona una codificación local guiada por percentiles con características de DenseNet-121 \citep{gupta2026hytexnet}; y Chang et al. concatenan LBP multiescala con contornos obtenidos por redes neuronales celulares profundas \citep{chang2024cellnn}. Estos métodos fijan de antemano qué representaciones se combinan y las calculan para toda imagen. El presente trabajo elige los bloques mediante un ranking interno sobre una biblioteca heterogénea y estudia en qué imágenes conviene calcularlos.
 
 % ============================================================
-% 3. METODOLOGIA
+% 3. METODO
 % ============================================================
-\section{Metodología}\label{sec:metodologia}
+\section{Método}\label{sec:metodo}
 
-\subsection{Diseño del estudio}
+\subsection{Representación conjunta}
 
-El estudio evalúa la concatenación como un problema de selección de bloques. Cada extractor transforma una imagen $x_i$ en un vector $\mathbf{z}_{ij}\in\mathbb{R}^{d_j}$, donde $j$ identifica el descriptor y $d_j$ su dimensionalidad. Para un subconjunto $S$ de extractores, la representación conjunta se define como
+Cada extractor transforma una imagen $x_i$ en un vector $\mathbf{z}_{ij}\in\mathbb{R}^{d_j}$, donde $j$ identifica el descriptor y $d_j$ su dimensionalidad. Para un subconjunto $S$ de extractores, la representación conjunta se define como
 \begin{equation}
  \mathbf{z}_{i,S}=\mathop{\Vert}_{j\in S}\frac{\mathbf{z}_{ij}}{\max(\lVert\mathbf{z}_{ij}\rVert_2,10^{-12})},
  \label{eq:concat}
 \end{equation}
-donde $\Vert$ denota concatenación. La normalización $L_2$ se aplica por descriptor y por muestra antes de unir los bloques, para evitar que la escala de un extractor determine por sí sola la contribución al clasificador.
+donde $\Vert$ denota concatenación. La normalización $L_2$ se aplica por descriptor y por muestra antes de unir los bloques, para evitar que la escala de un extractor determine por sí sola su contribución al clasificador. La dimensión conjunta es $d_S=\sum_{j\in S}d_j$.
 
-La pregunta primaria es si GFS mantiene o mejora el macro-F1 del mejor descriptor individual y de la concatenación completa cuando la selección se realiza sin consultar la partición externa de evaluación. Se considera además el costo de la solución mediante el número de extractores $k$, la dimensionalidad total y el tiempo de ajuste. El margen de equivalencia práctica se fijó antes del análisis en $|\Delta\text{macro-F1}|<0{,}01$.
+La Figura~\ref{fig:pipeline} muestra cómo una misma imagen produce representaciones diferentes. Un descriptor resume patrones, relaciones entre intensidades o activaciones aprendidas en un vector. Después de normalizar cada bloque, se conserva un descriptor individual o se concatenan los bloques seleccionados.
 
-\subsection{Datasets y control de integridad}
-
-La etapa exploratoria incluyó DTD, FMD, Outex13, CUReT, Soil y VisTex. Antes del análisis confirmatorio se construyó un manifiesto canónico por dataset y se verificaron etiquetas, orden, dimensiones, valores finitos, hashes de las imágenes y grupos de dependencia. La Tabla~\ref{tab:datasets} resume la decisión resultante. DTD, FMD y CUReT conforman el bloque principal; Outex se incorporó posteriormente como extensión sobre su colección y partición oficiales.
-
-\FloatBarrier
-\begin{table}[!ht]
+\begin{figure}[pos=htbp]
 \centering
-\caption{Datasets considerados y decisión del control de integridad.}
-\label{tab:datasets}
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lrrl}
-\toprule
-Dataset & Muestras & Clases & Protocolo confirmatorio \\
-\midrule
-DTD & 5.640 & 47 & 10 splits oficiales \\
-FMD & 1.000 & 10 & 3 semillas $\times$ 5 folds agrupados \\
-CUReT & 5.612 & 61 & 8 biparticiones aleatorias de 46 condiciones \\
-Outex13 oficial & 1.360 & 68 & 680 entrenamiento / 680 test \\
-Soil & 1.186 & -- & excluido: archivos no legibles \\
-VisTex & 167 & 19 oficiales & excluido: unidades independientes insuficientes \\
-\bottomrule
-\end{tabular}}
-\end{table}
+\includegraphics[width=\textwidth]{figures/concatenacion_v02.pdf}
+\caption{Extracción y concatenación de descriptores. La misma imagen de DTD se representa mediante cinco ejemplos: patrones locales (LBP), respuestas de filtros (Gabor), coocurrencias (GLCM), una red convolucional (ResNet) y secuencias RGB (N-gramas). Las transformaciones internas se muestran esquemáticamente; no representan mapas de importancia por píxel. Cada rama produce un bloque normalizado que puede utilizarse individualmente o concatenarse con otros. En este trabajo, el subconjunto concatenado es la biblioteca completa o una concatenación Top-$k$.}
+\label{fig:pipeline}
+\end{figure}
 \FloatBarrier
-
-DTD contiene 5.640 imágenes de texturas en condiciones no controladas y proporciona diez particiones oficiales de entrenamiento, validación y prueba \citep{cimpoi2014dtd}. En cada partición se unieron entrenamiento y validación para ejecutar la selección interna, mientras que el test oficial se reservó para una única evaluación. Los duplicados byte-idénticos que cruzaban roles fueron retirados del conjunto de entrenamiento, conservando intacta la evaluación.
-
-FMD reúne 1.000 fotografías de diez categorías de materiales \citep{sharan2013fmd}. Los 20 descriptores se reextrajeron desde las imágenes oficiales en un orden canónico. Cada imagen presentó un hash único y se utilizó como unidad de agrupación. La evaluación externa empleó cinco folds estratificados y agrupados, repetidos con semillas 42, 123 y 2026.
-
-Para CUReT se utilizó la distribución gris recortada de 61 materiales, con 92 condiciones compartidas por clase \citep{varma2003filter}. Cada condición constituye un grupo para impedir que la misma configuración de adquisición aparezca a ambos lados de una partición. La evaluación externa emplea ocho biparticiones aleatorias e independientes de las 92 condiciones en mitades de 46, generadas con semillas fijas 1 a 8. Como cada condición contiene exactamente una imagen por clase, toda división de grupos completos queda balanceada entre las 61 clases sin necesidad de estratificar por separado. Este esquema conserva el tamaño 46/46 publicado y, al no reutilizar una única asignación, evita que las conclusiones dependan de un solo corte. No se presenta como el split histórico exacto.
-
-Una reproducción determinista alternada de dos mitades complementarias, empleada en una etapa previa del estudio, arrojó resultados concordantes con los aquí reportados. No se promedia con las biparticiones aleatorias porque sus dos direcciones son la misma partición invertida y, por tanto, no constituyen réplicas independientes.
-
-Soil y VisTex no se descartaron por bajo desempeño: Soil contenía archivos vacíos o ilegibles y VisTex no disponía de suficientes unidades fuente independientes para combinar validación externa e interna. Outex se restauró desde la distribución completa y se evalúa únicamente con su partición oficial; no se utilizan resultados exploratorios anteriores.
 
 \subsection{Espacio de descriptores}
 
-El espacio de candidatos contiene 20 extractores congelados agrupados por su mecanismo representacional:
-\begin{itemize}
- \item \textbf{clásicos}: LBP, DRLBP, Gabor, GLCM y HOG;
- \item \textbf{CNN}: VGG16, ResNet-50, ResNet-101, DenseNet-121, EfficientNet-B0 y ConvNeXt V2-T;
- \item \textbf{Transformers}: ViT-B/16, DeiT-S, Swin-T y EVA-02 base;
- \item \textbf{preentrenamiento autosupervisado o multimodal}: DINOv2 small, base y large, MAE base y SigLIP base.
-\end{itemize}
-Los vectores concatenados de los 20 extractores suman 19.628 dimensiones. Todos fueron calculados una sola vez y almacenados junto con sus etiquetas y metadatos. El estudio no ajusta los backbones ni compara estrategias de \emph{fine-tuning}; evalúa exclusivamente la utilidad de seleccionar y concatenar representaciones fijas.
+La biblioteca contiene 22 descriptores, agrupados según el tipo de representación. Las
+Tablas~\ref{tab:extractores-clasicos} y~\ref{tab:extractores-aprendidos}
+identifican la parametrización, los checkpoints y la dimensionalidad de cada
+bloque. Las redes preentrenadas se ejecutaron en modo evaluación y sin
+ajuste de pesos. En los modelos cargados mediante \texttt{timm} se eliminó la
+capa clasificadora (\texttt{num\_classes=0}) y se aplicó el preprocesamiento
+asociado al checkpoint. Para ViT, DeiT, Swin, MAE y SigLIP se utilizó la salida
+\emph{pooler} cuando estaba disponible y, en caso contrario, el token de
+clasificación. Todas las imágenes se convirtieron a RGB.
 
-\subsection{Clasificadores y comparadores}
+Los descriptores clásicos se basan en operadores LBP,
+Gabor, GLCM y HOG \citep{ojala2002lbp,mehta2016drlbp,jain1991gabor,haralick1979glcm,dalal2005hog}.
+Las CNN corresponden a VGG16, ResNet, DenseNet, EfficientNet y ConvNeXt V2
+\citep{simonyan2015vgg,he2016resnet,huang2017densenet,tan2019efficientnet,woo2023convnextv2}.
+El grupo Transformer incluye ViT, DeiT, Swin y EVA-02
+\citep{dosovitskiy2021vit,touvron2021deit,liu2021swin,fang2024eva02}; las
+representaciones con preentrenamiento autosupervisado o multimodal se basan en
+DINOv2, MAE, SigLIP y BEiTv2 \citep{oquab2024dinov2,he2022mae,zhai2023siglip,peng2022beitv2}.
 
-Se emplearon dos clasificadores primarios con sesgos diferentes. La SVM lineal utiliza $C=1$, ponderación balanceada por clase y un máximo de 10.000 iteraciones. ResMLP proyecta el vector de entrada a 256 unidades y aplica tres bloques residuales, \emph{dropout} de 0,1 y una capa de salida multiclase. Se entrena con AdamW, tasa de aprendizaje $10^{-3}$, decaimiento de pesos $10^{-4}$, lotes de 256 muestras, un máximo de 100 épocas y parada temprana con paciencia 10. Las semillas se fijan para NumPy y PyTorch; cuando está disponible, ResMLP se ejecuta en GPU.
-
-Para cada partición externa se comparan cuatro estrategias:
-\begin{enumerate}
- \item \textbf{mejor individual}: el extractor con mayor macro-F1 interno;
- \item \textbf{concatenación completa}: los 20 extractores en una representación fija;
- \item \textbf{GFS}: el mejor subconjunto construido por selección voraz;
- \item \textbf{mejor familia homogénea}: GFS restringido a una familia y con un máximo de componentes no mayor que el subconjunto heterogéneo.
-\end{enumerate}
-El cuarto comparador permite distinguir si una ganancia procede de combinar familias o simplemente de seleccionar varios extractores similares.
-
-\subsection{Greedy Forward Selection}
-
-GFS comienza con un conjunto vacío. En el paso $t$, evalúa cada descriptor aún no seleccionado al añadirlo al subconjunto vigente y elige el candidato con mayor macro-F1 medio en la validación interna:
-\begin{equation}
- j_t=\arg\max_{j\notin S_{t-1}}\widehat{F}_{1,\mathrm{inner}}(S_{t-1}\cup\{j\}),
- \qquad S_t=S_{t-1}\cup\{j_t\}.
- \label{eq:gfs}
-\end{equation}
-La búsqueda se limita a $k\leq 8$. Se detiene cuando la mejora respecto del paso anterior es menor que 0,001 durante dos pasos consecutivos, pero devuelve el mejor paso histórico, no necesariamente el último. Los empates se resuelven de forma determinista mediante el nombre del extractor. Todas las evaluaciones candidatas utilizan únicamente muestras pertenecientes al entrenamiento externo.
-
-\subsection{Protocolo anidado y controles aleatorios}
-
-La selección interna utiliza cuatro folds estratificados y agrupados. En DTD se ejecuta dentro de la unión \emph{train+val} de cada split oficial; en FMD dentro del entrenamiento de cada uno de los 15 folds externos; y en CUReT dentro de la mitad de 46 condiciones asignada al entrenamiento. Después de seleccionar el subconjunto y los comparadores, cada modelo se ajusta con todo el entrenamiento externo y se evalúa una sola vez en el test correspondiente. Se verifica programáticamente que ningún grupo aparezca en entrenamiento y prueba.
-
-Como control, para cada condición externa se generan 100 subconjuntos aleatorios sin reemplazo con el mismo $k$ que GFS. El percentil del subconjunto elegido y su valor $p$ empírico se calculan como
-\begin{equation}
- p_{\mathrm{emp}}=\frac{1+\#\{F_{1,\mathrm{random}}\geq F_{1,\mathrm{GFS}}\}}{B+1},\qquad B=100.
- \label{eq:pemp}
-\end{equation}
-Este control responde si la selección informada mejora lo esperable al concatenar, al azar, la misma cantidad de bloques.
-
-\subsection{Métricas y análisis}
-
-La métrica primaria es macro-F1 en el test externo; la exactitud se conserva como diagnóstico secundario. También se registran $k$, dimensionalidad, tiempo de ajuste, frecuencia de selección por extractor y familia, y estabilidad de Jaccard entre subconjuntos. Los contrastes primarios son GFS frente al mejor individual y GFS frente a la concatenación completa.
-
-Para los tres datasets se reportan medias, desviaciones estándar, diferencias pareadas, conteos de victorias/empates/derrotas e intervalos bootstrap pareados. Estos intervalos se consideran descriptivos, porque los splits oficiales de DTD, las repeticiones de FMD y las biparticiones de CUReT reutilizan las mismas imágenes y no constituyen réplicas completamente independientes; no se calculan pruebas de hipótesis formales sobre estas diferencias por la misma razón. Una diferencia pequeña se interpreta mediante el margen práctico predefinido y no mediante la ausencia de significación estadística.
-
-% ============================================================
-% 4. RESULTADOS
-% ============================================================
-\section{Resultados}\label{sec:resultados}
-
-\subsection{Alcance de la evidencia disponible}
-
-Finalizaron y superaron los controles de integridad las 20 condiciones de DTD (10 splits por dos clasificadores), las 30 de FMD (15 folds por dos clasificadores) y las 16 de CUReT (ocho biparticiones por dos clasificadores). En conjunto produjeron 264 evaluaciones principales y 6.600 controles aleatorios. No se detectaron filas duplicadas, condiciones faltantes ni valores no finitos en las métricas obligatorias. Como comprobación adicional, una repetición determinista reducida de DTD--SVM y una repetición completa de FMD--ResMLP reprodujeron exactamente las métricas, los subconjuntos seleccionados, $k$ y la dimensionalidad de sus ejecuciones de referencia.
-
-\subsection{Comparación de estrategias}
-
-La Tabla~\ref{tab:resultados-confirmatorios} presenta el macro-F1 externo medio. GFS obtuvo el mayor promedio frente al mejor individual en las seis combinaciones dataset--clasificador. Frente a concatenar los 20 extractores, la diferencia fue positiva en DTD (0,0046 con SVM y 0,0066 con ResMLP) y FMD (0,0122 y 0,0208), y ligeramente negativa en CUReT ($-0,0007$ y $-0,0004$). Estas dos últimas diferencias se encuentran dentro del margen de equivalencia práctica predefinido.
-
-\FloatBarrier
-\begin{table}[!ht]
+\begin{table}[pos=htbp]
 \centering
-\caption{Resultados confirmatorios. Se reporta macro-F1 medio $\pm$ desviación estándar sobre el test externo. $k$ y dimensiones corresponden al promedio de GFS.}
-\label{tab:resultados-confirmatorios}
+\caption{Seis descriptores basados en patrones, filtros, gradientes y conteos incluidos en la biblioteca. Cada fila constituye un bloque completo.}
+\label{tab:extractores-clasicos}
 \small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llccccc}
+\begin{tabular}{@{}lp{7.0cm}p{3.2cm}r@{}}
 \toprule
-Dataset & Clasificador & Individual & Completa & GFS & $k_{\mathrm{GFS}}$ (promedio) & Dim. GFS (promedio) \\
+Descriptor & Parametrización & Salida & Dim. \\
 \midrule
-DTD & SVM & $0{,}8426\pm0{,}0109$ & $0{,}8648\pm0{,}0076$ & $\mathbf{0{,}8694}\pm0{,}0096$ & 6,1 & 5.590 \\
-DTD & ResMLP & $0{,}8373\pm0{,}0089$ & $0{,}8602\pm0{,}0086$ & $\mathbf{0{,}8668}\pm0{,}0094$ & 5,9 & 4.792 \\
-FMD & SVM & $0{,}9726\pm0{,}0150$ & $0{,}9644\pm0{,}0167$ & $\mathbf{0{,}9766}\pm0{,}0135$ & 3,6 & 2.909 \\
-FMD & ResMLP & $0{,}9690\pm0{,}0133$ & $0{,}9575\pm0{,}0180$ & $\mathbf{0{,}9783}\pm0{,}0123$ & 4,4 & 3.077 \\
-CUReT & SVM & $0{,}9942\pm0{,}0021$ & $\mathbf{0{,}9989}\pm0{,}0008$ & $0{,}9982\pm0{,}0010$ & 4,6 & 5.497 \\
-CUReT & ResMLP & $0{,}9967\pm0{,}0006$ & $\mathbf{0{,}9988}\pm0{,}0008$ & $0{,}9983\pm0{,}0008$ & 3,8 & 3.408 \\
+LBP & multiescala $(P,R)=(8,1),(16,2),(24,3)$; mapeo uniforme invariante a rotación (riu2) & histogramas normalizados & 54 \\
+LBP-rot & $P=8$, $R=1$; ocho rotaciones; códigos limitados a $[0,10]$ & histogramas $10\times 8$ & 80 \\
+Gabor & cuatro frecuencias 0,1--0,8; seis orientaciones & media y desv. de respuesta real & 48 \\
+GLCM & 256 niveles; distancias 1--3; cuatro ángulos; seis propiedades & promedios sobre ángulos & 18 \\
+HOG & nueve orientaciones; celda $16^2$; bloque $2^2$; norma L2-Hys & vector HOG & 1.764 \\
+N-gramas & ventana vertical $2\times1$; cuantización RGB por 12; 8.192 bins; SVD & vector normalizado & 256 \\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \end{table}
 
-La identidad del descriptor reportado como mejor individual no es fija entre particiones. En DTD, SigLIP-base fue el mejor individual en los 10 splits con ResMLP y en 8 de 10 con SVM; los 2 splits restantes correspondieron a DINOv2-large. En FMD, SigLIP-base resultó el mejor individual en los 15 folds con ambos clasificadores. En CUReT, DINOv2-large fue el mejor individual en las ocho biparticiones con SVM, mientras que con ResMLP alternó entre DINOv2-large y DINOv2-base, cuatro veces cada uno. Este patrón muestra que los modelos con preentrenamiento autosupervisado o multimodal más recientes (SigLIP, DINOv2) dominan de forma sistemática como referencia individual, lo cual contextualiza la magnitud de la mejora de GFS: la comparación se da contra un descriptor ya fuerte, no contra un extractor débil.
-
-En DTD, GFS superó al mejor individual en los diez splits con ambos clasificadores. Frente a la concatenación completa obtuvo 8 victorias de 10 con SVM y 9 de 10 con ResMLP. En FMD, GFS superó al mejor individual en 9 de 15 folds con SVM (dos empates) y en 13 de 15 con ResMLP (un empate); frente a la concatenación completa registró 12 y 14 victorias, respectivamente. Estos conteos muestran que la mejora media no depende de una única partición excepcional.
-
-Los intervalos bootstrap pareados del cambio de GFS frente al mejor individual fueron $[0{,}0226,0{,}0314]$ y $[0{,}0244,0{,}0339]$ en DTD con SVM y ResMLP, respectivamente. En FMD fueron $[-0{,}0014,0{,}0090]$ y $[0{,}0062,0{,}0123]$: el intervalo de SVM cruza cero y aconseja interpretar esa diferencia como incierta y pequeña. Frente a la concatenación completa, los intervalos fueron positivos en DTD ($[0{,}0007,0{,}0081]$ y $[0{,}0035,0{,}0098]$) y FMD ($[0{,}0068,0{,}0170]$ y $[0{,}0143,0{,}0271]$). Debido al solapamiento entre splits, estos intervalos describen la variación observada y no se interpretan como inferencia sobre réplicas independientes.
-
-En CUReT, GFS superó al mejor individual en las ocho biparticiones con ambos clasificadores, con intervalos bootstrap enteramente positivos ($[0{,}0028,0{,}0052]$ con SVM y $[0{,}0012,0{,}0021]$ con ResMLP). Frente a la concatenación completa el balance se invierte y se estrecha: 2 victorias, 1 empate y 5 derrotas con SVM, y 3 victorias, 1 empate y 4 derrotas con ResMLP, con intervalos que cruzan cero ($[-0{,}0014,0{,}0000]$ y $[-0{,}0011,0{,}0002]$). La totalidad de las 16 diferencias externas quedó por debajo del margen de 0,01, por lo que el resultado se interpreta como equivalencia práctica y no como superioridad de la representación completa.
-
-La concatenación completa contiene 19.628 dimensiones. Los subconjuntos GFS redujeron ese tamaño en 71,5\%--75,6\% en DTD, 84,3\%--85,2\% en FMD y 72,0\%--82,6\% en CUReT. El resultado global no es que una representación más grande sea siempre mejor, sino que la selección interna puede conservar una fracción del espacio y mejorar o mantener el desempeño dentro de un margen práctico.
-
-La reducción dimensional también disminuyó el tiempo medio de ajuste. Con SVM, GFS requirió 13,12 frente a 58,74 segundos en DTD, 0,78 frente a 4,05 en FMD y 11,67 frente a 57,51 en CUReT. Con ResMLP, los tiempos fueron 3,96 frente a 5,17 segundos, 1,51 frente a 2,24 y 3,07 frente a 4,77, respectivamente. Estas mediciones cubren únicamente el ajuste del clasificador y no el costo de ejecutar los extractores.
-
-\subsection{Heterogeneidad frente a selección homogénea}
-
-La mejor familia homogénea alcanzó macro-F1 de 0,8606 y 0,8611 en DTD con SVM y ResMLP, por debajo de GFS en ambos casos. En FMD, las diferencias fueron menores: con ResMLP, GFS obtuvo 0,9783 frente a 0,9773; con SVM, la selección homogénea alcanzó 0,9789 y superó ligeramente a GFS (0,9766). En CUReT el orden depende del clasificador: la selección homogénea alcanzó 0,9983 frente a 0,9982 de GFS con SVM, mientras que con ResMLP GFS quedó por encima, 0,9983 frente a 0,9979. Estos casos impiden afirmar que mezclar familias sea universalmente superior. La hipótesis compatible con la evidencia es condicional: la heterogeneidad resulta útil cuando aporta información complementaria, pero una familia puede bastar en dominios con desempeño saturado.
-
-\subsection{Composición de los subconjuntos seleccionados}
-
-Para caracterizar qué extractores sostienen el desempeño de GFS, la Tabla~\ref{tab:seleccion-frecuencia} reporta los descriptores que aparecieron en al menos la mitad de las particiones externas. En DTD y FMD, DINOv2-large y SigLIP-base forman un núcleo estable presente en el 100\,\% de las particiones con los dos clasificadores; EVA-02 base acompaña con frecuencia alta en DTD (90\,\% con ResMLP, 100\,\% con SVM) y moderada en FMD (60\,\% con ResMLP). El resto de los extractores --clásicos y CNN-- aparece de forma ocasional (50\,\% o menos), lo que indica que su contribución depende de la partición específica y no de una complementariedad sistemática.
-
-\FloatBarrier
-\begin{table}[!ht]
+\begin{table}[pos=htbp]
 \centering
-\caption{Extractores seleccionados por GFS con frecuencia $\geq$ 50\,\% de las particiones externas.}
-\label{tab:seleccion-frecuencia}
+\caption{Dieciséis representaciones aprendidas congeladas incluidas en la biblioteca. ``Preclas.'' designa la salida inmediatamente anterior al clasificador del backbone.}
+\label{tab:extractores-aprendidos}
 \small
-\begin{tabular}{llcc}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llp{6.3cm}p{1.7cm}r@{}}
 \toprule
-Dataset & Clasificador & Extractor & Frecuencia \\
+Familia & Descriptor & Checkpoint & Salida & Dim. \\
 \midrule
-DTD & SVM & dinov2\_large & 1,00 (10/10) \\
-DTD & SVM & eva02\_base & 1,00 (10/10) \\
-DTD & SVM & siglip\_base & 1,00 (10/10) \\
-DTD & SVM & dinov2 & 0,50 (5/10) \\
-DTD & ResMLP & dinov2\_large & 1,00 (10/10) \\
-DTD & ResMLP & siglip\_base & 1,00 (10/10) \\
-DTD & ResMLP & eva02\_base & 0,90 (9/10) \\
-DTD & ResMLP & densenet121 & 0,50 (5/10) \\
-DTD & ResMLP & resnet50 & 0,50 (5/10) \\
-FMD & SVM & siglip\_base & 1,00 (15/15) \\
-FMD & SVM & dinov2\_large & 0,87 (13/15) \\
-FMD & ResMLP & dinov2\_large & 1,00 (15/15) \\
-FMD & ResMLP & siglip\_base & 1,00 (15/15) \\
-FMD & ResMLP & eva02\_base & 0,60 (9/15) \\
-CUReT & SVM & dinov2\_large & 1,00 (8/8) \\
-CUReT & SVM & dinov2\_small & 0,75 (6/8) \\
-CUReT & SVM & dinov2 & 0,63 (5/8) \\
-CUReT & ResMLP & dinov2\_large & 0,75 (6/8) \\
-CUReT & ResMLP & dinov2 & 0,50 (4/8) \\
-CUReT & ResMLP & dinov2\_small & 0,50 (4/8) \\
+CNN & VGG16 & \texttt{vgg16.tv\_in1k} & preclas. & 4.096 \\
+ & ResNet-50 & \texttt{resnet50.a1\_in1k} & preclas. & 2.048 \\
+ & ResNet-101 & \texttt{resnet101.a1\_in1k} & preclas. & 2.048 \\
+ & DenseNet-121 & \texttt{densenet121.tv\_in1k} & preclas. & 1.024 \\
+ & EfficientNet-B0 & \texttt{efficientnet\_b0.ra\_in1k} & preclas. & 1.280 \\
+ & ConvNeXt V2-T & \texttt{convnextv2\_tiny.fcmae\_ft\_in22k\_in1k} & preclas. & 768 \\
+\midrule
+Transformer & ViT-B/16 & \texttt{google/vit-base-patch16-224} & pooler/CLS & 768 \\
+ & DeiT-S & \texttt{facebook/deit-small-patch16-224} & pooler/CLS & 384 \\
+ & Swin-T & \texttt{microsoft/swin-tiny-patch4-window7-224} & pooler & 768 \\
+ & EVA-02 base & \texttt{eva02\_base\_patch14\_224} & preclas. & 768 \\
+\midrule
+Autosup./multimodal & DINOv2-S & \texttt{vit\_small\_patch14\_dinov2.lvd142m} & preclas. & 384 \\
+ & DINOv2-B & \texttt{vit\_base\_patch14\_dinov2.lvd142m} & preclas. & 768 \\
+ & DINOv2-L & \texttt{vit\_large\_patch14\_dinov2.lvd142m} & preclas. & 1.024 \\
+ & MAE-B & \texttt{facebook/vit-mae-base} & pooler/CLS & 768 \\
+ & SigLIP-B & \texttt{google/siglip-base-patch16-224} & pooler/CLS & 768 \\
+ & BEiTv2-B & \makecell[l]{\texttt{beitv2\_base\_patch16\_224.}\\\texttt{in1k\_ft\_in22k\_in1k}} & preclas. & 768 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Los descriptores clásicos se calcularon en escala de grises con la implementación de scikit-image: LBP, LBP-rot, Gabor y GLCM sobre imágenes redimensionadas a $256\times256$, y HOG sobre $128\times128$. LBP-rot designa una implementación propia: aplica LBP con mapeo \texttt{ror} a ocho rotaciones y concatena diez bins por rotación en el intervalo $[0,10]$. Los códigos fuera de ese intervalo se descartan; por tanto, es un histograma restringido, no una reproducción del DRLBP de Mehta y Egiazarian \citep{mehta2016drlbp}. BEiTv2-B utiliza la salida final preclasificador de 768 dimensiones; las imágenes se redimensionan y recortan a $224\times224$ con la normalización asociada al checkpoint. Los 22 vectores concatenados suman 20.652 dimensiones. Las características fijas y los conteos por imagen se almacenaron junto con etiquetas, orden de muestras y hashes de procedencia; las transformaciones aprendidas se ajustaron dentro de cada partición de entrenamiento.
+
+RGB Pixel N-grams \citep{paiva2023rgb} utiliza ventanas verticales de $2\times1$ píxeles con paso 1 sobre la imagen RGB en su resolución original. Cada canal se cuantiza mediante $q(v)=\lfloor v/12\rfloor$; los seis valores se codifican en base 22, recorriendo las dos posiciones de R, G y B. Los conteos se agrupan por el resto del código dividido por 8.192 y se comprimen mediante TruncatedSVD aleatorizado (256 componentes, cinco iteraciones y semilla de la condición). SVD se ajusta exclusivamente con el entrenamiento de cada partición interna y se reajusta sobre el entrenamiento externo para la evaluación final. El vector se normaliza con $L_2$ antes de concatenarlo. Esta parametrización comprimida se identifica como N-gramas + SVD.
+
+\subsection{Ranking interno y concatenación Top-$k$}\label{sec:topk}
+
+Para cada condición externa, cada descriptor $j$ se evalúa por separado en cuatro folds internos estratificados y agrupados del entrenamiento externo. Su puntuación es el macro-F1 medio de esa validación, $r_j=\widehat{F}_{1,\mathrm{inner}}(\{j\})$. Si $\pi_1,\pi_2,\ldots$ ordena los descriptores por puntuación decreciente, la concatenación Top-$k$ es
+\begin{equation}
+ S_k=\{\pi_1,\ldots,\pi_k\},
+ \label{eq:topk}
+\end{equation}
+y su representación $\mathbf{z}_{i,S_k}$ se obtiene con la Ecuación~\eqref{eq:concat}. En el uso directo, el clasificador $h_{S_k}$ se entrena con esa representación y, en inferencia, se extraen los $k$ bloques de toda imagen. Top-$k$ no evalúa combinaciones: si dos bloques fuertes son redundantes, ambos pueden quedar entre los primeros.
+
+La curva de $k$ evalúa los prefijos $S_1,\ldots,S_{21}$ de cada condición. En la curva externa, cada prefijo se ajusta con todo el entrenamiento externo y se evalúa una sola vez en el test; en la curva interna, los mismos prefijos se puntúan en los folds internos, sin consultar el test. En ambos barridos los candidatos son los 21 bloques almacenados: N-gramas + SVD, que se reconstruye en cada partición a partir de las imágenes, no participó del ranking. A partir de esas curvas se fija $k=4$ para todos los datasets y ambos clasificadores (Sección~\ref{sec:curva-k}). El término \emph{Top-4} designa esa concatenación.
+
+\subsection{Activación por margen}\label{sec:margen}
+
+La activación por margen antepone a Top-$k$ una etapa barata formada por un descriptor $b$ y su clasificador $h_b$, entrenados con todo el entrenamiento externo. Para una imagen $x$, sean $s_{(1)}(x)\geq s_{(2)}(x)$ las dos mayores puntuaciones de $h_b$; en la SVM son valores de la función de decisión uno-contra-el-resto. El margen
+\begin{equation}
+ m(x)=s_{(1)}(x)-s_{(2)}(x)
+ \label{eq:margen}
+\end{equation}
+es pequeño cuando la etapa barata duda entre dos clases. La predicción de la cascada es
+\begin{equation}
+ \hat{y}(x)=
+ \begin{cases}
+ h_{S_k}(x), & m(x)\leq\tau_q,\\
+ h_b(x), & m(x)>\tau_q,
+ \end{cases}
+ \label{eq:cascada}
+\end{equation}
+de modo que la predicción de Top-$k$ reemplaza a la barata; no se combinan sus puntuaciones. El umbral $\tau_q$ es el cuantil $q$ de los márgenes fuera de pliegue (OOF) de $h_b$ sobre el entrenamiento externo, calculados con folds agrupados. Así, $q$ aproxima la fracción de imágenes que se escalan; en el test, la fracción observada $\rho_q$ puede diferir de $q$.
+
+Si $C_b$ es el costo de la etapa barata y $C_j$ el de extraer el bloque $j$, el costo medio proyectado por imagen es
+\begin{equation}
+ C(q)=C_b+\rho_q\sum_{j\in S_k\setminus\{b\}}C_j ,
+ \label{eq:costo}
+\end{equation}
+frente a $C_{\mathrm{dir}}=\sum_{j\in S_k}C_j$ del uso directo; si $b$ pertenece a $S_k$, su bloque se reutiliza. La cascada ahorra cuando $C(q)<C_{\mathrm{dir}}$, lo que depende tanto de la fracción escalada como de la razón entre los costos. Si Top-$k$ es barata, por ejemplo cuando contiene un solo bloque liviano, la etapa barata puede agregar costo sin ahorrar extracción.
+
+La ruta se elige con datos de entrenamiento (Tabla~\ref{tab:config-margen}). Las candidatas son Top-$k$ directo y la cascada con cada combinación de etapa barata y cuantil $q\in\{0{,}25;\,0{,}50;\,0{,}75\}$. Entre las rutas cuyo macro-F1 OOF no es menor que el de Top-$k$ menos 0,005, se elige la de menor costo proyectado; si ninguna cumple, se usa Top-$k$ directo. Las etapas baratas candidatas son ResNet-50, SigLIP-B, BEiTv2-B y ConvNeXt V2-T; en KTH-TIPS2-b solo ResNet-50 y BEiTv2-B, las únicas con tiempos medidos en ese dataset. Como referencia, la misma regla se aplica restringida a ResNet-50. El protocolo de esta variante se fijó antes de abrir su test; la tolerancia de 0,005, en cambio, proviene de una regla anterior definida después de un análisis exploratorio que había observado resultados externos.
+
+En esta evaluación, la etapa cara es la concatenación Top-$k$ archivada de cada condición. Su $k$ se heredó de la selección secuencial hacia adelante (GFS) de la matriz principal del proyecto, que agrega en cada paso el bloque que más mejora el macro-F1 interno, hasta ocho bloques. Por eso $k$ varía entre 1 y 8 (mediana 5; $k=4$ en 5 de las 27 condiciones). La comparación entre uso directo y activación por margen es pareada, porque ambas rutas usan el mismo subconjunto, pero no se realizó con $k=4$ fijo. La Figura~\ref{fig:cascada} resume el flujo.
+
+\begin{figure}[pos=htbp]
+\centering
+\begin{tikzpicture}[
+  node distance=5mm and 8mm,
+  caja/.style={draw=black!55, rounded corners=2pt, fill=#1, align=center, font=\small, minimum height=11mm, text width=26mm},
+  caja/.default=white,
+  flecha/.style={-{Stealth[length=2.2mm]}, semithick}
+]
+\node[caja=gray!8] (img) {Imagen $x$};
+\node[caja=blue!6, right=of img] (base) {Etapa barata\\ bloque $b$ y $h_b$};
+\node[caja=yellow!15, right=of base, text width=22mm] (gate) {¿$m(x)\leq\tau_q$?};
+\node[caja=green!8, above right=3mm and 10mm of gate] (out1) {Predicción $h_b(x)$};
+\node[caja=red!6, below right=3mm and 10mm of gate, text width=32mm] (topk) {Top-$k$: extraer\\ $S_k\setminus\{b\}$ y predecir $h_{S_k}(x)$};
+\draw[flecha] (img) -- (base);
+\draw[flecha] (base) -- node[above, font=\footnotesize]{$m(x)$} (gate);
+\draw[flecha] (gate.north) |- node[pos=0.3, left, font=\footnotesize]{no} (out1.west);
+\draw[flecha] (gate.south) |- node[pos=0.3, left, font=\footnotesize]{sí} (topk.west);
+\end{tikzpicture}
+\caption{Activación por margen. Toda imagen pasa por la etapa barata; solo las que tienen margen menor o igual que el umbral calculan los bloques de Top-$k$ que faltan, y la predicción de Top-$k$ reemplaza a la barata. El umbral, la etapa barata y la elección entre cascada y Top-$k$ directo se fijan con el entrenamiento externo.}
+\label{fig:cascada}
+\end{figure}
+\FloatBarrier
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Configuración de la activación por margen frente a Top-$k$ directo.}
+\label{tab:config-margen}
+\small
+\begin{tabular}{lp{10.2cm}}
+\toprule
+Elemento & Configuración \\
+\midrule
+Etapa barata & Un descriptor y su clasificador: ResNet-50, SigLIP-B, BEiTv2-B o ConvNeXt V2-T (en KTH-TIPS2-b, ResNet-50 o BEiTv2-B) \\
+Etapa cara & Concatenación Top-$k$ archivada de la condición, $1\leq k\leq 8$ \\
+Margen & Diferencia entre las dos mayores puntuaciones de la etapa barata \\
+Umbral & Cuantiles 0,25, 0,50 y 0,75 de márgenes OOF agrupados del entrenamiento externo \\
+Compuerta & Se calcula Top-$k$ si $m(x)\leq\tau_q$; su predicción reemplaza a la barata \\
+Elección de ruta & Menor costo proyectado entre las rutas con macro-F1 OOF $\geq$ Top-$k$ $-$ 0,005; si ninguna cumple, Top-$k$ directo \\
+Costo & Perfil de latencias por componente; excluye carga de modelos y ajuste del clasificador \\
+Control & Escalamiento aleatorio de la misma cantidad de imágenes, 100 repeticiones \\
+Información excluida & Test externo y sus etiquetas durante toda la selección \\
 \bottomrule
 \end{tabular}
 \end{table}
 \FloatBarrier
 
-CUReT presenta un patrón distinto: los seis descriptores que superan el umbral pertenecen todos a la familia DINOv2, y ningún extractor clásico, convolucional o de otra familia autosupervisada alcanza el 50\,\%. Este comportamiento concuerda con que la selección homogénea resulte competitiva en este dataset y sugiere que, en condiciones de adquisición controladas y con desempeño próximo al techo, la complementariedad entre familias aporta poco.
+\subsection{Variante con rescate por ensamble}\label{sec:variante-panel}
 
-\subsection{Controles aleatorios y estabilidad}
+Para la medición online de las 94 condiciones se utilizó una variante que conserva la compuerta por margen y cambia la etapa cara. La base se elige en la frontera de Pareto entre macro-F1 OOF y latencia de los 22 descriptores individuales, y el umbral es un cuantil $q\in\{0{,}10;\,0{,}25;\,0{,}50\}$ de sus márgenes OOF; la compuerta escala si $m(x)<\tau_q$. El rescate agrega las puntuaciones de hasta tres subconjuntos de cuatro bloques tomados de un ensamble por diversidad: 15 subconjuntos muestreados según la relevancia interna de cada bloque, penalizada por su similitud CKA con los demás ($\lambda=0{,}25$; $\beta=8$) \citep{kornblith2019similarity}. La base, el cuantil y los subconjuntos se eligen con tres folds sobre el entrenamiento, maximizando el macro-F1 OOF con un costo medio proyectado no mayor que 60 ms. En lo que sigue esta variante se denomina \emph{política por margen}. No calcula Top-4: sus subconjuntos de rescate tienen cuatro bloques, pero no son necesariamente los cuatro primeros del ranking.
 
-GFS se situó en percentiles altos de los subconjuntos aleatorios de igual tamaño. El patrón fue más claro en DTD, con percentiles medianos de 0,995 para SVM y 0,980 para ResMLP; en FMD la mediana fue 0,970 con ambos clasificadores. En CUReT, con valores cercanos al techo, los percentiles medianos fueron 0,860 con SVM y 0,815 con ResMLP, y $p_{\mathrm{emp}}$ resultó menor que 0,05 en solo 3 de las 16 biparticiones. Esta menor separación es coherente con un dominio saturado, donde casi cualquier subconjunto suficientemente grande alcanza un desempeño próximo al máximo. Estos valores se reportan como controles por condición y no como una prueba global de significación.
+% ============================================================
+% 4. RESULTADOS EXPERIMENTALES
+% ============================================================
+\section{Resultados experimentales}\label{sec:resultados-experimentales}
 
-La similitud de Jaccard media entre subconjuntos fue 0,435--0,446 en DTD y 0,400--0,447 en FMD. En CUReT fue menor, 0,337 con SVM y 0,229 con ResMLP sobre 28 pares de biparticiones. Por tanto, un desempeño externo similar no implica que GFS recupere una única composición. La estabilidad observada corresponde mejor a la utilidad predictiva y al tamaño del subconjunto que a la identidad exacta de todos sus componentes.
+\subsection{Conjuntos de datos y control de integridad}
+
+Antes del análisis se construyó un manifiesto por dataset y se verificaron etiquetas, orden de muestras, dimensiones, valores finitos y grupos de dependencia. Se utilizaron DTD, FMD, CUReT, Outex, Soil y KTH-TIPS2-b.
+
+DTD contiene 5.640 imágenes de texturas en condiciones no controladas y proporciona diez particiones oficiales de entrenamiento, validación y prueba \citep{cimpoi2014dtd}. En cada partición se unieron entrenamiento y validación para ejecutar la selección interna, mientras que el test oficial se reservó para una única evaluación. Los duplicados byte-idénticos que cruzaban roles fueron retirados del conjunto de entrenamiento, conservando intacta la evaluación.
+
+FMD reúne 1.000 fotografías de diez categorías de materiales \citep{sharan2013fmd}. Las características fijas y los conteos por imagen se obtuvieron desde las imágenes oficiales en un orden canónico. Cada imagen presentó un hash único y se utilizó como unidad de agrupación. La evaluación externa empleó cinco folds estratificados y agrupados, repetidos con semillas 42, 123 y 2026.
+
+Outex contiene 1.360 BMP RGB de $128\times128$ píxeles, organizados en 68 clases balanceadas. La auditoría verificó archivos legibles, IDs continuos 000000--001359, ausencia de duplicados y la partición oficial de 680 imágenes de entrenamiento y 680 de prueba, con diez muestras de cada clase en cada lado \citep{ojala2002outex}. Todos los bloques respetan el orden de las 1.360 muestras del manifiesto oficial.
+
+Para CUReT se utilizó la distribución gris recortada de 61 materiales, con 92 condiciones compartidas por clase \citep{varma2003filter}. Cada condición constituye un grupo para impedir que la misma configuración de adquisición aparezca a ambos lados de una partición. Se definieron dos mitades complementarias deterministas de 46 condiciones: A para selección y entrenamiento con B como test, y la dirección inversa. Esta asignación reproduce de manera transparente el tamaño 46/46 publicado, pero no se presenta como el split histórico exacto. Debido a que las dos direcciones son complementarias y dependientes, sus resultados se interpretan descriptivamente.
+
+Soil se recuperó de la versión 1 archivada del repositorio \emph{Comprehensive Soil Classification Datasets} de ai4a-lab. Se conservaron sólo las imágenes originales, se eliminaron 49 duplicados exactos y se definieron grupos conservadores a partir de las familias de nombres. El manifiesto final contiene 1.140 imágenes de siete clases y 962 grupos. La evaluación usa cinco folds estratificados y agrupados, repetidos con las semillas 42, 123 y 2026.
+
+KTH-TIPS2-b contiene 4.752 imágenes RGB de $200\times200$ píxeles, correspondientes a 11 materiales y cuatro muestras físicas por material \citep{mallikarjuna2005kth}. Se emplea el protocolo de cuatro particiones usado por RADAM: en cada una, tres muestras físicas por clase quedan en entrenamiento y la restante en prueba. El manifiesto conserva el hash de cada archivo y usa la muestra física como grupo, por lo que ninguna muestra aparece en ambos lados de una partición.
+
+\subsection{Clasificadores}
+
+Se emplearon dos clasificadores con sesgos diferentes. La SVM lineal se implementa con \texttt{LinearSVC} de scikit-learn: $C=1$, ponderación balanceada por clase, pérdida \emph{squared hinge}, regularización $L_2$, esquema uno-contra-el-resto, tolerancia $10^{-4}$ y un máximo de 10.000 iteraciones.
+
+Se denomina ResMLP a la MLP residual implementada para este estudio sobre vectores de características; no es una reproducción del modelo de imágenes del mismo nombre \citep{touvron2021resmlp}. Proyecta la entrada a 256 unidades y aplica tres bloques residuales, normalización de capa, activaciones GELU, \emph{dropout} de 0,1 y una salida multiclase. Se entrena con entropía cruzada y AdamW, tasa de aprendizaje $10^{-3}$, decaimiento de pesos $10^{-4}$, lotes de 256 muestras y un máximo de 100 épocas. La parada se basa en la pérdida media de entrenamiento: tras diez épocas sin una disminución mayor que $10^{-4}$, se detiene y restaura el mejor estado registrado. No utiliza el test ni una validación adicional para elegir la época. Las semillas se fijan para NumPy y PyTorch; cuando está disponible, la red se ejecuta en GPU.
+
+\subsection{Configuración experimental y protocolo anidado}
+
+La selección interna utiliza cuatro folds estratificados y agrupados. En DTD se ejecuta dentro de la unión \emph{train+val} de cada split oficial; en FMD y Soil, dentro del entrenamiento de cada fold externo; en CUReT, dentro de la mitad de 46 condiciones asignada al entrenamiento; y en Outex y KTH-TIPS2-b, dentro del entrenamiento definido por su partición oficial. Después de fijar el ranking, el umbral y la ruta, cada modelo se ajusta con todo el entrenamiento externo y se evalúa una sola vez en el test correspondiente. Se verifica programáticamente que ningún grupo aparezca en entrenamiento y prueba.
+
+Los resultados provienen de tres evaluaciones que no se mezclan entre sí. La evaluación estática usa las 47 condiciones externas de cada clasificador: diez de DTD, quince de FMD y quince de Soil, dos de CUReT, una de Outex y cuatro de KTH-TIPS2-b. Sobre ellas se trazan las curvas de $k$ y se compara Top-4 con Individual, el descriptor con mayor macro-F1 interno, y con Completa-22, la concatenación de los 22 bloques. Individual y Completa-22 provienen de la matriz principal del proyecto; Top-4 se ejecutó después con el mismo protocolo y en otro equipo, lo que con ResMLP introduce una variación propia del dispositivo.
+
+La evaluación de la activación por margen usa 27 condiciones con SVM y semilla 42 (DTD 10, FMD 5, CUReT 2, Outex 1, Soil 5 y KTH-TIPS2-b 4) y embeddings almacenados. Sus costos son proyecciones con perfiles de latencia por componente, medidos en KTH-TIPS2-b para ese dataset y en imágenes de entrenamiento de Outex para los demás. La tercera evaluación es un panel online de 94 condiciones, las 47 particiones con ambos clasificadores, en el que cada imagen se procesa individualmente (\texttt{batch=1}) en una GPU RTX 4060 y el macro-F1 y la latencia provienen de las mismas llamadas: 470 filas condición--método y 362.640 inferencias. El panel normaliza cada imagen con estadísticas congeladas del entrenamiento, por lo que sus macro-F1 pueden diferir de los de la evaluación estática.
+
+\subsection{Análisis estadístico}\label{sec:analisis-estadistico}
+
+La exactitud es la proporción de imágenes clasificadas correctamente. Macro-F1 promedia el F1 de las $C$ clases con igual peso: $\mathrm{macro\mbox{-}F1}=C^{-1}\sum_{c=1}^{C}2TP_c/(2TP_c+FP_c+FN_c)$, donde $TP_c$, $FP_c$ y $FN_c$ son los verdaderos positivos, falsos positivos y falsos negativos de la clase $c$. Esta media evita que la contribución de una clase dependa directamente de su número de muestras.
+
+Macro-F1 es la métrica primaria. Para cada contraste se promedian las condiciones externas dentro de cada dataset y clasificador, manteniendo SVM y ResMLP separados. Así, cada prueba usa seis bloques emparejados, uno por dataset, y no trata las particiones repetidas como problemas independientes. La media y la desviación entre particiones describen la variación observada, pero no convierten las particiones dependientes en réplicas independientes.
+
+En la evaluación estática se ejecutan CONTROLTEST y MULTIPLETEST de SCI2S por separado para SVM y ResMLP, siguiendo la presentación del trabajo sobre RGB Pixel N-grams \citep{paiva2023rgb} y la metodología de comparaciones múltiples entre datasets \citep{demsar2006statistical,garcia2008extension,derrac2011practical}. La familia contiene ocho estrategias por clasificador: Individual, Completa-22, Top-$k$ con $k$ de GFS, GFS, la selección Homogénea restringida a una familia de descriptores, Top-4 y dos ensambles que promedian 15 subconjuntos de cuatro bloques. Se reportan Friedman, Iman--Davenport, Friedman alineado y Quade, y los valores $p$ de los 28 pares basados en Friedman se ajustan con Holm. La comparación de Top-4 con Completa-22 se plantea además como no inferioridad con un margen $\delta=0{,}01$ de macro-F1, fijado antes de calcular las pruebas: se informa la cota inferior unilateral al 95\,\% de la diferencia media ($t$ de Student) y Wilcoxon exacto unilateral.
+
+En la activación por margen, KTH-TIPS2-b se excluye de las pruebas porque su cascada conserva una variante archivada que no se reconcilió con el control Top-$k$ corregido; por tanto, $N=5$. Se aplican Friedman e Iman--Davenport a cuatro métodos, la cascada con etapa barata elegida, la cascada con ResNet-50, Top-$k$ directo y Completa-22, y Wilcoxon exacto bilateral con Holm a las tres comparaciones de la cascada. El control aleatorio se resume por condición y mediante Wilcoxon exacto bilateral sobre las seis medias por dataset. Se adopta $\alpha=0{,}05$. La ausencia de significancia no demuestra equivalencia, y las latencias se interpretan descriptivamente.
+
+\subsection{Curva de $k$ y elección de $k=4$}\label{sec:curva-k}
+
+La Figura~\ref{fig:curva-k} muestra el macro-F1 medio de los prefijos del ranking interno. Con SVM, la curva externa sube de 0,9174 con un bloque a 0,9366 con cuatro y después oscila entre 0,9348 y 0,9368 hasta los 21 bloques. Con ResMLP, el máximo es 0,9352 con cinco bloques y Top-4 obtiene 0,9331, el 99,8\,\% de ese máximo. La curva interna de SVM, calculada solo con el entrenamiento, crece 0,0014 de $k=3$ a $k=4$ y 0,0009 de $k=4$ a $k=5$, alcanza su máximo en $k=6$ y desciende desde allí. Top-4 ocupa en promedio 3.144 dimensiones con SVM y 3.170 con ResMLP, cerca del 15\,\% de las 20.652 de la biblioteca.
+
+\begin{figure}[pos=htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.9\textwidth, height=6.4cm,
+  xlabel={Bloques concatenados ($k$)}, ylabel={Macro-F1 medio},
+  xmin=0.5, xmax=21.5, ymin=0.905, ymax=0.940,
+  xtick={1,2,3,4,5,6,8,10,12,14,16,18,21},
+  yticklabel style={/pgf/number format/.cd, fixed, fixed zerofill, precision=3, use comma},
+  legend style={at={(0.5,0.03)}, anchor=south, font=\footnotesize, draw=none, fill=white, fill opacity=0.85, text opacity=1},
+  legend columns=3,
+  legend cell align=left,
+  grid=major, grid style={gray!20},
+  tick label style={font=\footnotesize}, label style={font=\small}
+]
+\addplot[thick, color=blue!70!black, mark=*, mark size=1.3pt] coordinates {
+(1,0.9174) (2,0.9299) (3,0.9339) (4,0.9366) (5,0.9349) (6,0.9348) (7,0.9360) (8,0.9356) (9,0.9362) (10,0.9368) (11,0.9356) (12,0.9359) (13,0.9353) (14,0.9354) (15,0.9355) (16,0.9358) (17,0.9357) (18,0.9360) (19,0.9356) (20,0.9356) (21,0.9356)};
+\addlegendentry{SVM, externa}
+\addplot[thick, dashed, color=blue!70!black, mark=o, mark size=1.3pt] coordinates {
+(1,0.9102) (2,0.9182) (3,0.9208) (4,0.9221) (5,0.9230) (6,0.9235) (7,0.9223) (8,0.9211) (9,0.9211) (10,0.9199) (11,0.9191) (12,0.9182) (13,0.9182) (14,0.9174) (15,0.9159) (16,0.9163) (17,0.9160) (18,0.9156) (19,0.9151) (20,0.9147) (21,0.9147)};
+\addlegendentry{SVM, interna}
+\addplot[thick, color=orange!85!black, mark=square*, mark size=1.2pt] coordinates {
+(1,0.9171) (2,0.9324) (3,0.9337) (4,0.9331) (5,0.9352) (6,0.9296) (7,0.9332) (8,0.9349) (9,0.9277) (10,0.9332) (11,0.9326) (12,0.9298) (13,0.9304) (14,0.9317) (15,0.9311) (16,0.9292) (17,0.9300) (18,0.9320) (19,0.9279) (20,0.9290) (21,0.9299)};
+\addlegendentry{ResMLP, externa}
+\draw[gray!70, dashed] (axis cs:4,0.905) -- (axis cs:4,0.940);
+\end{axis}
+\end{tikzpicture}
+\caption{Macro-F1 medio por dataset de los prefijos del ranking interno, en las 47 condiciones de cada clasificador. La curva externa evalúa cada prefijo en el test; la interna lo puntúa en los folds internos del entrenamiento. La línea vertical marca $k=4$. Los 21 bloques no incluyen N-gramas + SVD.}
+\label{fig:curva-k}
+\end{figure}
+\FloatBarrier
+
+El valor $k=4$ se fijó al observar la curva externa de SVM, de modo que esa elección no es independiente del test. La curva interna muestra la misma forma: la regla del codo con tolerancia 0,001, que devuelve el último $k$ antes de la primera ganancia interna menor que la tolerancia, elige $k=4$ cuando se aplica a la curva interna media de SVM y $k=6$ con la de ResMLP. Aplicadas condición por condición, en cambio, las reglas internas no recuperan $k=4$ (Tabla~\ref{tab:reglas-k}). El máximo interno elige en promedio 6,3 bloques con SVM y 7,3 con ResMLP, y el codo con tolerancia 0,001 elige 3,2 y 2,1. Con SVM, ambas reglas quedan por debajo de $k=4$ fijo (0,9326 y 0,9315 frente a 0,9366); con ResMLP, el máximo interno obtiene 0,9343, por encima de Top-4. La correlación de Spearman entre la curva interna y la externa es positiva pero débil, 0,269 con SVM y 0,321 con ResMLP, y negativa en algunos datasets. Por eso se adopta una constante común en lugar de elegir $k$ por condición.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Reglas para elegir $k$ con datos de entrenamiento: $k$ medio elegido y macro-F1 externo resultante, con medias por dataset sobre 47 condiciones por clasificador.}
+\label{tab:reglas-k}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+ & \multicolumn{2}{c}{SVM} & \multicolumn{2}{c}{ResMLP} \\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+Regla & $k$ medio & Macro-F1 & $k$ medio & Macro-F1 \\
+\midrule
+Máximo de la curva interna & 6,3 & 0,9326 & 7,3 & \textbf{0,9343} \\
+Codo, tolerancia 0,001 & 3,2 & 0,9315 & 2,1 & 0,9295 \\
+Codo, tolerancia 0,005 & 1,9 & 0,9287 & 1,7 & 0,9282 \\
+Codo, tolerancia 0,01 & 1,7 & 0,9261 & 1,3 & 0,9216 \\
+\addlinespace
+Fijo, $k=3$ & 3 & 0,9339 & 3 & 0,9337 \\
+Fijo, $k=4$ & 4 & \textbf{0,9366} & 4 & 0,9331 \\
+Fijo, $k=6$ & 6 & 0,9348 & 6 & 0,9296 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\FloatBarrier
+
+\subsection{Top-4 directo frente a Individual y la concatenación completa}\label{sec:top4}
+
+La Tabla~\ref{tab:top4} compara Top-4 con Individual y Completa-22 en las mismas condiciones. Top-4 supera a Individual en los seis datasets con SVM y en cinco con ResMLP, con ganancias medias de 0,0176 y 0,0147. Frente a Completa-22, Top-4 pierde 0,0026 con SVM y gana 0,0043 con ResMLP. Con SVM supera a Completa-22 en DTD, FMD y Soil y en 35 de las 47 condiciones; con ResMLP lo hace en FMD, Soil y KTH-TIPS2-b y en 29 condiciones. Outex concentra la mayor pérdida con SVM, $-0{,}0368$, y Completa-22 conserva ventaja en KTH-TIPS2-b con ese clasificador. En exactitud, Top-4 obtiene 0,9442 con SVM y 0,9420 con ResMLP, frente a 0,9473 y 0,9388 de Completa-22.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Macro-F1 externo de Individual, Completa-22 y Top-4. Medias entre condiciones externas: 47 por clasificador; Outex tiene un único split oficial. La última fila indica la dimensión media.}
+\label{tab:top4}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+ & \multicolumn{3}{c}{SVM} & \multicolumn{3}{c}{ResMLP} \\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+Dataset & Individual & Completa-22 & Top-4 & Individual & Completa-22 & Top-4 \\
+\midrule
+DTD & 0,8426 & 0,8639 & \textbf{0,8689} & 0,8373 & \textbf{0,8620} & 0,8612 \\
+FMD & 0,9726 & 0,9647 & \textbf{0,9823} & 0,9690 & 0,9564 & \textbf{0,9800} \\
+CUReT & 0,9948 & \textbf{0,9989} & 0,9986 & 0,9971 & \textbf{0,9991} & 0,9984 \\
+Outex & 0,9066 & \textbf{0,9656} & 0,9288 & \textbf{0,9476} & 0,9416 & 0,9357 \\
+Soil & 0,8578 & 0,8816 & \textbf{0,8864} & 0,8533 & 0,8649 & \textbf{0,8662} \\
+KTH-TIPS2-b & 0,9396 & \textbf{0,9601} & 0,9544 & 0,9061 & 0,9487 & \textbf{0,9570} \\
+\midrule
+Media & 0,9190 & \textbf{0,9391} & 0,9366 & 0,9184 & 0,9288 & \textbf{0,9331} \\
+Dimensión media & 873 & 20.652 & 3.144 & 656 & 20.652 & 3.170 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+En la familia de ocho estrategias, Friedman rechaza la igualdad con ambos clasificadores (SVM: $p=0{,}0264$; ResMLP: $p=0{,}0039$), al igual que Iman--Davenport y Quade, mientras que Friedman alineado no rechaza ($p=0{,}6155$ y $p=0{,}6150$). Tras ajustar con Holm los 28 pares, ningún par que incluya a Top-4 alcanza el nivel nominal: Top-4 frente a Individual queda en $p_{\mathrm{Holm}}=0{,}2285$ con SVM y $0{,}5783$ con ResMLP. La Tabla~\ref{tab:no-inferioridad} presenta la no inferioridad frente a Completa-22. Con ResMLP se descarta una pérdida de 0,01 (cota inferior $-0{,}0044$; $p=0{,}0104$). Con SVM no se descarta: la cota inferior es $-0{,}0178$ y $p=0{,}1850$, principalmente por la pérdida en Outex.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{No inferioridad de Top-4 frente a Completa-22 sobre las medias de seis datasets, con margen $\delta=0{,}01$ de macro-F1. Cota: límite inferior unilateral al 95\,\% de la diferencia media ($t$ de Student). $p$: hipótesis nula de pérdida mayor o igual que 0,01.}
+\label{tab:no-inferioridad}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Clasif. & $\Delta$ medio & Cota 95\,\% & $p$ ($t$) & $p$ (Wilcoxon) \\
+\midrule
+SVM & $-0{,}0026$ & $-0{,}0178$ & $0{,}1850$ & $0{,}1562$ \\
+ResMLP & $0{,}0043$ & $-0{,}0044$ & $0{,}0104$ & $0{,}0156$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\FloatBarrier
+
+\subsection{Activación por margen frente a Top-$k$ directo}\label{sec:resultados-margen}
+
+La Tabla~\ref{tab:cascada} compara, en las 27 condiciones con SVM, Top-$k$ usado siempre con su activación por margen bajo la ruta elegida en el entrenamiento. Con la etapa barata elegida, la cascada obtiene un macro-F1 medio de 0,9345 frente a 0,9341 de Top-$k$ directo, con un costo proyectado de 130,0 frente a 529,9 ms por imagen, una reducción del 75,5\,\%. La regla eligió SigLIP-B como etapa barata en 20 condiciones, BEiTv2-B en cinco y ResNet-50 en una; en la restante, una partición de KTH-TIPS2-b, eligió Top-$k$ directo. Restringida a ResNet-50, la misma regla obtiene 0,9322 con 278,4 ms, un 47,5\,\% menos que Top-$k$.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Top-$k$ directo y activación por margen en 27 condiciones con SVM y semilla 42: macro-F1 externo y costo proyectado en ms por imagen. La ruta, el umbral y la etapa barata se eligen con el entrenamiento. Completa-22 se muestra como referencia sobre las mismas condiciones.}
+\label{tab:cascada}
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+ & & \multicolumn{2}{c}{Top-$k$ directo} & \multicolumn{2}{c}{Cascada, ResNet-50} & \multicolumn{2}{c}{Cascada, base elegida} & Completa-22 \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(l){9-9}
+Dataset & Cond. & F1 & ms & F1 & ms & F1 & ms & F1 \\
+\midrule
+DTD & 10 & 0,8700 & 661,8 & 0,8694 & 498,7 & \textbf{0,8700} & 172,0 & 0,8639 \\
+FMD & 5 & 0,9829 & 583,4 & 0,9789 & 371,6 & \textbf{0,9840} & 138,7 & 0,9651 \\
+CUReT & 2 & \textbf{0,9989} & 655,6 & 0,9979 & 156,6 & 0,9982 & 153,4 & \textbf{0,9989} \\
+Outex & 1 & 0,9426 & 729,5 & 0,9426 & 344,9 & 0,9369 & 165,9 & \textbf{0,9656} \\
+Soil & 5 & 0,8701 & 271,3 & 0,8663 & 138,1 & 0,8734 & 85,2 & \textbf{0,8919} \\
+KTH-TIPS2-b & 4 & 0,9400 & 278,0 & 0,9381 & 160,5 & 0,9445 & 64,9 & \textbf{0,9601} \\
+\midrule
+Media & 27 & 0,9341 & 529,9 & 0,9322 & 278,4 & 0,9345 & 130,0 & \textbf{0,9409} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La cascada con base elegida supera a Top-$k$ directo en FMD, Soil y KTH-TIPS2-b, queda por debajo en CUReT y Outex y coincide en DTD. Puede superarlo porque conserva la predicción barata cuando esta es confiable; Top-$k$ no es un techo para la combinación. Completa-22 obtiene la mayor media, 0,9409, por sus ventajas en Outex, Soil y KTH-TIPS2-b. Sin KTH-TIPS2-b ($N=5$), Friedman ($p=0{,}4518$) e Iman--Davenport ($p=0{,}4922$) no rechazan la igualdad de los cuatro métodos, y las tres comparaciones de Wilcoxon de la cascada quedan en $p_{\mathrm{Holm}}=1{,}0000$. Con cinco datasets, este no rechazo no establece equivalencia ni no inferioridad.
+
+La Tabla~\ref{tab:control-aleatorio} examina si el margen elige bien qué imágenes escalar. Fija la etapa barata en ResNet-50 y, para cada cuantil, compara la cascada con un escalamiento de exactamente la misma cantidad de imágenes elegidas al azar, repetido 100 veces por condición. El margen supera al sorteo en las 27 condiciones y en los tres cuantiles; la ventaja media por dataset es de 0,0438, 0,0423 y 0,0261 de macro-F1. Con seis datasets, Wilcoxon exacto bilateral alcanza su mínimo posible, $p=0{,}0312$, en cada cuantil ($p_{\mathrm{Holm}}=0{,}0938$ al ajustar por los tres). Al escalar el 69\,\% de las imágenes, la cascada queda a 0,0003 de Top-$k$ siempre y lo iguala o supera en 17 de 27 condiciones; al escalar el 22\,\%, pierde 0,0229. ResNet-50 sola obtiene 0,8483.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Cascada con ResNet-50 y cuantil fijo frente a un escalamiento aleatorio de la misma cantidad de imágenes, en 27 condiciones con SVM. Medias por dataset de macro-F1; la fracción observada es la proporción de imágenes de test escaladas. ResNet-50 sola obtiene 0,8483.}
+\label{tab:control-aleatorio}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Cuantil $q$ & Fracción observada & Cascada & Aleatorio & Top-$k$ siempre & Cascada $>$ aleatorio & Cascada $\geq$ Top-$k$ \\
+\midrule
+0,25 & 0,217 & 0,9112 & 0,8674 & 0,9341 & 27/27 & 1/27 \\
+0,50 & 0,450 & 0,9300 & 0,8877 & 0,9341 & 27/27 & 9/27 \\
+0,75 & 0,687 & 0,9338 & 0,9077 & 0,9341 & 27/27 & 17/27 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\FloatBarrier
+
+\subsection{Medición física de la cascada}\label{sec:piloto}
+
+Para contrastar la proyección con tiempos reales, se midió una condición por dataset en una GPU RTX 4060, con modelos residentes e imágenes ya decodificadas: una imagen por clase, tres repeticiones pareadas y orden aleatorizado, en total 204 imágenes y 612 pares (Tabla~\ref{tab:piloto}). El agregado registra 90,25 ms por imagen para la cascada frente a 291,21 ms de Top-$k$ directo, una reducción del 69,0\,\%; 453 de las 612 ejecuciones terminaron en la etapa barata. Las rutas y predicciones coincidieron con las calculadas sobre los embeddings almacenados, pero los cosenos mínimos entre las representaciones extraídas y las almacenadas fueron $-0{,}0707$ en CUReT y $0{,}0085$ en Soil. Por eso no puede afirmarse que la medición física reproduzca exactamente el sistema almacenado. KTH-TIPS2-b conserva la variante histórica de la cascada.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Piloto físico de la cascada en RTX 4060: una condición por dataset, tres repeticiones pareadas por imagen. Las repeticiones comparten imagen, por lo que los pares no son observaciones independientes.}
+\label{tab:piloto}
+\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Dataset & Imágenes & Pares & Cascada (ms) & Top-$k$ (ms) & Reducción \\
+\midrule
+DTD & 47 & 141 & 90,57 & 295,55 & 69,4\,\% \\
+FMD & 10 & 30 & 13,01 & 208,08 & 93,7\,\% \\
+CUReT & 61 & 183 & 92,52 & 270,60 & 65,8\,\% \\
+Outex & 68 & 204 & 111,47 & 354,31 & 68,5\,\% \\
+Soil & 7 & 21 & 41,99 & 109,10 & 61,5\,\% \\
+KTH-TIPS2-b & 11 & 33 & 46,08 & 188,33 & 75,5\,\% \\
+\midrule
+Agregado & 204 & 612 & 90,25 & 291,21 & 69,0\,\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+\FloatBarrier
+
+\subsection{Panel online: Top-4 directo y política por margen}\label{sec:panel}
+
+La Tabla~\ref{tab:panel} reúne el panel online. En las doce combinaciones de dataset y clasificador, la política por margen tiene la menor latencia media, entre 21,65 y 54,35 ms por imagen, con medianas entre 2,81 y 25,18 ms porque la mayoría de las imágenes termina en la etapa barata. Top-4 tarda entre 70,98 y 333,98 ms, y Completa-22 entre 1.551 y 1.823 ms. La razón de latencias entre Top-4 y la política por margen va de 1,6 en Soil con ResMLP, donde Top-4 ya es barato, a 12,2 en Outex con ResMLP.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Panel online de 94 condiciones (\texttt{batch=1}, RTX 4060): macro-F1 medio entre particiones y latencia media en ms por imagen, medidos en las mismas llamadas. La política por margen rescata con subconjuntos de cuatro bloques de un ensamble por diversidad (Sección~\ref{sec:variante-panel}).}
+\label{tab:panel}
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}llrrrrrr@{}}
+\toprule
+ & & \multicolumn{2}{c}{Top-4} & \multicolumn{2}{c}{Política por margen} & \multicolumn{2}{c}{Completa-22} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(l){7-8}
+Dataset & Clasif. & F1 & ms & F1 & ms & F1 & ms \\
+\midrule
+DTD$^{\dagger}$ & SVM & \textbf{0,8689} & 333,98 & 0,8669 & 54,35 & 0,8635 & 1.611,57 \\
+ & ResMLP & 0,8613 & 267,50 & \textbf{0,8660} & 47,61 & 0,8616 & 1.551,34 \\
+FMD & SVM & \textbf{0,9823} & 268,96 & 0,9776 & 38,63 & 0,9651 & 1.759,50 \\
+ & ResMLP & \textbf{0,9800} & 258,56 & 0,9760 & 36,35 & 0,9577 & 1.759,70 \\
+CUReT & SVM & 0,9986 & 270,69 & 0,9984 & 36,83 & \textbf{0,9989} & 1.712,57 \\
+ & ResMLP & 0,9984 & 268,42 & 0,9989 & 30,47 & \textbf{0,9991} & 1.618,51 \\
+Outex & SVM & 0,9288 & 265,38 & 0,9276 & 40,33 & \textbf{0,9552} & 1.574,19 \\
+ & ResMLP & 0,9275 & 263,77 & \textbf{0,9609} & 21,65 & 0,9477 & 1.563,18 \\
+Soil & SVM & 0,8594 & 70,98 & 0,8725 & 38,48 & \textbf{0,8792} & 1.651,19 \\
+ & ResMLP & 0,8633 & 78,21 & 0,8668 & 48,33 & \textbf{0,8673} & 1.823,25 \\
+KTH-TIPS2-b & SVM & 0,9544 & 260,38 & 0,9390 & 30,95 & \textbf{0,9599} & 1.579,08 \\
+ & ResMLP & \textbf{0,9523} & 260,11 & 0,9391 & 32,16 & 0,9461 & 1.626,70 \\
+\midrule
+Media & SVM & 0,9321 & 245,06 & 0,9303 & 39,93 & \textbf{0,9370} & 1.648,02 \\
+ & ResMLP & 0,9305 & 232,76 & \textbf{0,9346} & 36,10 & 0,9299 & 1.657,11 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.35em}
+\begin{minipage}{0.98\textwidth}\footnotesize
+$^{\dagger}$En DTD con SVM se conserva una reserva sobre la medición de tiempos por una pausa durante una ventana nocturna; la mediana de la política por margen es 14,10 ms con SVM y 14,77 ms con ResMLP.
+\end{minipage}
+\end{table}
+
+En macro-F1, la media por dataset es 0,9321 para Top-4 y 0,9303 para la política por margen con SVM, y 0,9305 y 0,9346 con ResMLP. Con SVM, la política por margen queda por debajo de Top-4 en cinco de seis datasets, con la mayor pérdida en KTH-TIPS2-b ($-0{,}0154$) y una ganancia en Soil ($+0{,}0131$). Con ResMLP supera a Top-4 en cuatro datasets, con la mayor ganancia en Outex ($+0{,}0334$) y la mayor pérdida en KTH-TIPS2-b ($-0{,}0132$). Completa-22 obtiene la mayor media con SVM, 0,9370, con una latencia 41 veces mayor que la de la política por margen. Los macro-F1 del panel no coinciden exactamente con los de la Tabla~\ref{tab:top4}; la mayor diferencia corresponde a Top-4 con SVM en Soil (0,8594 frente a 0,8864).
+
+\subsection{Comparación con métodos recientes en el panel común}\label{sec:sota}
+
+Los cuatro métodos de la Sección~\ref{sec:trabajos} se reimplementaron y evaluaron sobre las mismas particiones del panel, con llamadas individuales (Tabla~\ref{tab:sota}). Antes de compararlos se verificó cada implementación contra el código o los ejemplos numéricos publicados cuando estaban disponibles. En macro-F1, la política por margen con SVM supera a los cuatro métodos en los seis datasets. Frente al mejor de ellos, la agregación multicapa de BEiTv2 de Neshov et al., la ventaja va de 0,0044 en CUReT a 0,0648 en DTD. Neshov et al. es, en cambio, más rápido: tarda entre 14,27 y 19,17 ms por imagen, frente a 30,95--54,35 ms de la política por margen. De las 230 comparaciones por dataset entre las estrategias propias y los métodos externos, la única con diferencia negativa de macro-F1 es Top-4 con SVM en Soil frente a Neshov et al. ($-0{,}0037$).
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Comparación descriptiva en el panel común: macro-F1 medio por dataset y, entre paréntesis, latencia media en ms por imagen (\texttt{batch=1}). Los métodos externos se reimplementaron sobre las mismas particiones; las latencias se midieron en fechas distintas y con hardware compartido.}
+\label{tab:sota}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Método & DTD & FMD & CUReT & Outex & Soil & KTH-TIPS2-b \\
+\midrule
+6LBP+dCellNN \citep{chang2024cellnn} & 0,2162 (31,5) & 0,2477 (29,7) & 0,6934 (31,0) & 0,6356 (29,9) & 0,3550 (33,0) & 0,5750 (31,9) \\
+HyTexNet \citep{gupta2026hytexnet} & 0,6242 (33,5) & 0,7414 (31,2) & 0,9831 (32,4) & 0,8927 (29,0) & 0,7880 (33,1) & 0,8259 (31,0) \\
+DeepLumina$^{\ddagger}$ \citep{simon2022deeplumina} & --- & 0,8559 (53,3) & 0,9881 (53,0) & 0,9073 (53,5) & 0,8050 (57,8) & 0,8744 (51,6) \\
+Neshov et al. \citep{neshov2025aggregation} & 0,8020 (16,8) & 0,9421 (16,9) & 0,9940 (14,3) & 0,9193 (14,6) & 0,8631 (19,2) & 0,9245 (16,5) \\
+\midrule
+Top-4, SVM & \textbf{0,8689} (334,0) & \textbf{0,9823} (269,0) & 0,9986 (270,7) & 0,9288 (265,4) & 0,8594 (71,0) & \textbf{0,9544} (260,4) \\
+Política por margen, SVM & 0,8669 (54,4) & 0,9776 (38,6) & 0,9984 (36,8) & 0,9276 (40,3) & \textbf{0,8725} (38,5) & 0,9390 (31,0) \\
+Política por margen, ResMLP & 0,8660 (47,6) & 0,9760 (36,4) & \textbf{0,9989} (30,5) & \textbf{0,9609} (21,7) & 0,8668 (48,3) & 0,9391 (32,2) \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.35em}
+\begin{minipage}{0.98\textwidth}\footnotesize
+$^{\ddagger}$DeepLumina queda sujeto a revisión: en todas sus condiciones al menos un clasificador binario alcanzó el máximo de iteraciones, y en DTD una de las diez condiciones no terminó, por lo que no se informa media.
+\end{minipage}
+\end{table}
+
+HyTexNet y 6LBP+dCellNN obtienen valores muy inferiores a los publicados. El panel separa las muestras físicas entre entrenamiento y prueba, mientras que sus protocolos originales no lo hacen: HyTexNet alcanza 0,9394 de macro-F1 en el protocolo de un tercio de KTH-TIPS2-b, que comparte muestras físicas, y 0,8259 en el panel. En DeepLumina, 1.653 de los 2.441 clasificadores binarios entrenados alcanzaron el máximo de 10.000 iteraciones, y su efecto sobre el macro-F1 no está cuantificado. Por estas diferencias de protocolo, la Tabla~\ref{tab:sota} contextualiza magnitudes y no demuestra superioridad.
+\FloatBarrier
 
 % ============================================================
 % 5. DISCUSION
 % ============================================================
-\FloatBarrier
 \section{Discusión}\label{sec:discusion}
 
-Los resultados apoyan la formulación central de la tesis: la concatenación debe analizarse junto con la selección de componentes. Usar los 20 extractores produjo el mayor promedio en CUReT, pero no en DTD ni FMD y, aun en CUReT, su ventaja sobre GFS fue menor que 0,001 y ninguna de las 16 diferencias externas superó el margen práctico. GFS empleó solo 15\%--29\% de la dimensionalidad completa y mejoró o mantuvo el desempeño dentro del margen práctico. En consecuencia, el aporte no reside en sustituir un descriptor por otro, sino en establecer un procedimiento reproducible para decidir qué bloques conservar.
+Los resultados indican que buena parte del beneficio de concatenar se obtiene con pocos bloques. Con el ranking interno, los cuatro primeros descriptores son casi siempre Transformers preentrenados a gran escala: con SVM, SigLIP-B y EVA-02 aparecen en 41 de los 47 subconjuntos Top-4, DINOv2-B y DINOv2-L en 32 y BEiTv2-B en 19. Agregar más bloques del mismo ranking incorpora representaciones con información en parte redundante, y la curva externa deja de crecer. Top-4 mejora a Individual y queda cerca de la concatenación completa, pero no la reemplaza en todos los dominios: con SVM pierde 0,0368 en Outex y Completa-22 conserva ventaja en KTH-TIPS2-b. N-gramas + SVD, el bloque de color, no participó del ranking y, dentro de la concatenación completa, aporta 0,0078 en Soil y 0,0105 en KTH-TIPS2-b con SVM. Un Top-$k$ limitado a los bloques individualmente más fuertes puede omitir así información complementaria.
 
-La magnitud del beneficio depende del dataset. En DTD, el mejor descriptor individual quedó claramente por debajo de las representaciones combinadas, lo que sugiere que las texturas no controladas contienen señales distribuidas entre varios extractores. En FMD, el mejor individual ya alcanzó valores altos y el margen adicional fue menor, especialmente con SVM. Aun así, la concatenación completa rindió peor que GFS, señal de que añadir características redundantes puede perjudicar incluso cuando los componentes individuales son fuertes.
+La activación por margen conserva el macro-F1 de Top-$k$ directo con una fracción de su costo porque la mayoría de las imágenes se resuelve en la etapa barata y el margen ordena bien la dificultad. El control aleatorio aísla ese efecto: escalar la misma cantidad de imágenes al azar pierde entre 0,026 y 0,044 de macro-F1 frente al margen. La cascada puede incluso superar a Top-$k$ directo, como en FMD, Soil y KTH-TIPS2-b, porque conserva la predicción barata cuando esta es correcta y Top-$k$ se equivoca.
 
-El comparador homogéneo añade un matiz relevante. GFS heterogéneo fue superior en DTD y prácticamente equivalente al mejor conjunto homogéneo en FMD y CUReT; en este último, además, los subconjuntos seleccionados se concentraron casi exclusivamente en la familia autosupervisada. Por ello, la diversidad arquitectónica no produce una ventaja automática. Una interpretación más rigurosa es que ampliar el conjunto de candidatos permite encontrar complementariedad cuando existe; el protocolo de selección, no la presencia de una arquitectura específica, determina si esa diversidad se conserva.
+El ahorro depende de la razón entre el costo de la etapa barata y el de Top-$k$. Cuando Top-$k$ contiene bloques costosos como DINOv2-L, que tardó 476 ms por imagen en una medición sobre KTH-TIPS2-b frente a 37 ms de ResNet-50, la cascada evita la mayor parte de la extracción. Cuando Top-$k$ es liviano, la etapa barata agrega costo: en una medición online de KTH-TIPS2-b con 30 imágenes por partición, la cascada fue más lenta que Top-$k$ directo en las dos particiones cuyo Top-$k$ tenía un solo bloque (49,45 frente a 42,61 ms y 57,17 frente a 40,07 ms). En el panel, la razón de latencias frente a Top-4 cae a 1,6--1,8 en Soil. La regla de costo de la Sección~\ref{sec:margen} permite elegir Top-$k$ directo en esos casos antes de ver el test, siempre que el perfil de latencias represente el equipo de uso.
 
-La concordancia cualitativa entre SVM y ResMLP también fortalece el hallazgo. Ambos favorecieron GFS sobre la concatenación completa en DTD y FMD, y ambos mostraron equivalencia práctica entre esas estrategias en CUReT. Las diferencias y los subconjuntos elegidos no fueron idénticos, de modo que el patrón no parece exclusivamente una propiedad de un cabezal lineal o de una red residual. Sin embargo, esto no implica equivalencia general entre clasificadores: cada uno conserva una dinámica de optimización y un costo distintos.
+El panel muestra que la compuerta por margen también reduce la latencia cuando el rescate es un ensamble de subconjuntos de cuatro bloques: la política por margen es más rápida que Top-4 en las doce combinaciones, con un macro-F1 medio similar. Sus pérdidas frente a Top-4 se concentran en KTH-TIPS2-b con ambos clasificadores. Como su etapa cara no es Top-4, el panel no reemplaza a la comparación pareada de la Sección~\ref{sec:resultados-margen}; la complementa con latencias medidas en las 94 condiciones.
 
-Desde una perspectiva práctica, el ahorro dimensional disminuye almacenamiento, transferencia de características y costo de ajuste. Los tiempos registrados confirman que el ajuste sobre GFS es menor que sobre la concatenación completa en las configuraciones de mayor dimensión. No obstante, $k$, dimensión y tiempo de ajuste no reflejan todo el costo: todavía es necesario ejecutar cada extractor incluido, y dos vectores de igual dimensión pueden requerir tiempos de inferencia diferentes. La ausencia de una medición homogénea del costo de extracción limita cualquier conclusión sobre latencia de extremo a extremo.
+\subsection{Limitaciones}
 
-\subsection{Comparación con cifras publicadas}
+El valor $k=4$ se leyó de la curva externa de SVM. La curva interna media muestra la misma forma, pero las reglas aplicadas por condición no lo recuperan, de modo que la elección no es independiente del test. Ese valor se aplicó sin cambios a ResMLP, cuya curva externa alcanza su máximo con cinco bloques, y el ranking no incluyó N-gramas + SVD.
 
-Para situar estos resultados frente a la literatura, la Tabla~\ref{tab:sota} contrasta el macro-F1 de GFS con cifras de accuracy publicadas en trabajos que introdujeron o popularizaron estos bancos de datos. En DTD, \citet{cimpoi2016fisher} reportan 74,7\,\%~$\pm$~1,0 de accuracy con FV-CNN sobre VGG-VD, frente al 86,94\,\% de macro-F1 que alcanza GFS con SVM. En FMD, el mismo trabajo reporta 82,4\,\%~$\pm$~1,5 de accuracy, frente al 97,66\,\%--97,83\,\% de macro-F1 de GFS. En CUReT, \citet{varma2003filter} reportan una accuracy media de 97,28\,\%~$\pm$~0,32 con el banco de filtros MR8 y 46 imágenes de entrenamiento por clase --protocolo cercano al utilizado en este trabajo--, frente al 99,80\,\%--99,88\,\% de macro-F1 de GFS.
+La comparación pareada entre uso directo y activación por margen utiliza la Top-$k$ archivada de cada condición, con $k$ entre 1 y 8, y no Top-4; la medición con Top-4 directo proviene del panel, cuya etapa cara es un ensamble. Esa comparación usa solo SVM y una semilla. La tolerancia de 0,005 se fijó tras un análisis exploratorio con resultados externos, y la ruta Top-$k$ no se reconstruyó dentro de cada fold productor de márgenes OOF, lo que puede favorecer su estimación interna. KTH-TIPS2-b conserva una variante no reconciliada, por lo que las pruebas de la cascada usan cinco datasets.
 
-Estas comparaciones deben leerse con cautela: las cifras de referencia reportan accuracy y no macro-F1, provienen de protocolos de partición distintos y anteceden en 10 a 20 años a los descriptores autosupervisados y multimodales evaluados en este trabajo. La comparación no aísla el aporte metodológico de GFS del salto que ya proveen los descriptores modernos por sí solos. Aun así, la magnitud de la diferencia es consistente con la mejora esperable al incorporar representaciones más recientes, y sitúa el desempeño absoluto de GFS por encima de los puntos de referencia disponibles en la literatura citada.
+Los costos de la cascada son proyecciones por componente y no incluyen carga de modelos ni ajuste del clasificador. El piloto físico mide una condición por dataset y presenta discrepancias de representación en CUReT y Soil. Las latencias del panel se midieron en fechas distintas y con hardware compartido, y en DTD con SVM se registró una pausa durante una ventana nocturna. Las comparaciones con métodos publicados son descriptivas: se reimplementaron en un protocolo común que difiere de los originales, y DeepLumina presenta problemas de convergencia.
 
-\FloatBarrier
-\begin{table}[!ht]
-\centering
-\caption{Comparación con cifras publicadas. No son directamente equiparables: distinta métrica (accuracy vs.\ macro-F1) y protocolo.}
-\label{tab:sota}
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lllcc}
-\toprule
-Dataset & Referencia & Método & Cifra publicada & GFS (este trabajo) \\
-\midrule
-DTD & \citet{cimpoi2016fisher} & FV-CNN (VGG-VD) & 74,7\,\% $\pm$ 1,0 (accuracy) & 86,94\,\% macro-F1 (SVM) \\
-FMD & \citet{cimpoi2016fisher} & FV-CNN (VGG-VD) & 82,4\,\% $\pm$ 1,5 (accuracy) & 97,66\,\%--97,83\,\% macro-F1 \\
-CUReT & \citet{varma2003filter} & MR8 (46 train/clase) & 97,28\,\% $\pm$ 0,32 (accuracy) & 99,82\,\%--99,83\,\% macro-F1 \\
-\bottomrule
-\end{tabular}}
-\end{table}
-\FloatBarrier
-
-\subsection{Limitaciones y amenazas a la validez}
-
-El estudio presenta cinco limitaciones principales. Primero, GFS es una heurística local y no garantiza el subconjunto globalmente óptimo. Segundo, se utilizan extractores congelados y no se evalúa si el ajuste conjunto de los backbones modificaría la complementariedad. Tercero, las particiones repetidas de los tres datasets reutilizan las mismas imágenes y no son réplicas independientes; por ello, la inferencia se mantiene descriptiva y acompañada de tamaños de efecto y márgenes prácticos. Cuarto, CUReT opera con un desempeño cercano al techo, de modo que las diferencias entre estrategias son necesariamente pequeñas y el margen práctico, más que la magnitud observada, gobierna su interpretación. Quinto, tres datasets exploratorios fueron excluidos por problemas de procedencia o independencia, lo que reduce la variedad confirmatoria pero evita evaluaciones potencialmente contaminadas.
-
-También existe una amenaza de generalización externa. Los tres datasets principales cubren texturas naturales, materiales y condiciones controladas, pero no representan todas las aplicaciones posibles. La composición de un subconjunto puede cambiar con la resolución, la adquisición o las clases. Por esta razón, el trabajo interpreta GFS como un procedimiento dependiente del dominio y no propone una combinación universal de extractores.
+Con seis datasets, las pruebas tienen poca potencia y no se realizó un cálculo de tamaño muestral a priori. Las particiones de DTD y FMD reutilizan imágenes, CUReT presenta dos direcciones complementarias y Outex tiene una sola partición. Los descriptores clásicos se calcularon en escala de grises, mientras las redes y N-gramas + SVD utilizan RGB, y el posible solapamiento entre los corpus de preentrenamiento y los benchmarks no fue auditado.
 
 % ============================================================
 % 6. CONCLUSION
 % ============================================================
 \section{Conclusión}\label{sec:conclusion}
 
-Este trabajo estudió la clasificación de texturas mediante selección y concatenación de bloques de descriptores heterogéneos. El protocolo comparó, con evaluación externa separada, el mejor descriptor individual, la concatenación completa, GFS y la mejor selección homogénea. GFS mejoró el macro-F1 medio de la concatenación completa en DTD y FMD, y alcanzó equivalencia práctica en CUReT con diferencias menores que 0,001 sobre ocho biparticiones aleatorias. Utilizó entre 3,6 y 6,1 componentes en promedio y redujo la dimensionalidad entre 71,5\% y 85,2\%. Frente al mejor individual, la diferencia media fue positiva en las seis combinaciones dataset--clasificador.
+Este trabajo comparó dos usos de una concatenación Top-$k$ de descriptores para clasificar texturas: calcularla para toda imagen o activarla solo cuando una etapa barata duda. Con 22 descriptores, seis datasets y dos clasificadores, la curva de desempeño se aplana alrededor de cuatro bloques. Top-4 ocupa cerca del 15\,\% de las dimensiones de la biblioteca, supera al descriptor individual elegido internamente en once de doce combinaciones de dataset y clasificador, y queda a 0,0026 de la concatenación completa con SVM, mientras la supera en 0,0043 con ResMLP. La no inferioridad con margen 0,01 solo se establece con ResMLP.
 
-La evidencia no respalda una regla según la cual toda combinación heterogénea sea superior. En una configuración de FMD y en una de CUReT, una familia homogénea obtuvo un resultado ligeramente mayor que GFS, mientras que en DTD la selección heterogénea mostró una ventaja más clara. La conclusión es que la utilidad de concatenar depende de la complementariedad efectiva y que seleccionar los bloques resulta preferible a incorporarlos indiscriminadamente cuando se busca una representación compacta.
+La activación por margen conservó el macro-F1 de la misma Top-$k$ usada siempre (0,9345 frente a 0,9341) con un costo proyectado 75,5\,\% menor, y un piloto en GPU midió una reducción del 69\,\%. El margen eligió qué imágenes escalar mejor que un sorteo con la misma cantidad en todas las condiciones evaluadas. En el panel online, la política por margen con rescate de cuatro bloques procesó cada imagen en 22 a 54 ms, frente a 71--334 ms de Top-4, con un macro-F1 medio similar. Las pruebas no detectaron diferencias entre los usos comparados, lo que no demuestra equivalencia.
 
-Los controles aleatorios y la estabilidad muestran que la búsqueda suele identificar subconjuntos mejores que una elección arbitraria del mismo tamaño, pero no recupera una composición universal. En consecuencia, la contribución principal es el protocolo de selección y evaluación de bloques, no una receta fija de extractores. La evidencia disponible respalda el uso de GFS como mecanismo para obtener representaciones compactas que mejoran o mantienen el desempeño frente a concatenar indiscriminadamente todos los descriptores.
+En la práctica, Top-4 es una alternativa compacta a la concatenación completa, y su activación por margen conviene cuando la etapa barata es mucho más rápida que los bloques de Top-$k$. Como siguientes pasos se plantea repetir la comparación pareada con Top-4 fijo y ambos clasificadores, incluir el bloque de color en el ranking y medir la latencia de forma homogénea en un mismo equipo.
+
+\clearpage
+\appendix
+\section{Trazabilidad de resultados}\label{app:reproducibilidad}
+
+Las curvas de $k$ y los resultados de Top-4 provienen de \nolinkurl{results/exploratory/k_sweep/} (SVM) y \nolinkurl{results/exploratory/resmlp/k_sweep/} (ResMLP), en los archivos \nolinkurl{k_sweep.csv} y \nolinkurl{k_sweep_inner.csv}; las reglas para elegir $k$, de \nolinkurl{results/analysis/k_selection_rules/}; y las pruebas de la evaluación estática, de \nolinkurl{results/analysis/selection_stats/}. Individual y Completa-22 proceden de la matriz principal de 94 condiciones del proyecto.
+
+La activación por margen se reconstruye desde \nolinkurl{results/exploratory/topk_cascade/}: los directorios \nolinkurl{*/exact_archive/} contienen los 27 archivos por condición con cuantiles fijos y control aleatorio; \nolinkurl{cheap_stage_selected_primary22/summary.json}, la ruta con etapa barata elegida; y \nolinkurl{train_selected_primary22/selected_summary.json}, la ruta con ResNet-50. El piloto físico está en \nolinkurl{results/exploratory/fsc_tex/cascade_physical_paired_benchmark.json}. El panel online y la comparación con métodos externos están en \nolinkurl{results/analysis/reconciliation_full_panel_20261104_v1/}, que reconstruye las 230 comparaciones por dataset desde las llamadas guardadas. Los archivos por condición registran hashes SHA-256 de manifiestos, embeddings y ejecutores.
 
 \section*{Disponibilidad de datos y código}
-Los datasets utilizados son de acceso público y permanecen sujetos a las condiciones de sus respectivos distribuidores. El código experimental, los manifiestos de muestras, los hashes de procedencia, los parámetros y las tablas derivadas se organizan en el repositorio del proyecto. La URL pública y la versión archivada se incorporarán antes del envío del artículo.
+Los datasets utilizados son de acceso público y permanecen sujetos a las condiciones de sus respectivos distribuidores. El \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{repositorio del proyecto} contiene el código, los manifiestos, las salidas por partición, los resultados estadísticos y los hashes necesarios para auditar las tablas; los datasets originales y los embeddings se obtienen o regeneran según sus respectivas condiciones de uso. El material público está versionado en Git, aunque este borrador todavía no identifica un depósito archivado con DOI o una versión inmutable independiente del repositorio.
 
 \section*{Declaración ética}
-El estudio utiliza exclusivamente datasets públicos de imágenes de texturas y no involucra participantes humanos, datos personales ni intervención sobre seres vivos. No se requirió aprobación de un comité de ética.
-
-\section*{Conflicto de intereses}
-Los autores declaran no tener conflictos de intereses financieros o personales que pudieran influir en este trabajo.
-
-\section*{Financiación}
-Este trabajo no recibió financiación externa específica.
-
-\section*{Declaración sobre asistencia de herramientas de IA}
-Este borrador fue preparado con asistencia de herramientas de escritura académica basadas en inteligencia artificial para apoyar la estructuración, redacción y revisión de formato. Los autores dirigieron el proceso, revisaron el contenido y asumen plena responsabilidad por su exactitud e integridad.
+Los experimentos utilizan colecciones públicas de imágenes de texturas y no incorporan reclutamiento de participantes. La declaración ética final queda pendiente de confirmación por los autores.
 
 % --- CRediT authorship contribution statement ---
 \printcredits
 
 % --- Referencias ---
-\bibliographystyle{cas-model2-names}
+\bibliographystyle{unsrtnat}
 \bibliography{references}
 
 \end{document}
