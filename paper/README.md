@@ -1,47 +1,46 @@
-# Manuscrito de tesis — corte del 26-10-2026
+# Tesis: Top-k directo y optimización por margen
 
-**Estado: revisión de trabajo; cierre experimental pendiente.** La tesis estudia selección de bloques, ensambles y adquisición condicional para clasificación de texturas.
+**Revisión ARS aplicada, 13-11-2026:** el PDF vigente tiene **82 páginas**. Se aplicaron los ocho cambios aprobados por el autor, con fórmulas de costo más precisas, ejemplo real del umbral, parámetros reproducibles y conclusiones revisadas. Las 26 pruebas pasaron; se conservaron los resultados experimentales. [Informe de la revisión](../docs/fsc_tex/REVISION_ARS_TOPK_MARGEN_2026-11-13.md) y [manifiesto vigente](../results/analysis/ars_topk_revision_20261113_v1/manuscript_release_ars.json).
 
-**Actualización de réplica, 26-10:** PDF de 67 páginas. Se incorporaron cinco condiciones nuevas auditadas: FMD semillas 42/123/2026 y Outex 123/2026, conservando separado el piloto Outex/42. Se añadieron diseño, medias por dataset, barrido de tres reglas y cuatro presupuestos, referencias por semilla y ablación del mismo rescate permanente/condicional. La réplica registra tanto ventajas medias como pérdidas por semilla; no es evaluación del híbrido en los seis datasets ni medición física nueva. Véase el [registro de incorporación](../docs/fsc_tex/INCORPORACION_REPLICA_TESIS_2026-10-26.md).
+**Título vigente:** «Concatenación Top-k de descriptores para clasificar texturas: comparación del uso directo y la activación por margen».
 
-**Actualización de mesa R2:** PDF de 63 páginas con P0, control estático seleccionado bajo los mismos presupuestos y sensibilidad del benchmark sin KTH. Se añade identificación verificable de SoilOriginal y reconstrucción mínima de tablas. Véanse el [registro de correcciones](../docs/fsc_tex/MESA_EVALUADORA_GRADO_R2_2026-10-25.md) y la [receta de reproducción](../docs/fsc_tex/REPRODUCCION_MINIMA_MESA_2026-10-25.md). Los informes anteriores conservan su fecha y alcance histórico; no prueban que esta versión esté aprobada.
+Se reescribieron los siete capítulos, la portada y ambos resúmenes el 13-11-2026. La tesis mantiene dos etapas centrales: construir y comparar Top-k, incluido Top-4; después optimizar su ejecución activándolo por margen y compararlo con el mismo Top-k directo. La activación está desarrollada en el cuerpo principal, con ecuaciones, diagrama, selección interna y resultados.
 
-## Fuentes vigentes
+El [PDF vigente](tesis.pdf) es un borrador completo para revisión de los autores y el tutor. La compilación y la auditoría no equivalen a aprobación académica ni cierre de todas las reservas.
 
-- Documento principal: [tesis.tex](tesis.tex).
-- Capítulos activos: siete capítulos y anexos en [chapters](chapters/), incluidos explícitamente desde tesis.tex.
-- PDF recompilado: [tesis.pdf](tesis.pdf).
-- Bibliografía activa: [references.bib](articulo/borrador_profesor/references.bib).
-- [Auditoría del corte](../docs/fsc_tex/AUDITORIA_TESIS_Y_CIERRE_2026-10-25.md).
-- [Plan de cierre vigente](../docs/fsc_tex/PLAN_CIERRE_VIGENTE_2026-10-25.md).
-- [Registro de la revisión editorial aplicada](../docs/fsc_tex/REVISION_EDITORIAL_APLICADA_2026-10-25.md).
-- [Mejora integral posterior del manuscrito](../docs/fsc_tex/MEJORA_INTEGRAL_TESIS_2026-10-25.md).
+## Fuentes y trazabilidad
 
-## Alcance que no debe mezclarse
+- [Fuente principal](tesis.tex) y [capítulos y anexos](chapters/).
+- [Bibliografía activa](articulo/borrador_profesor/references.bib).
+- [Plan vigente](../docs/fsc_tex/PLAN_TOPK_MARGEN_2026-11-13.md).
+- [Informe de reescritura](../docs/fsc_tex/INFORME_REESCRITURA_TOPK_MARGEN_2026-11-13.md).
+- [Auditoría](../results/analysis/topk_margin_rewrite_20261113_v1/summary.json).
+- [Versión compilada y hashes](../results/analysis/topk_margin_rewrite_20261113_v1/manuscript_release.json).
 
-1. Biblioteca de 22 bloques y 20.652 dimensiones nominales.
-2. Seis datasets principales: DTD, FMD, CUReT, Outex13Official1360, SoilOriginal y KTH-TIPS-2b. VisTex no está incorporado.
-3. Benchmark estático: 47 condiciones por clasificador, SVM y ResMLP.
-4. Cascada histórica: 27 condiciones; KTH archivado mantiene reservas de procedencia.
-5. Nuevo híbrido de diversidad: piloto Outex/42 y cinco condiciones adicionales de desarrollo OOF en dos datasets. FMD tiene 800 imágenes de desarrollo por semilla; Outex, 680. No se evalúan los tests externos ni se atribuyen seis datasets independientes al híbrido.
-6. Los pilotos físicos anteriores no validan el híbrido nuevo; CUReT y Soil mantienen discrepancias de representación.
+Los estudios de rescate de ensamble y poda se conservan en un anexo complementario. La versión anterior se respaldó en `archive/local/tesis_before_topk_rewrite_20261113.tar.gz`, con manifiesto SHA-256. Ese respaldo es local y no se garantiza su disponibilidad en GitHub.
 
-## Revisión del manuscrito
+## Evidencia y límites
 
-El título vigente es «Fusión costo-consciente de descriptores de textura mediante ensambles y adquisición condicional». Se separaron método y diseño experimental, se organizaron los resultados por preguntas y se trasladaron especificaciones, procedencia, análisis adicionales y reproducibilidad a anexos. El PDF vigente tiene 67 páginas. El método incorpora ecuaciones, dos pseudocódigos y un diagrama; la curva calidad–costo se genera desde resultados guardados.
+1. Barrido de 21 tamaños y 47 condiciones por tamaño y clasificador en seis datasets: 987 filas SVM y 987 ResMLP. Las medias equiponderan datasets.
+2. Top-4 frente a concatenaciones completas, selección y N-gramas, identificando las diferentes bibliotecas.
+3. Comparadores externos con macro-F1 y milisegundos de las mismas llamadas online, separados del barrido histórico.
+4. Auditoría de 27 condiciones SVM y 31.984 observaciones de prueba del mismo Top-k directo/por margen. Se reutilizan imágenes entre particiones; no son observaciones independientes y k no siempre es cuatro.
+5. Cinco condiciones cuyo rescate coincide en bloques con el Top-4 del barrido: dos DTD, dos FMD y una CUReT. Se conservan ganancias, pérdidas y empates; no representan Top-4 por margen en los seis datasets.
 
-El rescate nuevo utiliza el ensamble de diversidad completo o reducido. Se conservan sus trece resultados y la excedencia de validación; no se declara superioridad universal, equivalencia o ahorro físico del 85,40 %. La financiación externa y los conflictos de interés se declaran inexistentes, según confirmación del autor. No se inventó una distribución individual de contribuciones.
+Top-4/SVM registra macro-F1 medio 0,936554 frente a 0,936764 del máximo descriptivo en k=10, con aproximadamente 15,42 % de las dimensiones de los 21 bloques. Respalda un compromiso compacto, sin demostrar optimalidad universal ni equivalencia estadística. La optimización por margen se evalúa por separado en calidad, activación, adquisición y tiempo físico.
 
-La mejora integral anterior a P0 formalizó la selección restringida bajo presupuesto y su condición algebraica de ahorro de adquisición; aclaró las dos agregaciones de F1, los niveles OOF y el traslado del umbral al modelo reajustado. Añadió interpretación del perfil de costos y multiplicidades verificadas por pliegue. Ese corte tenía 54 páginas. El respaldo inmediatamente anterior a esa mejora es [revision_mejora_integral_20261025_before.tar.gz](revision_mejora_integral_20261025_before.tar.gz).
+Se mantienen las reservas KTH, DeepLumina/DTD y no convergencia, las diferencias entre Top-4 histórico y online y las discrepancias de representación de pilotos CUReT/Soil. Los costos proyectados se distinguen de tiempos físicos. Esta reescritura no añade fits, predicciones ni cronometrajes, ni repite paneles cerrados.
 
-P0 separa poda y activación en el archivo de desarrollo: relevancia/B60 reduce 69,76 % por poda y otro 51,72 % respecto del mismo rescate podado permanente, con pérdidas de F1 observadas. Marginal/B60 conserva las 680 predicciones con 43,09 % menos adquisición proyectada, pero más llamadas. No se afirma ahorro físico ni superioridad frente a selección estática optimizada bajo el mismo presupuesto. Las tablas nuevas se reconstruyen mediante `OPENBLAS_NUM_THREADS=2 .venv-confirmatory/bin/python scripts/build_p0_thesis_tables.py` desde la raíz del repositorio. El generador verifica 156 campos numéricos y conserva hashes en `paper/generated_p0/provenance.json`. Respaldo previo: [revision_p0_20261025_before.tar.gz](revision_p0_20261025_before.tar.gz).
+## Verificación y compilación
 
-R2 incorpora un rival estático dentro del pool de 22 individuales y miembros de diversidad, enumerado hasta tres modelos. Relevancia/B60 alcanza 0,910742 frente a 0,892923 con costos proyectados de 53,316 y 44,831 ms; ambos cumplen B60 en la media reunida. En B15/B120 el estático obtiene mayor F1 con mayor costo. Se mantienen las cuatro comparaciones y no se afirma optimalidad global. La sensibilidad SCI2S sin KTH conserva GFS–Individual significativo con ResMLP (Holm 0,0270), no con SVM; Friedman alineado no rechaza. Las nuevas tablas están en `generated_mesa_r2` con procedencia separada. La suite registra 83 pruebas aprobadas. Respaldo previo a R2: [revision_mesa_r2_20261025_before.tar.gz](revision_mesa_r2_20261025_before.tar.gz).
+Se aprobaron 26 pruebas de trazabilidad, reproducción de métricas y controles relacionados. El generador verifica 124 fuentes por SHA-256 y rechaza reutilizar directorios de auditoría existentes. Las recetas figuran en el anexo de reproducibilidad y el informe.
 
-El respaldo anterior a esta reestructuración, incluido el PDF previo, está en [revision_editorial_20261025_before.tar.gz](revision_editorial_20261025_before.tar.gz). Se conserva también el [respaldo de la revisión numérica anterior](revision_20261025_before.tar.gz). No se modificaron resultados experimentales para reescribir el manuscrito. La compilación correcta no certifica cierre científico ni una revisión formal completa de ARS.
+La versión anterior a la ronda ARS tenía 81 páginas. Incluye los ocho pasos del recorrido experimental y un ejemplo real de concatenación de cuatro bloques en 3.328 coordenadas. Las figuras nuevas muestran todos los tamaños, las ganancias incrementales y las curvas de los seis datasets. Con SVM, de uno a cuatro se ganan 1,911 puntos porcentuales de macro-F1; de cuatro al máximo en diez, 0,021 puntos, con mayor dimensión. Los incrementos posteriores a cuatro conservan ambos signos: la curva no disminuye de forma monótona. Fuentes y resultados del gráfico: [auditoría de ganancias](../results/analysis/topk_marginal_gains_20261113_v1/summary.json).
 
-La réplica se reconstruye con `OPENBLAS_NUM_THREADS=2 PYTHONPATH=.:src .venv-confirmatory/bin/python scripts/build_replication_thesis_tables.py` desde la raíz. Las cuatro tablas y sus hashes están en `generated_replication`; las fuentes auditadas, en `results/analysis/mesa_replication_20261026`. La suite final registra 97 pruebas aprobadas, incluida reconstrucción byte-idéntica de tablas. Los estáticos FMD recuperados conservan las decisiones originales; no se repitieron las otras etapas. Respaldo anterior a esta incorporación: [revision_replica_20261026_before.tar.gz](revision_replica_20261026_before.tar.gz). No se generó un ZIP Overleaf nuevo ni se sincronizó el repositorio remoto en este corte.
+Desde `paper`, en Ubuntu/WSL:
 
-## Compilación local
+```sh
+../.tools/tectonic-0.16.9/tectonic --keep-logs --keep-intermediates tesis.tex
+```
 
-Ejecutar pdflatex, bibtex y dos pasadas de pdflatex desde este directorio sobre tesis.tex. La plantilla y los paquetes existentes se conservan. Los paquetes Overleaf y presentaciones anteriores no se consideran actualizados por recompilar este PDF; verificar su fecha antes de compartirlos.
+Los paquetes Overleaf y presentaciones anteriores no se actualizan por recompilar este PDF. Los informes históricos conservan su fecha y alcance. Esta revisión no crea commits ni realiza push.

@@ -1,5 +1,11 @@
 # Plan maestro de tesis y comparaciones — 4 de noviembre de 2026
 
+> **Orientación vigente desde el 13-11-2026:** el autor comunicó el título y
+> los dos ejes indicados por el profesor: concatenación Top-k y comparación
+> del uso directo con activación por margen. La estructura y prioridades
+> actuales están en [PLAN_TOPK_MARGEN_2026-11-13.md](PLAN_TOPK_MARGEN_2026-11-13.md).
+> Este documento conserva el historial de resultados, auditorías y reservas.
+
 **Actualización 08-11:** se incorporó el trabajo de Carlos del PR 6 y se
 documentó una [conciliación inicial](CONCILIACION_CARLOS_SOTA_TIMING_2026-11-08.md).
 Sus resultados usan tiempos amortizados batch=32 en otra GPU, no equivalentes

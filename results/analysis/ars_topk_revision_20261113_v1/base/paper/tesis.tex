@@ -1,0 +1,133 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{placeins,float}
+\newenvironment{resulttable}{\begin{table}[!htbp]}{\end{table}}
+\renewcommand{\chaptername}{Capítulo}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\contentsname}{Contenido}
+\renewcommand{\bibname}{Referencias}
+\renewcommand{\appendixname}{Anexo}
+\addto\captionsenglish{\renewcommand{\chaptername}{Capítulo}\renewcommand{\tablename}{Tabla}\renewcommand{\figurename}{Figura}\renewcommand{\contentsname}{Contenido}\renewcommand{\bibname}{Referencias}\renewcommand{\appendixname}{Anexo}\renewcommand{\listfigurename}{Lista de figuras}\renewcommand{\listtablename}{Lista de tablas}}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{5pt}
+\setlength{\emergencystretch}{1em}
+
+\newcommand{\titulotesis}{Concatenación Top-k de descriptores para clasificar texturas: comparación del uso directo y la activación por margen}
+\title{\textbf{\titulotesis}}
+\author{Carlos Ayala \and Joaquín Delgado}
+\date{Noviembre 2026}
+\hypersetup{
+pdftitle={Concatenación Top-k de descriptores para clasificar texturas: comparación del uso directo y la activación por margen},
+pdfauthor={Carlos Ayala y Joaquín Delgado},
+pdfsubject={Concatenación de descriptores, Top-k y clasificación por margen}
+}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\begin{center}
+\vspace*{1.4cm}
+{\Large\textbf{Universidad Nacional de Asunción}\par}
+\vspace{0.4cm}
+{\large Facultad Politécnica\par}
+\vspace{1.7cm}
+{\LARGE\bfseries\titulotesis\par}
+\vspace{1.5cm}
+{\large Carlos Ayala\\Joaquín Delgado\par}
+\vspace{1.1cm}
+{\large Tutor: José Vázquez\par}
+\vfill
+{\large Noviembre de 2026\par}
+\end{center}
+\end{titlepage}
+\clearpage
+\pagenumbering{roman}
+\hypersetup{pageanchor=true}
+
+\chapter*{Agradecimientos}
+A nuestro tutor, José Vázquez, por acompañar la formulación del problema y la revisión del trabajo. A la Facultad Politécnica de la Universidad Nacional de Asunción, y a nuestras familias por su apoyo.
+
+\chapter*{Resumen}
+\addcontentsline{toc}{chapter}{Resumen}
+La concatenación de descriptores permite combinar información para clasificar texturas, pero aumenta la representación y el trabajo de extracción. Esta tesis evalúa dos decisiones: qué bloques concatenar mediante un ranking Top-\(k\), y cuándo ejecutar esa concatenación mediante el margen de un clasificador base. Se estudian seis datasets, SVM lineal y una MLP residual sobre características, distinguiendo bibliotecas de 21 bloques sin N-gramas y la biblioteca consolidada de 22.
+
+El barrido exploratorio de uno a 21 bloques contiene 47 condiciones por tamaño y clasificador. Con SVM, Top-4 registra macro-F1 medio equiponderado por dataset de 0,936554, frente al máximo descriptivo de 0,936764 en \(k=10\), utilizando aproximadamente 15,42 \% de las dimensiones del barrido. Con ResMLP, el máximo aparece en \(k=5\). El resultado identifica una alternativa compacta, no un tamaño óptimo universal. Los controles con N-gramas y otras selecciones muestran que relevancia individual y complementariedad no son equivalentes.
+
+La comparación directa/por margen reconstruye 27 condiciones SVM y verifica el mismo rescate Top-\(k\) en las imágenes derivadas. La política registra macro-F1 medio 0,983953 frente a 0,982926 del uso directo en FMD, y 0,936950 frente a 0,942574 en Outex. Los costos por componentes proyectan menor adquisición; los pilotos físicos tienen un alcance delimitado y reservas de representación. Las comparaciones externas utilizan adaptaciones identificadas y mantienen DeepLumina bajo revisión por no convergencia y cobertura incompleta.
+
+La evidencia es exploratoria y conserva exposición previa a benchmarks, dependencia entre particiones y diferencias entre archivos. Se concluye que una concatenación pequeña puede ofrecer un compromiso útil y que su activación por margen debe evaluarse frente al mismo uso directo, contabilizando la base y separando dimensión, adquisición proyectada y latencia física.
+
+\textbf{Palabras clave:} clasificación de texturas, concatenación de descriptores, Top-k, margen, N-gramas, adquisición condicional.
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+Descriptor concatenation combines information for texture classification but increases representation size and extraction work. This thesis examines which blocks to concatenate using a Top-\(k\) ranking and when to execute that concatenation using the margin of a base classifier. Six datasets, a linear SVM and a residual feature MLP are studied, distinguishing a 21-block library without N-grams from the consolidated 22-block library.
+
+An exploratory sweep from one to 21 blocks includes 47 conditions per size and classifier. For SVM, Top-4 achieves dataset-balanced mean macro-F1 0.936554, compared with the descriptive maximum 0.936764 at \(k=10\), using approximately 15.42 \% of the sweep's feature dimensions. The ResMLP maximum occurs at \(k=5\). This identifies a compact alternative rather than a universally optimal size. Controls with N-grams and other selection methods show that individual relevance and complementarity are different properties.
+
+The direct-versus-margin comparison reconstructs 27 SVM conditions and verifies that escalated predictions use the same Top-\(k\) rescue. Mean macro-F1 is 0.983953 versus 0.982926 for direct use on FMD, and 0.936950 versus 0.942574 on Outex. Component profiles project lower acquisition costs; physical pilots have limited scope and unresolved representation reservations. External comparisons use identified adaptations, retaining DeepLumina's nonconvergence and incomplete coverage.
+
+The evidence remains exploratory, with prior benchmark exposure, dependent partitions and differences between archives. A small concatenation can provide a useful trade-off, while margin-based activation must be compared with the same direct predictor, accounting for the base and separating feature dimensions, projected acquisition and physical latency.
+
+\textbf{Keywords:} texture classification, descriptor concatenation, Top-k, margin, N-grams, conditional acquisition.
+
+\chapter*{Siglas y notación}
+\addcontentsline{toc}{chapter}{Siglas y notación}
+\begin{tabular}{@{}lp{10.6cm}@{}}
+Top-\(k\) & Concatenación de los primeros \(k\) bloques de un ranking interno\\
+Top-4 & Caso de tamaño fijo \(k=4\), no cuatro identidades universales\\
+OOF & Predicciones fuera de pliegue del entrenamiento\\
+GFS & Selección secuencial hacia delante de bloques\\
+SVD & Descomposición en valores singulares truncada\\
+SVM & Máquina de vectores de soporte\\
+ResMLP & MLP residual sobre características\\
+\(S_k,h_k\) & Bloques seleccionados y clasificador de su concatenación\\
+\(h_b,m_b,\tau\) & Clasificador base, margen y umbral\\
+\(\widehat r\) & Fracción de imágenes derivadas al rescate\\
+\(c_j,C_{\mathrm{inc}}\) & Costo por bloque y adquisición incremental\\
+P1, P2 & Preguntas de selección Top-k y uso directo/por margen\\
+CKA & Similitud entre representaciones, usada en estudios complementarios\\
+\end{tabular}
+\tableofcontents
+\listoffigures
+{\emergencystretch=1em\listoftables}
+\clearpage
+\pagenumbering{arabic}
+\input{chapters/01_introduccion}
+\input{chapters/02_literatura}
+\input{chapters/03_metodologia}
+\input{chapters/04_diseno_experimental}
+\input{chapters/05_resultados}
+\input{chapters/06_discusion}
+\input{chapters/07_conclusion}
+
+\appendix
+\input{chapters/A_especificaciones}
+\input{chapters/B_procedencia}
+\input{chapters/C_resultados_adicionales}
+\input{chapters/D_reproducibilidad}
+\input{chapters/E_declaraciones}
+\input{chapters/F_estudios_complementarios}
+\clearpage
+\bibliographystyle{unsrtnat}
+\setlength{\bibsep}{3pt plus 1pt}
+\bibliography{articulo/borrador_profesor/references}
+\end{document}

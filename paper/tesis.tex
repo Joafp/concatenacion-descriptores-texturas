@@ -1,6 +1,4 @@
 \documentclass[12pt,a4paper]{report}
-
-% Paquetes
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
@@ -27,125 +25,98 @@
 \usepackage{url}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning}
-
-
-% Configuración
 \setlength{\parskip}{0.5em}
 \setlength{\parindent}{0pt}
 \setlength{\tabcolsep}{5pt}
+\setlength{\emergencystretch}{1em}
 
-% Título
-\newcommand{\titulotesis}{Fusión costo-consciente de descriptores de textura mediante ensambles y adquisición condicional}
+\newcommand{\titulotesis}{Concatenación Top-k de descriptores para clasificar texturas: comparación del uso directo y la activación por margen}
 \title{\textbf{\titulotesis}}
 \author{Carlos Ayala \and Joaquín Delgado}
-\date{Octubre 2026}
+\date{Noviembre 2026}
 \hypersetup{
-pdftitle={Fusión costo-consciente de descriptores de textura mediante ensambles y adquisición condicional},
+pdftitle={Concatenación Top-k de descriptores para clasificar texturas: comparación del uso directo y la activación por margen},
 pdfauthor={Carlos Ayala y Joaquín Delgado},
-pdfsubject={Clasificación de texturas y selección bajo presupuesto de adquisición}
+pdfsubject={Concatenación de descriptores, Top-k y clasificación por margen}
 }
 
 \begin{document}
-
 \hypersetup{pageanchor=false}
-
-% ============================================================
-% PORTADA
-% ============================================================
 \begin{titlepage}
 \begin{center}
-\vspace*{2cm}
-{\Large \textbf{Universidad Nacional de Asunción}} \\
-\vspace{0.3cm}
-{\large Facultad Politécnica} \\
-\vspace{2cm}
-{\Huge \textbf{\titulotesis}} \\
-\vspace{0.5cm}
-\vspace{3cm}
-{\large \textbf{Carlos Ayala} \\
-\textbf{Joaquín Delgado}} \\
-\vspace{1cm}
-{\large Tutor: José Vázquez} \\
-\vspace{2cm}
-{\large Octubre 2026}
+\vspace*{1.4cm}
+{\Large\textbf{Universidad Nacional de Asunción}\par}
+\vspace{0.4cm}
+{\large Facultad Politécnica\par}
+\vspace{1.7cm}
+{\LARGE\bfseries\titulotesis\par}
+\vspace{1.5cm}
+{\large Carlos Ayala\\Joaquín Delgado\par}
+\vspace{1.1cm}
+{\large Tutor: José Vázquez\par}
+\vfill
+{\large Noviembre de 2026\par}
 \end{center}
 \end{titlepage}
-\hypersetup{pageanchor=true}
+\clearpage
 \pagenumbering{roman}
+\hypersetup{pageanchor=true}
 
-% ============================================================
-% AGRADECIMIENTOS
-% ============================================================
 \chapter*{Agradecimientos}
-A nuestro tutor, José Vázquez, por su guía y paciencia. \\
-A la Facultad Politécnica de la UNA, por el espacio y los recursos. \\
-A nuestras familias, por el apoyo incondicional.
+A nuestro tutor, José Vázquez, por acompañar la formulación del problema y la revisión del trabajo. A la Facultad Politécnica de la Universidad Nacional de Asunción, y a nuestras familias por su apoyo.
 
-% ============================================================
-% RESUMEN
-% ============================================================
 \chapter*{Resumen}
+\addcontentsline{toc}{chapter}{Resumen}
+La concatenación de descriptores permite combinar información para clasificar texturas, pero aumenta la representación y el trabajo de extracción. Esta tesis evalúa dos decisiones: qué bloques concatenar mediante un ranking Top-\(k\), y cuándo ejecutar esa concatenación mediante el margen de un clasificador base. Se estudian seis datasets, SVM lineal y una MLP residual sobre características, distinguiendo bibliotecas de 21 bloques sin N-gramas y la biblioteca consolidada de 22.
 
-La fusión de descriptores para clasificar texturas plantea dos decisiones: qué representaciones combinar y para qué imágenes adquirirlas. Esta tesis compara cinco estrategias estáticas sobre 22 bloques y seis conjuntos de datos con SVM lineal y una MLP residual. También caracteriza una cascada de referencia y desarrolla una política de dos etapas que selecciona base, compuerta y rescate de ensamble bajo un presupuesto medio proyectado. El costo contabiliza la unión de bloques compartidos entre clasificadores, distinguiendo extractores, modelos únicos y votos.
+El barrido exploratorio de uno a 21 bloques contiene 47 condiciones por tamaño y clasificador. Con SVM, Top-4 registra macro-F1 medio equiponderado por dataset de 0,936554, frente al máximo descriptivo de 0,936764 en \(k=10\), utilizando aproximadamente 15,42 \% de las dimensiones del barrido. Con ResMLP, el máximo aparece en \(k=5\). El resultado identifica una alternativa compacta, no un tamaño óptimo universal. Los controles con N-gramas y otras selecciones muestran que relevancia individual y complementariedad no son equivalentes.
 
-El benchmark estático muestra que la estrategia de mayor macro-F1 depende del conjunto y del clasificador. En el piloto OOF sobre las 680 imágenes del entrenamiento oficial de Outex, la poda por ganancia de F1 en B60 obtiene macro-F1 0,910742 frente a 0,914389 del ensamble permanente, con costo proyectado 85,40\% menor. Un control sobre predicciones guardadas distingue dos reducciones sucesivas: 69,76\% por poda y 51,72\% adicional al activar condicionalmente el mismo rescate podado, con una pérdida adicional de F1 de 0,001251. La compuerta no mejora F1 en las ocho configuraciones con rescate de ese piloto. El barrido incluye casos sin rescate y una excedencia.
+La comparación directa/por margen reconstruye 27 condiciones SVM y verifica el mismo rescate Top-\(k\) en las imágenes derivadas. La política registra macro-F1 medio 0,983953 frente a 0,982926 del uso directo en FMD, y 0,936950 frente a 0,942574 en Outex. Los costos por componentes proyectan menor adquisición; los pilotos físicos tienen un alcance delimitado y reservas de representación. Las comparaciones externas utilizan adaptaciones identificadas y mantienen DeepLumina bajo revisión por no convergencia y cobertura incompleta.
 
-Una réplica en tres semillas FMD y dos semillas adicionales Outex conserva los cuatro presupuestos y las tres reglas. En B60, relevancia alcanza macro-F1 medio 0,977489 frente a 0,974600 del rival estático presupuestado en FMD, y 0,905991 frente a 0,889152 en las nuevas semillas Outex, con menor adquisición media proyectada. FMD/42 favorece al estático en calidad y costo. La activación del mismo rescate mejora el F1 medio FMD/B60 y lo reduce en Outex. Por último, se completó un panel físico online sobre las 94 condiciones externas (362.640 llamadas individuales \texttt{batch=1} en GPU RTX 4060, midiendo macro-F1 y latencia física en la misma llamada) y se validaron y adaptaron cuatro métodos recientes de concatenación del estado del arte (\texttt{Neshov BEiT-v2} multicapa, \emph{DeepLumina}, \emph{HyTexNet} y \emph{6LBP+dCellNN}). En el panel común estricto, nuestra política \texttt{Adaptive-selection-margin} supera en macro-F1 a los cuatro comparadores externos en los seis conjuntos de datos con latencias medias de 21,65 a 54,35 ms por imagen.
+La evidencia es exploratoria y conserva exposición previa a benchmarks, dependencia entre particiones y diferencias entre archivos. Se concluye que una concatenación pequeña puede ofrecer un compromiso útil y que su activación por margen debe evaluarse frente al mismo uso directo, contabilizando la base y separando dimensión, adquisición proyectada y latencia física.
 
-\textbf{Palabras clave:} clasificación de texturas, fusión de descriptores, selección de bloques, ensambles, adquisición condicional, inferencia costo-consciente.
+\textbf{Palabras clave:} clasificación de texturas, concatenación de descriptores, Top-k, margen, N-gramas, adquisición condicional.
 
 \chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+Descriptor concatenation combines information for texture classification but increases representation size and extraction work. This thesis examines which blocks to concatenate using a Top-\(k\) ranking and when to execute that concatenation using the margin of a base classifier. Six datasets, a linear SVM and a residual feature MLP are studied, distinguishing a 21-block library without N-grams from the consolidated 22-block library.
 
-Texture descriptor fusion requires choosing both the representations to combine and the images for which they should be acquired. This thesis evaluates five static strategies over 22 descriptor blocks and six datasets using Linear SVM and a residual feature MLP. It also examines a reference cascade and develops a two-stage policy that selects a base, gate and ensemble rescue under a projected mean acquisition budget. Shared blocks are counted once, separating feature extractors, unique classifiers and repeated votes.
+An exploratory sweep from one to 21 blocks includes 47 conditions per size and classifier. For SVM, Top-4 achieves dataset-balanced mean macro-F1 0.936554, compared with the descriptive maximum 0.936764 at \(k=10\), using approximately 15.42 \% of the sweep's feature dimensions. The ResMLP maximum occurs at \(k=5\). This identifies a compact alternative rather than a universally optimal size. Controls with N-grams and other selection methods show that individual relevance and complementarity are different properties.
 
-The static benchmark identifies no uniformly best strategy across datasets and classifiers. An out-of-fold pilot on the 680 official Outex training images attains macro-F1 0.910742 at B60 using F1-gain pruning, versus 0.914389 for the always-active ensemble, with an 85.40\% lower projected cost. Replaying saved predictions separates a 69.76\% reduction through pruning from a further 51.72\% through conditional activation of the same rescue, which incurs an additional F1 loss of 0.001251. Routing improves F1 in none of that pilot's eight configurations with a rescue. Base-only policies and a validation budget exceedance remain in the sweep.
+The direct-versus-margin comparison reconstructs 27 SVM conditions and verifies that escalated predictions use the same Top-\(k\) rescue. Mean macro-F1 is 0.983953 versus 0.982926 for direct use on FMD, and 0.936950 versus 0.942574 on Outex. Component profiles project lower acquisition costs; physical pilots have limited scope and unresolved representation reservations. External comparisons use identified adaptations, retaining DeepLumina's nonconvergence and incomplete coverage.
 
-Five additional development conditions retain all four budgets and three routing rules: three FMD seeds and two further Outex seeds. At B60, relevance pruning attains mean macro-F1 0.977489 versus 0.974600 for a budget-selected static ensemble on FMD, and 0.905991 versus 0.889152 on the new Outex seeds, with lower mean projected acquisition costs. The static control instead wins on both measures for FMD/42. Relative to the same permanent rescue, routing raises mean F1 on FMD/B60 and lowers it on Outex. Finally, a full physical online panel across all 94 external conditions (362,640 single-image \texttt{batch=1} calls on an RTX 4060 GPU measuring macro-F1 and wall-clock latency from the same calls) is compared against four state-of-the-art concatenation methods validated for code and formula fidelity (\texttt{Neshov BEiT-v2} multilayer, \emph{DeepLumina}, \emph{HyTexNet}, and \emph{6LBP+dCellNN}). Across the common six-dataset panel, \texttt{Adaptive-selection-margin} outperforms all four external comparators in macro-F1 while achieving mean single-image latencies of 21.65 to 54.35 ms.
+The evidence remains exploratory, with prior benchmark exposure, dependent partitions and differences between archives. A small concatenation can provide a useful trade-off, while margin-based activation must be compared with the same direct predictor, accounting for the base and separating feature dimensions, projected acquisition and physical latency.
 
-\textbf{Keywords:} texture classification, descriptor fusion, block selection, ensembles, conditional acquisition, cost-aware inference.
+\textbf{Keywords:} texture classification, descriptor concatenation, Top-k, margin, N-grams, conditional acquisition.
 
-% ============================================================
-% ÍNDICE
-% ============================================================
 \chapter*{Siglas y notación}
 \addcontentsline{toc}{chapter}{Siglas y notación}
-\begin{tabular}{@{}lp{10.5cm}@{}}
+\begin{tabular}{@{}lp{10.6cm}@{}}
+Top-\(k\) & Concatenación de los primeros \(k\) bloques de un ranking interno\\
+Top-4 & Caso de tamaño fijo \(k=4\), no cuatro identidades universales\\
 OOF & Predicciones fuera de pliegue del entrenamiento\\
-CKA & Alineamiento centrado de kernels; similitud entre representaciones\\
 GFS & Selección secuencial hacia delante de bloques\\
 SVD & Descomposición en valores singulares truncada\\
-SVM & Máquina de vectores de soporte; se emplea un clasificador lineal\\
-Bloque & Vector producido por un extractor\\
-Miembro & Clasificador sobre una concatenación de bloques\\
-$b,E,\tau$ & Base, lista de miembros de rescate y umbral de margen\\
-$U(E)$ & Unión de los bloques utilizados por el rescate\\
-$B,\widehat C$ & Presupuesto y costo medio proyectado de adquisición\\
-$c_j,c_{\mathrm{pol}}$ & Costo por bloque y sobrecosto fijado de política\\
-P1, P2, P3 & Preguntas de investigación, no identificadores de pliegues\\
+SVM & Máquina de vectores de soporte\\
+ResMLP & MLP residual sobre características\\
+\(S_k,h_k\) & Bloques seleccionados y clasificador de su concatenación\\
+\(h_b,m_b,\tau\) & Clasificador base, margen y umbral\\
+\(\widehat r_{\mathrm{OOF}},\widehat r_V\) & Fracciones derivadas interna y externa, respectivamente\\
+\(c_j,C_{\mathrm{inc}}\) & Costo por bloque y adquisición incremental\\
+P1, P2 & Preguntas de selección Top-k y uso directo/por margen\\
+CKA & Similitud entre representaciones, usada en estudios complementarios\\
 \end{tabular}
-
 \tableofcontents
 \listoffigures
 {\emergencystretch=1em\listoftables}
-\newpage
-
-% ============================================================
-% CAPÍTULOS
-% ============================================================
 \clearpage
 \pagenumbering{arabic}
 \input{chapters/01_introduccion}
-\newpage
 \input{chapters/02_literatura}
-\newpage
 \input{chapters/03_metodologia}
-\newpage
 \input{chapters/04_diseno_experimental}
-\newpage
 \input{chapters/05_resultados}
-\newpage
 \input{chapters/06_discusion}
-\newpage
 \input{chapters/07_conclusion}
 
 \appendix
@@ -154,13 +125,9 @@ P1, P2, P3 & Preguntas de investigación, no identificadores de pliegues\\
 \input{chapters/C_resultados_adicionales}
 \input{chapters/D_reproducibilidad}
 \input{chapters/E_declaraciones}
-
-% ============================================================
-% BIBLIOGRAFÍA
-% ============================================================
-\newpage
+\input{chapters/F_estudios_complementarios}
+\clearpage
 \bibliographystyle{unsrtnat}
 \setlength{\bibsep}{3pt plus 1pt}
 \bibliography{articulo/borrador_profesor/references}
-
 \end{document}

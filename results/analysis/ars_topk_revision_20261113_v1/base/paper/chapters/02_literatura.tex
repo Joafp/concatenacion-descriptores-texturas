@@ -1,0 +1,52 @@
+\chapter{Antecedentes y trabajos relacionados}\label{sec:trabajos}
+
+\section{Representaciones para clasificar texturas}
+Los descriptores clásicos resumen regularidades locales mediante histogramas, filtros, gradientes o estadísticas de coocurrencia. LBP codifica comparaciones vecinales; Gabor caracteriza respuestas a frecuencia y orientación; GLCM resume relaciones entre niveles de intensidad, y HOG organiza orientaciones de gradiente \citep{ojala2002lbp,jain1991gabor,haralick1979glcm,dalal2005hog}. Cada familia destaca propiedades diferentes de la imagen. La invariancia buscada y el tamaño de su salida dependen de la implementación.
+
+Las redes preentrenadas ofrecen otra fuente de características. CNN como ResNet y DenseNet, y modelos basados en atención como ViT, generan vectores que pueden utilizarse sin ajustar el backbone a la colección de texturas \citep{he2016resnet,huang2017densenet,dosovitskiy2021vit}. Un clasificador sobre esos vectores permite separar extracción y aprendizaje de la tarea. No obstante, una representación entrenada con otro dominio puede conservar información semántica o de forma que no coincide con la textura que se quiere distinguir.
+
+RGB Pixel N-grams representa secuencias de píxeles de color mediante conteos \citep{paiva2023rgb}. Su interés en este trabajo es aportar información cromática y local a representaciones de otras familias. La implementación evaluada comprime sus conteos mediante SVD ajustada dentro del entrenamiento. Esa variante se denomina N-gramas+SVD y no se identifica automáticamente con todas las configuraciones ni los porcentajes del artículo original.
+
+\section{Concatenación y selección de bloques}
+La concatenación es una fusión a nivel de características: reúne los vectores antes de entrenar el clasificador. Un ensamble, en cambio, combina decisiones o puntuaciones de varios clasificadores. Aunque un miembro de un ensamble pueda recibir una concatenación, ambas operaciones resuelven decisiones distintas.
+
+Seleccionar los primeros \(k\) descriptores de un ranking individual ofrece una referencia de baja complejidad conceptual. El ranking estima relevancia individual; no mide necesariamente la complementariedad condicionada a los bloques que ya están presentes. Un descriptor que no ocupa una posición alta puede añadir información útil a otro subconjunto.
+
+Los métodos \emph{wrapper} evalúan subconjuntos mediante el clasificador que los utilizará \citep{kohavi1997wrappers,guyon2003feature}. GFS construye el conjunto de manera secuencial, añadiendo bloques según un criterio interno. Frente al ranking Top-\(k\), esto examina más directamente la composición, pero exige más ajustes. La comparación debe informar por separado el número de bloques, la dimensión, el costo de selección y la inferencia.
+
+Una selección realizada dentro del entrenamiento no justifica volver a elegir \(k\) mirando los resultados externos y describir esa elección como previa. El análisis de curvas externas es útil para explorar; su función y exposición deben declararse.
+
+\section{Métodos de literatura utilizados como comparación}
+Neshov et al.\ extraen características de varios niveles de una arquitectura preentrenada y las concatenan antes de una MLP \citep{neshov2025aggregation}. El trabajo permite estudiar agregación entre capas, mientras que nuestro Top-\(k\) selecciona bloques de extractores diferentes. Las dos operaciones pueden relacionarse, pero no tienen el mismo costo ni la misma unidad de selección.
+
+DeepLumina reúne características profundas obtenidas a partir de información RGB y de luminancia \citep{simon2022deeplumina}. HyTexNet combina una codificación local guiada por percentiles con características profundas \citep{gupta2026hytexnet}. El método de Chang et al.\ fusiona LBP multiescala y contornos producidos por CellNN \citep{chang2024cellnn}. Estos casos representan formas concretas de concatenar información complementaria. Las dimensiones, checkpoints y cabezas utilizados en nuestras adaptaciones se identifican en las recetas del proyecto.
+
+Scabini et al.\ comparan extractores basados en Vision Transformers y consideran eficiencia junto con calidad \citep{scabini2025survey}. En el proyecto también existen mediciones derivadas de procesamiento por lotes. Su tiempo amortizado por imagen no se intercambia con la latencia individual de una consulta.
+
+\begin{table}[!htbp]\centering\small
+\caption{Nivel de combinación y relación con la comparación propuesta.}
+\label{tab:antecedentes}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{5.4cm}>{\raggedright\arraybackslash}p{4.0cm}@{}}
+\toprule
+Estrategia & Información combinada & Decisión que se estudia\\\midrule
+Top-\(k\) & Bloques mejor valorados internamente & Qué bloques y cuántos\\
+GFS & Bloques añadidos según utilidad conjunta & Composición del subconjunto\\
+Neshov & Características de varias capas & Agregación dentro de arquitectura\\
+DeepLumina & Características RGB/luminancia & Complementariedad cromática\\
+HyTexNet / CellNN & Características profundas y patrones locales & Fusión de representaciones\\
+Cascada por margen & Base y concatenación Top-\(k\) & Para qué imágenes adquirirla\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Activación condicional y margen}
+Las cascadas distribuyen trabajo según decisiones intermedias \citep{viola2001rapid}. La clasificación adaptativa bajo presupuesto incorpora una compuerta para limitar el uso de modelos costosos \citep{nan2017adaptive}. En sistemas con extractores independientes, el costo depende también de qué bloques puede reutilizar la segunda etapa.
+
+El margen entre las dos mayores puntuaciones permite ordenar consultas según la separación que produce un clasificador. No es, por sí mismo, una probabilidad calibrada de acierto ni una garantía de que un rescate vaya a corregir el caso. La compuerta puede conservar aciertos de la base o evitar errores del Top-\(k\), pero también descartar una segunda etapa que habría sido útil.
+
+Otros enfoques incorporan costo de extracción durante el aprendizaje o adquieren características por información esperada \citep{xu2012greedy,ma2019eddi}. Las salidas tempranas dentro de redes reutilizan activaciones de una misma arquitectura \citep{teerapittayanon2016branchynet,han2021dynamic}. La tesis no reproduce todas estas familias; estudia una regla de dos etapas con margen y una concatenación fijada.
+
+\section{Criterio para comparar con un paper}
+Se distinguen tres alcances: una reproducción fiel requiere verificar el pipeline y protocolo; una aproximación conserva parte del diseño con supuestos explícitos; una adaptación permite comparar una receta en nuestro panel común. Coincidir en un porcentaje o reproducir una ecuación aislada no acredita identidad de datos, pesos, selección y evaluación.
+
+La evaluación empírica utiliza macro-F1, accuracy y tiempos identificados por llamada. Los porcentajes publicados bajo otros repartos se usan como contexto. Para contrastar implementaciones se emparejan muestras y condiciones cuando la evidencia lo permite. Una referencia incompleta o cuyo ajuste exige revisión no se convierte en una media validada por omitir la condición fallida.

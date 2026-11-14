@@ -1,289 +1,120 @@
 \chapter{Resultados experimentales}\label{sec:resultados-experimentales}
 
-Se separan el benchmark estático externo, la cascada histórica con sus pilotos físicos y el desarrollo OOF del rescate de ensamble, con su piloto Outex y una réplica en dos datasets. Sus métricas no se mezclan entre protocolos.
+Los resultados responden primero cómo se construye y se compara Top-\(k\), y después qué cambia al activarlo por margen. Se conservan separados el archivo de características, el panel online y los pilotos físicos. Las tablas generadas para esta revisión se vinculan con 124 fuentes mediante hashes y no añaden ajustes ni mediciones.
 
-% =========================================================================
-% PARTE 1: CONCATENACIÓN ESTÁTICA
-% =========================================================================
-\section[P1: selección y dimensionalidad]{P1: desempeño y dimensionalidad de la selección estática}\label{sec:resultados-fase1}
-
-La evaluación sistemática de la concatenación estática analiza la biblioteca consolidada de 22 descriptores (20.652 dimensiones) sobre seis conjuntos de datos de referencia (DTD, FMD, CUReT, Outex, SoilOriginal y KTH-TIPS-2b) empleando dos clasificadores con sesgos inductivos distintos: Linear SVM y ResMLP (12 configuraciones experimentales). La Tabla~\ref{tab:resultados-confirmatorios} compara las cinco estrategias de selección de bloques (Individual, Completa, Top-$k$, GFS y Homogénea) en términos de macro-F1 medio entre particiones externas. La estrategia Individual corresponde a una selección interna prospectiva (el extractor elegido puede variar entre particiones). La exactitud y la variabilidad descriptiva se conservan en el Anexo~\ref{app:resultados-adicionales} bajo el mismo diseño.
+\section{P1: del descriptor individual a la concatenación}\label{sec:resultados-fase1}
+El benchmark consolidado compara Individual, Completa, Top-\(k\), GFS y Homogénea sobre seis datasets y dos clasificadores. Individual designa la mejor alternativa seleccionada internamente, no el máximo externo de todos los descriptores. El Top-\(k\) de esta primera tabla hereda su tamaño del control GFS; su nombre no significa Top-4 fijo.
 
 \input{articulo/borrador_profesor/generated/baseline_f1.tex}
 \input{articulo/borrador_profesor/generated/dimensions_primary.tex}
 
-Al menos una estrategia de combinación supera numéricamente a Individual en cada una de las doce configuraciones, pero la composición útil depende del dataset y del clasificador. FMD ilustra el límite de concatenar indiscriminadamente: con SVM, Completa obtiene $0{,}9647$, por debajo de Individual ($0{,}9726$), mientras Top-$k$ alcanza $0{,}9820$. Con ResMLP también cae Completa respecto de Individual y GFS obtiene la mayor media. En cambio, Completa alcanza las medias más altas en KTH-TIPS-2b con ambos clasificadores. La tabla no respalda una regla uniforme de añadir o retirar bloques.
+Las medias muestran que una concatenación puede mejorar al mejor individual seleccionado, pero añadir indiscriminadamente bloques también puede empeorar. En FMD/SVM, Completa registra aproximadamente 0,9647, frente a 0,9726 de Individual y 0,9820 del Top-\(k\) del control. En Outex/SVM, en cambio, Completa alcanza aproximadamente 0,9656. Las diferencias entre datasets impiden definir una regla uniforme a partir del número de bloques.
 
-El clasificador también cambia el resultado dentro de un mismo dominio. En Outex, Completa es la mejor estrategia con SVM ($0{,}9656$), mientras GFS lo es con ResMLP ($0{,}9715$). Los máximos redondeados de CUReT están cerca del techo de la métrica y varias estrategias prácticamente coinciden. Estas observaciones describen diferencias de medias; su evidencia conjunta se examina mediante los contrastes por clasificador.
+La dimensión seleccionada y la calidad se reportan conjuntamente. La reducción de entrada al clasificador es informativa para almacenamiento y ajuste, pero no determina qué extractores dominan el tiempo de una consulta. Los contrastes del benchmark estático y su sensibilidad sin KTH se conservan en el Anexo~\ref{app:resultados-adicionales}. Su alcance no se extiende a los tamaños fijos nuevos por un cambio de etiqueta.
 
-La Tabla~\ref{tab:dimensiones} contrasta el desempeño predictivo con el tamaño efectivo del vector de entrada. Mientras que Completa utiliza siempre las 20.652 dimensiones de la biblioteca conjunta, la dimensión media seleccionada por GFS se sitúa entre 960 y 6.784 componentes entre configuraciones, lo que representa una reducción de entre 67{,}1\% y 95{,}3\% en la dimensionalidad del espacio de entrada. Esta reducción alivia la carga de memoria y almacenamiento del clasificador, pero no disminuye proporcionalmente la latencia de inferencia de extremo a extremo en un esquema estático, dado que todos los extractores seleccionados deben ejecutarse de forma invariable para cada imagen.
+\section{Barrido de k y justificación del caso Top-4}
+La reconstrucción del barrido verifica 47 condiciones para cada tamaño de uno a 21 y cada clasificador. Las Tablas~\ref{tab:tm-curva}--\ref{tab:tm-top4-resmlp} y la Figura~\ref{fig:tm-curve} describen ese archivo ampliado. El README inicial del barrido corresponde a menos condiciones y no sustituye sus CSV ampliados.
 
-\section{Contrastes de la selección estática}
-La comparación se agrega por conjunto de datos y se separa por clasificador. Friedman obtiene $p=0{,}0289$ con SVM y $p=0{,}0110$ con ResMLP; Iman--Davenport registra $0{,}0139$ y $0{,}0025$. Son resultados del benchmark archivado, no evidencia inferencial del híbrido ni de una superioridad uniforme.
-
-Los post-hoc de rangos de Friedman con Holm sobre diez pares por clasificador identifican GFS frente a Individual con ResMLP ($p_{\mathrm{Holm}}=0{,}0191$). Con SVM, Completa y Top-$k$ frente a Individual registran $0{,}0617$ y GFS registra $0{,}8028$. No se interpretan los no rechazos como equivalencia. Las Tablas~\ref{tab:classifier-rankings}, \ref{tab:classifier-global} y~\ref{tab:classifier-holm} del Anexo~\ref{app:resultados-adicionales} conservan el análisis completo.
-
-La inclusión de BEiT-v2 estuvo informada por evaluaciones previas y los controles KTH de estas tablas son la variante archivada, no la corrección posterior por muestra. La significancia observada no equivale a confirmación independiente del diseño.
-
-\subsection{Sensibilidad a la exclusión de KTH}
-La Tabla~\ref{tab:kth-sensibilidad-global} conserva el análisis original y su repetición sobre los cinco datasets restantes. Sin KTH, Friedman obtiene $p=0{,}0342$ con SVM y $p=0{,}0199$ con ResMLP. En esta sensibilidad, GFS frente a Individual con ResMLP mantiene $p_{\mathrm{Holm}}=0{,}0270$, frente a $0{,}0191$ en el archivo de seis conjuntos. Con SVM ningún par rechaza tras Holm; Top-$k$ frente a Individual registra $0{,}0511$, Completa $0{,}0839$ y GFS $0{,}2225$. No se redondea el primer valor para tratarlo como significativo.
-
-\input{generated_mesa_r2/kth_sensibilidad_global.tex}
-
-Friedman alineado no rechaza en ninguno de los dos paneles: sin KTH registra $0{,}3901$ para SVM y $0{,}3955$ para ResMLP. Quade sí rechaza a nivel nominal. El resultado de rangos GFS--Individual con ResMLP se conserva al excluir KTH, pero la batería no aporta cuatro confirmaciones independientes ni demuestra superioridad uniforme. La Tabla~\ref{tab:kth-sensibilidad-holm} conserva los veinte pares de la sensibilidad en el anexo. La procedencia de KTH continúa pendiente de reconciliación.
-\FloatBarrier
-
-\section{P2: adquisición condicional en 27 condiciones}\label{sec:resultados-cascada}
-
-La variante histórica utiliza una base y un rescate Top-$k$ archivado. Sus medias se conservan como resultados descriptivos; el nuevo híbrido se evalúa aparte.
-
-\begin{table}[!htbp]
-\centering\small
-\caption{Macro-F1 externo de la cascada histórica. Medias por dataset; KTH conserva la variante archivada, no una cascada reconciliada con el Top-$k$ corregido.}
-\label{tab:cascada-multidataset}
-\begin{tabular}{@{}lrrrr@{}}
-\toprule
-Dataset & Condiciones & Cascada & Top-$k$ origen & Completa-22\\
-\midrule
-DTD & 10 & 0,8700 & 0,8700 & 0,8639\\
-FMD & 5 & 0,9840 & 0,9829 & 0,9651\\
-CUReT & 2 & 0,9982 & 0,9989 & 0,9989\\
-Outex13 & 1 & 0,9369 & 0,9426 & 0,9656\\
-SoilOriginal & 5 & 0,8734 & 0,8701 & 0,8919\\
-KTH-TIPS-2b & 4 & 0,9445 & 0,9400 & 0,9601\\
-\midrule
-Media por dataset & 27 & 0,9345 & 0,9341 & 0,9409\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-La media da igual peso a cada dataset. En los cinco conjuntos reconciliados, las medias son $0{,}9325$ para la cascada, $0{,}9329$ para Top-$k$ y $0{,}9371$ para Completa. El control KTH corregido por muestra alcanza aproximadamente $0{,}9445$, pero coincidir en media no reconcilia la selección del rescate de la cascada histórica.
-
-Las bases fueron SigLIP en 20 condiciones, BEiT-v2 en cinco y ResNet-50 en una; una condición eligió Top-$k$ directo. El cociente de costos medios proyecta una reducción de $75{,}5\%$ frente a Top-$k$ bajo el perfil histórico por componentes, no un cronometraje del panel completo.
-
-El análisis por dataset excluye KTH por procedencia y mantiene $N=5$. Friedman obtiene $p=0{,}4518$ e Iman--Davenport $p=0{,}4922$. Las tres comparaciones pareadas de Wilcoxon con Holm frente a cascada ResNet, Top-$k$ y Completa dan valores ajustados de $1{,}0000$. El no rechazo no establece equivalencia ni no inferioridad. Los contrastes que tratan las 27 condiciones dependientes como unidades independientes no se usan como evidencia inferencial.
-
-
-Las figuras detalladas de la cascada de referencia se conservan en el Anexo~\ref{app:procedencia}.
-
-\FloatBarrier
-\section{Pilotos físicos de la cascada histórica}\label{sec:resultados-gpu}
-
-Se midió una condición por dataset en RTX 4060 con modelos residentes e imágenes decodificadas: una imagen por clase, tres repeticiones pareadas y orden aleatorizado. Son 204 imágenes y 612 parejas, no 612 imágenes independientes.
-
-\begin{table}[!htbp]
-\centering\fontsize{8}{10}\selectfont
-\caption{Tiempos archivados de la cascada histórica y Top-$k$. Las discrepancias de representación se mantienen visibles; estos tiempos no miden el híbrido nuevo.}
-\label{tab:gpu-benchmark}
-\begin{tabular}{@{}lrrrrrl@{}}
-\toprule
-Dataset & Imágenes & Pares & Cascada ms & Top-$k$ ms & Reducción & Representación\\
-\midrule
-DTD & 47 & 141 & 90,57 & 295,55 & 69,36\% & sin alerta del piloto\\
-FMD & 10 & 30 & 13,01 & 208,08 & 93,75\% & sin alerta del piloto\\
-CUReT & 61 & 183 & 92,52 & 270,60 & 65,81\% & discrepancia\\
-Outex13 & 68 & 204 & 111,47 & 354,31 & 68,54\% & sin alerta del piloto\\
-SoilOriginal & 7 & 21 & 41,99 & 109,10 & 61,51\% & discrepancia\\
-KTH-TIPS-2b & 11 & 33 & 46,08 & 188,33 & 75,53\% & variante histórica\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-La agregación de las 612 parejas registra 90,25 ms frente a 291,21 ms, reducción de aproximadamente 69,0\% y razón de sumas 3,23. Es un agregado de registros, no una estimación equiponderada de generalización a seis dominios. En 453 ejecuciones se registra salida temprana; las repeticiones comparten imagen.
-
-Las rutas y predicciones coinciden con el caché en esos registros. Sin embargo, los cosenos mínimos en CUReT y Soil son aproximadamente $-0{,}0707$ y $0{,}0085$. Estas diferencias impiden concluir identidad de representaciones. Su atribución a una capa o preprocesamiento concreto requiere un diagnóstico controlado. Los tiempos no prueban fidelidad física cerrada del sistema cacheado ni validan el híbrido nuevo.
-
-\FloatBarrier
-\section{P3: rescate de ensamble en desarrollo Outex}\label{sec:resultados-hibrido}
-
-El piloto usa las 680 imágenes del entrenamiento oficial de Outex, semilla 42, tres folds productores y tres internos. El test oficial no fue evaluado. La Tabla~\ref{tab:hybrid-oof} muestra todas sus políticas; no se comparan directamente con el F1 de test de la Tabla~\ref{tab:cascada-multidataset}.
-
-\input{generated_editorial/controles_hibrido.tex}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/hibrido_calidad_costo.pdf}
-\caption{Políticas del piloto Outex y controles del mismo protocolo. Se muestran los cuatro presupuestos de cada variante, incluidos puntos coincidentes. El eje horizontal es costo proyectado en escala logarítmica, no latencia física; las líneas no representan una frontera óptima.}
-\label{fig:hibrido-calidad-costo}
+\input{generated_topk_margin/curva_k.tex}
+\begin{figure}[!htbp]\centering
+\includegraphics[width=\textwidth]{generated_topk_progression/ganancias_k.pdf}
+\caption[Calidad y ganancia marginal al aumentar el número de descriptores.]{Calidad al aumentar el número de descriptores y ganancia de cada bloque adicional. Los círculos abiertos y la línea vertical señalan Top-4. Cada punto promedia primero dentro del dataset y después entre datasets. Una barra negativa indica pérdida al añadir ese bloque. Se muestran todos los tamaños, incluidos los máximos posteriores a cuatro.}
+\label{fig:tm-curve}
 \end{figure}
-\FloatBarrier
 
-\begin{table}[!htbp]
-\centering\small
-\caption{Piloto híbrido de Outex: macro-F1 OOF de desarrollo y costo proyectado. $B$ es el presupuesto de selección en ms; los costos no son latencias físicas.}
-\label{tab:hybrid-oof}
-\begin{tabular}{@{}lrrr@{}}
-\toprule
-Ruta & $B$ & Macro-F1 & Costo proyectado ms\\
-\midrule
-Diversidad15 permanente & -- & 0,914389 & 365,196\\
-Completo como rescate & 15 & 0,858056 & 12,220\\
-Podado marginal & 15 & 0,858056 & 12,220\\
-Podado relevancia & 15 & 0,858056 & 12,220\\
-Completo como rescate & 30 & 0,854129 & 20,485\\
-Podado marginal & 30 & 0,893488 & 25,394\\
-Podado relevancia & 30 & 0,893488 & 25,394\\
-Completo como rescate & 60 & 0,891759 & 57,839\\
-Podado marginal & 60 & 0,905140 & 55,365\\
-Podado relevancia & 60 & 0,910742 & 53,316\\
-Completo como rescate & 120 & 0,908603 & 104,660\\
-Podado marginal & 120 & 0,908781 & 84,018\\
-Podado relevancia & 120 & 0,909396 & 78,938\\
-\bottomrule
-\end{tabular}
+Con SVM, Top-4 obtiene 0,936554 y el máximo descriptivo aparece en \(k=10\), con 0,936764. La diferencia es 0,000210 de macro-F1, mientras el porcentaje dimensional medio es aproximadamente 15,42 para cuatro bloques y 45,17 para diez, respecto a 21. Esto identifica una alternativa compacta cercana al máximo observado, no una prueba de equivalencia.
+
+Con ResMLP, Top-4 registra 0,933077 y el máximo del barrido aparece en \(k=5\), con 0,935195. Por tanto, la elección de cuatro no maximiza todas las curvas. Tampoco puede reducirse la decisión al promedio global: la composición y la respuesta a \(k\) dependen del dataset y del clasificador.
+
+\subsection{Por qué estudiar cuatro: ganancia frente a crecimiento del vector}
+El eje horizontal representa el número de descriptores concatenados. Se trata de una curva de desempeño frente al tamaño de la representación; el número de imágenes de entrenamiento y las épocas no varían en ese eje. Para explicar la contribución incremental se calcula
+\begin{equation}
+g_k=100\,[\overline F(k)-\overline F(k-1)],\qquad k=2,\ldots,21,
+\end{equation}
+en puntos porcentuales de macro-F1. La Figura~\ref{fig:tm-curve} muestra cada incremento, incluidos los negativos.
+
+Con SVM, pasar de uno a cuatro bloques aumenta el macro-F1 medio de 0,917448 a 0,936554: una ganancia de 1,911 puntos porcentuales. Pasar de cuatro al máximo observado en diez aporta solo 0,021 puntos adicionales, mientras la dimensión media relativa aumenta de 15,42 a 45,17 \%. Cuatro concentra aproximadamente el 98,91 \% de la mejora observada entre uno y el máximo del barrido. Esta proporción describe la ganancia de F1, no el porcentaje de imágenes clasificadas correctamente ni un intervalo de equivalencia.
+
+Así, Top-4 resulta una elección compacta con buena calidad media y una regla de tamaño fácil de explicar. Después de cuatro se observan ocho pasos negativos y nueve positivos con SVM: el rendimiento fluctúa, en lugar de disminuir siempre. Con ResMLP, cinco aporta 0,212 puntos más que cuatro. La conclusión sustentada es que las ganancias posteriores pueden ser pequeñas frente al crecimiento de representación; identificar un mejor compromiso exige declarar qué calidad y costo se priorizan.
+
+\input{generated_topk_margin/top4_svm.tex}
+\input{generated_topk_margin/top4_resmlp.tex}
+
+En FMD, cuatro es el máximo medio del barrido para ambos clasificadores y supera a concatenar toda la biblioteca. En Soil, cuatro también maximiza la curva SVM; con ResMLP el máximo aparece en ocho. Outex constituye una excepción relevante: la representación completa conserva una ventaja de calidad frente a cuatro. CUReT se encuentra cerca del techo de la métrica, donde diferencias pequeñas merecen una interpretación prudente. Los resultados KTH de este archivo conservan su variante histórica y no se utilizan para borrar la reserva de otra evaluación.
+
+\begin{figure}[!htbp]\centering
+\includegraphics[width=\textwidth]{generated_topk_progression/curvas_por_dataset.pdf}
+\caption[Barrido de tamaños en los seis datasets.]{Barrido de tamaños en los seis datasets. Cada panel muestra SVM y ResMLP con medias de las condiciones del dataset. La línea vertical y los círculos abiertos señalan cuatro. Las escalas verticales se ajustan por panel para mostrar las variaciones; KTH mantiene su reserva de procedencia.}
+\label{fig:tm-per-dataset-curves}
+\end{figure}
+
+\section{Qué aportan N-gramas y las ampliaciones de biblioteca}
+Las tablas previas distinguen 21 bloques sin N-gramas de la biblioteca de 22. El control histórico emparejado de 20 frente a 21 con N-gramas examina otra ampliación, anterior a BEiT-v2. Se conserva en la Tabla~\ref{tab:ngram-svm} para SVM y en el Anexo~\ref{app:resultados-adicionales} para ResMLP.
+
+\input{articulo/borrador_profesor/generated/ngram_svm.tex}
+
+En ese control, añadir N-gramas a Completa en Outex cambia el macro-F1 de aproximadamente 0,9572 a 0,9674. La ampliación también puede cambiar qué subconjunto elige GFS o el Top-\(k\) de tamaño heredado. En DTD, Completa no mejora con la incorporación del bloque. El aporte no es uniforme y el resultado de una ampliación no se extrapola a todas las bibliotecas.
+
+El ranking individual y la complementariedad responden preguntas distintas. La ausencia de N-gramas entre cuatro bloques mejor puntuados individualmente no demuestra que su combinación con ellos no sea útil. La tesis no presenta como ejecutado un control Top-4 más N-gramas que no tenga evidencia emparejada y cobertura identificada.
+
+\section{Comparación externa de Top-4 en llamadas online}\label{sec:resultados-panel-online-sota}
+Las Tablas~\ref{tab:tm-externos-f1} y~\ref{tab:tm-externos-ms} extraen Top-4/SVM del panel físico auditado y lo comparan con las adaptaciones externas sobre las mismas imágenes de cada condición. Las métricas de cada método se reconstruyeron con predicción y tiempo de las mismas llamadas. No se reutiliza aquí el F1 del barrido histórico con un tiempo medido después.
+
+\input{generated_topk_margin/externos_f1.tex}
+\input{generated_topk_margin/externos_ms.tex}
+
+En FMD, Top-4 alcanza aproximadamente 0,98230 frente a 0,94213 de la adaptación Neshov con MLP. Requiere más tiempo en las mediciones observadas. En Soil, Top-4 queda en 0,85940 frente a 0,86310 de Neshov, y su media temporal es mayor. Este caso desfavorable se conserva. Las mediciones de fechas distintas describen el archivo disponible y no identifican por sí solas una ventaja temporal causal.
+
+Los valores Top-4 del panel online no se presentan como reproducción exacta de toda fila del barrido. Por ejemplo, Soil/SVM registra aproximadamente 0,88639 en el archivo de tamaños y 0,85940 en este panel. La discrepancia entre archivos requiere trazabilidad de selección, representación y ajuste; no se atribuye a una causa no demostrada ni se escoge el mayor número para una tabla final. Las conclusiones del barrido y las comparaciones por llamadas se mantienen dentro de sus archivos.
+
+DeepLumina conserva una reserva científica: las 46 condiciones terminadas contienen avisos de no convergencia y la inspección de modelos encontró 1.653 de 2.441 clasificadores binarios en el límite de iteraciones. DTD contiene nueve de diez condiciones terminadas y no se informa una media completa. La existencia de predicciones no convierte esos ajustes en una réplica validada.
+
+La aproximación separada Neshov FMD de 100 condiciones y 10.000 llamadas registra accuracy 94,22 \%, frente a 96,7 \% publicado. La diferencia no se oculta ni se transforma en un cambio de receta para forzar coincidencia. Se trata de una aproximación con diferencias de partición y entorno. Los porcentajes de otros artículos se interpretan de igual modo según sus protocolos.
+
+\section{P2: optimización mediante activación por margen}\label{sec:resultados-cascada}
+La auditoría reconstruye 27 condiciones SVM y 31.984 observaciones de prueba a partir de las predicciones guardadas. Verifica que, en todas las imágenes derivadas, el resultado condicional es el del mismo Top-\(k\) directo. Los tamaños del rescate van de uno a ocho: cinco condiciones usan cuatro. Son una evaluación de Top-\(k\) por condición, no 27 experimentos Top-4 fijo.
+
+\input{generated_topk_margin/cascada_calidad.tex}
+
+Se identificaron además las cinco condiciones cuyo rescate tiene cuatro bloques y coincide exactamente con el subconjunto Top-4 del barrido de esa partición. La Tabla~\ref{tab:tm-fixed4-margin} conserva sus aumentos, pérdidas y empates. El subconjunto se define por identidad de bloques y tamaño, no por favorecer la activación. No representa cobertura Top-4 por margen en los seis datasets.
+
+\input{generated_topk_margin/top4_margin_subset.tex}
+
+Se selecciona cascada en 26 condiciones y uso directo en una. Las bases de las rutas condicionales son SigLIP en veinte condiciones, BEiT-v2 en cinco y ResNet-50 en una. Estas elecciones provienen del criterio interno identificado en el método; no se escoge una base por el mayor F1 externo.
+
+En FMD, el uso directo registra macro-F1 medio 0,982926 y la política por margen 0,983953. En Outex, la política condicional baja de 0,942574 a 0,936950. CUReT presenta una pérdida pequeña; DTD queda muy próximo en promedio. Soil y el KTH histórico muestran aumentos. La compuerta no produce una mejora uniforme.
+
+La ruta condicional puede superar a Top-\(k\) porque conserva la predicción base en las imágenes que no deriva. Top-\(k\) directo no es un techo matemático de esa combinación. Del mismo modo, un margen alto puede conservar un error que la segunda etapa habría corregido. La auditoría guarda ambos conteos, junto con los cambios de clase.
+
+\section{Adquisición proyectada y pilotos físicos}\label{sec:resultados-gpu}
+\input{generated_topk_margin/cascada_costos.tex}
+\begin{figure}[!htbp]\centering
+\includegraphics[width=\textwidth]{generated_topk_margin/directo_margen.pdf}
+\caption{Comparación por dataset del uso directo y por margen: calidad a la izquierda y adquisición proyectada a la derecha. La diagonal indica igualdad de la magnitud; el panel de costo no es un cronometraje físico nuevo. KTH conserva su reserva.}
+\label{fig:tm-direct-margin}
+\end{figure}
+
+La Tabla~\ref{tab:tm-costos} reporta \(\widehat C_V\): adquisición proyectada con la fracción externa observada después de fijar la política. La selección utilizó \(\widehat C_{\mathrm{sel}}\), calculada con las predicciones internas OOF. Que ambas tasas difieran no implica que se haya vuelto a elegir el umbral con el test. Los porcentajes describen el perfil de extracción por componentes y se mantienen separados de los cronometrajes físicos.
+
+\begin{table}[!htbp]\centering\fontsize{8}{10}\selectfont
+\caption{Piloto físico de la política con base seleccionada, una condición por dataset. Modelos residentes e imágenes decodificadas; una imagen por clase y tres repeticiones pareadas.}
+\label{tab:gpu-benchmark}
+\begin{tabular}{@{}lrrrrl@{}}\toprule
+Dataset & Imágenes & Pares & Margen ms & Directo ms & Reserva\\\midrule
+DTD & 47 & 141 & 90,57 & 295,55 & alcance del piloto\\
+FMD & 10 & 30 & 13,01 & 208,08 & alcance del piloto\\
+CUReT & 61 & 183 & 92,52 & 270,60 & representación\\
+Outex13 & 68 & 204 & 111,47 & 354,31 & alcance del piloto\\
+Soil & 7 & 21 & 41,99 & 109,10 & representación\\
+KTH-TIPS2b & 11 & 33 & 46,08 & 188,33 & variante histórica\\
+\bottomrule\end{tabular}
 \end{table}
 
-El punto podado por relevancia/B60 obtiene $0{,}910742$, frente a $0{,}914389$ de diversidad permanente, con 85,40\% menos costo estimado y una diferencia de F1 de $-0{,}003646$ (aproximadamente $-0{,}365$ puntos porcentuales). Top-5 obtiene $0{,}900824/288{,}435$ ms y Completa-22 $0{,}913957/1706{,}420$ ms. El híbrido supera numéricamente Top-5, pero no a Completa ni al ensamble permanente en calidad. B60 es un punto observado dentro del barrido de desarrollo, no un presupuesto validado de forma independiente después de su selección.
+El piloto reúne 204 imágenes y 612 parejas, no 612 imágenes independientes. Los tiempos observados favorecen la ruta condicional en esas condiciones. Sin embargo, CUReT y Soil mantienen discrepancias entre los vectores físicos y cacheados; sus cosenos mínimos fueron aproximadamente -0,0707 y 0,0085. Coincidir en clase o ruta no demuestra identidad de representación. Los tiempos no cierran esa reserva ni acreditan reducción general en los seis conjuntos.
 
-Ese punto deriva 278/680 imágenes: corrige 52 errores de las bases y perjudica cinco aciertos. El saldo de 47 aciertos adicionales describe exactitud, no una diferencia de macro-F1, que depende de la distribución de errores por clase. Sus bases son DINOv2-small, BEiT-v2-final y VGG16, con dos, dos y un modelos de rescate únicos. Las llamadas medias son 1,654 frente a 10,665 del ensamble permanente. El resto de las imágenes sale por la base; el Anexo~\ref{app:procedencia} aclara la diferencia entre votos y modelos ejecutados.
+El control físico KTH con salida directa justa documentó también que una cascada puede ser más lenta cuando Top-\(k\) ya es barato. La posibilidad de elegir uso directo forma parte de la decisión estudiada, no constituye un caso que se deba omitir.
 
-A presupuesto 15 se elige base sola; el rescate completo/B30 tampoco se activa. Relevancia supera a marginal en calidad y costo en los puntos de 60 y 120 ms. Los 36 presupuestos internos se cumplen, pero completo/B60/fold1 registra 70,019604 ms proyectados en validación frente a 59,602804 internos. Se conservan esa excedencia y la falta de monotonía del F1 con el presupuesto.
+\section{Síntesis de evidencia}
+P1 queda respaldada por un barrido amplio y por comparaciones que identifican tanto ventajas de compactar como pérdidas frente a representaciones mayores. P2 dispone de una comparación por predicciones del mismo Top-\(k\), costos analíticos y pilotos físicos delimitados. La cobertura completa de las predicciones no convierte automáticamente los costos en latencias físicas completas.
 
-
-La Tabla~\ref{tab:controles-hibrido} y la Figura~\ref{fig:hibrido-calidad-costo} permiten comparar referencias sin trasladar cifras de test externo. El primer control siguiente mantiene fijo el rescate; el segundo lo compara con una selección estática propia bajo presupuesto. GFS concatenado sigue sin evaluarse en este protocolo. El análisis emparejado de N-gramas se conserva como evidencia secundaria en el Anexo~\ref{app:resultados-adicionales}.
-
-\subsection{Separación de poda y activación condicional}\label{sec:resultados-p0}
-La Tabla~\ref{tab:p0-b60} descompone el punto relevancia/B60 con el control de la Sección~\ref{sec:diseno-p0}. Son las mismas 680 imágenes y los mismos modelos del piloto; el recálculo no constituye otra evaluación independiente.
-
-\input{generated_p0/descomposicion_b60.tex}
-
-La poda cambia el ensamble permanente de $0{,}914389/365{,}196$ ms a $0{,}911993/110{,}421$ ms: reduce la adquisición proyectada en 69,76\%, con $\Delta\mathrm{F1}=-0{,}002395$. Activar condicionalmente ese mismo rescate reduce otros 51,72\% respecto de su ejecución permanente, hasta $53{,}316$ ms, con $\Delta\mathrm{F1}=-0{,}001251$. Las reducciones se aplican sucesivamente y no se suman; el descenso total frente al ensamble completo es 85,40\%. La ruta forzada retiene la base y tiene costo $110{,}871$ ms; se distingue de la referencia permanente eficiente, que omite ese trabajo.
-
-Frente al mismo rescate permanente, la compuerta cambia tres clases predichas: corrige una y perjudica dos. La exactitud pasa de $0{,}914706$ a $0{,}913235$. Es un contraste distinto del balance de 52 errores corregidos y cinco aciertos perjudicados frente a las bases. Las llamadas medias apenas disminuyen un 0,79\% respecto del rescate podado permanente, de $1{,}668$ a $1{,}654$. La gran reducción de llamadas frente al ensamble completo corresponde principalmente a la poda, no a la compuerta.
-
-En marginal/B60, las 680 predicciones condicionales coinciden exactamente con las del mismo rescate permanente: macro-F1 $0{,}905140$ y exactitud $0{,}907353$. Su costo proyectado pasa de $97{,}282$ a $55{,}365$ ms, una reducción de 43,09\%. Sin embargo, las llamadas aumentan de $1{,}334$ a $1{,}672$, un 25,36\%, porque la ruta también calcula la base. Menor adquisición proyectada puede coexistir con más evaluaciones de clasificadores; la coincidencia de clases en estas imágenes no prueba equivalencia poblacional.
-
-El barrido completo, incluida la base sola, se presenta en la Tabla~\ref{tab:p0-barrido}. En ocho configuraciones existe rescate: la compuerta reduce F1 en siete y conserva las predicciones en marginal/B60; no mejora F1 en ninguna. Las otras cuatro se reducen a la base. Los rescates permanentes de ambos criterios en B60 superan 60 ms proyectados, mientras sus rutas condicionales quedan por debajo en la media reunida. Esto no descarta una alternativa estática distinta que cumpla el mismo presupuesto. La excedencia del rescate completo/B60 en un pliegue sigue vigente. Para esta ablación no se calcularon valores $p$ ni se midió latencia física.
-
-\subsection{Comparación con selección estática bajo presupuesto}\label{sec:resultados-estatico-presupuesto}
-El control de la Sección~\ref{sec:diseno-estatico-presupuesto} cumple su presupuesto en las doce combinaciones de pliegue y presupuesto. Los pools contienen 31, 33 y 34 candidatos. En B60 se examinan 617 combinaciones factibles por pliegue; en B120, entre 1.287 y 1.701. La elección usa únicamente macro-F1 OOF interno. La Tabla~\ref{tab:estatico-presupuesto} conserva los cuatro presupuestos frente a relevancia, sin recomendar uno retrospectivamente.
-
-\input{generated_mesa_r2/estatico_presupuesto.tex}
-
-En B30, el híbrido por relevancia tiene mayor F1 observado y menor costo proyectado que el control: $0{,}893488/25{,}394$ ms frente a $0{,}861264/28{,}463$ ms. En B60 obtiene $0{,}910742$ frente a $0{,}892923$, pero también adquiere más información estimada: $53{,}316$ frente a $44{,}831$ ms. Ambos cumplen 60 ms en la media reunida; no son puntos de idéntico costo.
-
-En B15, el estático tiene mayor F1 ($0{,}859690$ frente a $0{,}858056$) y mayor costo ($13{,}752$ frente a $12{,}220$ ms). En B120 también obtiene mayor F1 ($0{,}909612$ frente a $0{,}909396$) con mayor costo ($103{,}040$ frente a $78{,}938$ ms). Por tanto, la comparación no muestra superioridad uniforme de la adquisición condicional. La ventaja predictiva observada dentro de B60 corresponde a este pool, semilla y protocolo de desarrollo; no establece optimalidad global, significancia entre dominios ni aceleración física.
-\FloatBarrier
-
-\section{Réplica del rescate en dos datasets}\label{sec:resultados-replica}
-Las cinco condiciones nuevas de la Sección~\ref{sec:diseno-replica} completaron sus etapas y la auditoría de índices, selecciones y predicciones. Las medias de la Tabla~\ref{tab:replica-medias} no incluyen el piloto Outex/42: resumen tres semillas FMD y dos semillas Outex. Se conserva relevancia como referencia de la discusión del piloto, sin cambiar la regla para escoger retrospectivamente el mejor resultado de cada fila. Las tres reglas completas y las referencias emparejadas figuran en las Tablas~\ref{tab:replica-barrido} y~\ref{tab:replica-referencias}.
-
-\input{generated_replication/replica_medias.tex}
-\FloatBarrier
-
-En B60, relevancia alcanza en FMD macro-F1 medio $0{,}977489$ y adquisición proyectada $35{,}689$ ms, frente a $0{,}974600/41{,}888$ ms del estático. En las dos semillas nuevas de Outex obtiene $0{,}905991/40{,}750$ ms frente a $0{,}889152/49{,}047$ ms. Son comparaciones bajo un mismo presupuesto de selección, no a idéntico costo realizado ni pruebas de significancia entre dominios. En FMD/B30 el mayor F1 del híbrido requiere más costo; en FMD/B120 las medias de F1 casi coinciden, sin demostrar equivalencia. En Outex/B15 el estático conserva mayor F1 a cambio de mayor adquisición.
-
-El promedio FMD/B60 oculta diferencias importantes entre semillas. En la semilla 42, el estático supera al híbrido en calidad y costo: $0{,}978772/35{,}078$ ms frente a $0{,}977506/38{,}282$ ms. En 123, el híbrido pierde $0{,}000042$ de F1 con menor costo ($35{,}869$ frente a $52{,}565$ ms); en 2026 lo supera en ambas medidas. Tampoco se conserva una dominancia general de relevancia sobre marginal: en FMD/123/B30, marginal obtiene $0{,}975051/15{,}770$ ms frente a $0{,}973800/17{,}771$ ms. Las reglas compiten según condición y presupuesto.
-
-La comparación del mismo rescate con y sin compuerta también cambia de signo entre dominios. En relevancia/B60, el promedio FMD pasa de $0{,}974596/281{,}061$ ms permanente a $0{,}977489/35{,}689$ ms condicional; en las semillas nuevas de Outex pasa de $0{,}912135/134{,}273$ ms a $0{,}905991/40{,}750$ ms. La compuerta puede conservar aciertos de la base que el rescate perdería, pero no mejora siempre la calidad. La Tabla~\ref{tab:replica-p0} presenta todos los presupuestos y reglas, incluidos los casos sin rescate. La referencia permanente no es un rival reoptimizado para cumplir el presupuesto del híbrido.
-
-La réplica amplía la evidencia del piloto, pero sigue siendo desarrollo sobre benchmarks previamente observados. No valida una política única de despliegue, ni el híbrido en los seis conjuntos, ni el ahorro físico. GFS y Top-$k$ con tamaño seleccionado requieren ajustes propios bajo este protocolo; no se sustituyen por Top-3/4/5 ni por cifras de test externo.
-\FloatBarrier
-
-\section{Panel físico online completo (94 condiciones) y comparación con el estado del arte}\label{sec:resultados-panel-online-sota}
-Para cerrar la evaluación física en la totalidad de las particiones externas y contrastar los métodos propuestos frente a sistemas recientes de concatenación del estado del arte, la Tabla~\ref{tab:panel-online-94} presenta los resultados consolidados del panel local online sobre las 94 condiciones únicas (47 particiones $\times$ 2 clasificadores, 470 filas condición--método y 362.640 inferencias individuales en lote unitario \texttt{batch=1}). En cada llamada, el macro-F1 y la latencia física en milisegundos provienen exactamente de la misma ejecución sincronizada en GPU RTX 4060.
-
-\begin{table}[!htbp]
-\centering\fontsize{7.8}{9.6}\selectfont
-\caption{Panel local online completo (94 condiciones, 362.640 llamadas primarias). Se informa macro-F1 medio entre particiones y, entre paréntesis, latencia física media en ms por llamada individual (\texttt{batch=1}).}
-\label{tab:panel-online-94}
-\begin{tabular}{@{}llrrrrr@{}}
-\toprule
-Dataset (Cond. / Llamadas) & Cabeza & \texttt{Adaptive-margin} & \texttt{Top-4} & \texttt{Ens-diversidad} & \texttt{Ens-tombola} & \texttt{Completa-22}\\
-\midrule
-CUReT (2 / 5.612) & ResMLP & 0,9989 (\textbf{30,47}) & 0,9984 (268,42) & 0,9989 (395,12) & \textbf{0,9991} (365,79) & \textbf{0,9991} (1618,51)\\
- & SVM & 0,9984 (\textbf{36,83}) & 0,9986 (270,69) & 0,9988 (404,02) & \textbf{0,9989} (348,36) & \textbf{0,9989} (1712,57)\\
-\addlinespace[2pt]
-DTD (10 / 18.800) & ResMLP & 0,8660 (\textbf{47,61}) & 0,8613 (267,50) & \textbf{0,8771} (366,45) & 0,8745 (356,18) & 0,8616 (1551,34)\\
- & SVM$^{\dagger}$ & 0,8669 (\textbf{54,35}) & 0,8689 (333,98) & \textbf{0,8734} (411,43) & 0,8724 (424,63) & 0,8635 (1611,57)\\
-\addlinespace[2pt]
-FMD (15 / 3.000) & ResMLP & 0,9760 (\textbf{36,35}) & \textbf{0,9800} (258,56) & 0,9773 (373,45) & 0,9770 (367,84) & 0,9577 (1759,70)\\
- & SVM & 0,9776 (\textbf{38,63}) & \textbf{0,9823} (268,96) & 0,9783 (364,54) & 0,9792 (356,76) & 0,9651 (1759,50)\\
-\addlinespace[2pt]
-KTH-TIPS-2b (4 / 4.752) & ResMLP & 0,9391 (\textbf{32,16}) & 0,9523 (260,11) & \textbf{0,9556} (366,38) & 0,9543 (354,33) & 0,9461 (1626,70)\\
- & SVM & 0,9390 (\textbf{30,95}) & 0,9544 (260,38) & 0,9543 (367,46) & 0,9540 (345,56) & \textbf{0,9599} (1579,08)\\
-\addlinespace[2pt]
-Outex13 (1 / 680) & ResMLP & \textbf{0,9609} (\textbf{21,65}) & 0,9275 (263,77) & 0,9522 (349,43) & 0,9578 (337,53) & 0,9477 (1563,18)\\
- & SVM & 0,9276 (\textbf{40,33}) & 0,9288 (265,38) & 0,9442 (358,17) & 0,9399 (362,65) & \textbf{0,9552} (1574,19)\\
-\addlinespace[2pt]
-SoilOriginal (15 / 3.420) & ResMLP & 0,8668 (\textbf{48,33}) & 0,8633 (78,21) & \textbf{0,8758} (208,14) & 0,8742 (183,52) & 0,8673 (1823,25)\\
- & SVM & 0,8725 (\textbf{38,48}) & 0,8594 (70,98) & 0,8770 (204,91) & 0,8664 (200,33) & \textbf{0,8792} (1651,19)\\
-\bottomrule
-\end{tabular}
-
-\vspace{0.35em}
-\begin{minipage}{0.98\textwidth}\footnotesize
-$^{\dagger}$En DTD/SVM se conserva la reserva de cronometraje físico por una pausa temporal durante una ventana nocturna (la mediana de \texttt{Adaptive-selection-margin} en DTD/SVM es 14,10 ms y en DTD/ResMLP es 14,77 ms).
-\end{minipage}
-\end{table}
-
-En las doce configuraciones dataset--clasificador de la Tabla~\ref{tab:panel-online-94}, \texttt{Adaptive-selection-margin} logra la menor latencia física media (entre 21,65 y 54,35 ms por imagen, con medianas entre 2,81 y 25,18 ms debido a la salida temprana en la Etapa 1), reduciendo el tiempo físico entre 5,6$\times$ y 12,2$\times$ frente a \texttt{Top-4}/\texttt{Ens-diversidad} y entre 30$\times$ y 72$\times$ frente a \texttt{Completa-22}, al tiempo que conserva un macro-F1 altamente competitivo (e incluso superior a todos los controles estáticos en Outex13 con ResMLP: $0{,}9609$ en $21{,}65$ ms). Asimismo, las estrategias de selección por ensamble (\texttt{Ens-diversidad} y \texttt{Ens-tombola}) superan a \texttt{Completa-22} en DTD y FMD con ambos clasificadores, y en KTH-TIPS-2b, Outex13 y SoilOriginal con ResMLP.
-
-\subsection{Validación de fidelidad de ecuaciones, código y protocolos publicados}
-Antes de comparar contra los cuatro sistemas externos de concatenación en nuestro panel común, se auditó la disponibilidad de código fuente de los autores, la paridad matemática de los operadores y el comportamiento de cada método bajo el protocolo descrito en su artículo original (Tabla~\ref{tab:validacion-fidelidad-sota}):
-\begin{itemize}
-\item En \textbf{DeepLumina} \citep{simon2022deeplumina}, donde el artículo original reporta una exactitud de $90{,}15\% \pm 1{,}2\%$ en FMD bajo una partición aleatoria 80/20 (rango $[88{,}95\%, 91{,}35\%]$), $97{,}53\% \pm 0{,}5\%$ en CUReT y $73{,}63\% \pm 0{,}5\%$ en DTD, nuestra implementación alcanza hasta \textbf{90,00\% de exactitud} ($0{,}8994$ macro-F1) en pliegues individuales 80/20 de FMD (\texttt{s2026\_f2}) y \textbf{89,00\%} en \texttt{s42\_f3} (con media de $85{,}53\% \pm 2{,}27\%$ al evaluar las 15 particiones estratificadas sin selección retrospectiva), obtiene \textbf{98,81\% de exactitud} ($0{,}9881$ macro-F1) en CUReT y registra \textbf{70,40\% $\pm$ 1,05\% de exactitud} ($0{,}7027$ macro-F1, con hasta \textbf{71,60\%} en \texttt{s42\_f0}) sobre las particiones depuradas de grupos en DTD (9/10 condiciones, 16.920 llamadas), validando plenamente la fidelidad de la ruta \texttt{ResNet-101 fc1000} RGB+YIQ y del clasificador ECOC-SVM \emph{sparse-random}.
-\item En \textbf{Neshov et al.\ (2025)} \citep{neshov2025aggregation}, la evaluación prospectiva de su protocolo de 10 repeticiones de validación cruzada de 10 pliegues en FMD (100 condiciones, 10.000 llamadas individuales) registra una exactitud media de \textbf{94,22\% $\pm$ 0,40\%} (macro-F1 $0{,}9419$, latencia $16{,}77$ ms/imagen, con pliegues individuales de $97{,}0\%$ a $98{,}0\%$) frente al $96{,}70\%$ publicado sin código ni semillas de partición disponibles (el repositorio citado en la referencia [46] del artículo corresponde al trabajo de suelos de Sheth et al., no al pipeline \texttt{BEiT-v2} multicapa).
-\item En \textbf{HyTexNet} \citep{gupta2026hytexnet}, la implementación del descriptor local verifica de forma \textbf{100\% exacta ($\text{error} = 0$)} los cinco ejemplos numéricos paso a paso de la Tabla 1 del artículo. Al ejecutar su protocolo de un tercio de entrenamiento en KTH-TIPS-2b (1.584 imágenes de ajuste y 3.168 de prueba, donde las 44 muestras físicas se comparten entre entrenamiento y prueba), alcanza \textbf{93,91\% de exactitud} ($0{,}9394$ macro-F1, $29{,}07$ ms/imagen), mientras que al separar estrictamente las muestras físicas en nuestro panel común desciende a $0{,}8259$ de macro-F1.
-\item En \textbf{6LBP+dCellNN} \citep{chang2024cellnn}, la verificación estática y sintética contra el código y el checkpoint oficial de los autores (\texttt{UESTC-nnLab/LBP\_Contour}, commit \texttt{299502c}, \texttt{cellnn\_model.ph}) demostró \textbf{error numérico máximo igual a $0{,}000000$} tanto en los mapas binarios de contorno como en los histogramas concatenados de 768 dimensiones. Sin embargo, la auditoría forense del script oficial \texttt{main\_otc12.py} de los autores reveló que su función \texttt{OutexDataLoad} introduce en el entrenamiento los primeros 85 ejemplos de cada secuencia de iluminación de prueba (partición 4.560/4.560 en lugar del protocolo 480/8.640 declarado en el artículo). Cuando el mismo extractor exacto del autor se evalúa sin contaminación entre secuencias de entrenamiento y prueba, obtiene $66{,}00\%$ de exactitud ($0{,}6238$ macro-F1) en el protocolo de un tercio de KTH-TIPS-2b y $0{,}6356$ de macro-F1 en Outex-13.
-\end{itemize}
-
-\begin{table}[!htbp]
-\centering\fontsize{7.8}{9.6}\selectfont
-\caption{Auditoría de código oficial, pruebas de paridad matemática y validación en los protocolos de origen de los cuatro métodos externos de concatenación.}
-\label{tab:validacion-fidelidad-sota}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{4.1cm}@{}}
-\toprule
-Método externo & Código público y verificación de paridad & Protocolo origen evaluado & Cifra publicada (Exactitud) & Resultado verificado local (Exactitud / Macro-F1 / ms)\\
-\midrule
-DeepLumina (2022) \citep{simon2022deeplumina}\newline \texttt{ResNet101 fc1000} RGB+YIQ (2.000D) + ECOC-SVM & Sin repo oficial; ecuaciones YIQ y ECOC MathWorks validadas (6/6 tests) & FMD 80/20\newline CUReT 50/50\newline DTD (9/10 splits) & $90{,}15\% \pm 1{,}2\%$\newline $97{,}53\% \pm 0{,}5\%$\newline $73{,}63\% \pm 0{,}5\%$ & \textbf{90,00\%} máx.\ split / 85,53\% media 15 splits ($0{,}8559$ F1, $53{,}33$ ms)\newline \textbf{98,81\%} ($0{,}9881$ F1, $53{,}00$ ms)\newline \textbf{70,40\%} ($0{,}7027$ F1, $69{,}61$ ms)\\
-\addlinespace[3pt]
-Neshov et al.\ (2025) \citep{neshov2025aggregation}\newline \texttt{BEiT-v2} 12 capas (9.216D) + BN + MLP & Cita repo ajeno (Sheth et al.); receta exacta validada en \texttt{batch=1} & FMD $10\times 10$ CV (100 folds, 10.000 llamadas) & $96{,}70\%$ & \textbf{94,22\% $\pm$ 0,40\%} (picos de 97--98\%; $0{,}9419$ F1, $16{,}77$ ms)\\
-\addlinespace[3pt]
-HyTexNet (2026) \citep{gupta2026hytexnet}\newline \texttt{DenseNet121} (1.024D) + \texttt{HyTex} (514D) + MLP & Sin repo público; \textbf{error 0,0} en los 5 casos de la Tabla 1 del paper & KTH-TIPS-2b 1/3 fit (44 muestras físicas compartidas) & $99{,}79\%$ & \textbf{93,91\%} ($0{,}9394$ F1, $29{,}07$ ms) en KTH 1/3; $0{,}8259$ F1 al separar muestras físicas\\
-\addlinespace[3pt]
-6LBP+dCellNN (2024) \citep{chang2024cellnn}\newline 6 escalas LBP + dCellNN (768D) + MLP & Repo oficial \texttt{LBP\_Contour} y pesos \texttt{cellnn\_model.ph}; \textbf{error 0,000000} bit a bit & KTH-TIPS-2b 1/3 fit; auditoría de \texttt{main\_otc12.py} & $91{,}29\%$ (KTH)\newline $99{,}18\%$ (OTC12) & \textbf{66,00\%} ($0{,}6238$ F1, $32{,}29$ ms) en KTH 1/3; el script del autor filtra 85 imgs/secuencia de test en train\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Comparación cabeza a cabeza en el panel común de seis datasets}
-La Tabla~\ref{tab:comparacion-sota-panel-comun} compara en igualdad de condiciones —mismas particiones externas libres de fuga de muestras físicas y medición simultánea de macro-F1 y latencia individual \texttt{batch=1}— nuestros métodos locales frente a los cuatro sistemas externos de concatenación adaptados al panel común.
-
-\begin{table}[!htbp]
-\centering\fontsize{7.6}{9.4}\selectfont
-\caption{Comparación en el panel común (47 particiones base) entre los cuatro métodos externos de concatenación y nuestras políticas locales. Se reporta macro-F1 medio por condición y, entre paréntesis, latencia física media en ms por imagen (\texttt{batch=1}).}
-\label{tab:comparacion-sota-panel-comun}
-\begin{tabular}{@{}lrrrrrr@{}}
-\toprule
-Método / Sistema (Dimensión) & FMD (15) & CUReT (2) & DTD (10) & Outex13 (1) & SoilOrig. (15) & KTH-2b (4)\\
-\midrule
-\multicolumn{7}{@{}l}{\textit{Sistemas externos de concatenación adaptados al panel común (\texttt{batch=1}):}}\\
-6LBP+dCellNN \citep{chang2024cellnn} (768D) & 0,2477 (29,66) & 0,6934 (31,02) & 0,2162 (31,52) & 0,6356 (29,91) & 0,3550 (32,98) & 0,5750 (31,94)\\
-HyTexNet \citep{gupta2026hytexnet} (1.538D) & 0,7414 (31,18) & 0,9831 (32,41) & 0,6242 (33,51) & 0,8927 (29,04) & 0,7880 (33,11) & 0,8259 (30,98)\\
-DeepLumina \citep{simon2022deeplumina} (2.000D) & 0,8559 (53,33) & 0,9881 (53,00) & 0,7027$^{\ddagger}$ (69,61) & 0,9073 (53,54) & 0,8050 (57,80) & 0,8744 (51,57)\\
-Neshov BEiT-v2 \citep{neshov2025aggregation} (9.216D) & 0,9421 (16,89) & 0,9940 (14,27) & 0,8020 (16,79) & 0,9193 (14,61) & 0,8631 (19,17) & 0,9245 (16,48)\\
-\midrule
-\multicolumn{7}{@{}l}{\textit{Políticas propuestas en esta tesis (Panel local online, 94 condiciones):}}\\
-\texttt{Adaptive-margin} (ResMLP) & 0,9760 (36,35) & 0,9989 (30,47) & 0,8660 (47,61) & \textbf{0,9609} (21,65) & 0,8668 (48,33) & 0,9391 (32,16)\\
-\texttt{Adaptive-margin} (SVM) & 0,9776 (38,63) & 0,9984 (36,83) & 0,8669 (54,35) & 0,9276 (40,33) & 0,8725 (38,48) & 0,9390 (30,95)\\
-\texttt{Top-4} estático (SVM) & \textbf{0,9823} (268,96) & 0,9986 (270,69) & 0,8689 (333,98) & 0,9288 (265,38) & 0,8594 (70,98) & 0,9544 (260,38)\\
-\texttt{Ens-diversidad} (ResMLP) & 0,9773 (373,45) & 0,9989 (395,12) & \textbf{0,8771} (366,45) & 0,9522 (349,43) & 0,8758 (208,14) & 0,9556 (366,38)\\
-\texttt{Ens-diversidad} (SVM) & 0,9783 (364,54) & 0,9988 (404,02) & 0,8734 (411,43) & 0,9442 (358,17) & 0,8770 (204,91) & 0,9543 (367,46)\\
-\texttt{Completa-22} (SVM) & 0,9651 (1759,50) & 0,9989 (1712,57) & 0,8635 (1611,57) & 0,9552 (1574,19) & \textbf{0,8792} (1651,19) & \textbf{0,9599} (1579,08)\\
-\bottomrule
-\end{tabular}
-
-\vspace{0.35em}
-\begin{minipage}{0.98\textwidth}\footnotesize
-$^{\ddagger}$En DTD para \emph{DeepLumina} se reporta la media sobre las 9/10 particiones completadas dentro de la ventana de 3.600 s por etapa en CPU (16.920 llamadas online auditadas; la condición \texttt{s42\_f3} superó el límite de tiempo durante el ajuste de los 84 clasificadores binarios \texttt{LinearSVC}).
-\end{minipage}
-\end{table}
-
-Los resultados de la Tabla~\ref{tab:comparacion-sota-panel-comun} evidencian tres hallazgos principales:
-\begin{enumerate}
-\item \textbf{Superioridad en macro-F1 sobre los cuatro sistemas externos en los seis datasets:} Tanto nuestras políticas adaptativas (\texttt{Adaptive-selection-margin}) como las selecciones de ensamble (\texttt{Ens-diversidad} y \texttt{Ens-tombola}) superan a los cuatro métodos externos en todos los conjuntos de datos evaluados. Frente al mejor competidor externo (\texttt{Neshov BEiT-v2} multicapa), \texttt{Adaptive-selection-margin} gana $+0{,}0355$ puntos de macro-F1 en FMD ($0{,}9776$ frente a $0{,}9421$), $+0{,}0649$ en DTD ($0{,}8669$ frente a $0{,}8020$), $+0{,}0416$ en Outex13 ($0{,}9609$ frente a $0{,}9193$), $+0{,}0146$ en KTH-TIPS-2b ($0{,}9391$ frente a $0{,}9245$), $+0{,}0094$ en SoilOriginal ($0{,}8725$ frente a $0{,}8631$) y $+0{,}0049$ en CUReT ($0{,}9989$ frente a $0{,}9940$).
-\item \textbf{Dominancia simultánea en calidad y tiempo frente a concatenaciones híbridas multi-rama (\emph{DeepLumina}, \emph{HyTexNet}, \emph{6LBP+dCellNN}):} \texttt{Adaptive-selection-margin} no solo supera ampliamente en macro-F1 a \emph{DeepLumina} (por ejemplo, $+0{,}1217$ en FMD, $+0{,}0675$ en SoilOriginal y $+0{,}0647$ en KTH-TIPS-2b), sino que además requiere menor tiempo físico medio por imagen ($30{,}47$--$48{,}33$ ms frente a $51{,}57$--$57{,}80$ ms de \emph{DeepLumina}, que debe ejecutar dos pasadas de \texttt{ResNet-101} en cada imagen).
-\item \textbf{Jerarquía interna entre métodos externos:} Entre las cuatro referencias del estado del arte reproducidas, la agregación multicapa de un Transformer preentrenado (\texttt{Neshov BEiT-v2}) ocupa consistentemente el primer lugar externo, seguida por la doble ruta profunda color--luminancia de \emph{DeepLumina}, la fusión CNN--artesanal de \emph{HyTexNet} y finalmente el método artesanal--celular \emph{6LBP+dCellNN}. Esto confirma que combinar selectivamente múltiples familias complementarias de descriptores (22 bloques heterogéneos) mediante ensambles y adquisición condicional aporta una ganancia sustancial frente a concatenar capas de una sola arquitectura o pares aislados de descriptores.
-\end{enumerate}
-\FloatBarrier
+Los experimentos de ensamble y poda permiten otras preguntas y se conservan en el Anexo~\ref{app:complementarios}. No se utilizan sus porcentajes de ahorro para atribuir un resultado al Top-\(k\) directo/por margen del cuerpo principal.

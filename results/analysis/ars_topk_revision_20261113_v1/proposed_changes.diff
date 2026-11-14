@@ -1,0 +1,98 @@
+--- paper/chapters/03_metodologia.tex:B0074
++++ paper/chapters/03_metodologia.tex:propuesto
+@@ -1,13 +1,16 @@
+ \section{Costo incremental y medición física}
+-Sean \(c_j\) los tiempos por extractor del perfil de componentes. El costo directo y el costo incremental del rescate son
++Sean \(c_j\) los tiempos históricos por extractor. El costo directo y el incremental del rescate son
+ \begin{equation}
+ C_{\mathrm{dir}}=\sum_{j\in S_k}c_j,\qquad
+ C_{\mathrm{inc}}=\sum_{j\in S_k\setminus\{b\}}c_j.
+ \label{eq:tk-incremental}
+ \end{equation}
+-La base se reutiliza únicamente si su representación coincide con el bloque que necesita \(h_k\). El perfil histórico aproxima la adquisición media por
++Un bloque base se reutiliza únicamente si su representación coincide con la que necesita \(h_k\). Se distinguen dos tasas: \(\widehat r_{\mathrm{OOF}}\), observada en las predicciones internas reunidas, y \(\widehat r_V\), observada al aplicar la política fijada al conjunto externo \(V\). Sus adquisiciones medias proyectadas son
+ \begin{equation}
+-\widehat C_{\mathrm{margen}}=c_b+\widehat r\,C_{\mathrm{inc}},
++\begin{aligned}
++\widehat C_{\mathrm{sel}} &= c_b+\widehat r_{\mathrm{OOF}}C_{\mathrm{inc}},\\
++\widehat C_V &= c_b+\widehat r_VC_{\mathrm{inc}}.
++\end{aligned}
+ \label{eq:tk-cost}
+ \end{equation}
+-donde \(\widehat r\) es la fracción interna derivada. Su condición de ahorro proyectado es \(c_b+\widehat r C_{\mathrm{inc}}<C_{\mathrm{dir}}\). Si la base cuesta más que la representación directa, la salida condicional puede no ser conveniente.
++La primera magnitud se utiliza para seleccionar la política dentro del entrenamiento. La segunda describe su adquisición proyectada en evaluación y es la que reportan las tablas de resultados. Ambas emplean el mismo perfil histórico por extractor; ninguna es un cronometraje nuevo. El umbral y la ruta quedan fijados antes de obtener \(\widehat r_V\).
+--- paper/chapters/03_metodologia.tex:B0075
++++ paper/chapters/03_metodologia.tex:propuesto
+@@ -1 +1 @@
+-Esta ecuación corresponde al perfil de extracción histórico; no incorpora automáticamente todos los clasificadores, transferencias o sobrecostos de la compuerta. La latencia física debe cronometrar la ruta ejecutada y declarar si incluye decodificación, carga de pesos y calentamiento. Para un sistema residente, la ruta condicional suma base, compuerta y, cuando corresponda, extracción incremental y clasificador Top-\(k\). La comparación directa omite la base.
++Las proyecciones de la Ecuación~\ref{eq:tk-cost} no incluyen automáticamente todos los clasificadores, transferencias o sobrecostos de la compuerta. La latencia física cronometra la ruta ejecutada y debe declarar si incluye decodificación, carga de pesos y calentamiento. En un sistema residente, la ruta condicional suma base, compuerta y, cuando corresponde, extracción incremental y clasificador Top-\(k\). La comparación directa ejecuta únicamente su concatenación y su clasificador.
+--- paper/tesis.tex:B0017
++++ paper/tesis.tex:propuesto
+@@ -10,7 +10,7 @@
+ ResMLP & MLP residual sobre características\\
+ \(S_k,h_k\) & Bloques seleccionados y clasificador de su concatenación\\
+ \(h_b,m_b,\tau\) & Clasificador base, margen y umbral\\
+-\(\widehat r\) & Fracción de imágenes derivadas al rescate\\
++\(\widehat r_{\mathrm{OOF}},\widehat r_V\) & Fracciones derivadas interna y externa, respectivamente\\
+ \(c_j,C_{\mathrm{inc}}\) & Costo por bloque y adquisición incremental\\
+ P1, P2 & Preguntas de selección Top-k y uso directo/por margen\\
+ CKA & Similitud entre representaciones, usada en estudios complementarios\\
+--- paper/chapters/05_resultados.tex:B0143
++++ paper/chapters/05_resultados.tex:propuesto
+@@ -1 +1 @@
+-Los costos por componentes proyectan reducciones en las rutas seleccionadas. Esa selección utiliza costos y predicciones internas; la fracción efectivamente derivada al evaluar puede cambiar. Las cifras no incluyen automáticamente todos los elementos del sistema y no se denominan ahorro online de cada prueba externa.
++La Tabla~\ref{tab:tm-costos} reporta \(\widehat C_V\): adquisición proyectada con la fracción externa observada después de fijar la política. La selección utilizó \(\widehat C_{\mathrm{sel}}\), calculada con las predicciones internas OOF. Que ambas tasas difieran no implica que se haya vuelto a elegir el umbral con el test. Los porcentajes describen el perfil de extracción por componentes y se mantienen separados de los cronometrajes físicos.
+--- paper/chapters/03_metodologia.tex:B0072
++++ paper/chapters/03_metodologia.tex:propuesto
+@@ -1 +1 @@
+-La variante de base seleccionada compara ResNet-50, SigLIP, BEiT-v2 y ConvNeXt V2-T cuando existen bloque y costo registrado. Entre las rutas cuyo macro-F1 interno está al menos en el valor Top-\(k\) menos 0,005, se selecciona el menor costo proyectado. El uso directo siempre es candidato. Los empates favorecen la ruta directa y después ResNet-50. Esta tolerancia es una decisión exploratoria del proyecto, no una garantía poblacional de no inferioridad.
++La selección de base compara ResNet-50, SigLIP, BEiT-v2 y ConvNeXt V2-T cuando existen bloque y costo registrado. Para cada base y cuantil, se reúnen las predicciones OOF de todo el entrenamiento externo y se calcula un único macro-F1 de la ruta condicional. Este estimando difiere del promedio de F1 por pliegue utilizado para ordenar los descriptores. Son elegibles las rutas cuyo macro-F1 OOF es al menos el del Top-\(k\) directo menos 0,005, es decir, 0,5 puntos porcentuales. Entre ellas se elige la de menor adquisición proyectada interna; el uso directo siempre es candidato. Los empates favorecen la ruta directa y después ResNet-50. Los mismos registros OOF sirven para comparar y elegir estos candidatos, por lo que su F1 seleccionado no es una evaluación independiente de la elección. La tolerancia constituye una decisión exploratoria, no una garantía poblacional de no inferioridad.
+--- paper/chapters/03_metodologia.tex:B0073
++++ paper/chapters/03_metodologia.tex:propuesto
+@@ -1 +1,3 @@
+ Finalmente se reajustan los modelos seleccionados con todo el entrenamiento externo y se conserva el umbral numérico. El porcentaje de imágenes nuevas que activa el rescate puede ser distinto del cuantil nominal. No se recalcula el umbral utilizando etiquetas ni márgenes de todo el test.
++
++En FMD/SVM, semilla 42 y pliegue externo 0, la selección guardada utiliza SigLIP como base y \(q=0,25\), que produjo \(\tau=0,962190\) al redondear. La regla activa el rescate cuando el margen es menor o igual a ese umbral. En las predicciones externas guardadas se activó para 59 de 200 imágenes: 29,5 \%. El cuantil determina un umbral numérico; la tasa futura depende de los márgenes de las imágenes nuevas. En esa condición, la adquisición proyectada fue 133,966 ms durante la selección OOF y 153,384 ms en evaluación, frente a 457,598 ms del uso directo. Son costos por componentes, no latencias físicas adicionales.
+--- paper/chapters/04_diseno_experimental.tex:B0091
++++ paper/chapters/04_diseno_experimental.tex:propuesto
+@@ -1,2 +1,2 @@
+ \section{Clasificadores y transformaciones}
+-La SVM lineal utiliza \texttt{LinearSVC}, \(C=1\), clases balanceadas, pérdida \emph{squared hinge}, regularización \(L_2\), uno-contra-el-resto y la receta registrada de tolerancia e iteraciones. El código conserva los parámetros y el estado del ajuste. Los avisos de convergencia se informan; no se cambia el solver retrospectivamente para recuperar una cifra deseada.
++La SVM lineal CPU utiliza \texttt{LinearSVC}, \(C=1\), clases balanceadas, pérdida \emph{squared hinge}, regularización \(L_2\), estrategia uno-contra-el-resto, \texttt{dual=auto}, tolerancia \(10^{-4}\) y máximo de 10.000 iteraciones. El estado aleatorio sigue la semilla de la condición; la cascada histórica con base seleccionada utiliza 42. El código conserva los parámetros y el estado del ajuste. Los avisos de convergencia se informan sin cambiar retrospectivamente el solver para recuperar una cifra deseada.
+--- paper/chapters/04_diseno_experimental.tex:B0092
++++ paper/chapters/04_diseno_experimental.tex:propuesto
+@@ -1 +1 @@
+-ResMLP es una MLP residual sobre vectores, no una reproducción de una arquitectura homónima que recibe imágenes. Proyecta a 256 unidades y utiliza tres bloques residuales, normalización de capa, GELU y \emph{dropout} de 0,1. Se ajusta con AdamW y la parada registrada sobre pérdida de entrenamiento. No se elige una época mediante el test.
++ResMLP es una MLP residual sobre vectores de características. Proyecta a 256 unidades y utiliza tres bloques residuales, normalización de capa, GELU y \emph{dropout} de 0,1. Se ajusta con AdamW, tasa de aprendizaje \(10^{-3}\), decaimiento de pesos \(10^{-4}\), lotes de 256 y máximo de 100 épocas. La parada usa paciencia de diez épocas y una mejora mínima de \(10^{-4}\) en la pérdida media de entrenamiento; al finalizar restaura el mejor estado registrado. Esta regla no utiliza el test para elegir una época y no equivale a una parada basada en pérdida de validación.
+--- paper/chapters/05_resultados.tex:B0144
++++ paper/chapters/05_resultados.tex:propuesto
+@@ -1,5 +1,5 @@
+ \begin{table}[!htbp]\centering\fontsize{8}{10}\selectfont
+-\caption{Piloto físico histórico, una condición por dataset. Modelos residentes e imágenes decodificadas; una imagen por clase y tres repeticiones pareadas.}
++\caption{Piloto físico de la política con base seleccionada, una condición por dataset. Modelos residentes e imágenes decodificadas; una imagen por clase y tres repeticiones pareadas.}
+ \label{tab:gpu-benchmark}
+ \begin{tabular}{@{}lrrrrl@{}}\toprule
+ Dataset & Imágenes & Pares & Margen ms & Directo ms & Reserva\\\midrule
+--- paper/chapters/06_discusion.tex:B0157
++++ paper/chapters/06_discusion.tex:propuesto
+@@ -1,2 +1,8 @@
+ \section{Cuándo tiene sentido la activación por margen}
+-La ruta condicional es útil si la base resuelve una proporción suficiente de consultas y el costo incremental evitado compensa su propio costo. No basta con que la base sea nominalmente pequeña; debe compararse con los bloques concretos del Top-\(k\). Si la concatenación seleccionada ya es rápida, ejecutar una base adicional puede perjudicar el tiempo.
++La ruta condicional reduce adquisición proyectada cuando el trabajo evitado compensa ejecutar la base. Para \(C_{\mathrm{inc}}>0\), las definiciones del método dan
++\begin{equation}
++\widehat C_V<C_{\mathrm{dir}}
++\quad\Longleftrightarrow\quad
++\widehat r_V<\frac{C_{\mathrm{dir}}-c_b}{C_{\mathrm{inc}}}.
++\end{equation}
++La desigualdad explica por qué importan tanto la base elegida como la fracción activada. Si \(c_b\geq C_{\mathrm{dir}}\), el perfil de componentes no permite un ahorro estricto mediante esa base. Si \(C_{\mathrm{inc}}=0\), se comparan directamente los costos sin dividir por cero. En todos los casos, el ahorro de latencia física exige contabilizar y medir los clasificadores, la compuerta y los demás sobrecostos de la implementación.
+--- paper/chapters/01_introduccion.tex:B0032
++++ paper/chapters/01_introduccion.tex:propuesto
+@@ -1,2 +1,2 @@
+ \section{Aportes y organización}
+-La contribución empírica consiste en documentar el recorrido desde la selección individual hasta una concatenación compacta, examinar sus límites y evaluar cuándo conviene adquirirla por imagen. Se aporta trazabilidad entre reglas, particiones, predicciones, costos y llamadas físicas. No se presenta el ranking Top-\(k\) ni una compuerta por margen como principios inéditos, ni se exige superioridad universal para considerar informativo el resultado.
++El aporte empírico es conectar dos decisiones de un clasificador de texturas: seleccionar una concatenación compacta y decidir para qué imágenes conviene ejecutarla. La primera se estudia mediante el barrido de tamaños y controles de composición; la segunda, manteniendo fijo el rescate y evaluando su activación por margen. El trabajo documenta las condiciones en que esta combinación mejora el compromiso entre calidad y adquisición, junto con sus pérdidas y límites. Su contribución reside en esa comparación trazable sobre la biblioteca y los datasets evaluados; el ranking Top-\(k\) y la adquisición condicional se sitúan respecto de sus antecedentes.
+--- paper/chapters/07_conclusion.tex:B0177
++++ paper/chapters/07_conclusion.tex:propuesto
+@@ -1 +1 @@
+-Para P2, se reconstruyeron 27 condiciones SVM con el mismo Top-\(k\) directo y como rescate condicional. En todas las imágenes derivadas, la predicción condicional coincide con la del rescate fijado. La ruta por margen puede conservar o mejorar calidad al evitar ciertas decisiones de Top-\(k\), pero también puede perder aciertos. FMD mostró un aumento medio de macro-F1 y Outex una disminución. Sus tamaños no son siempre cuatro y la evidencia no se presenta como 27 comparaciones de Top-4 fijo.
++Para P2, la comparación de 27 condiciones SVM muestra que activar por margen el mismo Top-\(k\) puede mejorar o empeorar la calidad frente a ejecutarlo siempre: FMD mejora en promedio y Outex pierde macro-F1. La auditoría verifica que las imágenes derivadas reciben la predicción del mismo rescate directo, por lo que los cambios provienen de conservar la base en las restantes. Cinco condiciones coinciden en tamaño y bloques con el Top-4 del barrido; los demás rescates utilizan otros valores de \(k\). La evidencia respalda estudiar cuándo activar una concatenación fijada y conserva esa diferencia de cobertura al interpretar la versión optimizada.

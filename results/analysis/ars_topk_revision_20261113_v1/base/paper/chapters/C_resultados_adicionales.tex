@@ -1,0 +1,53 @@
+\chapter{Resultados secundarios y variabilidad}\label{app:resultados-adicionales}
+
+\section{Exactitud y dispersión del benchmark estático}
+\input{articulo/borrador_profesor/generated/baseline_accuracy.tex}
+\input{generated_editorial/variabilidad_estatica.tex}
+Las desviaciones entre condiciones no son intervalos de generalización a otros dominios. Semillas y particiones pueden compartir imágenes; no se tratan como réplicas independientes. Outex tiene un único split, por lo que no se estima dispersión entre splits.
+
+\section{Rankings y contrastes completos por clasificador}
+\input{articulo/borrador_profesor/generated/classifier_rankings.tex}
+\input{articulo/borrador_profesor/generated/classifier_global.tex}
+\input{articulo/borrador_profesor/generated/classifier_holm.tex}
+Los post-hoc aplican diferencias de rangos de Friedman y Holm por familia de diez pares. Sus valores no son Wilcoxon exactos ni contrastes del híbrido.
+\FloatBarrier
+
+\subsection{Sensibilidad del benchmark sin KTH}
+Se conservan todos los pares del análisis sobre DTD, FMD, CUReT, Outex y SoilOriginal, con una media por dataset y clasificador. Las familias de Holm son separadas para SVM y ResMLP. Este recálculo no corrige la variante KTH archivada ni aumenta el número de datasets independientes.
+\input{generated_mesa_r2/kth_sensibilidad_global.tex}
+\input{generated_mesa_r2/kth_sensibilidad_holm.tex}
+\FloatBarrier
+
+\section{N-gramas con ResMLP y ampliación de biblioteca}
+\input{articulo/borrador_profesor/generated/ngram_resmlp.tex}
+Esta comparación conserva la biblioteca de 20 frente a 21 con N-gramas de su corte histórico; no equivale al barrido sin N-gramas de 21 ni a una prueba de Top-4 más N-gramas.
+
+\subsection{N-gramas en el estudio complementario de rescate}
+El pool corregido conserva candidatos estáticos, sorteos, particiones y scores comunes al ofrecer versiones con y sin N-gramas. En marginal/B120, permitir color y reseleccionar cambia $0{,}900563/97{,}245$ ms a $0{,}906690/83{,}772$ ms. Cambia la ruta: no es una ablación de ruta fija. El rescate de diversidad utiliza otro pool, por lo que sus diferencias no se atribuyen únicamente al color.
+
+
+\section{Barrido del control de poda y compuerta}\label{sec:anexo-p0}
+La Tabla~\ref{tab:p0-barrido} conserva las doce configuraciones, incluidas las cuatro sin rescate. Se calcula macro-F1 sobre las 680 predicciones reunidas; los costos se ponderan por imagen. Las comparaciones comparten imágenes y no constituyen doce datasets ni réplicas independientes.
+
+\input{generated_p0/barrido_p0.tex}
+\FloatBarrier
+
+La base es la seleccionada en cada política. El rescate permanente conserva exactamente miembros y multiplicidades, omite una base innecesaria y no se reoptimiza para el presupuesto indicado. La ruta forzada, no mostrada en este barrido, tiene las mismas predicciones del rescate permanente y conserva base y sobrecosto de política; se distingue en la Tabla~\ref{tab:p0-b60}. Los cuatro casos sin rescate mantienen la base en todas las vistas.
+
+\section{Réplica del rescate por condición y regla}\label{sec:anexo-replica}
+La réplica conserva cinco condiciones nuevas: FMD/42, FMD/123, FMD/2026, Outex/123 y Outex/2026. Outex/42 permanece en las tablas del piloto y no integra las medias nuevas. Las Tablas~\ref{tab:replica-barrido} y~\ref{tab:replica-referencias} mantienen los presupuestos completos y las referencias del mismo protocolo de desarrollo. No se escoge una regla por su F1 de validación productora.
+
+\input{generated_replication/replica_barrido.tex}
+\input{generated_replication/replica_referencias.tex}
+\FloatBarrier
+
+\subsection{Activación del mismo rescate en la réplica}
+La Tabla~\ref{tab:replica-p0} compara las mismas políticas con su rescate permanente, conservando miembros y puntuaciones. Las medias se calculan primero por condición y luego entre semillas del mismo dataset. En los casos sin rescate ambas vistas son la base. Las diferencias de calidad pueden ser positivas o negativas; no se traslada a estas condiciones la conclusión de ausencia de mejora de F1 del piloto Outex/42. El archivo de análisis conserva además las sesenta filas individuales por condición, regla y presupuesto.
+
+\input{generated_replication/replica_p0.tex}
+\FloatBarrier
+
+\section{Alcance de las exploraciones secundarias}
+Las exploraciones de proyecciones, residuos y políticas de más etapas pertenecen al desarrollo del proyecto. No se les atribuye aquí una pérdida general frente a concatenación, ni se usa la falta de un resultado reconciliado para refutar una familia metodológica. Solo un contraste con particiones, selección y medición compatibles permitiría esa conclusión.
+
+Los registros de desarrollo conservan variantes con distintos protocolos y estimandos. Las tablas de este manuscrito incluyen resultados con fuentes identificadas y separan las comparaciones no reconciliadas. Así se evita atribuir a una misma evaluación cifras procedentes de diseños distintos.

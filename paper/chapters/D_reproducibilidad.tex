@@ -1,28 +1,35 @@
 \chapter{Reproducibilidad y disponibilidad}\label{app:reproducibilidad}
 
-\section{Materiales, procedencia y acceso}
-El paquete organiza manifiestos, decisiones, puntuaciones, predicciones y scripts. La procedencia se identifica mediante commit y hashes, incluidos los cambios locales. La implementación se desarrolla en el \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{repositorio del proyecto}; al reproducir el estudio deben contrastarse los registros locales con la versión publicada.
+\section{Fuentes y versiones}
+El proyecto organiza código, manifiestos, decisiones de selección, predicciones y registros físicos. El código se conserva en el \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{repositorio público del proyecto}. Un commit y los cambios locales deben identificarse al reproducir una versión; la existencia de un archivo público no demuestra que incluya pesos, imágenes y entornos locales.
 
-Los manifiestos identifican las muestras de las seis colecciones del Capítulo~\ref{sec:diseno}. La disponibilidad y redistribución de imágenes, embeddings y pesos dependen de sus proveedores. Los archivos auxiliares locales no se presumen incluidos en la versión pública.
+La revisión del 13 de noviembre reconstruye las curvas de tamaño y la comparación directa/por margen mediante \path{scripts/build_topk_margin_thesis_20261113.py}. Sus salidas están en \path{results/analysis/topk_margin_rewrite_20261113_v1/} y las tablas y figuras del manuscrito en \path{paper/generated_topk_margin/}. El resumen registra 124 fuentes ligadas por SHA-256, la cobertura y la ausencia de nuevos fits, predicciones o tiempos.
 
-\section{Comprobaciones registradas y alcance}\label{sec:trazabilidad}
-La verificación del 25 de octubre de 2026 recalcula 147 métricas de desarrollo, comprueba 470 filas estáticas y reproduce 36 decisiones del híbrido con sus 13 resultados. Ese corte registró 83 pruebas de software aprobadas. La réplica del 26 de octubre añade cinco condiciones auditadas, con 60 selecciones estáticas, 180 decisiones de enrutamiento y 170 resultados de políticas recalculados; su verificación de software registró 94 pruebas aprobadas. Los índices, decisiones y puntuaciones permiten comprobar selección y aritmética; reproducir independientemente requiere repetir extracción y entrenamiento con las configuraciones indicadas.
+El barrido se reconstruye desde seis CSV por clasificador. La auditoría de cascada utiliza los 27 resultados, sus decisiones pretest, predicciones y archivos Top-\(k\) de origen. El panel externo procede de \path{results/analysis/reconciliation_full_panel_20261104_v1/}. Las referencias bibliográficas corregidas se contrastaron con los metadatos del DOI y se registraron en \path{reference_metadata.json} del directorio de auditoría.
 
-El benchmark histórico conserva 27 archivos de predicciones y 31.984 observaciones de test acumuladas, no necesariamente imágenes únicas. Las particiones sin índices guardados mantienen una reserva de trazabilidad. El piloto híbrido conserva 680 predicciones por política y se distingue de esas 27 condiciones.
+Las figuras de ganancias y por dataset (252 puntos) se reconstruyen con \path{scripts/build_topk_progression_20261113.py}. Los cinco rescates con los bloques Top-4 del barrido se verifican con \path{scripts/audit_top4_margin_subset_20261113.py}. Ambos leen resultados existentes y conservan fuentes y hashes.
 
-El control de poda y compuerta verifica 31 hashes y las predicciones de rescate de 36 decisiones contra las puntuaciones originales. Sus 8.160 filas corresponden a doce vistas de las mismas 680 imágenes, no a imágenes adicionales. Las tablas se reconstruyen mediante \texttt{scripts/build\_p0\_thesis\_tables.py} desde los registros P0, con hashes de entradas y salidas, sin reentrenar ni modificar predicciones.
+\section{Reconstrucción sin ejecutar modelos}\label{sec:trazabilidad}
+El siguiente comando utiliza salidas nuevas y rechaza sobreescribir el directorio de auditoría:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,breaklines=true]
+OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
+.venv-confirmatory/bin/python \
+scripts/build_topk_margin_thesis_20261113.py \
+  --audit results/analysis/topk_margin_rebuild_v1 \
+  --generated output/topk_margin_rebuild
+\end{lstlisting}
+La reconstrucción recalcula agregados y métricas guardadas; no reextrae imágenes ni reentrena. Sus tablas no deben confundirse con una nueva validación física. El directorio generado alternativo permite comparar resultados sin alterar los utilizados por el manuscrito.
 
-Las comprobaciones desde caché y las pruebas de software no estiman desempeño en imágenes nuevas ni sustituyen extracción y entrenamiento independientes. La medición física requiere fidelidad de representación y un régimen de ejecución explícito.
+Las pruebas de software verifican cobertura, integridad de fuentes y correspondencia entre predicciones derivadas y el mismo rescate. Las verificaciones de cortes anteriores, incluidas las auditorías del rescate de ensamble, se conservan con sus fechas. No se suman conteos de tests históricos para afirmar que toda la versión actual fue validada en una ejecución única.
 
-\section{Reconstrucción mínima y límites de entrega}
-Se reconstruyeron las dos tablas P0 en una carpeta aislada con diez archivos: el generador, cinco registros del análisis y cuatro del piloto de origen. El resultado fue byte-idéntico, utilizando el mismo entorno Python; no se presenta como instalación independiente ni reproducción de extracción. La receta, dependencias, entradas y hashes completos se documentan en \path{docs/fsc_tex/REPRODUCCION_MINIMA_MESA_2026-10-25.md} dentro del repositorio.
+\section{Datos, pesos y portabilidad}
+La disponibilidad y redistribución de imágenes, embeddings y pesos dependen de sus proveedores. El archivo público no incluye necesariamente los datasets, las características cacheadas o los modelos entrenados. Reproducir desde RGB exige checkpoints, capa y preprocesamiento de cada bloque, y ajustar las transformaciones aprendidas exclusivamente en el entrenamiento correspondiente.
 
-El control estático nuevo conserva sus doce decisiones antes de evaluación, las puntuaciones de validación y una predicción por imagen y presupuesto. Se comprobaron las doce selecciones, el costo de cada unión y la correspondencia entre puntuaciones y clases. La sensibilidad KTH conserva matrices de entrada, salidas SCI2S y comprobaciones numéricas de Friedman y Holm. Estos registros separan la reconstrucción aritmética del entrenamiento y la extracción.
+Los nombres de diez artefactos CUReT se normalizaron sustituyendo dos puntos por doble guion bajo para permitir su descarga en Windows. El contenido y los identificadores de protocolo internos permanecieron iguales. Los generadores y lectores se actualizaron; las rutas absolutas históricas dentro de registros se interpretan con su mapeo, no como autorización para modificar resultados sellados.
 
-En la réplica, los tres controles estáticos FMD fallaron por una comprobación heredada que exigía 680 imágenes en lugar de las 800 de desarrollo. Se conservan los intentos originales y se recuperaron solo esas etapas en directorios nuevos, adaptando la validación al tamaño de entrenamiento. Las decisiones recuperadas son byte-idénticas a las congeladas antes del fallo. No se modificaron las particiones, el selector ni los parámetros, ni se repitieron el pool, el ensamble o el híbrido. El registro de autorización y los hashes distinguen recuperación de ejecución original.
+Para Soil se conserva el archivo de la versión auditada y los manifiestos con los hashes de las 1.140 imágenes. Las agrupaciones por nombre son conservadoras y no acreditan conocer toda dependencia física. Las reservas KTH, Outex, CUReT/Soil y DeepLumina forman parte de los materiales y no desaparecen al empaquetar el PDF.
 
-Las tablas de la réplica se generan con \path{scripts/build_replication_thesis_tables.py} desde los resultados auditados en \path{results/analysis/mesa_replication_20261026}. El generador verifica las fuentes ligadas por hashes y conserva la procedencia de cuatro tablas en \path{paper/generated_replication/provenance.json}. Su reconstrucción no ejecuta modelos ni añade contrastes estadísticos. La auditoría comprueba además la exclusión de test y la separación de grupos y transformaciones.
+\section{Compilación y alcance de la entrega}
+La fuente principal es \path{paper/tesis.tex}, con siete capítulos y anexos. Las tablas históricas y las nuevas están incluidas por rutas explícitas. La bibliografía activa se encuentra en \path{paper/articulo/borrador_profesor/references.bib}. La compilación local utiliza Tectonic o un flujo LaTeX/BibTeX compatible; el registro de construcción identifica el resultado entregado.
 
-Para SoilOriginal se verificaron nuevamente el archivo de la versión 1 y los hashes de las 1.140 imágenes admitidas. El SHA-256 del archivo comienza por \texttt{a4ae6ce5f918}; el manifiesto y el registro de reproducción conservan el valor completo. Se utilizan las rutas de las fuentes recuperadas, no los placeholders históricos. Los grupos de dependencia por nombre son conservadores y no acreditan que se conozca toda relación física entre imágenes.
-
-El paquete de trabajo contiene rutas absolutas históricas y archivos auxiliares no necesariamente publicados. La entrega pública completa requiere resolver su portabilidad, disponibilidad y condiciones de redistribución. Reproducir desde RGB exige además los pesos exactos, preprocesamiento y capa de cada extractor del Anexo~\ref{app:especificaciones}. Estas comprobaciones no incluyen esa reextracción ni una medición física del híbrido.
+Una compilación correcta y una auditoría de predicciones no constituyen aprobación académica ni certifican identidad completa de todos los pipelines físicos. La entrega distingue el manuscrito escrito de las comprobaciones científicas que continúan abiertas.

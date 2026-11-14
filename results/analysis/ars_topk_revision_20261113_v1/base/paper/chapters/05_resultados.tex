@@ -1,0 +1,120 @@
+\chapter{Resultados experimentales}\label{sec:resultados-experimentales}
+
+Los resultados responden primero cómo se construye y se compara Top-\(k\), y después qué cambia al activarlo por margen. Se conservan separados el archivo de características, el panel online y los pilotos físicos. Las tablas generadas para esta revisión se vinculan con 124 fuentes mediante hashes y no añaden ajustes ni mediciones.
+
+\section{P1: del descriptor individual a la concatenación}\label{sec:resultados-fase1}
+El benchmark consolidado compara Individual, Completa, Top-\(k\), GFS y Homogénea sobre seis datasets y dos clasificadores. Individual designa la mejor alternativa seleccionada internamente, no el máximo externo de todos los descriptores. El Top-\(k\) de esta primera tabla hereda su tamaño del control GFS; su nombre no significa Top-4 fijo.
+
+\input{articulo/borrador_profesor/generated/baseline_f1.tex}
+\input{articulo/borrador_profesor/generated/dimensions_primary.tex}
+
+Las medias muestran que una concatenación puede mejorar al mejor individual seleccionado, pero añadir indiscriminadamente bloques también puede empeorar. En FMD/SVM, Completa registra aproximadamente 0,9647, frente a 0,9726 de Individual y 0,9820 del Top-\(k\) del control. En Outex/SVM, en cambio, Completa alcanza aproximadamente 0,9656. Las diferencias entre datasets impiden definir una regla uniforme a partir del número de bloques.
+
+La dimensión seleccionada y la calidad se reportan conjuntamente. La reducción de entrada al clasificador es informativa para almacenamiento y ajuste, pero no determina qué extractores dominan el tiempo de una consulta. Los contrastes del benchmark estático y su sensibilidad sin KTH se conservan en el Anexo~\ref{app:resultados-adicionales}. Su alcance no se extiende a los tamaños fijos nuevos por un cambio de etiqueta.
+
+\section{Barrido de k y justificación del caso Top-4}
+La reconstrucción del barrido verifica 47 condiciones para cada tamaño de uno a 21 y cada clasificador. Las Tablas~\ref{tab:tm-curva}--\ref{tab:tm-top4-resmlp} y la Figura~\ref{fig:tm-curve} describen ese archivo ampliado. El README inicial del barrido corresponde a menos condiciones y no sustituye sus CSV ampliados.
+
+\input{generated_topk_margin/curva_k.tex}
+\begin{figure}[!htbp]\centering
+\includegraphics[width=\textwidth]{generated_topk_progression/ganancias_k.pdf}
+\caption[Calidad y ganancia marginal al aumentar el número de descriptores.]{Calidad al aumentar el número de descriptores y ganancia de cada bloque adicional. Los círculos abiertos y la línea vertical señalan Top-4. Cada punto promedia primero dentro del dataset y después entre datasets. Una barra negativa indica pérdida al añadir ese bloque. Se muestran todos los tamaños, incluidos los máximos posteriores a cuatro.}
+\label{fig:tm-curve}
+\end{figure}
+
+Con SVM, Top-4 obtiene 0,936554 y el máximo descriptivo aparece en \(k=10\), con 0,936764. La diferencia es 0,000210 de macro-F1, mientras el porcentaje dimensional medio es aproximadamente 15,42 para cuatro bloques y 45,17 para diez, respecto a 21. Esto identifica una alternativa compacta cercana al máximo observado, no una prueba de equivalencia.
+
+Con ResMLP, Top-4 registra 0,933077 y el máximo del barrido aparece en \(k=5\), con 0,935195. Por tanto, la elección de cuatro no maximiza todas las curvas. Tampoco puede reducirse la decisión al promedio global: la composición y la respuesta a \(k\) dependen del dataset y del clasificador.
+
+\subsection{Por qué estudiar cuatro: ganancia frente a crecimiento del vector}
+El eje horizontal representa el número de descriptores concatenados. Se trata de una curva de desempeño frente al tamaño de la representación; el número de imágenes de entrenamiento y las épocas no varían en ese eje. Para explicar la contribución incremental se calcula
+\begin{equation}
+g_k=100\,[\overline F(k)-\overline F(k-1)],\qquad k=2,\ldots,21,
+\end{equation}
+en puntos porcentuales de macro-F1. La Figura~\ref{fig:tm-curve} muestra cada incremento, incluidos los negativos.
+
+Con SVM, pasar de uno a cuatro bloques aumenta el macro-F1 medio de 0,917448 a 0,936554: una ganancia de 1,911 puntos porcentuales. Pasar de cuatro al máximo observado en diez aporta solo 0,021 puntos adicionales, mientras la dimensión media relativa aumenta de 15,42 a 45,17 \%. Cuatro concentra aproximadamente el 98,91 \% de la mejora observada entre uno y el máximo del barrido. Esta proporción describe la ganancia de F1, no el porcentaje de imágenes clasificadas correctamente ni un intervalo de equivalencia.
+
+Así, Top-4 resulta una elección compacta con buena calidad media y una regla de tamaño fácil de explicar. Después de cuatro se observan ocho pasos negativos y nueve positivos con SVM: el rendimiento fluctúa, en lugar de disminuir siempre. Con ResMLP, cinco aporta 0,212 puntos más que cuatro. La conclusión sustentada es que las ganancias posteriores pueden ser pequeñas frente al crecimiento de representación; identificar un mejor compromiso exige declarar qué calidad y costo se priorizan.
+
+\input{generated_topk_margin/top4_svm.tex}
+\input{generated_topk_margin/top4_resmlp.tex}
+
+En FMD, cuatro es el máximo medio del barrido para ambos clasificadores y supera a concatenar toda la biblioteca. En Soil, cuatro también maximiza la curva SVM; con ResMLP el máximo aparece en ocho. Outex constituye una excepción relevante: la representación completa conserva una ventaja de calidad frente a cuatro. CUReT se encuentra cerca del techo de la métrica, donde diferencias pequeñas merecen una interpretación prudente. Los resultados KTH de este archivo conservan su variante histórica y no se utilizan para borrar la reserva de otra evaluación.
+
+\begin{figure}[!htbp]\centering
+\includegraphics[width=\textwidth]{generated_topk_progression/curvas_por_dataset.pdf}
+\caption[Barrido de tamaños en los seis datasets.]{Barrido de tamaños en los seis datasets. Cada panel muestra SVM y ResMLP con medias de las condiciones del dataset. La línea vertical y los círculos abiertos señalan cuatro. Las escalas verticales se ajustan por panel para mostrar las variaciones; KTH mantiene su reserva de procedencia.}
+\label{fig:tm-per-dataset-curves}
+\end{figure}
+
+\section{Qué aportan N-gramas y las ampliaciones de biblioteca}
+Las tablas previas distinguen 21 bloques sin N-gramas de la biblioteca de 22. El control histórico emparejado de 20 frente a 21 con N-gramas examina otra ampliación, anterior a BEiT-v2. Se conserva en la Tabla~\ref{tab:ngram-svm} para SVM y en el Anexo~\ref{app:resultados-adicionales} para ResMLP.
+
+\input{articulo/borrador_profesor/generated/ngram_svm.tex}
+
+En ese control, añadir N-gramas a Completa en Outex cambia el macro-F1 de aproximadamente 0,9572 a 0,9674. La ampliación también puede cambiar qué subconjunto elige GFS o el Top-\(k\) de tamaño heredado. En DTD, Completa no mejora con la incorporación del bloque. El aporte no es uniforme y el resultado de una ampliación no se extrapola a todas las bibliotecas.
+
+El ranking individual y la complementariedad responden preguntas distintas. La ausencia de N-gramas entre cuatro bloques mejor puntuados individualmente no demuestra que su combinación con ellos no sea útil. La tesis no presenta como ejecutado un control Top-4 más N-gramas que no tenga evidencia emparejada y cobertura identificada.
+
+\section{Comparación externa de Top-4 en llamadas online}\label{sec:resultados-panel-online-sota}
+Las Tablas~\ref{tab:tm-externos-f1} y~\ref{tab:tm-externos-ms} extraen Top-4/SVM del panel físico auditado y lo comparan con las adaptaciones externas sobre las mismas imágenes de cada condición. Las métricas de cada método se reconstruyeron con predicción y tiempo de las mismas llamadas. No se reutiliza aquí el F1 del barrido histórico con un tiempo medido después.
+
+\input{generated_topk_margin/externos_f1.tex}
+\input{generated_topk_margin/externos_ms.tex}
+
+En FMD, Top-4 alcanza aproximadamente 0,98230 frente a 0,94213 de la adaptación Neshov con MLP. Requiere más tiempo en las mediciones observadas. En Soil, Top-4 queda en 0,85940 frente a 0,86310 de Neshov, y su media temporal es mayor. Este caso desfavorable se conserva. Las mediciones de fechas distintas describen el archivo disponible y no identifican por sí solas una ventaja temporal causal.
+
+Los valores Top-4 del panel online no se presentan como reproducción exacta de toda fila del barrido. Por ejemplo, Soil/SVM registra aproximadamente 0,88639 en el archivo de tamaños y 0,85940 en este panel. La discrepancia entre archivos requiere trazabilidad de selección, representación y ajuste; no se atribuye a una causa no demostrada ni se escoge el mayor número para una tabla final. Las conclusiones del barrido y las comparaciones por llamadas se mantienen dentro de sus archivos.
+
+DeepLumina conserva una reserva científica: las 46 condiciones terminadas contienen avisos de no convergencia y la inspección de modelos encontró 1.653 de 2.441 clasificadores binarios en el límite de iteraciones. DTD contiene nueve de diez condiciones terminadas y no se informa una media completa. La existencia de predicciones no convierte esos ajustes en una réplica validada.
+
+La aproximación separada Neshov FMD de 100 condiciones y 10.000 llamadas registra accuracy 94,22 \%, frente a 96,7 \% publicado. La diferencia no se oculta ni se transforma en un cambio de receta para forzar coincidencia. Se trata de una aproximación con diferencias de partición y entorno. Los porcentajes de otros artículos se interpretan de igual modo según sus protocolos.
+
+\section{P2: optimización mediante activación por margen}\label{sec:resultados-cascada}
+La auditoría reconstruye 27 condiciones SVM y 31.984 observaciones de prueba a partir de las predicciones guardadas. Verifica que, en todas las imágenes derivadas, el resultado condicional es el del mismo Top-\(k\) directo. Los tamaños del rescate van de uno a ocho: cinco condiciones usan cuatro. Son una evaluación de Top-\(k\) por condición, no 27 experimentos Top-4 fijo.
+
+\input{generated_topk_margin/cascada_calidad.tex}
+
+Se identificaron además las cinco condiciones cuyo rescate tiene cuatro bloques y coincide exactamente con el subconjunto Top-4 del barrido de esa partición. La Tabla~\ref{tab:tm-fixed4-margin} conserva sus aumentos, pérdidas y empates. El subconjunto se define por identidad de bloques y tamaño, no por favorecer la activación. No representa cobertura Top-4 por margen en los seis datasets.
+
+\input{generated_topk_margin/top4_margin_subset.tex}
+
+Se selecciona cascada en 26 condiciones y uso directo en una. Las bases de las rutas condicionales son SigLIP en veinte condiciones, BEiT-v2 en cinco y ResNet-50 en una. Estas elecciones provienen del criterio interno identificado en el método; no se escoge una base por el mayor F1 externo.
+
+En FMD, el uso directo registra macro-F1 medio 0,982926 y la política por margen 0,983953. En Outex, la política condicional baja de 0,942574 a 0,936950. CUReT presenta una pérdida pequeña; DTD queda muy próximo en promedio. Soil y el KTH histórico muestran aumentos. La compuerta no produce una mejora uniforme.
+
+La ruta condicional puede superar a Top-\(k\) porque conserva la predicción base en las imágenes que no deriva. Top-\(k\) directo no es un techo matemático de esa combinación. Del mismo modo, un margen alto puede conservar un error que la segunda etapa habría corregido. La auditoría guarda ambos conteos, junto con los cambios de clase.
+
+\section{Adquisición proyectada y pilotos físicos}\label{sec:resultados-gpu}
+\input{generated_topk_margin/cascada_costos.tex}
+\begin{figure}[!htbp]\centering
+\includegraphics[width=\textwidth]{generated_topk_margin/directo_margen.pdf}
+\caption{Comparación por dataset del uso directo y por margen: calidad a la izquierda y adquisición proyectada a la derecha. La diagonal indica igualdad de la magnitud; el panel de costo no es un cronometraje físico nuevo. KTH conserva su reserva.}
+\label{fig:tm-direct-margin}
+\end{figure}
+
+Los costos por componentes proyectan reducciones en las rutas seleccionadas. Esa selección utiliza costos y predicciones internas; la fracción efectivamente derivada al evaluar puede cambiar. Las cifras no incluyen automáticamente todos los elementos del sistema y no se denominan ahorro online de cada prueba externa.
+
+\begin{table}[!htbp]\centering\fontsize{8}{10}\selectfont
+\caption{Piloto físico histórico, una condición por dataset. Modelos residentes e imágenes decodificadas; una imagen por clase y tres repeticiones pareadas.}
+\label{tab:gpu-benchmark}
+\begin{tabular}{@{}lrrrrl@{}}\toprule
+Dataset & Imágenes & Pares & Margen ms & Directo ms & Reserva\\\midrule
+DTD & 47 & 141 & 90,57 & 295,55 & alcance del piloto\\
+FMD & 10 & 30 & 13,01 & 208,08 & alcance del piloto\\
+CUReT & 61 & 183 & 92,52 & 270,60 & representación\\
+Outex13 & 68 & 204 & 111,47 & 354,31 & alcance del piloto\\
+Soil & 7 & 21 & 41,99 & 109,10 & representación\\
+KTH-TIPS2b & 11 & 33 & 46,08 & 188,33 & variante histórica\\
+\bottomrule\end{tabular}
+\end{table}
+
+El piloto reúne 204 imágenes y 612 parejas, no 612 imágenes independientes. Los tiempos observados favorecen la ruta condicional en esas condiciones. Sin embargo, CUReT y Soil mantienen discrepancias entre los vectores físicos y cacheados; sus cosenos mínimos fueron aproximadamente -0,0707 y 0,0085. Coincidir en clase o ruta no demuestra identidad de representación. Los tiempos no cierran esa reserva ni acreditan reducción general en los seis conjuntos.
+
+El control físico KTH con salida directa justa documentó también que una cascada puede ser más lenta cuando Top-\(k\) ya es barato. La posibilidad de elegir uso directo forma parte de la decisión estudiada, no constituye un caso que se deba omitir.
+
+\section{Síntesis de evidencia}
+P1 queda respaldada por un barrido amplio y por comparaciones que identifican tanto ventajas de compactar como pérdidas frente a representaciones mayores. P2 dispone de una comparación por predicciones del mismo Top-\(k\), costos analíticos y pilotos físicos delimitados. La cobertura completa de las predicciones no convierte automáticamente los costos en latencias físicas completas.
+
+Los experimentos de ensamble y poda permiten otras preguntas y se conservan en el Anexo~\ref{app:complementarios}. No se utilizan sus porcentajes de ahorro para atribuir un resultado al Top-\(k\) directo/por margen del cuerpo principal.

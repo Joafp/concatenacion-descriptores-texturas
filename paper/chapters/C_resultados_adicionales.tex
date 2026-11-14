@@ -14,10 +14,15 @@ Los post-hoc aplican diferencias de rangos de Friedman y Holm por familia de die
 
 \subsection{Sensibilidad del benchmark sin KTH}
 Se conservan todos los pares del análisis sobre DTD, FMD, CUReT, Outex y SoilOriginal, con una media por dataset y clasificador. Las familias de Holm son separadas para SVM y ResMLP. Este recálculo no corrige la variante KTH archivada ni aumenta el número de datasets independientes.
+\input{generated_mesa_r2/kth_sensibilidad_global.tex}
 \input{generated_mesa_r2/kth_sensibilidad_holm.tex}
 \FloatBarrier
 
-\subsection{Control emparejado de N-gramas}
+\section{N-gramas con ResMLP y ampliación de biblioteca}
+\input{articulo/borrador_profesor/generated/ngram_resmlp.tex}
+Esta comparación conserva la biblioteca de 20 frente a 21 con N-gramas de su corte histórico; no equivale al barrido sin N-gramas de 21 ni a una prueba de Top-4 más N-gramas.
+
+\subsection{N-gramas en el estudio complementario de rescate}
 El pool corregido conserva candidatos estáticos, sorteos, particiones y scores comunes al ofrecer versiones con y sin N-gramas. En marginal/B120, permitir color y reseleccionar cambia $0{,}900563/97{,}245$ ms a $0{,}906690/83{,}772$ ms. Cambia la ruta: no es una ablación de ruta fija. El rescate de diversidad utiliza otro pool, por lo que sus diferencias no se atribuyen únicamente al color.
 
 

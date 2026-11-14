@@ -1,0 +1,50 @@
+\chapter{Discusión}\label{sec:discusion}
+
+\section{Qué justifica estudiar Top-4}
+El barrido muestra una mejora importante al pasar de una representación individual a concatenaciones pequeñas. Después aparece una región de variaciones menores, sin una ganancia monótona al añadir bloques. Con SVM, cuatro se encuentra cerca del máximo medio observado con una fracción reducida de dimensiones. Esto justifica estudiarlo como un compromiso práctico y explicable.
+
+La conclusión no es que cuatro constituya una constante óptima de la clasificación de texturas. Con ResMLP, el máximo descriptivo del barrido aparece en cinco. Outex se beneficia de una representación mayor; otras colecciones tienen márgenes pequeños de mejora o se aproximan al techo de la métrica. El promedio global no reemplaza estas diferencias.
+
+El origen de la elección también importa. Top-4 se destacó después de observar curvas externas, aunque los rankings de cada corrida se calcularan dentro del entrenamiento. Esa cronología permite una conclusión exploratoria sobre el archivo y una hipótesis para otra evaluación; no demuestra selección ciega de \(k\).
+
+\section{Relevancia individual y complementariedad}
+Top-\(k\) ordena descriptores por cómo funcionan solos. Una concatenación, sin embargo, utiliza la información conjunta. Dos bloques individualmente fuertes pueden ser redundantes, y un bloque menos destacado puede corregir una limitación común de los primeros.
+
+N-gramas es relevante para interpretar esa diferencia. Su información cromática y local puede cambiar una concatenación aunque no encabece el ranking individual. Los controles con/sin el bloque muestran beneficios en algunos casos y pérdidas en otros. La explicación no debe reducirse a que una familia sea intrínsecamente superior: cambian biblioteca, combinación, clasificador y dominio.
+
+GFS permite examinar adiciones condicionadas al subconjunto, pero tiene una búsqueda más costosa y tampoco garantiza un óptimo global. El control que hereda su tamaño ayuda a separar composición y cantidad, siempre que se mantenga identificado como otra regla. Los ensambles permiten agregar decisiones, pero su ventaja no demuestra una mejora de la concatenación de un único vector.
+
+\section{Cuándo tiene sentido la activación por margen}
+La ruta condicional es útil si la base resuelve una proporción suficiente de consultas y el costo incremental evitado compensa su propio costo. No basta con que la base sea nominalmente pequeña; debe compararse con los bloques concretos del Top-\(k\). Si la concatenación seleccionada ya es rápida, ejecutar una base adicional puede perjudicar el tiempo.
+
+La compuerta conserva dos posibles beneficios: evitar adquirir información innecesaria y mantener aciertos de la base que Top-\(k\) no comparte. También introduce dos riesgos: descartar un rescate útil y ejecutar un rescate que empeora la predicción. Por eso, una fracción baja de derivación no basta para evaluar el método; se requieren calidad y costo en las mismas rutas.
+
+La tolerancia interna de 0,005 limita el conjunto de candidatos del procedimiento registrado. No garantiza una pérdida externa menor a ese valor, ni tiene por sí sola el significado de una prueba de no inferioridad. El traslado del umbral al modelo reajustado puede cambiar la escala de márgenes y la tasa de rescate.
+
+\section{Qué permite afirmar el tiempo medido}
+La dimensión del vector es una propiedad de la representación. La latencia depende de extractores, hardware, preprocesamiento, residencia, transferencia y clasificadores. Cuatro bloques pueden incluir redes costosas; una representación de más coordenadas puede provenir de un extractor económico. No corresponde convertir el 15 \% de dimensiones de un punto en un 85 \% de ahorro temporal.
+
+Los perfiles analíticos sirven para comparar candidatos bajo constantes comunes y seleccionar antes de evaluar. Los pilotos físicos comprueban comportamiento de una implementación y de una muestra de imágenes. El panel online posterior permite asociar F1 y tiempo de cada llamada, pero sus diferencias entre fechas no son un experimento pareado simultáneo de todos los métodos.
+
+Las discrepancias de representación de CUReT y Soil impiden cerrar el vínculo entre algunos embeddings y la ejecución física. La identidad de predicciones no resuelve esa diferencia. Se necesita una reconciliación de capa, transformación, checkpoint y muestras antes de extender el alcance, no una explicación causal elegida a partir de una coincidencia parcial.
+
+\section{Interpretación de la comparación con papers}
+La tabla externa responde cómo se comportaron adaptaciones en el panel local. No demuestra que nuestras recetas reproduzcan íntegramente los artículos ni que las cifras publicadas sean incorrectas. El protocolo aproximado Neshov, por ejemplo, conserva una diferencia observada de accuracy respecto del porcentaje publicado.
+
+DeepLumina exige una reserva adicional de ajuste. No conocer el impacto de la no convergencia sobre F1 impide atribuir toda una diferencia a la calidad de su idea de concatenación. Una tabla con datos disponibles puede ser informativa si mantiene esa condición y la cobertura incompleta, pero no debe utilizarse como prueba definitiva de superioridad sobre el método del paper.
+
+Top-4 también presenta pérdidas: Soil frente a Neshov en el panel online es un ejemplo. La selección de un método exige decidir qué calidad y costo son aceptables para una aplicación; una clasificación global de ganadores ocultaría ese compromiso.
+
+\section{Amenazas a la validez y alcance}
+La primera amenaza es la exposición acumulada a benchmarks durante el desarrollo. Separar pliegues sigue siendo necesario, pero no elimina la influencia de resultados anteriores sobre nuevas decisiones. Las bibliotecas intermedias y los distintos regímenes de medición constituyen otra fuente de confusión si no se identifican.
+
+La segunda es la dependencia: semillas, particiones y repeticiones físicas reutilizan imágenes. Aumentar su número no equivale a incorporar nuevos dominios. Las desviaciones entre pliegues no son intervalos de generalización universal; el no rechazo estadístico no acredita igualdad.
+
+La tercera es la conciliación entre archivos. El barrido, el benchmark estático y el panel online no se intercambian automáticamente. Las diferencias Top-4 de Soil y las variantes KTH requieren trazabilidad adicional antes de atribuir identidad de modelo y representación. Esta tesis conserva los archivos y no selecciona entre cifras según cuál favorece la hipótesis.
+
+Finalmente, faltan controles específicos para algunas preguntas secundarias, como Top-4 más N-gramas bajo determinadas bibliotecas y una campaña física íntegra del mismo Top-\(k\) directo/condicional con todas sus representaciones reconciliadas. Su ausencia limita esas afirmaciones, pero no invalida la comparación descriptiva que sí dispone de predicciones y procedencia.
+
+\section{Implicación para el diseño de un clasificador}
+El recorrido permite plantear una decisión ordenada: elegir primero una biblioteca y un clasificador, evaluar la representación pequeña frente a referencias y solo después estudiar si una base aporta ventaja de adquisición. Esa secuencia evita introducir una compuerta para compensar una concatenación que no fue comparada adecuadamente.
+
+La contribución de la tesis es documentar ese recorrido con sus resultados y límites. No depende de que Top-4 gane todos los datasets, de que el margen siempre mejore F1 o de que se igualen porcentajes publicados.

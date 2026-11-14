@@ -1,0 +1,22 @@
+\chapter{Conclusiones y trabajo futuro}\label{sec:conclusion}
+
+\section{Respuesta a las preguntas de investigación}
+Esta tesis estudió primero la construcción y el uso directo de la concatenación Top-\(k\) de descriptores para clasificar texturas y después la optimización de su ejecución mediante activación por margen. Ambas etapas forman parte del aporte: seleccionar una representación útil y decidir para qué imágenes compensa adquirirla.
+
+Para P1, el barrido de uno a 21 bloques, con 47 condiciones por tamaño y clasificador, mostró que aumentar la representación no mejora uniformemente el macro-F1. Top-4/SVM alcanzó una media equiponderada por dataset de 0,936554, frente al máximo descriptivo de 0,936764 en \(k=10\), utilizando aproximadamente 15,42 \% de las dimensiones de la biblioteca sin N-gramas. Con ResMLP, el máximo observado correspondió a cinco. Los datos respaldan estudiar Top-4 como alternativa compacta, no declararlo óptimo universal ni equivalente estadísticamente al máximo.
+
+La comparación por dataset conserva situaciones donde concatenar más información resulta útil. N-gramas mostró que relevancia individual y complementariedad no son intercambiables. Sus variantes con SVD y las bibliotecas intermedias deben identificarse para no atribuir a la selección un efecto producido por cambiar los candidatos. Las adaptaciones de papers ofrecen contexto empírico, con diferencias de receta y reservas explícitas.
+
+Para P2, se reconstruyeron 27 condiciones SVM con el mismo Top-\(k\) directo y como rescate condicional. En todas las imágenes derivadas, la predicción condicional coincide con la del rescate fijado. La ruta por margen puede conservar o mejorar calidad al evitar ciertas decisiones de Top-\(k\), pero también puede perder aciertos. FMD mostró un aumento medio de macro-F1 y Outex una disminución. Sus tamaños no son siempre cuatro y la evidencia no se presenta como 27 comparaciones de Top-4 fijo.
+
+Los costos por componentes proyectan menor adquisición en las rutas elegidas; los pilotos físicos aportan observaciones favorables de tiempo en condiciones delimitadas. Las discrepancias de representación, las variantes KTH y el alcance de los cronometrajes impiden concluir ahorro físico universal o equivalencia predictiva. La complejidad del vector y la latencia son magnitudes que deben medirse por separado.
+
+\section{Contribución y límites del cierre}
+El aporte consiste en un estudio trazable de selección, concatenación y adquisición por imagen: identifica cómo se obtiene el subconjunto, qué evidencia motiva un tamaño compacto y cuándo se utiliza una primera etapa para decidir su ejecución. Se conservan tanto mejoras como pérdidas y se separan archivos históricos, llamadas online y experimentos complementarios.
+
+Las comparaciones externas no se presentan como reproducción fiel de todos los porcentajes publicados. DeepLumina permanece bajo revisión por no convergencia e incompletitud DTD. Las discrepancias entre archivos Top-4 tampoco se resuelven escogiendo la cifra más favorable. Las conclusiones son las de una investigación exploratoria con evidencia localizada, no las de una confirmación ciega de superioridad.
+
+\section{Trabajo futuro delimitado}
+Las prioridades son conciliar las variantes pendientes de representación y procedencia; completar controles específicos de complementariedad con N-gramas; y medir de manera pareada el sistema directo/por margen bajo un régimen físico explícito. Toda condición nueva deberá fijar receta y criterio antes de evaluar, conservando los datos ya observados como tales.
+
+También es pertinente examinar bases y tamaños seleccionados con otros dominios de evaluación. Una compuerta más compleja o un rescate de ensamble constituye otra hipótesis y requiere controles propios. El estudio aquí presentado muestra que la pregunta útil no es cuántos descriptores se pueden concatenar, sino qué combinación aporta calidad y para qué imágenes compensa adquirirla.

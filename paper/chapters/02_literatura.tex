@@ -1,55 +1,52 @@
-\chapter{Fundamentos y trabajos relacionados}\label{sec:trabajos}
+\chapter{Antecedentes y trabajos relacionados}\label{sec:trabajos}
 
-\section{Representaciones y niveles de fusión}
-Los descriptores clásicos resumen regularidades locales, gradientes, frecuencias o dependencias entre intensidades. LBP, GLCM, Gabor y HOG representan estas alternativas \citep{ojala2002lbp,haralick1979glcm,jain1991gabor,dalal2005hog}. RGB Pixel N-grams incorpora secuencias de color \citep{paiva2023rgb}. Las redes preentrenadas permiten utilizar activaciones como características sin ajustar sus pesos al conjunto textural \citep{he2016resnet,dosovitskiy2021vit,oquab2024dinov2}.
+\section{Representaciones para clasificar texturas}
+Los descriptores clásicos resumen regularidades locales mediante histogramas, filtros, gradientes o estadísticas de coocurrencia. LBP codifica comparaciones vecinales; Gabor caracteriza respuestas a frecuencia y orientación; GLCM resume relaciones entre niveles de intensidad, y HOG organiza orientaciones de gradiente \citep{ojala2002lbp,jain1991gabor,haralick1979glcm,dalal2005hog}. Cada familia destaca propiedades diferentes de la imagen. La invariancia buscada y el tamaño de su salida dependen de la implementación.
 
-La fusión temprana concatena coordenadas antes de clasificar; la fusión de decisiones combina puntuaciones o predicciones de clasificadores. En esta tesis ambos niveles coexisten: cada miembro del ensamble recibe una concatenación y su salida se agrega con la de otros miembros. Esta distinción evita interpretar el número de miembros como el número de bloques extraídos.
+Las redes preentrenadas ofrecen otra fuente de características. CNN como ResNet y DenseNet, y modelos basados en atención como ViT, generan vectores que pueden utilizarse sin ajustar el backbone a la colección de texturas \citep{he2016resnet,huang2017densenet,dosovitskiy2021vit}. Un clasificador sobre esos vectores permite separar extracción y aprendizaje de la tarea. No obstante, una representación entrenada con otro dominio puede conservar información semántica o de forma que no coincide con la textura que se quiere distinguir.
 
-Neshov et al.\ combinan representaciones de capas tempranas, intermedias y finales de redes preentrenadas y las clasifican mediante una MLP \citep{neshov2025aggregation}. Su estudio motiva conservar información de distintos niveles y señala como trabajo futuro variantes comprimidas e integración mediante atención, proyecciones o compuertas. En una línea complementaria de concatenación estática, Simon y Uma (\emph{DeepLumina}) concatenan activaciones \texttt{fc1000} de \texttt{ResNet-101} extraídas sobre la imagen RGB y sobre el canal de luminancia $Y$ del espacio YIQ (2.000 dimensiones), clasificándolas con un esquema multiclase ECOC-SVM \emph{sparse-random} \citep{simon2022deeplumina}. Por su parte, Gupta et al.\ (\emph{HyTexNet}) concatenan el vector global de \texttt{DenseNet-121} (1.024 dimensiones) con un descriptor estadístico local basado en el percentil 75 empírico de magnitudes vecinales (514 dimensiones, totalizando 1.538 dimensiones) antes de una cabeza MLP \citep{gupta2026hytexnet}, mientras que Chang et al.\ (\emph{6LBP+dCellNN}) fusionan mapas de contorno generados por una red neuronal celular dinámica (\emph{dCellNN}) con patrones binarios locales en seis escalas $(P,R)$ concatenadas en un histograma de 768 dimensiones \citep{chang2024cellnn}. A diferencia de estos cuatro enfoques —que extraen y concatenan todas sus ramas de manera fija para el 100\% de las imágenes de prueba—, la adquisición estudiada en esta tesis opera en otro nivel: decide condicionalmente por imagen si basta un predictor base económico o si conviene ejecutar extractores adicionales y miembros de rescate.
+RGB Pixel N-grams representa secuencias de píxeles de color mediante conteos \citep{paiva2023rgb}. Su interés en este trabajo es aportar información cromática y local a representaciones de otras familias. La implementación evaluada comprime sus conteos mediante SVD ajustada dentro del entrenamiento. Esa variante se denomina N-gramas+SVD y no se identifica automáticamente con todas las configuraciones ni los porcentajes del artículo original.
 
-Scabini et al.\ comparan 25 modelos ViT en ocho tareas de textura e incluyen un análisis de eficiencia \citep{scabini2025survey}. Proponen estudiar agregación de características y configuraciones que equilibren calidad y cómputo. Su distinción entre arquitecturas, preentrenamiento y régimen de ejecución justifica medir el costo físico de los bloques en lugar de deducirlo únicamente del nombre del modelo, así como reimplementar y evaluar los métodos de concatenación del estado del arte bajo exactamente las mismas particiones y en llamadas individuales (\texttt{batch=1}) cuando se comparan calidad predictiva y latencia física.
+\section{Concatenación y selección de bloques}
+La concatenación es una fusión a nivel de características: reúne los vectores antes de entrenar el clasificador. Un ensamble, en cambio, combina decisiones o puntuaciones de varios clasificadores. Aunque un miembro de un ensamble pueda recibir una concatenación, ambas operaciones resuelven decisiones distintas.
 
-\section{Selección estática de bloques}
-La selección \emph{wrapper} valora subconjuntos con el propio clasificador \citep{kohavi1997wrappers,guyon2003feature}. GFS añade secuencialmente el bloque que mejora el criterio interno. El ranking individual Top-$k$ es más simple, pero no evalúa directamente el aporte de un bloque una vez presentes los anteriores. La comparación entre ambos examina composición del subconjunto, no solo su tamaño.
+Seleccionar los primeros \(k\) descriptores de un ranking individual ofrece una referencia de baja complejidad conceptual. El ranking estima relevancia individual; no mide necesariamente la complementariedad condicionada a los bloques que ya están presentes. Un descriptor que no ocupa una posición alta puede añadir información útil a otro subconjunto.
 
-La selección estática fija una representación para todas las consultas. Puede reducir almacenamiento y extracción respecto de una concatenación completa, pero sigue ejecutando todos sus bloques para cada imagen. Su evaluación exige mantener la búsqueda dentro del entrenamiento. La observación posterior de benchmarks durante el desarrollo limita, además, la interpretación confirmatoria de futuras comparaciones.
+Los métodos \emph{wrapper} evalúan subconjuntos mediante el clasificador que los utilizará \citep{kohavi1997wrappers,guyon2003feature}. GFS construye el conjunto de manera secuencial, añadiendo bloques según un criterio interno. Frente al ranking Top-\(k\), esto examina más directamente la composición, pero exige más ajustes. La comparación debe informar por separado el número de bloques, la dimensión, el costo de selección y la inferencia.
 
-\section{Ensambles, diversidad y selección de miembros}
-Seleccionar modelos dentro de un ensamble tiene antecedentes distintos de seleccionar características. Caruana et al.\ añaden modelos según una métrica de validación; las selecciones repetidas modifican sus pesos \citep{caruana2004ensemble}. Esta perspectiva permite distinguir la biblioteca de extractores del conjunto de clasificadores que los utiliza. En esta tesis, los candidatos son SVM sobre concatenaciones de bloques y la selección de miembros se integra con una decisión de adquisición por imagen.
+Una selección realizada dentro del entrenamiento no justifica volver a elegir \(k\) mirando los resultados externos y describir esa elección como previa. El análisis de curvas externas es útil para explorar; su función y exposición deben declararse.
 
-La generación de subconjuntos utiliza relevancia individual y CKA lineal (\emph{centered kernel alignment}), una medida de comparación entre representaciones \citep{kornblith2019similarity}. Se calcula sobre las mismas imágenes de entrenamiento. Su reducción se emplea como heurística, no como demostración de independencia de errores ni garantía de mejora predictiva.
+\section{Métodos de literatura utilizados como comparación}
+Neshov et al.\ extraen características de varios niveles de una arquitectura preentrenada y las concatenan antes de una MLP \citep{neshov2025aggregation}. El trabajo permite estudiar agregación entre capas, mientras que nuestro Top-\(k\) selecciona bloques de extractores diferentes. Las dos operaciones pueden relacionarse, pero no tienen el mismo costo ni la misma unidad de selección.
 
-Poda y adquisición condicional actúan en niveles distintos. La primera reduce los miembros disponibles; la segunda decide para qué imágenes ejecutarlos. Un compromiso favorable puede originarse en cualquiera de esas decisiones. Para atribuir una diferencia al enrutamiento se necesita el mismo ensamble podado siempre activo.
+DeepLumina reúne características profundas obtenidas a partir de información RGB y de luminancia \citep{simon2022deeplumina}. HyTexNet combina una codificación local guiada por percentiles con características profundas \citep{gupta2026hytexnet}. El método de Chang et al.\ fusiona LBP multiescala y contornos producidos por CellNN \citep{chang2024cellnn}. Estos casos representan formas concretas de concatenar información complementaria. Las dimensiones, checkpoints y cabezas utilizados en nuestras adaptaciones se identifican en las recetas del proyecto.
 
-\section{Adquisición bajo costo e inferencia condicional}
-El método \emph{The Greedy Miser} incorpora el costo de extracción durante el aprendizaje mediante regresión por etapas \citep{xu2012greedy}. Muestra que la calidad predictiva y el costo de obtener características pueden intervenir en un mismo procedimiento de selección. El presente estudio utiliza un conjunto finito de representaciones congeladas y clasificadores lineales, con costo compartido entre los miembros seleccionados.
+Scabini et al.\ comparan extractores basados en Vision Transformers y consideran eficiencia junto con calidad \citep{scabini2025survey}. En el proyecto también existen mediciones derivadas de procesamiento por lotes. Su tiempo amortizado por imagen no se intercambia con la latencia individual de una consulta.
 
-Las cascadas asignan trabajo adicional según decisiones intermedias \citep{viola2001rapid}. Nan y Saligrama aprenden una compuerta y un predictor económico para limitar el uso de un modelo costoso \citep{nan2017adaptive}. Aquí se utiliza un umbral de margen y un rescate compuesto por SVM sobre bloques compartidos; no se reproduce su optimización conjunta.
-
-EDDI combina un modelo generativo parcial con una adquisición basada en ganancia de información esperada \citep{ma2019eddi}. El método estudiado no estima esa cantidad: restringe la política a una base y un rescate seleccionado.
-
-Las salidas tempranas de redes, como BranchyNet, reutilizan cómputo dentro de una arquitectura \citep{teerapittayanon2016branchynet}. Este sistema trabaja con extractores independientes; su costo depende de la unión de bloques adquiridos. La diferencia de implementación requiere medición propia y no implica superioridad frente a redes dinámicas \citep{han2021dynamic}.
-
-\begin{table}[!htbp]
-\centering\small
-\caption{Antecedentes seleccionados y relación conceptual con el estudio. No es una clasificación de rendimiento ni una revisión sistemática exhaustiva.}
+\begin{table}[!htbp]\centering\small
+\caption{Nivel de combinación y relación con la comparación propuesta.}
 \label{tab:antecedentes}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{5.1cm}@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{5.4cm}>{\raggedright\arraybackslash}p{4.0cm}@{}}
 \toprule
-Antecedente & Decisión principal & Relación y diferencia relevante\\
-\midrule
-Wrappers/GFS & Subconjunto estático & Selección de bloques sin activación por imagen\\
-Concatenación multicapa / híbrida \citep{neshov2025aggregation,simon2022deeplumina,gupta2026hytexnet,chang2024cellnn} & Fusión estática de capas o ramas heterogéneas & Extrae siempre todas las ramas concatenadas en cada imagen\\
-Selección de ensambles \citep{caruana2004ensemble} & Miembros y pesos & Reducción del ensamble; no equivale a adquirir sus bloques\\
-Greedy Miser \citep{xu2012greedy} & Aprendizaje con costo de extracción & Predictor y optimización diferentes\\
-Clasificación adaptativa \citep{nan2017adaptive} & Compuerta y predictor económico & Antecedente de utilización condicional de un modelo costoso\\
-EDDI \citep{ma2019eddi} & Adquisición por información esperada & Modelo generativo y criterio distintos del margen\\
+Estrategia & Información combinada & Decisión que se estudia\\\midrule
+Top-\(k\) & Bloques mejor valorados internamente & Qué bloques y cuántos\\
+GFS & Bloques añadidos según utilidad conjunta & Composición del subconjunto\\
+Neshov & Características de varias capas & Agregación dentro de arquitectura\\
+DeepLumina & Características RGB/luminancia & Complementariedad cromática\\
+HyTexNet / CellNN & Características profundas y patrones locales & Fusión de representaciones\\
+Cascada por margen & Base y concatenación Top-\(k\) & Para qué imágenes adquirirla\\
 \bottomrule
 \end{tabular}
 \end{table}
-\FloatBarrier
 
-\section{Delimitación de la contribución evaluada}
-La selección estática determina qué información queda disponible para todas las imágenes; la política condicional añade una decisión sobre cuándo adquirirla. En el sistema estudiado, la búsqueda relaciona calidad interna, composición del rescate y costo de la unión de bloques. Dos miembros pueden añadir votos sin requerir dos extracciones de una representación compartida, mientras que retirar un miembro puede no eliminar ningún extractor si sus bloques siguen presentes en otros.
+\section{Activación condicional y margen}
+Las cascadas distribuyen trabajo según decisiones intermedias \citep{viola2001rapid}. La clasificación adaptativa bajo presupuesto incorpora una compuerta para limitar el uso de modelos costosos \citep{nan2017adaptive}. En sistemas con extractores independientes, el costo depende también de qué bloques puede reutilizar la segunda etapa.
 
-La Tabla~\ref{tab:antecedentes} delimita los antecedentes de cada decisión. El contraste empírico se centra en una implementación concreta: seleccionar un rescate de SVM sobre bloques compartidos y activarlo mediante un margen de la base. Evaluar por separado composición y activación permite determinar si un compromiso observado procede de poda, adquisición condicional o ambas. Ese contraste, y no la sola combinación de componentes conocidos, define el aporte que debe sustentar la evidencia.
+El margen entre las dos mayores puntuaciones permite ordenar consultas según la separación que produce un clasificador. No es, por sí mismo, una probabilidad calibrada de acierto ni una garantía de que un rescate vaya a corregir el caso. La compuerta puede conservar aciertos de la base o evitar errores del Top-\(k\), pero también descartar una segunda etapa que habría sido útil.
+
+Otros enfoques incorporan costo de extracción durante el aprendizaje o adquieren características por información esperada \citep{xu2012greedy,ma2019eddi}. Las salidas tempranas dentro de redes reutilizan activaciones de una misma arquitectura \citep{teerapittayanon2016branchynet,han2021dynamic}. La tesis no reproduce todas estas familias; estudia una regla de dos etapas con margen y una concatenación fijada.
+
+\section{Criterio para comparar con un paper}
+Se distinguen tres alcances: una reproducción fiel requiere verificar el pipeline y protocolo; una aproximación conserva parte del diseño con supuestos explícitos; una adaptación permite comparar una receta en nuestro panel común. Coincidir en un porcentaje o reproducir una ecuación aislada no acredita identidad de datos, pesos, selección y evaluación.
+
+La evaluación empírica utiliza macro-F1, accuracy y tiempos identificados por llamada. Los porcentajes publicados bajo otros repartos se usan como contexto. Para contrastar implementaciones se emparejan muestras y condiciones cuando la evidencia lo permite. Una referencia incompleta o cuyo ajuste exige revisión no se convierte en una media validada por omitir la condición fallida.

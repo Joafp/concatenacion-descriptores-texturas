@@ -1,127 +1,105 @@
 \chapter{Diseño experimental}\label{sec:diseno}
 
-\section{Evaluaciones y unidades de análisis}
-Se distinguen el benchmark estático, la cascada Top-$k$ de referencia y el desarrollo del rescate de ensamble. La Tabla~\ref{tab:cobertura} especifica sus unidades; las condiciones externas no son datasets independientes. El híbrido se evalúa con SVM y no hereda los resultados ResMLP del benchmark.
+\section{Recorrido de las pruebas hasta Top-4 y su optimización}
+El estudio avanzó por una secuencia de preguntas. Los pasos siguientes reconstruyen ese recorrido experimental; los registros ampliados y las bibliotecas correspondientes se identifican después para evitar tratarlos como una única corrida.
+\begin{enumerate}
+\item \textbf{Establecer referencias individuales.} Se evaluaron los descriptores por separado y se calculó un ranking mediante validación interna del entrenamiento. Esto permite conocer qué representación funciona bien sola y definir el punto de partida de una selección.
+\item \textbf{Probar la concatenación completa.} Se entrenó un clasificador con todos los bloques de la biblioteca de cada corte. La comparación con Individual permitió examinar si añadir toda la información disponible compensa su mayor dimensión.
+\item \textbf{Comparar maneras de elegir bloques.} GFS construye combinaciones valorando las adiciones; Homogénea restringe familias; el control Top-\(k\) toma los primeros del ranking con el mismo número de bloques que el GFS de esa condición. Este control separa la cantidad seleccionada de la composición.
+\item \textbf{Recorrer todos los tamaños.} Un solo tamaño heredado no explica cuántos descriptores hacen falta. El barrido pasó a evaluar los 21 prefijos del ranking. El registro inicial SVM contenía 27 condiciones con semilla 42; los CSV ampliados contienen 47 por tamaño y clasificador, incluyendo ResMLP y más semillas FMD/Soil. La tesis utiliza la cobertura ampliada en sus curvas principales.
+\item \textbf{Examinar el aporte marginal.} Se compararon la calidad y la dimensión al pasar de uno a dos, tres, cuatro y más bloques. La zona de buen rendimiento con pocos bloques motivó prestar atención a Top-4. El máximo observado y las pérdidas por dataset se conservan, en lugar de imponer cuatro como ganador de todas las curvas.
+\item \textbf{Examinar alternativas y ampliaciones.} Los archivos exploratorios también incluyen reglas internas para elegir \(k\), SFFS y selecciones aleatorias; su cobertura no es la del barrido ampliado. Las comparaciones emparejadas con N-gramas estudian qué cambia al ampliar la biblioteca. Estos estudios contextualizan la elección sencilla por ranking, sin atribuirles una validación ciega de \(k=4\).
+\item \textbf{Contrastar con métodos externos.} Se comparó Top-4 con adaptaciones de métodos de literatura y se midieron predicción y tiempo de las mismas llamadas. Se conservaron por separado porcentajes publicados, recetas adaptadas y resultados locales.
+\item \textbf{Optimizar cuándo ejecutar Top-\(k\).} Se tomó el uso directo como referencia y se estudió una base que activa el mismo rescate según su margen. Esta segunda parte compara calidad y adquisición por imagen, y utiliza los pilotos físicos dentro de su alcance.
+\end{enumerate}
+La elección de Top-4 fue posterior a observar resultados del barrido. El ranking interno y la decisión exploratoria sobre un tamaño global son decisiones distintas. La secuencia documenta cómo surgió la opción compacta, sin presentarla como una regla derivada antes de ver toda la evidencia.
 
-\begin{table}[!htbp]
-\centering\small
-\caption{Cobertura efectiva de las evaluaciones. Las condiciones de cada conjunto se agregan antes de la inferencia entre datasets.}
+\section{Experimentos y unidades de análisis}
+La evaluación reúne tres archivos con funciones distintas. El barrido permite estudiar \(k\); el benchmark de selección compara estrategias sobre una biblioteca consolidada; la cascada contrasta el mismo Top-\(k\) directo y por margen. Un cuarto archivo físico permite describir las llamadas de Top-4 y de los comparadores externos. Sus cifras no se mezclan para construir una media nueva.
+
+\begin{table}[!htbp]\centering\small
+\caption{Cobertura de los bloques experimentales utilizados en la tesis.}
 \label{tab:cobertura}
-\begin{tabular}{@{}lrrr@{}}
-\toprule
-Conjunto & Imágenes/clases & Estático por clasif. & Cascada referencia\\
-\midrule
-DTD & 5.640/47 & 10 & 10\\
-FMD & 1.000/10 & 15 & 5\\
-CUReT & 5.612/61 & 2 & 2\\
-Outex13 & 1.360/68 & 1 & 1\\
-SoilOriginal & 1.140/7 & 15 & 5\\
-KTH-TIPS-2b & 4.752/11 & 4 & 4\\
-\midrule
-Total de condiciones & & 47 & 27\\
-\bottomrule
-\end{tabular}
-
-\vspace{0.5em}
-\begin{minipage}{0.96\textwidth}\small
-Piloto híbrido: entrenamiento oficial Outex, semilla 42. Réplica: FMD con semillas 42/123/2026 (800 imágenes de desarrollo por condición) y Outex con 123/2026 (680). Cada condición utiliza tres pliegues productores y tres internos. No se evalúan sus tests externos ni se añaden esas cinco condiciones al panel histórico de 27.
-\end{minipage}
+\begin{tabular}{@{}lrrr@{}}\toprule
+Conjunto & Barrido por k/clasif. & Estático por clasif. & Directo/margen SVM\\\midrule
+DTD & 10 & 10 & 10\\
+FMD & 15 & 15 & 5\\
+CUReT & 2 & 2 & 2\\
+Outex13 & 1 & 1 & 1\\
+SoilOriginal & 15 & 15 & 5\\
+KTH-TIPS2b & 4 & 4 & 4\\\midrule
+Total & 47 & 47 & 27\\
+\bottomrule\end{tabular}
 \end{table}
 
-\section{Datos, particiones y procedencia}
-Se utilizaron manifiestos para verificar etiquetas, orden de muestras, dimensiones, valores finitos y grupos de dependencia. Los bloques se alinearon con el mismo orden de imágenes dentro de cada conjunto.
+El barrido contiene 21 tamaños por clasificador: 987 filas SVM y 987 ResMLP. Cada tamaño conserva las mismas 47 condiciones de su clasificador. Las 27 condiciones de cascada utilizan solo la semilla 42 en FMD y Soil, frente a tres semillas en los archivos ampliados. Las particiones oficiales DTD, las mitades complementarias de CUReT y las semillas repetidas comparten imágenes; sus condiciones no son réplicas independientes.
 
-DTD proporciona diez particiones oficiales \citep{cimpoi2014dtd}. En cada corrida estática se unieron entrenamiento y validación para seleccionar internamente; el test se reservó para evaluación externa de esa corrida. Se retiraron del entrenamiento los duplicados byte-idénticos que cruzaban roles. Esta separación no significa que los resultados oficiales nunca influyeran en decisiones posteriores del proyecto.
+El panel online previo incluye cinco estrategias locales y dos clasificadores sobre 94 condiciones. La tesis extrae la evidencia de Top-4 de ese panel y la mantiene separada de sus otras políticas. Las 362.640 llamadas primarias del panel completo no son 362.640 llamadas de Top-4 ni una nueva medición del sistema directo/por margen.
 
-FMD contiene diez categorías de materiales \citep{sharan2013fmd}. Cada imagen tuvo un hash único y se utilizó como grupo. El benchmark repite cinco pliegues estratificados y agrupados con semillas 42, 123 y 2026; la cascada conserva los cinco de la semilla 42.
+\section{Colecciones y particiones}
+Se utilizaron manifiestos para comprobar etiquetas, orden, dimensiones y valores finitos de los vectores. Los hashes y grupos permiten detectar duplicados y separar unidades relacionadas. La existencia de una separación externa dentro de una corrida no elimina la exposición de sus resultados durante el desarrollo.
 
-Outex-TC-00013 contiene 68 clases balanceadas y una partición oficial de 680 imágenes de entrenamiento y 680 de prueba, diez por clase a cada lado \citep{ojala2002outex}. Se verificaron archivos RGB legibles de $128\times128$, IDs continuos y ausencia de duplicados exactos. El piloto híbrido trabaja exclusivamente dentro de las 680 imágenes de entrenamiento.
+DTD contiene 47 clases y diez particiones oficiales \citep{cimpoi2014dtd}. El estudio estático selecciona dentro de la unión de entrenamiento y validación de cada partición; la prueba de esa ejecución permanece fuera del ajuste. Los duplicados byte-idénticos que cruzaban roles se retiraron del entrenamiento. La reserva física de una condición del panel online se conserva en su documentación y no se interpreta como una validación nueva de todas las representaciones.
 
-CUReT utiliza la distribución gris recortada de 61 materiales y 92 condiciones por clase \citep{varma2003filter}. Se definieron mitades deterministas de 46 condiciones y ambas direcciones de entrenamiento/prueba. Las condiciones se agruparon para no cruzar una misma configuración de adquisición. El tamaño 46/46 no identifica el split histórico exacto de otros artículos; las dos direcciones son dependientes.
+FMD contiene 1.000 imágenes y diez categorías \citep{sharan2013fmd}. Se usan cinco pliegues estratificados y agrupados con semillas 42, 123 y 2026. Cada imagen se identifica mediante un hash; la cascada utiliza los cinco pliegues de la semilla 42.
 
-SoilOriginal procede de la versión 1 de \href{https://www.kaggle.com/datasets/ai4a-lab/comprehensive-soil-classification-datasets}{Comprehensive Soil Classification Datasets, de ai4a-lab}. Se admitió únicamente el árbol de imágenes originales del archivo auditado, excluyendo el conjunto aumentado. La deduplicación exacta por hash de archivo conserva 1.140 imágenes de siete clases y 962 grupos conservadores por familia de nombre, definidos dentro de cada clase. El manifiesto fija versión, rutas y hashes; no identifica un split oficial del proveedor. El benchmark utiliza cinco pliegues agrupados con tres semillas; la cascada, los cinco de la semilla 42, con 228 imágenes de prueba por pliegue.
+CUReT se basa en la distribución gris recortada de 61 materiales y 92 condiciones por clase \citep{varma2003filter}. Se fijaron dos mitades de 46 condiciones y ambas direcciones de entrenamiento/prueba. Las condiciones de adquisición se agrupan para no cruzar una misma configuración. Este reparto no identifica el subconjunto histórico exacto de cada paper y sus direcciones son dependientes.
 
-KTH-TIPS-2b contiene 11 clases y cuatro muestras físicas por clase. Se conservaron cuatro particiones invertidas, con tres muestras físicas de entrenamiento y una de prueba. Las tablas estáticas principales conservan los controles archivados, incluido el Top-$k$ anterior, y sus contrastes se reportan como análisis de ese archivo. No se les atribuye la corrección interna por muestra de controles posteriores. La cascada construida con el rescate anterior tampoco queda reconciliada por sustituir una media. Por esa reserva, KTH se excluye del contraste conjunto de la cascada. El Anexo~\ref{app:procedencia} identifica las variantes y sus usos.
+Outex-TC-00013 contiene 1.360 imágenes de 68 clases y una partición oficial de 680/680 \citep{ojala2002outex}. Se comprobaron imágenes RGB legibles, IDs y ausencia de duplicados exactos. Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva; la enmienda DeiT del panel no se atribuye automáticamente a todos los archivos históricos.
 
-\section{Clasificadores y selección interna}
-La SVM lineal utiliza \texttt{LinearSVC}, $C=1$, clases balanceadas, pérdida \emph{squared hinge}, regularización $L_2$, uno-contra-el-resto, tolerancia $10^{-4}$ y hasta 10.000 iteraciones. Se mantiene la misma receta al comparar concatenaciones en el piloto.
+SoilOriginal utiliza solo imágenes originales de la versión 1 de la colección \emph{Comprehensive Soil Classification Datasets}. Tras deduplicación exacta se conservaron 1.140 imágenes, siete clases y 962 grupos conservadores por familia de nombre dentro de clase. No existe un split oficial utilizado en esta evaluación. Se aplican cinco pliegues agrupados y tres semillas en el archivo ampliado; la cascada conserva la semilla 42.
 
-ResMLP designa una MLP residual sobre vectores de características, no una reproducción del modelo de imágenes homónimo \citep{touvron2021resmlp}. Proyecta a 256 unidades y aplica tres bloques residuales, normalización de capa, GELU y \emph{dropout} de 0,1. Se entrenó con entropía cruzada y AdamW, tasa $10^{-3}$, decaimiento $10^{-4}$, lotes de 256 y hasta 100 épocas. La parada controla pérdida media de entrenamiento, paciencia diez y disminución mínima $10^{-4}$, restaurando el mejor estado. No selecciona época con test ni con validación adicional.
+KTH-TIPS2b tiene 11 clases y cuatro muestras físicas por clase. El estudio mantiene cuatro particiones invertidas, con tres muestras para entrenar y una para probar. Algunos controles históricos difieren en agrupación interna y procedencia de representaciones. No se sustituye una media por la de otro control para dar por reconciliada toda la ruta. KTH se muestra descriptivamente y se excluye del contraste conjunto histórico de la cascada. Las aproximaciones al reparto de un tercio de algunos papers, con 44 muestras físicas compartidas entre entrenamiento y prueba, son otra evaluación y no se mezclan con este panel.
 
-La búsqueda estática utiliza hasta cuatro pliegues internos estratificados y agrupados, limitados por disponibilidad de grupos. Las variantes KTH se delimitan en la sección anterior. Las transformaciones aprendidas, incluida SVD de N-gramas, se ajustan en el entrenamiento pertinente. Las redes de extracción permanecen congeladas; no se comparan esquemas de ajuste fino.
+\section{Clasificadores y transformaciones}
+La SVM lineal CPU utiliza \texttt{LinearSVC}, \(C=1\), clases balanceadas, pérdida \emph{squared hinge}, regularización \(L_2\), estrategia uno-contra-el-resto, \texttt{dual=auto}, tolerancia \(10^{-4}\) y máximo de 10.000 iteraciones. El estado aleatorio sigue la semilla de la condición; la cascada histórica con base seleccionada utiliza 42. El código conserva los parámetros y el estado del ajuste. Los avisos de convergencia se informan sin cambiar retrospectivamente el solver para recuperar una cifra deseada.
 
-\section{Piloto de rescate de ensamble}
-Sea $D_{\mathrm{dev}}$ el entrenamiento oficial de Outex. Cada pliegue productor $h$ lo divide en entrenamiento $T_h$ y validación $V_h$, sin grupos compartidos. A su vez, $T_h$ se divide en tres pliegues internos. Se distinguen cuatro operaciones:
-\begin{enumerate}
-\item Construir el ranking, calcular CKA y generar los subconjuntos utilizando $T_h$.
-\item Reunir puntuaciones OOF internas de las imágenes de $T_h$ y seleccionar base, umbral y rescate mediante la Ecuación~\ref{eq:policy-selection}.
-\item Reajustar los modelos elegidos con $T_h$, estimar sus escalas y conservar el umbral numérico seleccionado.
-\item Predecir las imágenes de $V_h$ sin modificar la política a partir de sus etiquetas.
-\end{enumerate}
-Al reunir las tres validaciones $V_h$ se obtienen las 680 predicciones OOF de desarrollo, una por imagen y política. Esas predicciones son distintas de las puntuaciones OOF internas que guiaron la selección.
+ResMLP es una MLP residual sobre vectores de características. Proyecta a 256 unidades y utiliza tres bloques residuales, normalización de capa, GELU y \emph{dropout} de 0,1. Se ajusta con AdamW, tasa de aprendizaje \(10^{-3}\), decaimiento de pesos \(10^{-4}\), lotes de 256 y máximo de 100 épocas. La parada usa paciencia de diez épocas y una mejora mínima de \(10^{-4}\) en la pérdida media de entrenamiento; al finalizar restaura el mejor estado registrado. Esta regla no utiliza el test para elegir una época y no equivale a una parada basada en pérdida de validación.
 
-La biblioteca de candidatos se construye a nivel de $T_h$; no se genera de nuevo dentro de cada pliegue interno. Las puntuaciones internas, por tanto, sirven como criterio de selección dentro de una búsqueda adaptada a $T_h$, no como evaluación independiente del procedimiento completo. La evaluación productora conserva separadas las imágenes de $V_h$. La semilla de partición productora es 142 y la interna, 42; el Anexo~\ref{app:procedencia} registra tamaños y multiplicidades.
+La búsqueda interna utiliza pliegues estratificados y agrupados, limitada por disponibilidad de grupos. Las redes de extracción permanecen congeladas. Las transformaciones aprendidas, como SVD, se ajustan con el entrenamiento del pliegue correspondiente. Cuando se cambia la biblioteca o el clasificador, la selección se repite dentro de su protocolo; no se reutiliza un ranking de otro modelo como si fuera una nueva selección interna.
 
-El piloto reutiliza puntuaciones de validación productora de los miembros del control de diversidad previamente auditado. Se ajustaron las puntuaciones internas faltantes y las bases necesarias, comprobando igualdad de particiones y procedencia. Los parámetros del ensamble, presupuestos y cuantiles se fijaron desde la configuración de desarrollo; no son una preespecificación ciega de toda la investigación.
+\section{Cómo se comparan los prefijos y las bibliotecas}
+En cada condición del barrido se mantiene un ranking y se evalúan sus prefijos de uno a 21 bloques. Se comprueba cobertura íntegra para cada \(k\), ausencia de duplicados de dataset/semilla/pliegue/tamaño y correspondencia con los resúmenes guardados. Esta evaluación no incluye N-gramas.
 
-Los controles del mismo piloto incluyen mejor individual interno, Top-3/4/5, Completa-22 y ensamble de diversidad permanente. Top-3/4/5 son tamaños fijos; no equivalen al Top-$k$ del benchmark que hereda $k$ de GFS. Se añadió un ensamble estático seleccionado bajo cada presupuesto, definido a continuación; no se dispone de GFS concatenado reajustado para este protocolo.
+El estudio de N-gramas utiliza sus bibliotecas emparejadas y condiciones comunes. Las tablas de 20 frente a 21 bloques corresponden a un corte anterior a la incorporación final de BEiT-v2. Las tablas consolidadas de 22 y el barrido sin N-gramas responden a otro corte. La comparación no utiliza los nombres de las carpetas como prueba de identidad de bibliotecas.
 
-\subsection{Ablación del mismo rescate con y sin compuerta}\label{sec:diseno-p0}
-Se reconstruyeron cuatro vistas de cada una de las doce políticas a partir de puntuaciones y predicciones de validación productora guardadas: base sola, mismo rescate permanente, ruta forzada y ruta condicional. Se conservaron los miembros, multiplicidades, pesos, escalas, modelos y particiones; no se reentrenó ni se utilizó el test oficial. La base de cada vista es la elegida para esa política, no el mejor individual global.
-
-El rescate permanente predice todas las imágenes con los miembros fijados y contabiliza únicamente la unión $U(E)$, sin extraer una base innecesaria. La ruta forzada conserva además la base y el sobrecosto de política, pero activa el mismo rescate en todas las imágenes. Ambas producen las mismas clases; la segunda tiene otra contabilidad de costo y llamadas. La vista condicional conserva la decisión archivada de la compuerta. Si el rescate es vacío, las cuatro vistas se reducen a la base; esos casos no aportan evidencia sobre enrutamiento.
-
-El contraste entre rescate permanente y condicional aísla la activación para los modelos fijados en este archivo de desarrollo. No evalúa el mejor rescate estático posible: sus miembros fueron seleccionados conjuntamente con la compuerta. Las doce configuraciones reutilizan las mismas 680 imágenes y son dependientes. Se informan cambios predictivos, costos y llamadas, sin atribuirles significancia confirmatoria ni equivalencia poblacional.
-
-\subsection{Control estático bajo presupuesto}\label{sec:diseno-estatico-presupuesto}
-En cada entrenamiento productor se reúnen los 22 clasificadores individuales y los modelos únicos del ensamble de diversidad, con las puntuaciones OOF internas guardadas. Se enumeran todos los ensambles de uno a tres miembros únicos de ese pool, con igual peso y sin repetición. Para cada presupuesto 15, 30, 60 y 120 ms se elige el mayor macro-F1 interno cuya unión de bloques sea factible. Los desempates favorecen menor costo, menos modelos y orden léxico. No se añade una base ni una compuerta al costo del control permanente.
-
-Las doce decisiones se guardaron antes de calcular sus predicciones de validación productora. Se reutilizaron nueve modelos disponibles y se reajustaron nueve con la misma receta SVM y el mismo entrenamiento productor. La enumeración es exhaustiva dentro de ese pool y límite de tres miembros, no sobre todas las concatenaciones o ponderaciones posibles. Se conservan los mismos pliegues y constantes del híbrido; el control no sustituye una ejecución GFS bajo presupuesto.
-
-Este análisis se diseñó después de conocer el piloto y P0. Su regla se fijó antes de obtener las nuevas predicciones, pero no constituye una preinscripción ciega. Se conserva todo el barrido y no se usa el test oficial ni se reajusta el híbrido a partir del resultado del control.
-
-\subsection{Réplica en FMD y semillas adicionales}\label{sec:diseno-replica}
-La réplica conserva la biblioteca de 22 bloques, SVM, tres pliegues productores y tres internos, presupuestos 15/30/60/120 ms y cuantiles 0,10/0,25/0,50. Mantiene cinco sorteos de candidatos de tamaño cuatro, hasta tres miembros podados y el ensamble de quince votos con $\beta=8$ y $\lambda=0{,}25$. No se modificaron estos parámetros a partir de sus resultados. Las cinco condiciones y los comandos se fijaron antes de ejecutar la cola, después de conocer el piloto; no constituyen una preinscripción ciega de la investigación.
-
-En FMD se reserva el pliegue externo 0 de la partición estratificada y agrupada de cada semilla 42, 123 y 2026: 800 imágenes forman $D_{\mathrm{dev}}$ y las 200 restantes quedan excluidas. En Outex se mantiene el entrenamiento oficial de 680 imágenes y se añaden las semillas 123 y 2026, sin evaluar las 680 imágenes de test. El piloto Outex/42 se conserva por separado. Las semillas alteran particiones, sorteos y transformaciones; no aíslan solamente el efecto de la inicialización. La partición productora usa semilla $s+100$ y la interna, $s$.
-
-Cada condición evalúa referencias individuales, Top-3/4/5, Completa-22, ensambles permanentes, las tres reglas híbridas y el rival estático bajo presupuesto. La vista P0 vuelve a aplicar permanentemente exactamente el rescate seleccionado, sin reoptimizarlo. La cobertura se audita por imagen, grupo y transformación, manteniendo el test externo excluido. El perfil de costos es el mismo del piloto Outex, no una medición nueva de extracción en FMD. Las reglas completas y el detalle por semilla se conservan en el Anexo~\ref{sec:anexo-replica}.
-
-\section{Métricas y agregación}
-Macro-F1 es la métrica primaria. Para $C$ clases,
+Las medias principales se calculan dentro de cada dataset y luego se equiponderan los seis datasets:
 \begin{equation}
-\operatorname{macro\mbox{-}F1}=\frac1C\sum_{c=1}^{C}
-\frac{2TP_c}{2TP_c+FP_c+FN_c}.
+\overline F=\frac{1}{D}\sum_{d=1}^{D}
+\left(\frac{1}{n_d}\sum_{r=1}^{n_d}F_{d,r}\right).
+\label{eq:tk-aggregation}
 \end{equation}
-Se asigna cero cuando el denominador no permite definir el cociente. La exactitud es la proporción de predicciones correctas. En el benchmark se promedian métricas entre condiciones externas de cada dataset; en cada condición del híbrido se calcula macro-F1 sobre las predicciones OOF productoras reunidas, una por imagen y política (680 Outex, 800 FMD). Las medias de la réplica promedian después esas métricas entre semillas dentro de cada dataset; no reúnen varias predicciones de una misma imagen como observaciones independientes.
+Este estimando difiere de reunir todas las predicciones y calcular un único F1. Las tablas indican cuando muestran una media por condición, un valor por llamada o un promedio OOF reunido.
 
-El costo proyectado del piloto se promedia por imagen, ponderando tamaños de pliegue; no se usa una media no ponderada de costos de pliegues de distinto tamaño. Las tablas principales muestran medias sin formato mixto de desviaciones. El Anexo~\ref{app:resultados-adicionales} conserva desviaciones descriptivas entre condiciones y el detalle del barrido; un único split Outex no permite estimar desviación entre splits.
+\section{Contraste del mismo Top-k directo y por margen}
+Cada condición conserva el subconjunto Top-\(k\) archivado, ajusta su clasificador con el entrenamiento externo y utiliza ese mismo resultado como referencia de la ruta condicional. La selección de base y umbral usa únicamente sus predicciones internas fuera de pliegue. Se conserva la alternativa Top-\(k\) directo si la cascada no resulta elegida.
 
-\section{Medición física de la cascada de referencia}
-Se midió una condición por dataset en RTX 4060 de 8 GB: DTD/Outex oficial 1, CUReT A a B, KTH oficial 1 invertido y FMD/Soil semilla 42, pliegue 0. Se seleccionó una imagen por clase, con semilla 42, para 204 imágenes y tres repeticiones pareadas de orden aleatorizado: 612 parejas, no 612 imágenes independientes.
+Para la revisión final se reconstruyeron las métricas de las 27 condiciones desde sus JSON de predicción. Se verificaron identidad de dataset/protocolo, unicidad de índices dentro de cada prueba, longitud de arrays, macro-F1, fracción activada, bloques del rescate y hash del archivo de origen. Para cada imagen derivada se exigió que la predicción condicional coincidiera con la del Top-\(k\) directo. Esta comprobación atribuye las diferencias a conservar la base en las otras imágenes, y no a utilizar otro rescate.
 
-Se utilizó lote unitario, modelos residentes e imágenes decodificadas, con sincronización CUDA. El cronómetro incluyó extracción y clasificación, excluyendo inicialización y disco. Se contrastaron representaciones y predicciones con el caché. Las discrepancias de CUReT/Soil limitan la fidelidad; esta medición no corresponde al híbrido nuevo.
+La auditoría cubre 31.984 observaciones externas, no ese número de imágenes independientes. Reconstruye las decisiones guardadas sin volver a ajustar modelos. La coincidencia con el registro es una prueba de consistencia del archivo, no una reproducción independiente desde RGB.
 
-\section{Panel físico online completo (94 condiciones) y comparadores del estado del arte}\label{sec:diseno-panel-online}
-Para superar la cobertura muestral limitada de los pilotos físicos iniciales y comparar directamente tanto calidad predictiva como tiempo físico de inferencia por imagen frente al estado del arte reciente de concatenación, se ejecutó un panel online completo en lote unitario (\texttt{batch=1}) sobre las 47 particiones externas de los seis conjuntos de datos (FMD: 15, DTD: 10, SoilOriginal: 15, KTH-TIPS-2b: 4, CUReT: 2 y Outex-13: 1):
-\begin{enumerate}
-\item \textbf{Panel local online (94 condiciones, 362.640 llamadas primarias):} En cada una de las 47 particiones externas y para ambos clasificadores (\texttt{LinearSVC} y \texttt{ResMLP}, totalizando 94 condiciones únicas y 470 combinaciones condición--método), se evaluaron cinco políticas locales sobre la totalidad de las imágenes de prueba: \texttt{Adaptive-selection-margin} (adquisición condicional con salida temprana por margen en la Etapa 1 y rescate en la Etapa 2), \texttt{Top-4} (concatenación estática de los cuatro mejores bloques individuales), \texttt{Ens-diversidad} (selección estática de cuatro bloques guiada por relevancia y diversidad CKA), \texttt{Ens-tombola} (selección estática ponderada de cuatro bloques) y \texttt{Completa-22} (concatenación de los 22 bloques). Cada llamada individual midió extremo a extremo la extracción y clasificación con sincronización CUDA (\texttt{perf\_counter\_ns}), derivando el macro-F1 y la latencia física (\texttt{ms}) exactamente de las mismas predicciones individuales, sin reutilizar cachés en línea.
-\item \textbf{Validación de fidelidad y adaptación de cuatro métodos externos de concatenación:} Se seleccionaron cuatro artículos representativos del estado del arte que emplean concatenación de características profundas y/o artesanales:
-\begin{itemize}
-\item \textbf{Neshov et al.\ (2025) \citep{neshov2025aggregation}:} Agregación multicapa de los 12 bloques Transformer de \texttt{BEiT-v2} (\texttt{beitv2\_base\_patch16\_224.in1k\_ft\_in22k\_in1k}) mediante \emph{Global Average Pooling} concatenado ($12\times 768 = 9.216$ dimensiones) y clasificador MLP con normalización por lotes (\texttt{BN $\to$ Linear(9216,64) $\to$ BN $\to$ ReLU $\to$ Dropout(0,2) $\to$ Linear(64,$C$)}, Adam $10^{-3}$, 100 épocas). Se verificó primero su protocolo publicado en FMD ($10\times 10$-fold CV, 100 condiciones y 10.000 llamadas) y luego se evaluó su adaptación con extracción individual \texttt{batch=1} en las 47 condiciones del panel común (36.264 llamadas).
-\item \textbf{Simon y Uma (2022) --- \emph{DeepLumina} \citep{simon2022deeplumina}:} Conversión de la imagen RGB al canal de luminancia $Y = 0{,}299R + 0{,}587G + 0{,}114B$ del espacio YIQ, extracción independiente de la capa \texttt{fc1000} de \texttt{ResNet-101} sobre la entrada RGB (1.000D) y sobre el canal $Y$ replicado en tres canales (1.000D) para formar un vector concatenado de 2.000 dimensiones, clasificado mediante un diseño multiclase ECOC-SVM \emph{sparse-random} ($\lceil 15\log_2(C)\rceil$ columnas iniciales evaluadas sobre 10.000 matrices ternarias candidatas maximizando la distancia mínima entre pares de clases y decodificación \emph{loss-weighted hinge}).
-\item \textbf{Gupta et al.\ (2026) --- \emph{HyTexNet} \citep{gupta2026hytexnet}:} Concatenación de la representación profunda de \texttt{DenseNet-121} (1.024D) con el descriptor local \emph{HyTex} de 514 dimensiones (histogramas de signo, magnitud umbralizada en el percentil 75 empírico $T_{75}$ y media global central, totalizando 1.538 dimensiones) seguida de una cabeza MLP (\texttt{1538 $\to$ 256 $\to$ ReLU $\to$ Dropout(0,5) $\to$ $C$}). Se validaron mediante pruebas unitarias los cinco ejemplos numéricos paso a paso de la Tabla 1 del artículo original, el protocolo de un tercio de entrenamiento en KTH-TIPS-2b (3.168 llamadas) y las 47 condiciones del panel común (36.264 llamadas).
-\item \textbf{Chang et al.\ (2024) --- \emph{6LBP+dCellNN} \citep{chang2024cellnn}:} Fusión de mapas de contorno extraídos con el checkpoint oficial de los autores (\texttt{cellnn\_model.ph}, commit \texttt{299502c} del repositorio público \texttt{UESTC-nnLab/LBP\_Contour}) y patrones binarios locales en seis escalas $(P,R)\in\{(8,1),(16,2),(24,3),(8,3),(12,5),(16,7)\}$ concatenados en 768 dimensiones con clasificador MLP de 400 unidades ocultas. Se verificó paridad numérica exacta ($\text{error máximo} = 0{,}0$) frente al código original del autor antes de evaluar tanto el protocolo de un tercio en KTH-TIPS-2b como las 47 condiciones del panel común.
-\end{itemize}
-\end{enumerate}
+\section{Métricas y costos}
+Para \(C\) clases se usa
+\begin{equation}
+F_{1,\mathrm{macro}}=\frac1C\sum_{c=1}^{C}
+\frac{2TP_c}{2TP_c+FP_c+FN_c},\qquad
+\mathrm{accuracy}=\frac{1}{n}\sum_{i=1}^{n}\mathbb I[\widehat y_i=y_i].
+\label{eq:tk-metrics}
+\end{equation}
+Se aplica la convención registrada de valor cero ante denominador nulo. Un aumento de accuracy no implica necesariamente el mismo cambio de macro-F1.
 
-\section{Análisis estadístico}\label{sec:analisis-estadistico}
-Los análisis siguen la comparación no paramétrica entre datasets \citep{demsar2006statistical,derrac2011practical,garcia2008extension}, con cálculos originales en ControlTest/MultipleTest de Java y comprobaciones locales posteriores. En estos contrastes de calidad predictiva, la unidad de inferencia es el dataset, después de agregar sus condiciones; las imágenes y pliegues de un mismo conjunto no incrementan ese número de unidades.
+Se informan también bloques, dimensión, tiempo de selección y ajuste, fracción derivada y costo incremental. Un porcentaje de dimensiones se refiere a su biblioteca de comparación. Un porcentaje de adquisición se refiere al modelo analítico de componentes. Ninguno se denomina automáticamente ahorro de latencia.
 
-Para el benchmark estático se utiliza una media por dataset y clasificador: $N=6$ bloques, con las reservas KTH descritas. Friedman es el contraste global principal de ese análisis histórico; sus post-hoc de diferencias de rangos aplican Holm a los diez pares por clasificador y no son Wilcoxon exactos. Iman--Davenport es una transformación del estadístico de Friedman, no una réplica independiente de evidencia. Friedman alineado y Quade son comprobaciones complementarias con sensibilidades distintas; su desacuerdo se informa sin escoger retrospectivamente la prueba más favorable.
+Los perfiles históricos de adquisición se midieron con imágenes de entrenamiento y se trasladaron como proxies entre dominios. El piloto físico de la cascada utiliza una condición por dataset, una imagen por clase y tres repeticiones pareadas, con modelos residentes e imágenes decodificadas. Sus 612 parejas corresponden a 204 imágenes. No se presentan como toda la prueba externa de cada dataset ni como latencia de arranque en frío.
 
-Para examinar la reserva de KTH se repiten esas cuatro pruebas y las dos familias de diez pares excluyendo ese conjunto ($N=5$). Se mantienen intactos los resultados de los otros datasets y se reproducen primero los contrastes Java de $N=6$. Es una sensibilidad del mismo archivo, no una corrección de KTH ni una confirmación independiente; sus valores ajustados pertenecen a familias distintas de las originales.
+El panel online posterior conserva predicción y tiempo de cada llamada batch1. Los tiempos de métodos diferentes proceden de fechas/estados de hardware distintos y tienen alcance descriptivo. Los tiempos amortizados de lotes de 32 pertenecen a otro régimen y no se incorporan a esas tablas.
 
-Para la cascada de referencia se excluye KTH y se utilizan cinco datasets, correspondientes a 23 condiciones. La familia de tres contrastes pareados compara la cascada seleccionada con cascada ResNet, Top-$k$ de origen y Completa-22, mediante Wilcoxon y Holm. Friedman y sus post-hoc examinan rangos entre métodos; Wilcoxon examina diferencias pareadas respecto de cero bajo sus supuestos, no una hipótesis idéntica a la de Friedman.
+\section{Comparadores externos y controles estadísticos}
+Se utilizan las adaptaciones Neshov BEiTv2+MLP, HyTexNet y 6LBP+dCellNN con 47 condiciones completas cada una. DeepLumina mantiene 46 condiciones terminadas, avisos de no convergencia en todas y una condición DTD interrumpida. La tabla DTD no tiene una media completa de ese método. El protocolo aproximado Neshov FMD 10 por 10 es una comprobación separada, no el panel común.
 
-El no rechazo no demuestra equivalencia ni no inferioridad. Las particiones y repeticiones compartidas no se tratan como datasets nuevos. No se realizan contrastes confirmatorios del punto favorable del piloto Outex entre presupuestos explorados. La réplica del híbrido se informa descriptivamente: tiene dos datasets y semillas dependientes, no cinco dominios independientes para justificar una nueva batería de contrastes poblacionales.
+Los contrastes agregados por dataset se separan por clasificador y familia de comparación. Friedman y los post-hoc archivados comparan las estrategias de su benchmark; no prueban que Top-4 fijo sea el mejor tamaño del barrido. En la cascada se mantiene la sensibilidad que excluye KTH. El no rechazo no demuestra equivalencia ni no inferioridad \citep{demsar2006statistical,garcia2008extension}.
+
+\section{Reglas de cierre y reproducibilidad}
+Toda condición nueva requiere congelar receta, versiones, pesos, semillas, partición y presupuesto antes de medir. Se conserva un benchmark GPU, CPU a dos hilos y lock global, sin ajuste o extracción concurrente con el cronometraje. No se repiten paneles cerrados para sustituir resultados desfavorables. Los fallos científicos mantienen evidencia y revisión, sin omisión de casos ni cambios silenciosos de método.
+
+La actualización de este manuscrito añade auditorías y tablas reconstruidas; no ejecuta un nuevo barrido ni afirma una nueva campaña física. Los estudios de ensamble, poda y réplicas OOF permanecen en los anexos con su propio alcance.

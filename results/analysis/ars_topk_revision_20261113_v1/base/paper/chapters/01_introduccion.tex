@@ -1,0 +1,43 @@
+\chapter{Introducción}\label{sec:introduccion}
+
+\section{Problema de investigación}
+Una imagen de textura puede describirse por la distribución de intensidades, la organización de patrones locales, las relaciones espaciales o las características aprendidas por una red. Estas representaciones responden de manera diferente a cambios de iluminación, escala y punto de vista. En consecuencia, un descriptor con buen rendimiento individual no necesariamente contiene toda la información útil para clasificar una superficie \citep{liu2019survey,cimpoi2016fisher}.
+
+La concatenación permite reunir varios vectores en una única representación y entrenar un clasificador sobre ella. Sin embargo, incorporar más descriptores aumenta la dimensión y exige ejecutar más extractores. Además, la información añadida puede ser redundante o modificar desfavorablemente el ajuste del clasificador. Por ello, la decisión no consiste únicamente en combinar representaciones, sino en determinar cuáles y cuántas conviene utilizar.
+
+Esta tesis estudia una regla sencilla: ordenar los descriptores según su desempeño individual dentro del entrenamiento y concatenar los primeros \(k\). A esta estrategia se la denomina Top-\(k\). El estudio compara sus prefijos con la concatenación completa y con otros criterios de selección. Top-4 es un caso de tamaño fijo de especial interés por el compromiso observado entre calidad y dimensión; no se presupone que sea el mejor tamaño para todo conjunto de datos.
+
+Una segunda decisión surge durante la clasificación. Aunque se haya seleccionado una concatenación útil, no todas las imágenes necesariamente requieren adquirir sus bloques. Una primera etapa puede resolver una parte de las consultas y utilizar el margen de sus puntuaciones para decidir si ejecutar el Top-\(k\). La comparación relevante mantiene fijo ese Top-\(k\): utilizarlo directamente o activarlo según la decisión de una base. La adquisición condicional tiene antecedentes y se evalúa aquí como una aplicación concreta a una biblioteca heterogénea de texturas \citep{nan2017adaptive,han2021dynamic}.
+
+\section{Recorrido: Top-k directo y versión optimizada}
+El argumento experimental tiene dos etapas. Primero se construye Top-\(k\), se estudia por qué seleccionar pocos descriptores puede resultar más conveniente que concatenarlos todos y se compara su desempeño con otros métodos. Después se toma esa concatenación como referencia y se optimiza su ejecución mediante la activación por margen: una base atiende cada imagen y el Top-\(k\) se calcula solo cuando la regla aprendida lo requiere. La versión optimizada constituye la segunda parte central del trabajo. Su evaluación debe mostrar cuánto costo evita y qué calidad conserva o pierde frente al uso directo del mismo Top-\(k\).
+
+\section{Objetivo general}
+Evaluar la concatenación Top-\(k\) de descriptores para clasificar texturas y comparar su uso directo con su activación por margen, distinguiendo calidad predictiva, dimensión de representación, costo de adquisición y latencia física.
+
+\section{Objetivos específicos}
+\begin{enumerate}
+\item Caracterizar la biblioteca de descriptores y el procedimiento de ranking y concatenación, incluyendo el tratamiento de RGB Pixel N-grams y sus transformaciones aprendidas.
+\item Examinar el efecto de \(k\), explicar el origen experimental del caso Top-4 y contrastarlo con descriptores individuales, concatenaciones completas y selecciones alternativas.
+\item Comparar los resultados con implementaciones adaptadas de métodos de literatura, identificando diferencias de representación, protocolo y métrica.
+\item Evaluar el mismo Top-\(k\) como ruta directa y como rescate activado por margen, incluyendo el costo de la base y la reutilización de bloques.
+\item Delimitar qué conclusiones respaldan los registros guardados, los pilotos físicos y las comparaciones entre conjuntos, conservando las excepciones y reservas de procedencia.
+\end{enumerate}
+
+\section{Preguntas y alcance}
+El trabajo se organiza alrededor de dos preguntas:
+\begin{description}
+\item[P1.] ¿Qué compromiso de desempeño y representación permite la concatenación Top-\(k\), y qué evidencia justifica estudiar Top-4 frente a otras concatenaciones y N-gramas?
+\item[P2.] ¿Cómo cambia ese compromiso al utilizar directamente el Top-\(k\) o activarlo mediante el margen de una primera etapa?
+\end{description}
+
+Se utilizan DTD, FMD, CUReT, Outex-TC-00013, SoilOriginal y KTH-TIPS-2b. El estudio estático incluye SVM lineal y una MLP residual sobre características. La comparación histórica directa/por margen utiliza SVM y 27 condiciones; sus tamaños Top-\(k\) proceden de controles archivados y no son siempre cuatro. El barrido ampliado de tamaños contiene 47 condiciones por clasificador y tamaño. El número de condiciones no se interpreta como número de datasets independientes.
+
+La biblioteca consolidada contiene 22 bloques, mientras que el barrido principal de \(k\) utiliza 21 sin N-gramas. Se identifican también las bibliotecas intermedias con N-gramas y sin BEiT-v2. Estas diferencias forman parte del diseño y no se ocultan bajo el nombre genérico de concatenación completa.
+
+El estudio es exploratorio: resultados externos observados influyeron en decisiones posteriores, incluida la atención prestada a \(k=4\). La separación interna de entrenamiento y prueba evita ciertas fugas dentro de cada ejecución, pero no convierte todo el proceso de investigación en una confirmación ciega. Tampoco se identifica una disminución dimensional con una reducción proporcional del tiempo.
+
+\section{Aportes y organización}
+La contribución empírica consiste en documentar el recorrido desde la selección individual hasta una concatenación compacta, examinar sus límites y evaluar cuándo conviene adquirirla por imagen. Se aporta trazabilidad entre reglas, particiones, predicciones, costos y llamadas físicas. No se presenta el ranking Top-\(k\) ni una compuerta por margen como principios inéditos, ni se exige superioridad universal para considerar informativo el resultado.
+
+Los Capítulos~\ref{sec:trabajos} y~\ref{sec:metodo} presentan antecedentes y método; el Capítulo~\ref{sec:diseno}, el diseño. Los resultados siguen el mismo orden: construcción y comparación de Top-\(k\), N-gramas y literatura, y finalmente uso directo/por margen. La discusión y las conclusiones responden P1 y P2. Los ensambles y la poda desarrollados durante el proyecto se conservan como estudios complementarios en el Anexo~\ref{app:complementarios}, sin atribuirles la identidad del rescate Top-\(k\).
