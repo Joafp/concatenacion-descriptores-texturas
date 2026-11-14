@@ -119,3 +119,56 @@ No se crearon commits ni se realizó push en esta reescritura.
 El autor aprobó REV-01 a REV-08. Se aplicaron 12 operaciones en siete fuentes LaTeX mediante el aplicador nativo ARS; 300 de 311 bloques originales permanecieron byte a byte. La revisión posterior confirmó las ocho mejoras, las 26 pruebas pasaron en 14,10 s y el PDF de 82 páginas compiló y fue revisado visualmente. Las tasas interna y externa, los costos proyectados de selección y evaluación, el ejemplo del umbral y los parámetros quedan identificados con precisión. El método optimizado conserva su lugar central y las reservas científicas permanecen abiertas.
 
 [Informe vigente de revisión ARS](REVISION_ARS_TOPK_MARGEN_2026-11-13.md). El corte anterior de 81 páginas y su manifiesto conservan su alcance histórico. No se ejecutaron nuevos experimentos, commits ni push.
+
+## Actualización del 14-11: paper integrado y experimentos pendientes
+
+Se integraron por avance lineal los commits `484572a` y `bb0ef4e` del equipo.
+El primero incorpora las respuestas técnicas al paper breve y actualiza su
+PDF; el segundo añade los cálculos propios y
+[EXPERIMENTOS_PENDIENTES.md](../../carlos/EXPERIMENTOS_PENDIENTES.md).
+Esta actualización revisa cobertura; no ejecuta nuevos experimentos ni
+modifica el manuscrito del equipo.
+
+**Hecho en la nueva entrega:** estadística de tres métodos por clasificador,
+F1 OOF de la etapa barata elegida en 27 condiciones y p95 reunido en 36 grupos
+dataset/clasificador/política. Las fuentes y salidas están en
+[analisis_paper](../../carlos/analisis_paper/README.md). El F1 OOF no es el F1
+de la base sola en test, que sigue faltando. Se verificó la presencia y
+cobertura de las salidas; esta revisión no es una nueva auditoría numérica
+integral de esos cálculos.
+
+| ID | Pendiente vigente | Relación con el trabajo hecho |
+|---|---|---|
+| E1 | Comparación Top-4 fijo directo/por margen, SVM/42, 27 condiciones y seis datasets. | Solo cinco condiciones archivadas coinciden en bloques con Top-4; no acreditan este panel completo. |
+| E2 | Comparar margen, puntuación máxima y entropía. | No cubierto por el sorteo del piloto ResNet-50; se puede derivar de E1 si guarda puntajes completos OOF/test. |
+| E3 | Rehacer la cascada histórica de KTH con selección corregida. | Condicional: E1 con agrupación correcta puede cubrir la necesidad, sin repetir también E3. |
+| E4 | Cascada equivalente con ResMLP. | El panel de ensamble ResMLP no sustituye esta comparación. |
+| E5 | Top-4 fijo más N-gramas, 47 condiciones SVM. | Las ablaciones de bibliotecas no sustituyen el control de cinco bloques por fold. |
+| E6 | Diagnosticar la diferencia online/guardado de ViT-B/16. | Localizada en Soil y en el piloto CUReT/Soil; falta causa primaria. |
+| E7 | Pico de memoria GPU por política aislada. | Opcional; snapshots compartidos o pilotos con otra política no lo acreditan. |
+| E8 | Variación controlada de Top-4/ResMLP entre CPU y GPU. | Opcional; la procedencia histórica de los equipos no cuantifica su efecto. |
+
+**Orden propuesto para una ampliación:** E1 con salidas suficientes para E2;
+después E2. E3 no se ejecuta además por rutina. E4/E5 amplían la evidencia;
+E6 resuelve fidelidad y E7/E8 son mediciones opcionales. La decisión vigente
+es continuar con la evidencia disponible; no se lanzó ninguna corrida nueva
+en esta revisión.
+
+Antes de una eventual implementación, hay que cerrar estos detalles técnicos:
+
+- Fijar cuatro bloques por condición y verificar agrupación `sample` en KTH
+  también en los OOF de la cascada, no solo en el barrido que aporta el ranking.
+- Guardar etiquetas, índices, orden de clases, predicciones de cada base y
+  Top-4, puntajes completos OOF/test y hashes; congelar la selección antes de
+  evaluar. Los tests externos ya observados siguen siendo exploratorios.
+- En E2, un mismo cuantil OOF no garantiza igual fracción escalada en test.
+  Informar las fracciones reales, los empates y la regla usada; no elegir
+  umbrales con las etiquetas de test para forzar igualdad o mejores F1.
+  La entropía del softmax de scores SVM es una puntuación heurística, no una
+  incertidumbre calibrada. Ninguna compuerta tiene garantizado ganar al sorteo.
+- Los milisegundos obtenidos sumando perfiles son costos proyectados. Una
+  afirmación nueva de latencia física exige F1 y tiempos de las mismas
+  llamadas online, con las restricciones de recursos ya fijadas arriba.
+
+El plan y el [documento de estado](../../carlos/ESTADO_TRABAJO_Y_REDACCION_2026-11-14.md)
+se actualizan sin marcar los experimentos pendientes como completados.

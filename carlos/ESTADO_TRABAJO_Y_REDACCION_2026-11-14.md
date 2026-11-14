@@ -78,29 +78,40 @@ anotamos el estado de **B1–B4** y verificamos **D1–D2**, con rutas y cálcul
   control aleatorio original pertenece al piloto con ResNet-50 fijo.
 
 Estas respuestas se basan en una auditoría de **295 fuentes con hashes**.
-El borrador breve `carlos/main.tex`, su PDF y su bibliografía se conservaron
-como se recibieron; las respuestas aún deben incorporarse allí por el equipo.
+Después de esa entrega, el commit `484572a` incorporó las respuestas al paper
+breve y actualizó su PDF. El commit `bb0ef4e` añadió los cálculos propios del
+paper y la lista de experimentos pendientes. Ambos ya se integraron a esta copia.
 
 ## 4. Qué estamos haciendo ahora
 
-La etapa actual es **consolidar el texto del paper con la evidencia existente**:
-incorporar las respuestas, mantener coherencia entre título, métodos, tablas
-y conclusiones, y distinguir Top-4 fijo del Top-k de tamaño heredado.
+La etapa actual es **revisar el paper actualizado y decidir qué evidencia
+adicional hace falta**. Las respuestas ya están incorporadas; se mantiene la
+distinción entre Top-4 fijo y Top-k de tamaño heredado.
 
-El paper debe separar las métricas históricas, los costos proyectados y las
-latencias físicas; conservar las pérdidas y señalar qué resultados tienen
-reservas. Los cálculos de la familia estadística de tres métodos, el F1 de
-la base sola y el p95 reunido siguen identificados en la sección C de las
-consultas para continuar su integración.
+El paper separa las métricas históricas, los costos proyectados y las
+latencias físicas; conserva las pérdidas y señala reservas. Ya están
+disponibles en [analisis_paper](analisis_paper/README.md) los cálculos de la
+familia estadística de tres métodos, el F1 **OOF del entrenamiento** de la
+etapa barata elegida (27 condiciones) y el p95 de las llamadas reunidas
+(36 grupos). El F1 de la etapa barata sola **en test** sigue pendiente;
+no se reemplaza con el valor OOF.
 
 ## 5. Qué falta como experimento específico
 
-| Consulta | Estado al corte |
+La lista vigente es [EXPERIMENTOS_PENDIENTES.md](EXPERIMENTOS_PENDIENTES.md).
+Sus ocho entradas incluyen un caso condicional y dos mediciones opcionales;
+no son ocho requisitos igualmente necesarios para terminar el texto.
+
+| Experimento | Estado al corte |
 |---|---|
-| B1: panel completo Top-4 fijo directo/por margen | Pendiente. Los cinco casos coincidentes no cubren las 27 condiciones ni todos los controles pedidos. |
-| B2: margen frente a puntuación máxima y entropía | No localizado como comparación pareada y auditada con ese protocolo. |
-| B3: misma cascada con ResMLP | Pendiente; la política ResMLP del panel de ensamble es otra comparación. |
-| B4: Top-4 fijo más N-gramas | Pendiente como control específico; las ablaciones existentes no lo sustituyen. |
+| E1 / B1: Top-4 fijo directo/por margen | Prioridad alta, pendiente en 27 condiciones de seis datasets. Los cinco casos coincidentes son evidencia parcial. |
+| E2 / B2: margen frente a puntuación máxima y entropía | Pendiente con ese protocolo. Guardar puntajes completos en E1 permitiría calcularlo sin nuevos ajustes de los clasificadores. |
+| E3: reconciliar la cascada histórica de KTH | Pendiente solo si se conserva esa comparación como central y no se hace E1. E1 con el protocolo corregido puede cubrir esa necesidad. |
+| E4 / B3: misma cascada con ResMLP | Pendiente; la política ResMLP del panel de ensamble es otra comparación. |
+| E5 / B4: Top-4 fijo más N-gramas | Pendiente como control específico; las ablaciones existentes no lo sustituyen. |
+| E6: diagnóstico de ViT-B/16 | Discrepancia localizada; causa primaria pendiente. Diagnosticarla no valida retrospectivamente las mediciones históricas. |
+| E7: memoria máxima de GPU por política | Opcional; no registrada como comparación separada de esas políticas. |
+| E8: variación de Top-4/ResMLP entre equipos | Opcional; comparación controlada no medida. |
 
 La decisión registrada es continuar escribiendo con lo disponible. Estos
 experimentos quedan como pendientes, sujetos a acuerdo del equipo. En las
@@ -114,6 +125,8 @@ hicieron nuevos entrenamientos, extracciones, predicciones ni benchmarks**.
 | Tesis actualizada | [PDF](../paper/tesis.pdf) y [fuente LaTeX](../paper/tesis.tex) |
 | Paper breve | [Fuente](main.tex) y [PDF del borrador](main_topk_margen.pdf) |
 | Respuestas técnicas y pendientes | [CONSULTAS_JOAQUIN.md](CONSULTAS_JOAQUIN.md) |
+| Experimentos por decidir | [EXPERIMENTOS_PENDIENTES.md](EXPERIMENTOS_PENDIENTES.md) |
+| Cálculos ya añadidos al paper | [Índice y fuentes](analisis_paper/README.md) |
 | Plan vigente | [Plan Top-k y margen](../docs/fsc_tex/PLAN_TOPK_MARGEN_2026-11-13.md) |
 | Cambios ARS aplicados | [Informe de revisión](../docs/fsc_tex/REVISION_ARS_TOPK_MARGEN_2026-11-13.md) |
 | Evidencia de las respuestas | [Resumen de auditoría](../results/analysis/consultas_joaquin_20261114_v1/summary.json) |
