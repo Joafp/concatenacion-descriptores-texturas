@@ -1,0 +1,37 @@
+{
+  "status": "requires_review",
+  "dataset": "KTHTIPS2b",
+  "blocks": {
+    "convnext_v2_t": {
+      "mean_ms": 12.198916484842151,
+      "median_ms": 9.787587999994685,
+      "p95_ms": 19.59380659998259,
+      "min_reference_cosine": 0.9999999991363102,
+      "n_timed_images": 33,
+      "gpu_peak_allocated_mb": 135.66748046875,
+      "calls_sha256": "9ee691372ceebf4e8d991613cfa0166bb814b5956e7a34761cdaadff825cd525"
+    },
+    "siglip_base": {
+      "mean_ms": 16.358232121213018,
+      "median_ms": 13.509644999999182,
+      "p95_ms": 30.283792399995946,
+      "min_reference_cosine": 0.9818890639106563,
+      "n_timed_images": 33,
+      "gpu_peak_allocated_mb": 791.44677734375,
+      "calls_sha256": "f7a756df2589be1f20c6a7a83d758084f39d8d4cfded8282284255e0f3a10447"
+    }
+  },
+  "timing_partition": "outer_training_official1_inverted",
+  "batch_size": 1,
+  "warmup_images": 5,
+  "images_per_class": 3,
+  "minimum_cosine": 0.999,
+  "cpu_threads": 2,
+  "model_load_excluded": true,
+  "scope": "component profile; no classifier quality or full-policy latency",
+  "timed_images": 33,
+  "protocol_sha256": "9c721af4c2655596851d65b065e6b67edef525de5dda37ad3414a45d7feaf3a8",
+  "phase": "measurement",
+  "error": "ArithmeticError: feature fidelity below frozen threshold: siglip_base: 0.9818890639106563",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/joaquin/tesis_claude/scripts/benchmark_kth_top4_components.py\", line 158, in main\n    raise ArithmeticError(f\"feature fidelity below frozen threshold: {block}: {min_cosine}\")\nArithmeticError: feature fidelity below frozen threshold: siglip_base: 0.9818890639106563\n"
+}

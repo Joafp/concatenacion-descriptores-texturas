@@ -198,3 +198,36 @@ con protocolo congelado. No se elimina KTH para presentar un cierre completo.
 
 Las verificaciones de entradas no son entrenamientos ni nuevas métricas.
 Siguen pendientes las corridas científicas de E1/E2 y la decisión de ejecución.
+
+## Actualización del 15-11: autorización, ejecución y accuracy principal
+
+Joaquín autorizó realizar E1/E2 y después fijó accuracy como métrica principal
+de toda la tesis. La decisión sustituye el estado de espera del corte anterior
+para esta ampliación. La cronología y el criterio histórico basado en F1 se
+conservan en la [decisión de métrica](DECISION_METRICA_ACCURACY_2026-11-15.md).
+
+| Trabajo | Estado del 15-11 |
+|---|---|
+| Tesis con accuracy principal | Hecho: 87 páginas; tablas, gráficos, resúmenes, método de evaluación y conclusiones actualizados. |
+| Reconstrucción histórica | Hecho desde 144 fuentes; cero ajustes o predicciones nuevos de ese bloque. |
+| Perfil KTH de ocho extractores | Seis superan fidelidad; EVA-02 y SigLIP en revisión, sin repetición. |
+| E1 fijo, SVM/42 | 25/27 condiciones completadas; cinco datasets completos, KTH 2/4. |
+| E2 | Calculado para los 25 casos; medias y contrastes solo de datasets completos. |
+| Bases solas en test | Hecho en los casos completados; puntajes OOF/test, predicciones y controles guardados. |
+| Reproducción del Top-4 directo | Accuracy y macro-F1 coinciden exactamente en los 25 casos con su fila guardada. |
+| Verificación | 52 pruebas; PDF sin referencias indefinidas ni desbordes, revisión visual completa. |
+
+E1 obtiene accuracy media equiponderada 0,941839915 directa y 0,941830218
+por margen en cinco datasets, con adquisición proyectada 74,87 % menor.
+No se presenta ese porcentaje como latencia física. Wilcoxon exacto da
+p=0,8125, sin prueba de equivalencia. En E2 no hay pares de accuracy
+significativos tras Holm. Se conservan aumentos y pérdidas.
+
+KTH 1 y 3 requieren costos de SigLIP/EVA-02 cuyos cosenos mínimos fueron
+0,981889/0,931978, inferiores al mínimo congelado 0,999. KTH no integra una
+media completa ni se omiten esos estados del informe. Las particiones 2 y 4
+completadas quedan individualizadas. E3 permanece condicional; E4–E8 siguen
+pendientes como experimentos específicos. No se repitieron paneles cerrados.
+
+[Informe consolidado del día](AVANCE_ACCURACY_E1_E2_2026-11-15.md) y
+[auditoría E1/E2](../../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/summary.json).

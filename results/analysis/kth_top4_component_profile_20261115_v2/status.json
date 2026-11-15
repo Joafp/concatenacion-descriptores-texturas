@@ -1,0 +1,73 @@
+{
+  "status": "requires_review",
+  "dataset": "KTHTIPS2b",
+  "blocks": {
+    "resnet50": {
+      "mean_ms": 14.279066242424546,
+      "median_ms": 13.661059000014575,
+      "p95_ms": 26.83490399997481,
+      "min_reference_cosine": 0.9999936240865107,
+      "n_timed_images": 33,
+      "gpu_peak_allocated_mb": 101.23828125,
+      "calls_sha256": "d505107fead0655f687da55dccf1ec99604e2a3ced453af85a4214afd36b24a0"
+    },
+    "beitv2_base_final": {
+      "mean_ms": 15.08256990909255,
+      "median_ms": 12.969811000061782,
+      "p95_ms": 25.460551399987704,
+      "min_reference_cosine": 0.9999997122711379,
+      "n_timed_images": 33,
+      "gpu_peak_allocated_mb": 347.814453125,
+      "calls_sha256": "6e844c456a41ce612a4477f820c1d3342070aec55df373da75ac89a00ba6acf7"
+    },
+    "dinov2": {
+      "mean_ms": 60.56736124242324,
+      "median_ms": 60.61267499990208,
+      "p95_ms": 65.26934460002849,
+      "min_reference_cosine": 0.9999999999856728,
+      "n_timed_images": 33,
+      "gpu_peak_allocated_mb": 390.78759765625,
+      "calls_sha256": "034e3864ba4d6a8d647d13dd6dad031492f7c84b0667db5d92d0e6018861c50b"
+    },
+    "dinov2_large": {
+      "mean_ms": 176.78429703030153,
+      "median_ms": 176.58548600002177,
+      "p95_ms": 181.39554879994648,
+      "min_reference_cosine": 0.9999999999036339,
+      "n_timed_images": 33,
+      "gpu_peak_allocated_mb": 1240.125,
+      "calls_sha256": "6b6d8f15726c92fa78105896ba66eeedba33933e9c11ab9e4b4ae1833e51b64d"
+    },
+    "dinov2_small": {
+      "mean_ms": 24.74711803030473,
+      "median_ms": 24.635090999936438,
+      "p95_ms": 26.101175800022247,
+      "min_reference_cosine": 0.9999999999961363,
+      "n_timed_images": 33,
+      "gpu_peak_allocated_mb": 120.50634765625,
+      "calls_sha256": "2314befdd90e5550c487ba6aa508eea48454a5f81b138a39541d6d94102d59ee"
+    },
+    "eva02_base": {
+      "mean_ms": 23.276046242427363,
+      "median_ms": 13.716918999989502,
+      "p95_ms": 46.11583879996033,
+      "min_reference_cosine": 0.9319780190130245,
+      "n_timed_images": 33,
+      "gpu_peak_allocated_mb": 348.91015625,
+      "calls_sha256": "cd6843d6259e382f9315097187787a82fd2f49b002f9ff93061a2dd9c3e49cb6"
+    }
+  },
+  "timing_partition": "outer_training_official1_inverted",
+  "batch_size": 1,
+  "warmup_images": 5,
+  "images_per_class": 3,
+  "minimum_cosine": 0.999,
+  "cpu_threads": 2,
+  "model_load_excluded": true,
+  "scope": "component profile; no classifier quality or full-policy latency",
+  "timed_images": 33,
+  "protocol_sha256": "aa43323326d53d4332bed8be9e7b0030ba3c1d3dc6cc0b535d3642f71ea08c13",
+  "phase": "measurement",
+  "error": "ArithmeticError: feature fidelity below frozen threshold: eva02_base: 0.9319780190130245",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/joaquin/tesis_claude/scripts/benchmark_kth_top4_components.py\", line 158, in main\n    raise ArithmeticError(f\"feature fidelity below frozen threshold: {block}: {min_cosine}\")\nArithmeticError: feature fidelity below frozen threshold: eva02_base: 0.9319780190130245\n"
+}

@@ -30,6 +30,7 @@ El barrido de tamaños utiliza 21 bloques sin N-gramas. Por tanto, su prefijo \(
 La biblioteca consolidada reúne operadores clásicos, N-gramas y representaciones aprendidas congeladas. El Anexo~\ref{app:especificaciones} conserva parámetros y dimensiones. La SVD de N-gramas se aprende en cada entrenamiento pertinente; no se ajusta una proyección con todas las imágenes antes de separar prueba.
 
 \section{Ranking individual y construcción de Top-k}
+El ranking que produjo los archivos históricos utiliza macro-F1 interno, como se define abajo. Accuracy es la métrica principal de evaluación y reporte de esta versión de la tesis; se conserva el criterio de construcción realmente ejecutado, sin renombrarlo ni recalcular la selección a partir del test.
 Para una partición externa, \(T\) contiene el entrenamiento y \(V\) la evaluación. Dentro de \(T\), los pliegues \(T_\ell^{fit}\), \(T_\ell^{val}\) respetan los grupos de dependencia. Cada descriptor se puntúa individualmente con el clasificador que se estudiará:
 \begin{equation}
 a_j=\frac{1}{L}\sum_{\ell=1}^{L}
@@ -43,7 +44,7 @@ S_k=\{j_{(1)},\ldots,j_{(k)}\},\qquad
 h_k=\mathrm{Ajustar}\bigl(z_{S_k}(T),y_T\bigr).
 \label{eq:tk-subset}
 \end{equation}
-Una vez fijado \(S_k\), se reajusta el clasificador con todo \(T\) y se evalúa en \(V\). El ranking puede cambiar entre datasets, clasificadores y particiones. Top-4 fija el número de bloques, no cuatro identidades universales.
+Una vez fijado \(S_k\), se reajusta el clasificador con todo \(T\) y se evalúa en \(V\), reportando primero accuracy y después las métricas complementarias disponibles. El ranking puede cambiar entre datasets, clasificadores y particiones. Top-4 fija el número de bloques, no cuatro identidades universales.
 
 \begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.65cm,

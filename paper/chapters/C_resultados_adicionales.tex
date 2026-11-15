@@ -1,11 +1,12 @@
 \chapter{Resultados secundarios y variabilidad}\label{app:resultados-adicionales}
 
-\section{Exactitud y dispersión del benchmark estático}
-\input{articulo/borrador_profesor/generated/baseline_accuracy.tex}
+\section{Macro-F1 complementario del estudio estático}
+\input{generated_accuracy_primary_20261115_v3/baseline_f1_secondary.tex}
 \input{generated_editorial/variabilidad_estatica.tex}
 Las desviaciones entre condiciones no son intervalos de generalización a otros dominios. Semillas y particiones pueden compartir imágenes; no se tratan como réplicas independientes. Outex tiene un único split, por lo que no se estima dispersión entre splits.
 
 \section{Rankings y contrastes completos por clasificador}
+Las tablas de esta sección conservan los contrastes históricos basados en macro-F1 como análisis secundario. Los contrastes principales sobre accuracy se recalculan en el cuerpo de la tesis; estos valores no se renombran como accuracy.
 \input{articulo/borrador_profesor/generated/classifier_rankings.tex}
 \input{articulo/borrador_profesor/generated/classifier_global.tex}
 \input{articulo/borrador_profesor/generated/classifier_holm.tex}
@@ -19,8 +20,14 @@ Se conservan todos los pares del análisis sobre DTD, FMD, CUReT, Outex y SoilOr
 \FloatBarrier
 
 \section{N-gramas con ResMLP y ampliación de biblioteca}
-\input{articulo/borrador_profesor/generated/ngram_resmlp.tex}
+\input{generated_accuracy_primary_20261115_v3/ngram_resmlp.tex}
 Esta comparación conserva la biblioteca de 20 frente a 21 con N-gramas de su corte histórico; no equivale al barrido sin N-gramas de 21 ni a una prueba de Top-4 más N-gramas.
+
+\subsection{Macro-F1 complementario de N-gramas y comparadores externos}
+\input{articulo/borrador_profesor/generated/ngram_svm.tex}
+\input{articulo/borrador_profesor/generated/ngram_resmlp.tex}
+\input{generated_topk_margin/externos_f1.tex}
+Estas tablas conservan métricas complementarias e identifican sus bibliotecas y reservas. Las tablas principales del cuerpo utilizan accuracy.
 
 \subsection{N-gramas en el estudio complementario de rescate}
 El pool corregido conserva candidatos estáticos, sorteos, particiones y scores comunes al ofrecer versiones con y sin N-gramas. En marginal/B120, permitir color y reseleccionar cambia $0{,}900563/97{,}245$ ms a $0{,}906690/83{,}772$ ms. Cambia la ruta: no es una ablación de ruta fija. El rescate de diversidad utiliza otro pool, por lo que sus diferencias no se atribuyen únicamente al color.

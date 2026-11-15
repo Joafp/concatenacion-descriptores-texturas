@@ -27,19 +27,23 @@ La compuerta conserva dos posibles beneficios: evitar adquirir información inne
 
 La tolerancia interna de 0,005 limita el conjunto de candidatos del procedimiento registrado. No garantiza una pérdida externa menor a ese valor, ni tiene por sí sola el significado de una prueba de no inferioridad. El traslado del umbral al modelo reajustado puede cambiar la escala de márgenes y la tasa de rescate.
 
+La ampliación con Top-4 fijo permite separar esta pregunta del tamaño heredado del GFS. En cinco datasets completos su accuracy media queda muy próxima a la del uso directo, con ganancias y pérdidas por dataset y menor adquisición proyectada. E2 aporta una comparación con otras medidas de confianza, pero la selección previa de la base para margen, la falta de calibración y las diferencias de fracción real limitan una conclusión de superioridad. El diagnóstico de igual cantidad ayuda a estudiar el ordenamiento; no reemplaza la evaluación individual online.
+
 \section{Qué permite afirmar el tiempo medido}
 La dimensión del vector es una propiedad de la representación. La latencia depende de extractores, hardware, preprocesamiento, residencia, transferencia y clasificadores. Cuatro bloques pueden incluir redes costosas; una representación de más coordenadas puede provenir de un extractor económico. No corresponde convertir el 15 \% de dimensiones de un punto en un 85 \% de ahorro temporal.
 
-Los perfiles analíticos sirven para comparar candidatos bajo constantes comunes y seleccionar antes de evaluar. Los pilotos físicos comprueban comportamiento de una implementación y de una muestra de imágenes. El panel online posterior permite asociar F1 y tiempo de cada llamada, pero sus diferencias entre fechas no son un experimento pareado simultáneo de todos los métodos.
+Los perfiles analíticos sirven para comparar candidatos bajo constantes comunes y seleccionar antes de evaluar. Los pilotos físicos comprueban comportamiento de una implementación y de una muestra de imágenes. El panel online posterior permite asociar accuracy, métricas complementarias y tiempo de cada llamada, pero sus diferencias entre fechas no son un experimento pareado simultáneo de todos los métodos.
 
 Las discrepancias de representación de CUReT y Soil impiden cerrar el vínculo entre algunos embeddings y la ejecución física. La identidad de predicciones no resuelve esa diferencia. Se necesita una reconciliación de capa, transformación, checkpoint y muestras antes de extender el alcance, no una explicación causal elegida a partir de una coincidencia parcial.
+
+El perfil KTH nuevo mostró además fallos de fidelidad EVA-02 y SigLIP bajo su configuración congelada. No se bajó el mínimo aceptado ni se volvieron a probar configuraciones para recuperar esos casos. Esto limita la cobertura conjunta de E1/E2 y motiva la revisión de esos extractores antes de medir políticas completas. No se extrapola el fallo a la calidad de todos los embeddings históricos ni se presenta una causa aún no aislada.
 
 \section{Interpretación de la comparación con papers}
 La tabla externa responde cómo se comportaron adaptaciones en el panel local. No demuestra que nuestras recetas reproduzcan íntegramente los artículos ni que las cifras publicadas sean incorrectas. El protocolo aproximado Neshov, por ejemplo, conserva una diferencia observada de accuracy respecto del porcentaje publicado.
 
 DeepLumina exige una reserva adicional de ajuste. No conocer el impacto de la no convergencia sobre F1 impide atribuir toda una diferencia a la calidad de su idea de concatenación. Una tabla con datos disponibles puede ser informativa si mantiene esa condición y la cobertura incompleta, pero no debe utilizarse como prueba definitiva de superioridad sobre el método del paper.
 
-Top-4 también presenta pérdidas: Soil frente a Neshov en el panel online es un ejemplo. La selección de un método exige decidir qué calidad y costo son aceptables para una aplicación; una clasificación global de ganadores ocultaría ese compromiso.
+Top-4 también presenta pérdidas: frente a Completa-22 en Outex/SVM, por ejemplo. En Soil online supera la accuracy de Neshov y pierde en macro-F1. El desbalance permite que el orden cambie según la métrica; accuracy expresa acierto global y las métricas macro conservan la perspectiva por clase. La selección de un método exige decidir qué calidad y costo son aceptables para una aplicación; una clasificación global de ganadores ocultaría ese compromiso.
 
 \section{Amenazas a la validez y alcance}
 La primera amenaza es la exposición acumulada a benchmarks durante el desarrollo. Separar pliegues sigue siendo necesario, pero no elimina la influencia de resultados anteriores sobre nuevas decisiones. Las bibliotecas intermedias y los distintos regímenes de medición constituyen otra fuente de confusión si no se identifican.
@@ -50,7 +54,9 @@ La tercera es la conciliación entre archivos. El barrido, el benchmark estátic
 
 Finalmente, faltan controles específicos para algunas preguntas secundarias, como Top-4 más N-gramas bajo determinadas bibliotecas y una campaña física íntegra del mismo Top-\(k\) directo/condicional con todas sus representaciones reconciliadas. Su ausencia limita esas afirmaciones, pero no invalida la comparación descriptiva que sí dispone de predicciones y procedencia.
 
+El cambio de métrica principal a accuracy se decidió después de observar los resultados históricos. La tesis informa esa decisión y conserva macro-F1, precisión macro y recall macro como complementos donde pueden reconstruirse. Los rankings y umbrales históricos siguen siendo los definidos por macro-F1 interno; no se atribuye su selección a accuracy ni se presenta este cambio como una confirmación preregistrada.
+
 \section{Implicación para el diseño de un clasificador}
 El recorrido permite plantear una decisión ordenada: elegir primero una biblioteca y un clasificador, evaluar la representación pequeña frente a referencias y solo después estudiar si una base aporta ventaja de adquisición. Esa secuencia evita introducir una compuerta para compensar una concatenación que no fue comparada adecuadamente.
 
-La contribución de la tesis es documentar ese recorrido con sus resultados y límites. No depende de que Top-4 gane todos los datasets, de que el margen siempre mejore F1 o de que se igualen porcentajes publicados.
+La contribución de la tesis es documentar ese recorrido con sus resultados y límites. No depende de que Top-4 gane todos los datasets, de que el margen siempre mejore accuracy o de que se igualen porcentajes publicados.

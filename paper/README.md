@@ -1,41 +1,53 @@
-# Tesis: Top-k directo y optimización por margen
+# Tesis: Top-k directo y activación por margen
 
-**Revisión ARS aplicada, 13-11-2026:** el PDF vigente tiene **82 páginas**. Se aplicaron los ocho cambios aprobados por el autor, con fórmulas de costo más precisas, ejemplo real del umbral, parámetros reproducibles y conclusiones revisadas. Las 26 pruebas pasaron; se conservaron los resultados experimentales. [Informe de la revisión](../docs/fsc_tex/REVISION_ARS_TOPK_MARGEN_2026-11-13.md) y [manifiesto vigente](../results/analysis/ars_topk_revision_20261113_v1/manuscript_release_ars.json).
+**Actualizada el 15-11-2026.** El PDF vigente tiene **87 páginas** y usa
+**accuracy (exactitud) como métrica principal**. Macro-F1, precisión macro y
+recall macro son complementarias. Se conserva el título acordado y el recorrido
+Top-k directo → optimización por margen.
 
-**Título vigente:** «Concatenación Top-k de descriptores para clasificar texturas: comparación del uso directo y la activación por margen».
-
-Se reescribieron los siete capítulos, la portada y ambos resúmenes el 13-11-2026. La tesis mantiene dos etapas centrales: construir y comparar Top-k, incluido Top-4; después optimizar su ejecución activándolo por margen y compararlo con el mismo Top-k directo. La activación está desarrollada en el cuerpo principal, con ecuaciones, diagrama, selección interna y resultados.
-
-El [PDF vigente](tesis.pdf) es un borrador completo para revisión de los autores y el tutor. La compilación y la auditoría no equivalen a aprobación académica ni cierre de todas las reservas.
-
-## Fuentes y trazabilidad
-
-- [Fuente principal](tesis.tex) y [capítulos y anexos](chapters/).
-- [Bibliografía activa](articulo/borrador_profesor/references.bib).
+- [Abrir la tesis PDF](tesis.pdf) y [fuente principal](tesis.tex).
+- [Informe del día y pendientes](../docs/fsc_tex/AVANCE_ACCURACY_E1_E2_2026-11-15.md).
 - [Plan vigente](../docs/fsc_tex/PLAN_TOPK_MARGEN_2026-11-13.md).
-- [Informe de reescritura](../docs/fsc_tex/INFORME_REESCRITURA_TOPK_MARGEN_2026-11-13.md).
-- [Auditoría](../results/analysis/topk_margin_rewrite_20261113_v1/summary.json).
-- [Versión compilada y hashes](../results/analysis/topk_margin_rewrite_20261113_v1/manuscript_release.json).
+- [Decisión de métrica y cronología](../docs/fsc_tex/DECISION_METRICA_ACCURACY_2026-11-15.md).
 
-Los estudios de rescate de ensamble y poda se conservan en un anexo complementario. La versión anterior se respaldó en `archive/local/tesis_before_topk_rewrite_20261113.tar.gz`, con manifiesto SHA-256. Ese respaldo es local y no se garantiza su disponibilidad en GitHub.
+## Evidencia actual
 
-## Evidencia y límites
+1. Barrido de 21 tamaños × 47 condiciones por clasificador, seis datasets.
+   Top-4/SVM: accuracy media por dataset 0,944214, frente al máximo descriptivo
+   0,945090 en k=10; aproximadamente 15,42 % de dimensiones. No es un óptimo universal.
+2. Comparaciones estáticas, N-gramas y adaptaciones externas reconstruidas con
+   accuracy; las cifras históricas, online y los costos permanecen separados.
+3. Cascada histórica de 27 condiciones con k heredado de uno a ocho, presentada
+   separadamente de la ampliación nueva con cuatro bloques fijos.
+4. **E1 nuevo:** 25/27 condiciones completadas. DTD, FMD, CUReT, Outex y Soil
+   completos; KTH 2/4, sin media parcial. Accuracy media de cinco datasets:
+   0,941839915 directa y 0,941830218 por margen. Adquisición proyectada 74,87 %
+   menor; no es una medición nueva de latencia online de las políticas.
+5. **E2:** margen, máximo y entropía con los mismos scores; se distinguen
+   umbrales OOF y diagnóstico por lote de igual cantidad derivada. No hay
+   pares significativos en accuracy tras Holm sobre cinco datasets completos.
 
-1. Barrido de 21 tamaños y 47 condiciones por tamaño y clasificador en seis datasets: 987 filas SVM y 987 ResMLP. Las medias equiponderan datasets.
-2. Top-4 frente a concatenaciones completas, selección y N-gramas, identificando las diferentes bibliotecas.
-3. Comparadores externos con macro-F1 y milisegundos de las mismas llamadas online, separados del barrido histórico.
-4. Auditoría de 27 condiciones SVM y 31.984 observaciones de prueba del mismo Top-k directo/por margen. Se reutilizan imágenes entre particiones; no son observaciones independientes y k no siempre es cuatro.
-5. Cinco condiciones cuyo rescate coincide en bloques con el Top-4 del barrido: dos DTD, dos FMD y una CUReT. Se conservan ganancias, pérdidas y empates; no representan Top-4 por margen en los seis datasets.
+El cambio de métrica principal se decidió después de observar resultados
+históricos. El ranking y la selección de rutas históricos basados en macro-F1
+siguen identificados; no se reetiquetan como selección por accuracy.
 
-Top-4/SVM registra macro-F1 medio 0,936554 frente a 0,936764 del máximo descriptivo en k=10, con aproximadamente 15,42 % de las dimensiones de los 21 bloques. Respalda un compromiso compacto, sin demostrar optimalidad universal ni equivalencia estadística. La optimización por margen se evalúa por separado en calidad, activación, adquisición y tiempo físico.
+## Archivos y reservas
 
-Se mantienen las reservas KTH, DeepLumina/DTD y no convergencia, las diferencias entre Top-4 histórico y online y las discrepancias de representación de pilotos CUReT/Soil. Los costos proyectados se distinguen de tiempos físicos. Esta reescritura no añade fits, predicciones ni cronometrajes, ni repite paneles cerrados.
+- [Reconstrucción de accuracy](../results/analysis/thesis_accuracy_primary_20261115_v3/summary.json): 144 fuentes con hashes, sin nuevas predicciones.
+- [Auditoría E1/E2](../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/summary.json).
+- [Predicciones y scores E1/E2](../results/exploratory/topk_cascade/top4_fixed_primary22_20261115_v1/conditions/).
+- [Bibliografía activa](articulo/borrador_profesor/references.bib).
+
+KTH mantiene en revisión dos casos por fallos de fidelidad EVA-02/SigLIP; no
+se repitieron. Se conservan también las reservas históricas KTH/DTD,
+DeepLumina no convergente e incompleto, y diferencias de representación online.
+Los estudios de ensamble y poda permanecen en un anexo complementario.
 
 ## Verificación y compilación
 
-Se aprobaron 26 pruebas de trazabilidad, reproducción de métricas y controles relacionados. El generador verifica 124 fuentes por SHA-256 y rechaza reutilizar directorios de auditoría existentes. Las recetas figuran en el anexo de reproducibilidad y el informe.
-
-La versión anterior a la ronda ARS tenía 81 páginas. Incluye los ocho pasos del recorrido experimental y un ejemplo real de concatenación de cuatro bloques en 3.328 coordenadas. Las figuras nuevas muestran todos los tamaños, las ganancias incrementales y las curvas de los seis datasets. Con SVM, de uno a cuatro se ganan 1,911 puntos porcentuales de macro-F1; de cuatro al máximo en diez, 0,021 puntos, con mayor dimensión. Los incrementos posteriores a cuatro conservan ambos signos: la curva no disminuye de forma monótona. Fuentes y resultados del gráfico: [auditoría de ganancias](../results/analysis/topk_marginal_gains_20261113_v1/summary.json).
+Pasaron **52 pruebas**. El PDF compila sin referencias indefinidas ni desbordes
+horizontales y se revisaron visualmente sus 87 páginas. Es un borrador para
+revisión de autores y tutor, no una aprobación académica.
 
 Desde `paper`, en Ubuntu/WSL:
 
@@ -43,4 +55,8 @@ Desde `paper`, en Ubuntu/WSL:
 ../.tools/tectonic-0.16.9/tectonic --keep-logs --keep-intermediates tesis.tex
 ```
 
-Los paquetes Overleaf y presentaciones anteriores no se actualizan por recompilar este PDF. Los informes históricos conservan su fecha y alcance. Esta revisión no crea commits ni realiza push.
+La revisión ARS del 13-11 conserva su PDF/manifiesto histórico de 82 páginas;
+la versión de accuracy la sucede. Los borradores de artículos, presentaciones
+y paquetes anteriores conservan su alcance y no se actualizan por recompilar
+este PDF. Pesos de extractores, embeddings y modelos joblib permanecen locales;
+predicciones, scores y tablas permiten auditar las métricas publicadas.

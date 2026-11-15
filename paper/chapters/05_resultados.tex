@@ -1,49 +1,49 @@
 \chapter{Resultados experimentales}\label{sec:resultados-experimentales}
 
-Los resultados responden primero cómo se construye y se compara Top-\(k\), y después qué cambia al activarlo por margen. Se conservan separados el archivo de características, el panel online y los pilotos físicos. Las tablas generadas para esta revisión se vinculan con 124 fuentes mediante hashes y no añaden ajustes ni mediciones.
+Los resultados responden primero cómo se construye y se compara Top-\(k\), y después qué cambia al activarlo por margen. Accuracy (exactitud) es la métrica principal. Se conservan separados el archivo de características, el panel online y los pilotos físicos. La reconstrucción de accuracy del 15-11 se vincula con 144 fuentes mediante hashes, sin nuevos ajustes ni mediciones de esos archivos; la ampliación E1/E2 se identifica por separado.
 
 \section{P1: del descriptor individual a la concatenación}\label{sec:resultados-fase1}
 El benchmark consolidado compara Individual, Completa, Top-\(k\), GFS y Homogénea sobre seis datasets y dos clasificadores. Individual designa la mejor alternativa seleccionada internamente, no el máximo externo de todos los descriptores. El Top-\(k\) de esta primera tabla hereda su tamaño del control GFS; su nombre no significa Top-4 fijo.
 
-\input{articulo/borrador_profesor/generated/baseline_f1.tex}
+\input{articulo/borrador_profesor/generated/baseline_accuracy.tex}
 \input{articulo/borrador_profesor/generated/dimensions_primary.tex}
 
-Las medias muestran que una concatenación puede mejorar al mejor individual seleccionado, pero añadir indiscriminadamente bloques también puede empeorar. En FMD/SVM, Completa registra aproximadamente 0,9647, frente a 0,9726 de Individual y 0,9820 del Top-\(k\) del control. En Outex/SVM, en cambio, Completa alcanza aproximadamente 0,9656. Las diferencias entre datasets impiden definir una regla uniforme a partir del número de bloques.
+Las medias de accuracy muestran que una concatenación puede mejorar al mejor individual seleccionado, pero añadir indiscriminadamente bloques también puede empeorar. En FMD/SVM, Completa registra aproximadamente 0,9647, frente a 0,9727 de Individual y 0,9820 del Top-\(k\) del control. En Outex/SVM, en cambio, Completa alcanza aproximadamente 0,9662. Las diferencias entre datasets impiden definir una regla uniforme a partir del número de bloques.
 
 La dimensión seleccionada y la calidad se reportan conjuntamente. La reducción de entrada al clasificador es informativa para almacenamiento y ajuste, pero no determina qué extractores dominan el tiempo de una consulta. Los contrastes del benchmark estático y su sensibilidad sin KTH se conservan en el Anexo~\ref{app:resultados-adicionales}. Su alcance no se extiende a los tamaños fijos nuevos por un cambio de etiqueta.
 
 \section{Barrido de k y justificación del caso Top-4}
 La reconstrucción del barrido verifica 47 condiciones para cada tamaño de uno a 21 y cada clasificador. Las Tablas~\ref{tab:tm-curva}--\ref{tab:tm-top4-resmlp} y la Figura~\ref{fig:tm-curve} describen ese archivo ampliado. El README inicial del barrido corresponde a menos condiciones y no sustituye sus CSV ampliados.
 
-\input{generated_topk_margin/curva_k.tex}
+\input{generated_accuracy_primary_20261115_v3/curva_k.tex}
 \begin{figure}[!htbp]\centering
-\includegraphics[width=\textwidth]{generated_topk_progression/ganancias_k.pdf}
+\includegraphics[width=\textwidth]{generated_accuracy_primary_20261115_v3/ganancias_k.pdf}
 \caption[Calidad y ganancia marginal al aumentar el número de descriptores.]{Calidad al aumentar el número de descriptores y ganancia de cada bloque adicional. Los círculos abiertos y la línea vertical señalan Top-4. Cada punto promedia primero dentro del dataset y después entre datasets. Una barra negativa indica pérdida al añadir ese bloque. Se muestran todos los tamaños, incluidos los máximos posteriores a cuatro.}
 \label{fig:tm-curve}
 \end{figure}
 
-Con SVM, Top-4 obtiene 0,936554 y el máximo descriptivo aparece en \(k=10\), con 0,936764. La diferencia es 0,000210 de macro-F1, mientras el porcentaje dimensional medio es aproximadamente 15,42 para cuatro bloques y 45,17 para diez, respecto a 21. Esto identifica una alternativa compacta cercana al máximo observado, no una prueba de equivalencia.
+Con SVM, Top-4 obtiene accuracy media de 0,944214 y el máximo descriptivo aparece en \(k=10\), con 0,945090. La diferencia es 0,000876 de accuracy, o 0,0876 puntos porcentuales, mientras el porcentaje dimensional medio es aproximadamente 15,42 para cuatro bloques y 45,17 para diez, respecto a 21. Esto identifica una alternativa compacta cercana al máximo observado, no una prueba de equivalencia.
 
-Con ResMLP, Top-4 registra 0,933077 y el máximo del barrido aparece en \(k=5\), con 0,935195. Por tanto, la elección de cuatro no maximiza todas las curvas. Tampoco puede reducirse la decisión al promedio global: la composición y la respuesta a \(k\) dependen del dataset y del clasificador.
+Con ResMLP, Top-4 registra accuracy media de 0,942022 y el máximo del barrido aparece en \(k=5\), con 0,944327. Por tanto, la elección de cuatro no maximiza todas las curvas. Tampoco puede reducirse la decisión al promedio global: la composición y la respuesta a \(k\) dependen del dataset y del clasificador.
 
 \subsection{Por qué estudiar cuatro: ganancia frente a crecimiento del vector}
 El eje horizontal representa el número de descriptores concatenados. Se trata de una curva de desempeño frente al tamaño de la representación; el número de imágenes de entrenamiento y las épocas no varían en ese eje. Para explicar la contribución incremental se calcula
 \begin{equation}
-g_k=100\,[\overline F(k)-\overline F(k-1)],\qquad k=2,\ldots,21,
+g_k=100\,[\overline A(k)-\overline A(k-1)],\qquad k=2,\ldots,21,
 \end{equation}
-en puntos porcentuales de macro-F1. La Figura~\ref{fig:tm-curve} muestra cada incremento, incluidos los negativos.
+en puntos porcentuales de accuracy; aquí \(A(k)\) representa la exactitud media para el tamaño \(k\). La Figura~\ref{fig:tm-curve} muestra cada incremento, incluidos los negativos.
 
-Con SVM, pasar de uno a cuatro bloques aumenta el macro-F1 medio de 0,917448 a 0,936554: una ganancia de 1,911 puntos porcentuales. Pasar de cuatro al máximo observado en diez aporta solo 0,021 puntos adicionales, mientras la dimensión media relativa aumenta de 15,42 a 45,17 \%. Cuatro concentra aproximadamente el 98,91 \% de la mejora observada entre uno y el máximo del barrido. Esta proporción describe la ganancia de F1, no el porcentaje de imágenes clasificadas correctamente ni un intervalo de equivalencia.
+Con SVM, pasar de uno a cuatro bloques aumenta la accuracy media de 0,927166 a 0,944214: una ganancia de 1,7048 puntos porcentuales. Pasar de cuatro al máximo observado en diez aporta 0,0876 puntos adicionales, mientras la dimensión media relativa aumenta de 15,42 a 45,17 \%. Cuatro concentra aproximadamente el 95,11 \% de la mejora observada entre uno y el máximo del barrido. Esta proporción describe la ganancia relativa de accuracy; no es la accuracy absoluta ni un intervalo de equivalencia.
 
 Así, Top-4 resulta una elección compacta con buena calidad media y una regla de tamaño fácil de explicar. Después de cuatro se observan ocho pasos negativos y nueve positivos con SVM: el rendimiento fluctúa, en lugar de disminuir siempre. Con ResMLP, cinco aporta 0,212 puntos más que cuatro. La conclusión sustentada es que las ganancias posteriores pueden ser pequeñas frente al crecimiento de representación; identificar un mejor compromiso exige declarar qué calidad y costo se priorizan.
 
-\input{generated_topk_margin/top4_svm.tex}
-\input{generated_topk_margin/top4_resmlp.tex}
+\input{generated_accuracy_primary_20261115_v3/top4_svm.tex}
+\input{generated_accuracy_primary_20261115_v3/top4_resmlp.tex}
 
-En FMD, cuatro es el máximo medio del barrido para ambos clasificadores y supera a concatenar toda la biblioteca. En Soil, cuatro también maximiza la curva SVM; con ResMLP el máximo aparece en ocho. Outex constituye una excepción relevante: la representación completa conserva una ventaja de calidad frente a cuatro. CUReT se encuentra cerca del techo de la métrica, donde diferencias pequeñas merecen una interpretación prudente. Los resultados KTH de este archivo conservan su variante histórica y no se utilizan para borrar la reserva de otra evaluación.
+En FMD, cuatro es el máximo medio de accuracy del barrido para ambos clasificadores y supera a concatenar toda la biblioteca. En Soil, cuatro también maximiza la curva SVM; con ResMLP el máximo de accuracy aparece en quince. Outex constituye una excepción relevante: la representación completa conserva una ventaja de calidad frente a cuatro. CUReT se encuentra cerca del techo de la métrica, donde diferencias pequeñas merecen una interpretación prudente. Los resultados KTH de este archivo conservan su variante histórica y no se utilizan para borrar la reserva de otra evaluación.
 
 \begin{figure}[!htbp]\centering
-\includegraphics[width=\textwidth]{generated_topk_progression/curvas_por_dataset.pdf}
+\includegraphics[width=\textwidth]{generated_accuracy_primary_20261115_v3/curvas_por_dataset.pdf}
 \caption[Barrido de tamaños en los seis datasets.]{Barrido de tamaños en los seis datasets. Cada panel muestra SVM y ResMLP con medias de las condiciones del dataset. La línea vertical y los círculos abiertos señalan cuatro. Las escalas verticales se ajustan por panel para mostrar las variaciones; KTH mantiene su reserva de procedencia.}
 \label{fig:tm-per-dataset-curves}
 \end{figure}
@@ -51,21 +51,23 @@ En FMD, cuatro es el máximo medio del barrido para ambos clasificadores y super
 \section{Qué aportan N-gramas y las ampliaciones de biblioteca}
 Las tablas previas distinguen 21 bloques sin N-gramas de la biblioteca de 22. El control histórico emparejado de 20 frente a 21 con N-gramas examina otra ampliación, anterior a BEiT-v2. Se conserva en la Tabla~\ref{tab:ngram-svm} para SVM y en el Anexo~\ref{app:resultados-adicionales} para ResMLP.
 
-\input{articulo/borrador_profesor/generated/ngram_svm.tex}
+\input{generated_accuracy_primary_20261115_v3/ngram_svm.tex}
 
-En ese control, añadir N-gramas a Completa en Outex cambia el macro-F1 de aproximadamente 0,9572 a 0,9674. La ampliación también puede cambiar qué subconjunto elige GFS o el Top-\(k\) de tamaño heredado. En DTD, Completa no mejora con la incorporación del bloque. El aporte no es uniforme y el resultado de una ampliación no se extrapola a todas las bibliotecas.
+En ese control, la tabla informa accuracy para ambas bibliotecas y su diferencia pareada. Añadir N-gramas beneficia la concatenación completa de Outex; en DTD no produce una mejora de esa estrategia. La ampliación también puede cambiar qué subconjunto elige GFS o el Top-\(k\) de tamaño heredado. El aporte no es uniforme y el resultado de una ampliación no se extrapola a todas las bibliotecas.
 
 El ranking individual y la complementariedad responden preguntas distintas. La ausencia de N-gramas entre cuatro bloques mejor puntuados individualmente no demuestra que su combinación con ellos no sea útil. La tesis no presenta como ejecutado un control Top-4 más N-gramas que no tenga evidencia emparejada y cobertura identificada.
 
 \section{Comparación externa de Top-4 en llamadas online}\label{sec:resultados-panel-online-sota}
-Las Tablas~\ref{tab:tm-externos-f1} y~\ref{tab:tm-externos-ms} extraen Top-4/SVM del panel físico auditado y lo comparan con las adaptaciones externas sobre las mismas imágenes de cada condición. Las métricas de cada método se reconstruyeron con predicción y tiempo de las mismas llamadas. No se reutiliza aquí el F1 del barrido histórico con un tiempo medido después.
+Las Tablas~\ref{tab:tm-externos-accuracy} y~\ref{tab:tm-externos-ms} extraen Top-4/SVM del panel físico auditado y lo comparan con las adaptaciones externas sobre las mismas imágenes de cada condición. Las métricas de cada método se reconstruyeron con predicción y tiempo de las mismas llamadas. No se reutiliza aquí la accuracy del barrido histórico con un tiempo medido después.
 
-\input{generated_topk_margin/externos_f1.tex}
+\input{generated_accuracy_primary_20261115_v3/externos_accuracy.tex}
 \input{generated_topk_margin/externos_ms.tex}
 
-En FMD, Top-4 alcanza aproximadamente 0,98230 frente a 0,94213 de la adaptación Neshov con MLP. Requiere más tiempo en las mediciones observadas. En Soil, Top-4 queda en 0,85940 frente a 0,86310 de Neshov, y su media temporal es mayor. Este caso desfavorable se conserva. Las mediciones de fechas distintas describen el archivo disponible y no identifican por sí solas una ventaja temporal causal.
+En FMD, Top-4 alcanza accuracy aproximada de 0,98233 frente a 0,94200 de la adaptación Neshov con MLP. Requiere más tiempo en las mediciones observadas. En Soil, Top-4 registra accuracy de 0,91581 frente a 0,90819 de Neshov, mientras su macro-F1 complementario es menor (0,85940 frente a 0,86310). El cambio de orden entre métricas muestra por qué deben conservarse las medidas por clase. La media temporal de Top-4 es mayor. Las mediciones de fechas distintas describen el archivo disponible y no identifican por sí solas una ventaja temporal causal.
 
-Los valores Top-4 del panel online no se presentan como reproducción exacta de toda fila del barrido. Por ejemplo, Soil/SVM registra aproximadamente 0,88639 en el archivo de tamaños y 0,85940 en este panel. La discrepancia entre archivos requiere trazabilidad de selección, representación y ajuste; no se atribuye a una causa no demostrada ni se escoge el mayor número para una tabla final. Las conclusiones del barrido y las comparaciones por llamadas se mantienen dentro de sus archivos.
+Los valores Top-4 del panel online no se presentan como reproducción exacta de toda fila del barrido. Por ejemplo, Soil/SVM registra accuracy aproximada de 0,92721 en el archivo de tamaños y 0,91581 en este panel. La discrepancia entre archivos requiere trazabilidad de selección, representación y ajuste; no se atribuye a una causa no demostrada ni se escoge el mayor número para una tabla final. Las conclusiones del barrido y las comparaciones por llamadas se mantienen dentro de sus archivos.
+
+\input{generated_accuracy_primary_20261115_v3/online_secundarias.tex}
 
 DeepLumina conserva una reserva científica: las 46 condiciones terminadas contienen avisos de no convergencia y la inspección de modelos encontró 1.653 de 2.441 clasificadores binarios en el límite de iteraciones. DTD contiene nueve de diez condiciones terminadas y no se informa una media completa. La existencia de predicciones no convierte esos ajustes en una réplica validada.
 
@@ -74,22 +76,55 @@ La aproximación separada Neshov FMD de 100 condiciones y 10.000 llamadas regist
 \section{P2: optimización mediante activación por margen}\label{sec:resultados-cascada}
 La auditoría reconstruye 27 condiciones SVM y 31.984 observaciones de prueba a partir de las predicciones guardadas. Verifica que, en todas las imágenes derivadas, el resultado condicional es el del mismo Top-\(k\) directo. Los tamaños del rescate van de uno a ocho: cinco condiciones usan cuatro. Son una evaluación de Top-\(k\) por condición, no 27 experimentos Top-4 fijo.
 
-\input{generated_topk_margin/cascada_calidad.tex}
+\input{generated_accuracy_primary_20261115_v3/cascada_calidad.tex}
+\input{generated_accuracy_primary_20261115_v3/cascada_secundarias.tex}
 
 Se identificaron además las cinco condiciones cuyo rescate tiene cuatro bloques y coincide exactamente con el subconjunto Top-4 del barrido de esa partición. La Tabla~\ref{tab:tm-fixed4-margin} conserva sus aumentos, pérdidas y empates. El subconjunto se define por identidad de bloques y tamaño, no por favorecer la activación. No representa cobertura Top-4 por margen en los seis datasets.
 
-\input{generated_topk_margin/top4_margin_subset.tex}
+\input{generated_accuracy_primary_20261115_v3/top4_margin_subset.tex}
 
 Se selecciona cascada en 26 condiciones y uso directo en una. Las bases de las rutas condicionales son SigLIP en veinte condiciones, BEiT-v2 en cinco y ResNet-50 en una. Estas elecciones provienen del criterio interno identificado en el método; no se escoge una base por el mayor F1 externo.
 
-En FMD, el uso directo registra macro-F1 medio 0,982926 y la política por margen 0,983953. En Outex, la política condicional baja de 0,942574 a 0,936950. CUReT presenta una pérdida pequeña; DTD queda muy próximo en promedio. Soil y el KTH histórico muestran aumentos. La compuerta no produce una mejora uniforme.
+En FMD, el uso directo registra accuracy media de 0,983000 y la política por margen 0,984000. En Outex, la política condicional baja de 0,944118 a 0,938235. CUReT presenta una pérdida pequeña; DTD queda muy próximo en promedio. Soil y el KTH histórico muestran aumentos. La compuerta no produce una mejora uniforme. Las métricas complementarias se calculan con esas mismas predicciones.
 
 La ruta condicional puede superar a Top-\(k\) porque conserva la predicción base en las imágenes que no deriva. Top-\(k\) directo no es un techo matemático de esa combinación. Del mismo modo, un margen alto puede conservar un error que la segunda etapa habría corregido. La auditoría guarda ambos conteos, junto con los cambios de clase.
 
-\section{Adquisición proyectada y pilotos físicos}\label{sec:resultados-gpu}
+\section{Ampliación E1: Top-4 fijo directo y por margen}\label{sec:e1-fixed4}
+El 15-11-2026 se ejecutó la comparación específica que faltaba: exactamente cuatro bloques por condición en ambas rutas, con SVM, semilla 42 y las 27 condiciones previstas. Se guardaron índices, orden de clases, puntajes completos OOF y test de todas las bases, predicciones, selección previa al test, modelos, controles aleatorios y hashes. La selección de ruta conserva macro-F1 OOF y tolerancia 0,005 del método histórico; accuracy es la métrica principal de reporte. Los tests ya observados durante el desarrollo mantienen el carácter exploratorio de esta ampliación.
+
+Completaron 25 condiciones. Las 23 de DTD, FMD, CUReT, Outex y Soil tienen cobertura íntegra; dos condiciones KTH completaron y dos quedaron en revisión. La Tabla~\ref{tab:e1-fixed4-accuracy} presenta solo datasets completos. La media equiponderada de sus cinco datasets es 0,941840 para Top-4 directo y 0,941830 para la política seleccionada: diferencia aproximada de -0,0010 puntos porcentuales. Wilcoxon exacto bilateral sobre esas cinco medias da \(p=0,8125\); el no rechazo no demuestra equivalencia.
+
+\input{generated_top4_fixed_e1_e2_20261115/e1_accuracy.tex}
+\input{generated_top4_fixed_e1_e2_20261115/e1_secundarias.tex}
+
+La cascada mejora accuracy en DTD, FMD y Soil, y pierde en CUReT y Outex. El sorteo utiliza la misma cantidad de imágenes derivadas y 100 repeticiones por condición; su media equiponderada es 0,923854. Este control nuevo corresponde a la base seleccionada de E1, a diferencia del control histórico con ResNet-50 fijo. La Tabla~\ref{tab:e1-bases-test} también informa por primera vez, para esta ampliación, cada base sola en test; sus valores no se confunden con las métricas OOF empleadas para seleccionar.
+
+\input{generated_top4_fixed_e1_e2_20261115/e1_bases.tex}
+\input{generated_top4_fixed_e1_e2_20261115/e1_costos.tex}
+
+La media equiponderada de costos por componentes pasa de 507,63 a 127,58 ms, reducción proyectada del 74,87 \%. Son proyecciones bajo perfiles identificados, no tiempos de ejecución online de las políticas nuevas. Ninguna ventaja física nueva se deduce de ese porcentaje.
+
+El perfil KTH se congeló con pesos locales, dos hilos CPU, batch1, cinco calentamientos y 33 imágenes de entrenamiento, tres por clase. Se midieron ocho extractores de forma secuencial con lock global; EVA-02 registró coseno mínimo 0,931978 y SigLIP 0,981889 frente a sus embeddings, inferiores al mínimo fijado de 0,999. Ambos fallos quedaron en revisión sin repetición. Los otros seis bloques superaron el umbral; eso permitió las dos condiciones KTH que no requieren los costos de los bloques fallidos. La Tabla~\ref{tab:e1-kth-state} conserva las cuatro condiciones; no se informa una media KTH parcial ni una media global de seis datasets.
+
+\input{generated_top4_fixed_e1_e2_20261115/kth_status.tex}
+
+\section{Ampliación E2: otras medidas de confianza}\label{sec:e2-confidence}
+Se reutilizaron los puntajes de E1 sin nuevos ajustes. Se comparan margen, puntuación máxima y entropía del softmax de las puntuaciones SVM, con temperatura fija uno. Esta última es una heurística de ordenamiento, no una probabilidad calibrada. La base es la elegida con entrenamiento para E1; si se elige uso directo, se conserva ResNet-50 como referencia predefinida. La selección de base realizada originalmente para margen puede favorecer esa regla y limita la interpretación.
+
+Cada umbral se calcula en OOF para q=0,25, 0,50 y 0,75. Las fracciones reales de test se informan porque igual cuantil OOF no implica igual cantidad de imágenes derivadas después del reajuste. En q=0,25, por ejemplo, accuracy media es 0,941830 con margen, 0,939736 con máximo y 0,932543 con entropía, con activaciones reales diferentes. No se elige retrospectivamente el cuantil con mayor accuracy externa.
+
+\input{generated_top4_fixed_e1_e2_20261115/e2_accuracy_legible.tex}
+
+Se añade un diagnóstico por lote que fuerza la misma cantidad de imágenes que activó el margen en cada condición, ordenando con los puntajes de test y sin consultar sus etiquetas. Aísla diferencias de ordenamiento a igual cantidad, pero requiere observar el lote y no constituye una compuerta individual online. Los resultados se separan del régimen de umbral OOF.
+
+\input{generated_top4_fixed_e1_e2_20261115/e2_matched_count.tex}
+
+Los contrastes usan cinco medias por dataset completo y nueve pares por familia: tres pares de compuertas por tres cuantiles, con Holm separado por métrica y régimen. En accuracy ningún par resulta significativo tras ese ajuste. Las ganancias descriptivas del margen en algunos puntos no acreditan superioridad universal. Precisión macro, recall macro y macro-F1 de todos los controles quedan en los CSV de análisis.
+
+\section{Adquisición proyectada y pilotos físicos históricos}\label{sec:resultados-gpu}
 \input{generated_topk_margin/cascada_costos.tex}
 \begin{figure}[!htbp]\centering
-\includegraphics[width=\textwidth]{generated_topk_margin/directo_margen.pdf}
+\includegraphics[width=\textwidth]{generated_accuracy_primary_20261115_v3/directo_margen_legible.pdf}
 \caption{Comparación por dataset del uso directo y por margen: calidad a la izquierda y adquisición proyectada a la derecha. La diagonal indica igualdad de la magnitud; el panel de costo no es un cronometraje físico nuevo. KTH conserva su reserva.}
 \label{fig:tm-direct-margin}
 \end{figure}
@@ -115,6 +150,9 @@ El piloto reúne 204 imágenes y 612 parejas, no 612 imágenes independientes. L
 El control físico KTH con salida directa justa documentó también que una cascada puede ser más lenta cuando Top-\(k\) ya es barato. La posibilidad de elegir uso directo forma parte de la decisión estudiada, no constituye un caso que se deba omitir.
 
 \section{Síntesis de evidencia}
+\input{generated_accuracy_primary_20261115_v3/estadistica_accuracy.tex}
+\input{generated_accuracy_primary_20261115_v3/estadistica_pares.tex}
+En el contraste estático de accuracy, el valor exacto de Friedman con SVM es 0,0521 y con ResMLP 0,4297. Ningún par alcanza 0,05 después del ajuste de Holm. Este resultado no prueba igualdad ni equivalencia de los métodos, ni convierte Top-4 en ganador estadístico de todos los tamaños.
 P1 queda respaldada por un barrido amplio y por comparaciones que identifican tanto ventajas de compactar como pérdidas frente a representaciones mayores. P2 dispone de una comparación por predicciones del mismo Top-\(k\), costos analíticos y pilotos físicos delimitados. La cobertura completa de las predicciones no convierte automáticamente los costos en latencias físicas completas.
 
 Los experimentos de ensamble y poda permiten otras preguntas y se conservan en el Anexo~\ref{app:complementarios}. No se utilizan sus porcentajes de ahorro para atribuir un resultado al Top-\(k\) directo/por margen del cuerpo principal.

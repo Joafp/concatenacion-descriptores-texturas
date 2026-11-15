@@ -13,7 +13,7 @@ Una segunda decisión surge durante la clasificación. Aunque se haya selecciona
 El argumento experimental tiene dos etapas. Primero se construye Top-\(k\), se estudia por qué seleccionar pocos descriptores puede resultar más conveniente que concatenarlos todos y se compara su desempeño con otros métodos. Después se toma esa concatenación como referencia y se optimiza su ejecución mediante la activación por margen: una base atiende cada imagen y el Top-\(k\) se calcula solo cuando la regla aprendida lo requiere. La versión optimizada constituye la segunda parte central del trabajo. Su evaluación debe mostrar cuánto costo evita y qué calidad conserva o pierde frente al uso directo del mismo Top-\(k\).
 
 \section{Objetivo general}
-Evaluar la concatenación Top-\(k\) de descriptores para clasificar texturas y comparar su uso directo con su activación por margen, distinguiendo calidad predictiva, dimensión de representación, costo de adquisición y latencia física.
+Evaluar la concatenación Top-\(k\) de descriptores para clasificar texturas y comparar su uso directo con su activación por margen, utilizando accuracy (exactitud) como métrica principal de calidad y distinguiendo dimensión de representación, costo de adquisición y latencia física. Macro-F1, precisión macro y recall macro complementan la evaluación cuando las predicciones disponibles permiten reconstruirlas.
 
 \section{Objetivos específicos}
 \begin{enumerate}
@@ -35,7 +35,11 @@ Se utilizan DTD, FMD, CUReT, Outex-TC-00013, SoilOriginal y KTH-TIPS-2b. El estu
 
 La biblioteca consolidada contiene 22 bloques, mientras que el barrido principal de \(k\) utiliza 21 sin N-gramas. Se identifican también las bibliotecas intermedias con N-gramas y sin BEiT-v2. Estas diferencias forman parte del diseño y no se ocultan bajo el nombre genérico de concatenación completa.
 
+La ampliación E1/E2 del 15-11-2026 compara Top-4 fijo directo/por margen y otras compuertas de confianza. Completó 25 de 27 condiciones; dos KTH quedan en revisión por fidelidad de sus perfiles de costo. Los consolidados se limitan a cinco datasets completos, conservando los casos KTH por separado.
+
 El estudio es exploratorio: resultados externos observados influyeron en decisiones posteriores, incluida la atención prestada a \(k=4\). La separación interna de entrenamiento y prueba evita ciertas fugas dentro de cada ejecución, pero no convierte todo el proceso de investigación en una confirmación ciega. Tampoco se identifica una disminución dimensional con una reducción proporcional del tiempo.
+
+El 15 de noviembre de 2026 los autores fijaron accuracy como métrica principal de presentación y contraste de esta tesis. Los resultados históricos ya se habían observado y sus rankings y políticas se eligieron con macro-F1. Se conserva esa cronología: cambiar la métrica de reporte no significa que se hayan elegido retrospectivamente los bloques o umbrales por accuracy.
 
 \section{Aportes y organización}
 El aporte empírico es conectar dos decisiones de un clasificador de texturas: seleccionar una concatenación compacta y decidir para qué imágenes conviene ejecutarla. La primera se estudia mediante el barrido de tamaños y controles de composición; la segunda, manteniendo fijo el rescate y evaluando su activación por margen. El trabajo documenta las condiciones en que esta combinación mejora el compromiso entre calidad y adquisición, junto con sus pérdidas y límites. Su contribución reside en esa comparación trazable sobre la biblioteca y los datasets evaluados; el ranking Top-\(k\) y la adquisición condicional se sitúan respecto de sus antecedentes.

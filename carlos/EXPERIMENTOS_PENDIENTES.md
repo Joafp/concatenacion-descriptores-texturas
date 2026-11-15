@@ -4,10 +4,38 @@ Fecha: 2026-11-14 · De: Carlos · Para: Joaquín
 
 Joaco, con tus respuestas a [CONSULTAS_JOAQUIN.md](CONSULTAS_JOAQUIN.md) el paper (`carlos/main.tex`) ya
 está consistente con lo que hay en el repo. Esta lista junta lo que **solo se resuelve corriendo algo**.
-Ninguno se corrió.
+Esa era la lista inicial del 14-11. El estado del 15-11 se detalla abajo.
 
-> **Estado de la decisión:** el equipo acordó no correr experimentos nuevos. Esta lista es para decidir con
-> el profesor qué se corre, si se corre algo. **No lances nada hasta que lo confirmemos.**
+> **Decisión inicial (14-11):** continuar sin experimentos nuevos. El 15-11 Joaquín autorizó ejecutar
+> E1/E2 y pidió accuracy como métrica principal de toda la tesis. Esa autorización cubrió esta ampliación;
+> no se considera autorización para repetir los fallos científicos ni para lanzar el resto de la lista.
+
+## Actualización de ejecución — 15-11-2026
+
+- **E1:** 25 condiciones completadas de 27. DTD, FMD, CUReT, Outex y Soil están completos;
+  KTH tiene dos condiciones completas y dos en `requires_review`.
+- **E2:** calculado con los scores de esas 25 condiciones, sin ajustes adicionales. Las medias conjuntas
+  y pruebas usan solo los cinco datasets completos. Se separan umbrales OOF y diagnóstico por lote de
+  igual cantidad derivada; no son el mismo régimen de uso.
+- **Resultado principal E1:** accuracy media por dataset 0,941839915 directa frente a 0,941830218 por
+  margen, con adquisición por componentes proyectada 74,87 % menor. Wilcoxon exacto bilateral sobre
+  cinco medias: p=0,8125; no demuestra equivalencia ni ahorro físico online.
+- **KTH:** el perfil nuevo falló fidelidad EVA-02 (coseno mínimo 0,931978) y SigLIP (0,981889), frente
+  al mínimo congelado 0,999. No se repitieron ni se sustituyeron sus costos. Particiones 1 y 3 quedan
+  en revisión; 2 y 4 se muestran individualmente, sin media KTH parcial.
+- Todas las bases candidatas tienen predicciones y puntajes completos OOF/test guardados en los casos
+  completados. Ya se dispone de su accuracy, precisión macro, recall macro y macro-F1 **en test**.
+- Los 25 controles directos reproducen exactamente accuracy y macro-F1 de su fila Top-4 archivada.
+- **E3 sigue condicional; E4–E8 no se ejecutaron como controles específicos de esta lista.** El nuevo
+  perfil por extractor no es memoria por política (E7), ni resuelve el diagnóstico ViT de E6.
+
+Fuentes: [auditoría E1/E2](../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/summary.json),
+[comparación con Top-4 guardado](../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/direct_reference_comparison.csv),
+[métricas de las bases en test](../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/e1_cheap_candidate_test_metrics.csv)
+y [decisión de métrica principal](../docs/fsc_tex/DECISION_METRICA_ACCURACY_2026-11-15.md).
+
+Las recetas originales se conservan a continuación como antecedente del plan; su redacción en futuro
+no reemplaza este estado de ejecución ni elimina las reservas.
 
 ## Resumen
 

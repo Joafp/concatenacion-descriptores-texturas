@@ -1,6 +1,6 @@
 # Qué escribimos y en qué estamos trabajando
 
-**Actualizado:** 14 de noviembre de 2026, America/Asuncion.
+**Actualizado:** 15 de noviembre de 2026, America/Asuncion.
 
 El trabajo está organizado alrededor del título acordado:
 
@@ -13,7 +13,8 @@ la activación por margen. Ambas partes siguen en el cuerpo principal.
 ## 1. Qué escribimos
 
 Reescribimos el borrador de tesis, su portada, los resúmenes en español e
-inglés y los siete capítulos. La versión compilada tiene **82 páginas**.
+inglés y los siete capítulos. La versión compilada vigente tiene **87 páginas**,
+con accuracy como métrica principal y la ampliación E1/E2 del 15-11.
 
 | Parte | Contenido escrito |
 |---|---|
@@ -84,9 +85,11 @@ paper y la lista de experimentos pendientes. Ambos ya se integraron a esta copia
 
 ## 4. Qué estamos haciendo ahora
 
-La etapa actual es **revisar el paper actualizado y decidir qué evidencia
-adicional hace falta**. Las respuestas ya están incorporadas; se mantiene la
-distinción entre Top-4 fijo y Top-k de tamaño heredado.
+La etapa actual es **revisar la tesis actualizada y los resultados E1/E2 con
+los autores y tutor**. Las respuestas técnicas ya están incorporadas al paper
+breve; se mantiene la distinción entre Top-4 fijo y Top-k de tamaño heredado.
+La tesis principal ahora usa accuracy; los borradores de artículos conservan
+su versión hasta que el equipo incorpore este cambio.
 
 El paper separa las métricas históricas, los costos proyectados y las
 latencias físicas; conserva las pérdidas y señala reservas. Ya están
@@ -94,7 +97,8 @@ disponibles en [analisis_paper](analisis_paper/README.md) los cálculos de la
 familia estadística de tres métodos, el F1 **OOF del entrenamiento** de la
 etapa barata elegida (27 condiciones) y el p95 de las llamadas reunidas
 (36 grupos). El F1 de la etapa barata sola **en test** sigue pendiente;
-no se reemplaza con el valor OOF.
+no se reemplaza con el valor OOF en el archivo histórico. La ampliación E1
+sí guarda y reporta las predicciones de todas sus bases solas en test.
 
 ## 5. Qué falta como experimento específico
 
@@ -104,8 +108,8 @@ no son ocho requisitos igualmente necesarios para terminar el texto.
 
 | Experimento | Estado al corte |
 |---|---|
-| E1 / B1: Top-4 fijo directo/por margen | Prioridad alta, pendiente en 27 condiciones de seis datasets. Los cinco casos coincidentes son evidencia parcial. |
-| E2 / B2: margen frente a puntuación máxima y entropía | Pendiente con ese protocolo. Guardar puntajes completos en E1 permitiría calcularlo sin nuevos ajustes de los clasificadores. |
+| E1 / B1: Top-4 fijo directo/por margen | Ejecutado: 25/27 completas. Cinco datasets completos; KTH 2/4, con dos condiciones en revisión por fidelidad. |
+| E2 / B2: margen frente a puntuación máxima y entropía | Calculado con los scores de las 25 condiciones completadas. Consolidados y contrastes de cinco datasets íntegros; KTH no tiene media completa. |
 | E3: reconciliar la cascada histórica de KTH | Pendiente solo si se conserva esa comparación como central y no se hace E1. E1 con el protocolo corregido puede cubrir esa necesidad. |
 | E4 / B3: misma cascada con ResMLP | Pendiente; la política ResMLP del panel de ensamble es otra comparación. |
 | E5 / B4: Top-4 fijo más N-gramas | Pendiente como control específico; las ablaciones existentes no lo sustituyen. |
@@ -113,18 +117,21 @@ no son ocho requisitos igualmente necesarios para terminar el texto.
 | E7: memoria máxima de GPU por política | Opcional; no registrada como comparación separada de esas políticas. |
 | E8: variación de Top-4/ResMLP entre equipos | Opcional; comparación controlada no medida. |
 
-La decisión registrada es continuar escribiendo con lo disponible. Estos
-experimentos quedan como pendientes, sujetos a acuerdo del equipo. En las
-actualizaciones de redacción y auditoría del 13–14 de noviembre **no se
-hicieron nuevos entrenamientos, extracciones, predicciones ni benchmarks**.
+La decisión inicial era escribir con lo disponible. En las actualizaciones
+de redacción y auditoría del 13–14 de noviembre no se hicieron nuevas
+corridas. El 15-11 Joaquín autorizó E1/E2 y se ejecutó esa ampliación;
+los demás experimentos específicos siguen pendientes.
 
-Ya se prepararon las entradas de E1/E2: 27 condiciones, particiones e inputs
-identificados con hashes; diez pruebas de la preparación aprobadas. El
-[informe de preparación](../results/analysis/top4_fixed_preparation_20261114_v1/README.md)
-señala dos tareas antes de ejecutar: implementar y probar el ejecutor Top-4
-fijo y completar el perfil temporal de cinco bloques de KTH. Los embeddings
-están disponibles en los seis datasets; el costo histórico cubre 23 condiciones
-y queda incompleto en las cuatro de KTH. E1/E2 siguen sin ejecutarse.
+La preparación del 14-11 identificó entradas y costos faltantes. El 15-11 se
+implementó y probó el ejecutor, se midió el perfil KTH y se completaron los
+casos viables. EVA-02 y SigLIP fallaron el mínimo de fidelidad congelado y
+quedaron en revisión, sin repetición. La media de accuracy de cinco datasets
+es 0,941839915 directa y 0,941830218 por margen; el costo por componentes
+proyecta 74,87 % de reducción. No se denomina ahorro físico online.
+
+[Informe actualizado del 15-11](../docs/fsc_tex/AVANCE_ACCURACY_E1_E2_2026-11-15.md).
+Pasaron 52 pruebas de trazabilidad, métricas y contratos. La revisión visual
+cubre las 87 páginas del PDF vigente.
 
 ## 6. Dónde seguir
 

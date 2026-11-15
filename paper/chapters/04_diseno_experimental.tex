@@ -65,11 +65,11 @@ El estudio de N-gramas utiliza sus bibliotecas emparejadas y condiciones comunes
 
 Las medias principales se calculan dentro de cada dataset y luego se equiponderan los seis datasets:
 \begin{equation}
-\overline F=\frac{1}{D}\sum_{d=1}^{D}
-\left(\frac{1}{n_d}\sum_{r=1}^{n_d}F_{d,r}\right).
+\overline A=\frac{1}{D}\sum_{d=1}^{D}
+\left(\frac{1}{n_d}\sum_{r=1}^{n_d}A_{d,r}\right).
 \label{eq:tk-aggregation}
 \end{equation}
-Este estimando difiere de reunir todas las predicciones y calcular un único F1. Las tablas indican cuando muestran una media por condición, un valor por llamada o un promedio OOF reunido.
+Aquí \(A_{d,r}\) es accuracy en la condición \(r\) del dataset \(d\). Este estimando difiere de reunir todas las predicciones y calcular una exactitud global, que da mayor peso a los datasets con más observaciones. Las métricas secundarias siguen la misma equiponderación cuando corresponde. Las tablas indican cuando muestran una media por condición, un valor por llamada o un promedio OOF reunido.
 
 \section{Contraste del mismo Top-k directo y por margen}
 Cada condición conserva el subconjunto Top-\(k\) archivado, ajusta su clasificador con el entrenamiento externo y utiliza ese mismo resultado como referencia de la ruta condicional. La selección de base y umbral usa únicamente sus predicciones internas fuera de pliegue. Se conserva la alternativa Top-\(k\) directo si la cascada no resulta elegida.
@@ -78,15 +78,23 @@ Para la revisión final se reconstruyeron las métricas de las 27 condiciones de
 
 La auditoría cubre 31.984 observaciones externas, no ese número de imágenes independientes. Reconstruye las decisiones guardadas sin volver a ajustar modelos. La coincidencia con el registro es una prueba de consistencia del archivo, no una reproducción independiente desde RGB.
 
+La ampliación E1/E2 del 15-11 se distingue de esa reconstrucción histórica. Conserva las 27 particiones previstas, fija cuatro bloques obtenidos del barrido y ajusta nuevamente los clasificadores. KTH agrupa los OOF por muestra física. Los fallos del perfil temporal nuevo dejan dos condiciones en revisión; se auditan 25 completadas y se agregan solo los cinco datasets con cobertura íntegra. E2 reutiliza sus scores, con nueve contrastes exactos y Holm por familia de métrica y régimen. Las fracciones de test se informan sin reajustar umbrales con sus etiquetas.
+
 \section{Métricas y costos}
-Para \(C\) clases se usa
+La métrica principal es accuracy (exactitud), la proporción total de imágenes correctamente clasificadas. Para \(C\) clases se usan además precisión macro, recall macro y macro-F1:
 \begin{equation}
+\mathrm{accuracy}=\frac{1}{n}\sum_{i=1}^{n}\mathbb I[\widehat y_i=y_i],\qquad
 F_{1,\mathrm{macro}}=\frac1C\sum_{c=1}^{C}
-\frac{2TP_c}{2TP_c+FP_c+FN_c},\qquad
-\mathrm{accuracy}=\frac{1}{n}\sum_{i=1}^{n}\mathbb I[\widehat y_i=y_i].
+\frac{2TP_c}{2TP_c+FP_c+FN_c}.
 \label{eq:tk-metrics}
 \end{equation}
-Se aplica la convención registrada de valor cero ante denominador nulo. Un aumento de accuracy no implica necesariamente el mismo cambio de macro-F1.
+\begin{equation}
+P_{\mathrm{macro}}=\frac1C\sum_{c=1}^{C}\frac{TP_c}{TP_c+FP_c},\qquad
+R_{\mathrm{macro}}=\frac1C\sum_{c=1}^{C}\frac{TP_c}{TP_c+FN_c}.
+\end{equation}
+Se aplica la convención registrada de valor cero ante denominador nulo. Accuracy y precisión no son sinónimos. Accuracy pondera cada imagen por igual; las métricas macro ponderan cada clase por igual y permiten identificar pérdidas ocultas por desbalance. Un aumento de accuracy no implica necesariamente el mismo cambio de macro-F1.
+
+La decisión de priorizar accuracy se registró el 15-11-2026, después de observar los archivos históricos. El ranking y la tolerancia de selección de rutas de 0,005 en macro-F1 permanecen como componentes del método ejecutado. La evaluación E1/E2 nueva también conserva esos componentes para permitir la comparación del método, pero informa accuracy como resultado principal. Esta decisión no se presenta como un preregistro anterior a todos los tests.
 
 Se informan también bloques, dimensión, tiempo de selección y ajuste, fracción derivada y costo incremental. Un porcentaje de dimensiones se refiere a su biblioteca de comparación. Un porcentaje de adquisición se refiere al modelo analítico de componentes. Ninguno se denomina automáticamente ahorro de latencia.
 
@@ -97,9 +105,9 @@ El panel online posterior conserva predicción y tiempo de cada llamada batch1. 
 \section{Comparadores externos y controles estadísticos}
 Se utilizan las adaptaciones Neshov BEiTv2+MLP, HyTexNet y 6LBP+dCellNN con 47 condiciones completas cada una. DeepLumina mantiene 46 condiciones terminadas, avisos de no convergencia en todas y una condición DTD interrumpida. La tabla DTD no tiene una media completa de ese método. El protocolo aproximado Neshov FMD 10 por 10 es una comprobación separada, no el panel común.
 
-Los contrastes agregados por dataset se separan por clasificador y familia de comparación. Friedman y los post-hoc archivados comparan las estrategias de su benchmark; no prueban que Top-4 fijo sea el mejor tamaño del barrido. En la cascada se mantiene la sensibilidad que excluye KTH. El no rechazo no demuestra equivalencia ni no inferioridad \citep{demsar2006statistical,garcia2008extension}.
+Los contrastes principales recalculados sobre accuracy comparan Individual, Completa-22 y Top-4, separados por clasificador. Se usa una media por dataset, Friedman con enumeración exacta de las 46.656 permutaciones de rangos y tres comparaciones Wilcoxon bilaterales exactas con Holm por clasificador. Con seis datasets la potencia es limitada. Las pruebas históricas de macro-F1 permanecen como evidencia secundaria en anexos y no se atribuyen a accuracy. En la cascada histórica se conserva la sensibilidad que excluye KTH. El no rechazo no demuestra equivalencia ni no inferioridad \citep{demsar2006statistical,garcia2008extension}.
 
 \section{Reglas de cierre y reproducibilidad}
 Toda condición nueva requiere congelar receta, versiones, pesos, semillas, partición y presupuesto antes de medir. Se conserva un benchmark GPU, CPU a dos hilos y lock global, sin ajuste o extracción concurrente con el cronometraje. No se repiten paneles cerrados para sustituir resultados desfavorables. Los fallos científicos mantienen evidencia y revisión, sin omisión de casos ni cambios silenciosos de método.
 
-La actualización de este manuscrito añade auditorías y tablas reconstruidas; no ejecuta un nuevo barrido ni afirma una nueva campaña física. Los estudios de ensamble, poda y réplicas OOF permanecen en los anexos con su propio alcance.
+La reconstrucción de tablas de accuracy no ejecuta un nuevo barrido ni añade predicciones o latencias a sus archivos históricos. La ampliación E1/E2 y el perfil temporal KTH del 15-11 se documentan por separado, con sus estados y fallos de fidelidad. Los estudios de ensamble, poda y réplicas OOF permanecen en los anexos con su propio alcance y sus métricas históricas explícitas.
