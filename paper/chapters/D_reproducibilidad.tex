@@ -9,6 +9,10 @@ El barrido se reconstruye desde seis CSV por clasificador. La auditoría de casc
 
 Las figuras de ganancias y por dataset (252 puntos) se reconstruyen con \path{scripts/build_topk_progression_20261113.py}. Los cinco rescates con los bloques Top-4 del barrido se verifican con \path{scripts/audit_top4_margin_subset_20261113.py}. Ambos leen resultados existentes y conservan fuentes y hashes.
 
+El cierre E1/E2 de seis datasets se audita con \path{scripts/audit_top4_kth_completion.py}. El índice de las 27 condiciones está en \path{results/exploratory/topk_cascade/top4_fixed_kth_completion_20261115_v1/}; enlaza 25 carpetas conservadas y dos nuevas, sin duplicar ajustes. La auditoría \path{results/analysis/top4_fixed_kth_completion_audit_20261115_v1/} conserva predicciones, agregados, 486 filas E2 y diferencias nulas de accuracy y macro-F1 frente al Top-4 directo archivado.
+
+Las tablas de este cierre se generan con \path{scripts/build_thesis_six_dataset_closure.py}, en \path{paper/generated_top4_fixed_closure_20261115/}. El perfil corregido KTH identifica las sesiones EVA-02 y SigLIP, sus llamadas, las huellas de entrada y los errores de infraestructura previos a la ejecución pendiente. Las fuentes originales y sus estados fallidos permanecen conservados. Reproducir métricas desde los scores guardados no requiere repetir la validación neuronal ni entrenar las condiciones completas.
+
 \section{Reconstrucción sin ejecutar modelos}\label{sec:trazabilidad}
 El siguiente comando utiliza salidas nuevas y rechaza sobreescribir el directorio de auditoría:
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize,breaklines=true]

@@ -8,13 +8,13 @@ La implementación, resultados y tesis del 15-11 están publicados en
 `7ea1000`. Los apartados fechados del 13 y 14 se conservan como registro del
 recorrido; las tareas en futuro de esos cortes no reemplazan este estado.
 El cierre posterior autorizado de KTH completa E1/E2 en seis datasets.
-Los cortes de 25/27 se conservan como antecedentes; el PDF de 87 páginas
-todavía contiene ese corte y está pendiente de integrar el cierre nuevo.
+Los cortes de 25/27 y el PDF anterior se conservan como antecedentes.
+La integración posterior del cierre ya está compilada y revisada: 90 páginas.
 
 | Bloque | Estado vigente |
 |---|---|
-| Tesis principal | 87 páginas; accuracy principal. Pendiente integrar el cierre experimental nuevo de seis datasets. |
-| Verificación | 98 pruebas aprobadas en el corte actual; el PDF conserva su compilación y revisión visual completa del corte de 52 pruebas. |
+| Tesis principal | 90 páginas; accuracy principal y cierre de seis datasets integrado. |
+| Verificación | 102 pruebas aprobadas; PDF compilado y revisión visual de las 90 páginas. |
 | Paneles y barrido históricos | Conservados; no se repiten para sustituir resultados. |
 | E1: Top-4 fijo directo/por margen | 27/27 condiciones auditadas en seis datasets; 25 conservadas y solo dos KTH nuevas. |
 | E2: margen/máximo/entropía | 486 filas auditadas y contrastes de seis datasets completos. |
@@ -323,3 +323,7 @@ Se auditaron 27/27 E1 y 486 filas E2 en seis datasets, sin medias parciales.
 Pasaron 98 pruebas. El PDF conserva su versión anterior de 87 páginas y
 requiere integrar este cierre, sin borrar la cronología o las reservas de
 procedencia y latencia. [Detalle y fuentes](CIERRE_FIDELIDAD_KTH_E1_E2_2026-11-15.md).
+
+## Integración editorial posterior del 15-11
+
+Hecho: cierre de seis datasets incorporado en resúmenes, capítulos, tablas y trazabilidad; PDF de 90 páginas revisado visualmente y 102 pruebas aprobadas. [Informe](INTEGRACION_TESIS_SEIS_DATASETS_2026-11-15.md). El siguiente paso técnico es resolver la fidelidad pendiente y completar la implementación del [protocolo de latencia online](PROTOCOLO_LATENCIA_TOP4_DIRECTO_MARGEN_2026-11-15.md), todavía no ejecutado. E5 Top-4 más N-gramas sigue pendiente como control específico.

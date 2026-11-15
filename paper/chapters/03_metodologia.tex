@@ -137,7 +137,7 @@ Un bloque base se reutiliza únicamente si su representación coincide con la qu
 \end{aligned}
 \label{eq:tk-cost}
 \end{equation}
-La primera magnitud se utiliza para seleccionar la política dentro del entrenamiento. La segunda describe su adquisición proyectada en evaluación y es la que reportan las tablas de resultados. Ambas emplean el mismo perfil histórico por extractor; ninguna es un cronometraje nuevo. El umbral y la ruta quedan fijados antes de obtener \(\widehat r_V\).
+La primera magnitud se utiliza para seleccionar la política dentro del entrenamiento. La segunda describe su adquisición proyectada en evaluación y es la que reportan las tablas de resultados. Ambas emplean las mismas constantes por extractor dentro de la condición; ninguna es un cronometraje de la política completa. La cascada histórica utiliza sus perfiles archivados. El cierre E1 incorpora componentes KTH validados en sesiones identificadas, preservando las constantes ya aceptadas. El umbral y la ruta quedan fijados antes de obtener \(\widehat r_V\).
 
 Las proyecciones de la Ecuación~\ref{eq:tk-cost} no incluyen automáticamente todos los clasificadores, transferencias o sobrecostos de la compuerta. La latencia física cronometra la ruta ejecutada y debe declarar si incluye decodificación, carga de pesos y calentamiento. En un sistema residente, la ruta condicional suma base, compuerta y, cuando corresponde, extracción incremental y clasificador Top-\(k\). La comparación directa ejecuta únicamente su concatenación y su clasificador.
 

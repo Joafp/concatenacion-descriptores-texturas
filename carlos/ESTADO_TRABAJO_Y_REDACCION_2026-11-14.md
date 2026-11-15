@@ -1,5 +1,7 @@
 # Qué escribimos y en qué estamos trabajando
 
+**Integración editorial posterior del 15-11:** el PDF vigente ya tiene 90 páginas e incorpora el cierre de seis datasets. Pasaron 102 pruebas. Los cortes anteriores se conservan abajo como cronología. [Detalle](../docs/fsc_tex/INTEGRACION_TESIS_SEIS_DATASETS_2026-11-15.md).
+
 **Actualizado:** 15 de noviembre de 2026, America/Asuncion.
 
 **Cierre posterior vigente:** E1/E2 completo en 27/27 condiciones y seis

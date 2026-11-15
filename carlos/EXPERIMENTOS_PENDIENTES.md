@@ -1,5 +1,7 @@
 # Experimentos pendientes para el paper Top-k directo vs activación por margen
 
+**Integración editorial posterior del 15-11:** el PDF vigente ya tiene 90 páginas e incorpora el cierre de seis datasets. Pasaron 102 pruebas. Los cortes anteriores se conservan abajo como cronología. [Detalle](../docs/fsc_tex/INTEGRACION_TESIS_SEIS_DATASETS_2026-11-15.md).
+
 Fecha: 2026-11-14 · De: Carlos · Para: Joaquín
 
 Joaco, con tus respuestas a [CONSULTAS_JOAQUIN.md](CONSULTAS_JOAQUIN.md) el paper (`carlos/main.tex`) ya

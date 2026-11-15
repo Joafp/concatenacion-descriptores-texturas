@@ -92,34 +92,38 @@ La ruta condicional puede superar a Top-\(k\) porque conserva la predicción bas
 \section{Ampliación E1: Top-4 fijo directo y por margen}\label{sec:e1-fixed4}
 El 15-11-2026 se ejecutó la comparación específica que faltaba: exactamente cuatro bloques por condición en ambas rutas, con SVM, semilla 42 y las 27 condiciones previstas. Se guardaron índices, orden de clases, puntajes completos OOF y test de todas las bases, predicciones, selección previa al test, modelos, controles aleatorios y hashes. La selección de ruta conserva macro-F1 OOF y tolerancia 0,005 del método histórico; accuracy es la métrica principal de reporte. Los tests ya observados durante el desarrollo mantienen el carácter exploratorio de esta ampliación.
 
-Completaron 25 condiciones. Las 23 de DTD, FMD, CUReT, Outex y Soil tienen cobertura íntegra; dos condiciones KTH completaron y dos quedaron en revisión. La Tabla~\ref{tab:e1-fixed4-accuracy} presenta solo datasets completos. La media equiponderada de sus cinco datasets es 0,941840 para Top-4 directo y 0,941830 para la política seleccionada: diferencia aproximada de -0,0010 puntos porcentuales. Wilcoxon exacto bilateral sobre esas cinco medias da \(p=0,8125\); el no rechazo no demuestra equivalencia.
+El cierre completó las 27 condiciones: DTD 10, FMD 5, CUReT 2, Outex 1, Soil 5 y KTH 4. Se conservaron 25 resultados y se ajustaron solo las dos condiciones KTH que se habían detenido antes de entrenar. La Tabla~\ref{tab:e1-fixed4-accuracy} presenta los seis datasets completos. Su accuracy media equiponderada es 0,944449 para Top-4 directo y 0,944581 para la política seleccionada: diferencia de +0,0132 puntos porcentuales. Wilcoxon exacto bilateral sobre esas seis medias da \(p=0,5625\); no acredita superioridad ni equivalencia. Los 27 Top-4 directos reproducen exactamente accuracy y macro-F1 de sus filas archivadas.
 
-\input{generated_top4_fixed_e1_e2_20261115/e1_accuracy.tex}
-\input{generated_top4_fixed_e1_e2_20261115/e1_secundarias.tex}
+\input{generated_top4_fixed_closure_20261115/e1_accuracy.tex}
+\input{generated_top4_fixed_closure_20261115/e1_secundarias.tex}
 
-La cascada mejora accuracy en DTD, FMD y Soil, y pierde en CUReT y Outex. El sorteo utiliza la misma cantidad de imágenes derivadas y 100 repeticiones por condición; su media equiponderada es 0,923854. Este control nuevo corresponde a la base seleccionada de E1, a diferencia del control histórico con ResNet-50 fijo. La Tabla~\ref{tab:e1-bases-test} también informa por primera vez, para esta ampliación, cada base sola en test; sus valores no se confunden con las métricas OOF empleadas para seleccionar.
+La cascada mejora accuracy media en DTD, FMD, Soil y KTH, y pierde en CUReT y Outex. El sorteo utiliza la misma cantidad de imágenes derivadas y 100 repeticiones por condición; su media equiponderada es 0,928025. Este control nuevo corresponde a la base seleccionada de E1, a diferencia del control histórico con ResNet-50 fijo. La Tabla~\ref{tab:e1-bases-test} informa cada base sola en test; sus valores no se confunden con las métricas OOF empleadas para seleccionar. KTH evalúa como candidatas solo ResNet-50 y BEiTv2, por lo que las otras dos columnas no tienen resultados para ese dataset.
 
-\input{generated_top4_fixed_e1_e2_20261115/e1_bases.tex}
-\input{generated_top4_fixed_e1_e2_20261115/e1_costos.tex}
+\input{generated_top4_fixed_closure_20261115/e1_bases.tex}
+\input{generated_top4_fixed_closure_20261115/e1_costos.tex}
 
-La media equiponderada de costos por componentes pasa de 507,63 a 127,58 ms, reducción proyectada del 74,87 \%. Son proyecciones bajo perfiles identificados, no tiempos de ejecución online de las políticas nuevas. Ninguna ventaja física nueva se deduce de ese porcentaje.
+La media equiponderada de costos por componentes pasa de 468,31 a 117,07 ms, reducción proyectada del 75,00 \% calculada como cociente de esas medias de seis datasets. Son proyecciones bajo perfiles identificados, no tiempos de ejecución online de las políticas nuevas. Ninguna ventaja física nueva se deduce de ese porcentaje. El corte anterior de cinco datasets conserva su archivo; la incorporación de KTH cambia el conjunto agregado y no representa una mejora medida sobre la misma media anterior.
 
-El perfil KTH se congeló con pesos locales, dos hilos CPU, batch1, cinco calentamientos y 33 imágenes de entrenamiento, tres por clase. Se midieron ocho extractores de forma secuencial con lock global; EVA-02 registró coseno mínimo 0,931978 y SigLIP 0,981889 frente a sus embeddings, inferiores al mínimo fijado de 0,999. Ambos fallos quedaron en revisión sin repetición. Los otros seis bloques superaron el umbral; eso permitió las dos condiciones KTH que no requieren los costos de los bloques fallidos. La Tabla~\ref{tab:e1-kth-state} conserva las cuatro condiciones; no se informa una media KTH parcial ni una media global de seis datasets.
+El perfil KTH inicial se congeló con pesos locales, dos hilos CPU, batch1, cinco calentamientos y 33 imágenes de entrenamiento, tres por clase. EVA-02 registró coseno mínimo 0,931978 y SigLIP 0,981889, inferiores al mínimo fijado de 0,999; los otros seis bloques lo superaron. Los estados fallidos originales se conservaron.
 
-\input{generated_top4_fixed_e1_e2_20261115/kth_status.tex}
+La revisión de código y entradas identificó diferencias de preprocesamiento: EVA-02 requería resize bicúbico del lado corto a 248 y recorte central 224, mientras SigLIP histórico usaba resize bilineal explícito a 224. Tras autorización del autor, las recetas corregidas se validaron con los mismos pesos e imágenes y el mismo mínimo. Ambas superaron 0,999 en las 33 imágenes, con mínimos mayores que 0,99999999999. Fueron 66 llamadas evaluadas y diez calentamientos. Un error de serialización del informe de carga se corrigió antes del primer forward SigLIP, sin repetir EVA ni llamadas científicas fallidas. Se preservaron las seis constantes aceptadas y se añadieron las dos nuevas; sus sesiones temporales distintas permanecen identificadas.
+
+La Tabla~\ref{tab:e1-kth-state} muestra ahora las cuatro condiciones completas. La validación acredita concordancia en las muestras comprobadas; no recupera la metadata productora original de todos los embeddings ni elimina las reservas de otras variantes KTH.
+
+\input{generated_top4_fixed_closure_20261115/kth_status.tex}
 
 \section{Ampliación E2: otras medidas de confianza}\label{sec:e2-confidence}
 Se reutilizaron los puntajes de E1 sin nuevos ajustes. Se comparan margen, puntuación máxima y entropía del softmax de las puntuaciones SVM, con temperatura fija uno. Esta última es una heurística de ordenamiento, no una probabilidad calibrada. La base es la elegida con entrenamiento para E1; si se elige uso directo, se conserva ResNet-50 como referencia predefinida. La selección de base realizada originalmente para margen puede favorecer esa regla y limita la interpretación.
 
-Cada umbral se calcula en OOF para q=0,25, 0,50 y 0,75. Las fracciones reales de test se informan porque igual cuantil OOF no implica igual cantidad de imágenes derivadas después del reajuste. En q=0,25, por ejemplo, accuracy media es 0,941830 con margen, 0,939736 con máximo y 0,932543 con entropía, con activaciones reales diferentes. No se elige retrospectivamente el cuantil con mayor accuracy externa.
+Cada umbral se calcula en OOF para q=0,25, 0,50 y 0,75. Las fracciones reales de test se informan porque igual cuantil OOF no implica igual cantidad de imágenes derivadas después del reajuste. En q=0,25, por ejemplo, accuracy media es 0,944581 con margen, 0,942485 con máximo y 0,935649 con entropía, con activaciones reales diferentes. No se elige retrospectivamente el cuantil con mayor accuracy externa.
 
-\input{generated_top4_fixed_e1_e2_20261115/e2_accuracy_legible.tex}
+\input{generated_top4_fixed_closure_20261115/e2_accuracy_legible.tex}
 
 Se añade un diagnóstico por lote que fuerza la misma cantidad de imágenes que activó el margen en cada condición, ordenando con los puntajes de test y sin consultar sus etiquetas. Aísla diferencias de ordenamiento a igual cantidad, pero requiere observar el lote y no constituye una compuerta individual online. Los resultados se separan del régimen de umbral OOF.
 
-\input{generated_top4_fixed_e1_e2_20261115/e2_matched_count.tex}
+\input{generated_top4_fixed_closure_20261115/e2_matched_count.tex}
 
-Los contrastes usan cinco medias por dataset completo y nueve pares por familia: tres pares de compuertas por tres cuantiles, con Holm separado por métrica y régimen. En accuracy ningún par resulta significativo tras ese ajuste. Las ganancias descriptivas del margen en algunos puntos no acreditan superioridad universal. Precisión macro, recall macro y macro-F1 de todos los controles quedan en los CSV de análisis.
+Los contrastes usan seis medias por dataset completo y nueve pares por familia: tres pares de compuertas por tres cuantiles, con Holm separado por métrica y régimen. En accuracy ningún par resulta significativo tras ese ajuste; el menor p ajustado es 0,5625. Las ganancias descriptivas del margen en algunos puntos no acreditan superioridad universal. Precisión macro, recall macro y macro-F1 de todos los controles quedan en los CSV de análisis.
 
 \section{Adquisición proyectada y pilotos físicos históricos}\label{sec:resultados-gpu}
 \input{generated_topk_margin/cascada_costos.tex}
