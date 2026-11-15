@@ -1,6 +1,53 @@
 # Plan vigente: Top-k directo y optimización por margen
 
-Fecha: 13-11-2026, America/Asuncion.
+Creado: 13-11-2026. Última revisión: 15-11-2026, America/Asuncion.
+
+## Resumen vigente y orden de continuación
+
+La implementación, resultados y tesis del 15-11 están publicados en
+`7ea1000`. Los apartados fechados del 13 y 14 se conservan como registro del
+recorrido; las tareas en futuro de esos cortes no reemplazan este estado.
+
+| Bloque | Estado vigente |
+|---|---|
+| Tesis principal | 87 páginas; accuracy principal, con macro-F1, precisión y recall macro complementarios. |
+| Verificación | 52 pruebas aprobadas, compilación y revisión visual completa. |
+| Paneles y barrido históricos | Conservados; no se repiten para sustituir resultados. |
+| E1: Top-4 fijo directo/por margen | 25/27 condiciones completas; cinco datasets íntegros y KTH 2/4. |
+| E2: margen/máximo/entropía | Calculado para los 25 casos; consolidados y contrastes de cinco datasets completos. |
+| Bloqueo de KTH | Particiones 1 y 3 en revisión por fidelidad de SigLIP y EVA-02. No se repetieron. |
+| Latencia nueva de políticas E1 | Pendiente. El 74,87 % es reducción de adquisición proyectada, no latencia online medida. |
+
+**Orden propuesto para continuar:**
+
+1. **Revisar la fidelidad pendiente de KTH.** Contrastar pesos, versiones,
+   preprocesamiento y representación con las fuentes congeladas, comenzando
+   por una revisión de registros y código. Mantener los fallos científicos y
+   sus muestras; no repetirlos automáticamente ni bajar el mínimo de 0,999.
+   E1/E2 no se declaran completos en seis datasets mientras falten esos casos.
+2. **Revisar el texto con autores y tutor.** Confirmar la interpretación de
+   accuracy principal, el carácter exploratorio y la diferencia entre costo
+   proyectado y latencia. El ranking y la selección históricos por macro-F1
+   permanecen como componentes realmente ejecutados del método.
+3. **Preparar la medición online del mismo Top-4 directo/por margen** una vez
+   resuelta la fidelidad necesaria. Congelar protocolo, clasificadores,
+   imágenes, pesos y presupuesto; calidad y tiempos de las mismas llamadas.
+4. **Ampliar con E5 y E4 cuando se acuerde su ejecución.** E5 estudia
+   Top-4 más N-gramas; E4 traslada la cascada a ResMLP. Ninguna de esas
+   pruebas se considera realizada por existir otros controles de N-gramas
+   o un panel de ensamble con ResMLP.
+
+E3 sigue siendo una alternativa condicional para la cascada histórica KTH;
+no se da por resuelto mientras su procedencia siga pendiente. E6 conserva
+el diagnóstico ViT online/guardado de Soil/CUReT. E7 y E8 (memoria por
+política y variación entre equipos) siguen siendo opcionales.
+
+El próximo trabajo técnico es la revisión de fidelidad, no repetir E1/E2
+ni sus condiciones terminadas. Esta revisión del plan no lanzó corridas.
+
+[Informe consolidado](AVANCE_ACCURACY_E1_E2_2026-11-15.md) ·
+[Lista de experimentos y estados](../../carlos/EXPERIMENTOS_PENDIENTES.md) ·
+[Auditoría E1/E2](../../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/summary.json).
 
 ## Título y recorrido confirmado
 
