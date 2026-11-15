@@ -327,3 +327,9 @@ procedencia y latencia. [Detalle y fuentes](CIERRE_FIDELIDAD_KTH_E1_E2_2026-11-1
 ## Integración editorial posterior del 15-11
 
 Hecho: cierre de seis datasets incorporado en resúmenes, capítulos, tablas y trazabilidad; PDF de 90 páginas revisado visualmente y 102 pruebas aprobadas. [Informe](INTEGRACION_TESIS_SEIS_DATASETS_2026-11-15.md). El siguiente paso técnico es resolver la fidelidad pendiente y completar la implementación del [protocolo de latencia online](PROTOCOLO_LATENCIA_TOP4_DIRECTO_MARGEN_2026-11-15.md), todavía no ejecutado. E5 Top-4 más N-gramas sigue pendiente como control específico.
+
+## Revisión ARS de la versión integrada, 15-11
+
+Hecho: revisión de cinco perspectivas con compromisos antes de leer, informes separados y síntesis validada. No se modificaron tesis ni experimentos. No se identificaron defectos Critical/Major; todas las observaciones son Minor. La regla F3 del contrato emite Major Revision por avisos en varias dimensiones obligatorias, sin elevar sus severidades ni constituir una decisión universitaria. [Informe y reparaciones mínimas](REVISION_ARS_TESIS_2026-11-15.md).
+
+La carga mínima es redacción y análisis de resultados guardados: variación de diferencias y sensibilidad de la familia principal de accuracy sin KTH histórico, más delimitación de procedencia. No se exige repetir modelos para sostener el alcance exploratorio actual. El roadmap conserva las propuestas; todavía no hay adjudicación del autor ni cambios aplicados. Los benchmarks online y E5 conservan su estado pendiente.

@@ -1,0 +1,2130 @@
+<paper_content>
+
+FILE: paper/tesis.tex
+1: \documentclass[12pt,a4paper]{report}
+2: \usepackage[utf8]{inputenc}
+3: \usepackage[T1]{fontenc}
+4: \usepackage[english]{babel}
+5: \usepackage{lmodern}
+6: \usepackage[numbers,sort&compress]{natbib}
+7: \usepackage{placeins,float}
+8: \newenvironment{resulttable}{\begin{table}[!htbp]}{\end{table}}
+9: \renewcommand{\chaptername}{Capítulo}
+10: \renewcommand{\tablename}{Tabla}
+11: \renewcommand{\figurename}{Figura}
+12: \renewcommand{\contentsname}{Contenido}
+13: \renewcommand{\bibname}{Referencias}
+14: \renewcommand{\appendixname}{Anexo}
+15: \addto\captionsenglish{\renewcommand{\chaptername}{Capítulo}\renewcommand{\tablename}{Tabla}\renewcommand{\figurename}{Figura}\renewcommand{\contentsname}{Contenido}\renewcommand{\bibname}{Referencias}\renewcommand{\appendixname}{Anexo}\renewcommand{\listfigurename}{Lista de figuras}\renewcommand{\listtablename}{Lista de tablas}}
+16: \usepackage{amsmath,amssymb}
+17: \usepackage{graphicx}
+18: \usepackage{booktabs}
+19: \usepackage{array}
+20: \usepackage{longtable}
+21: \usepackage[margin=1in]{geometry}
+22: \usepackage[hidelinks]{hyperref}
+23: \usepackage{xcolor}
+24: \usepackage{listings}
+25: \usepackage{url}
+26: \usepackage{tikz}
+27: \usetikzlibrary{arrows.meta,positioning}
+28: \setlength{\parskip}{0.5em}
+29: \setlength{\parindent}{0pt}
+30: \setlength{\tabcolsep}{5pt}
+31: \setlength{\emergencystretch}{1em}
+32: 
+33: \newcommand{\titulotesis}{Concatenación Top-k de descriptores para clasificar texturas: comparación del uso directo y la activación por margen}
+34: \title{\textbf{\titulotesis}}
+35: \author{Carlos Ayala \and Joaquín Delgado}
+36: \date{Noviembre 2026}
+37: \hypersetup{
+38: pdftitle={Concatenación Top-k de descriptores para clasificar texturas: comparación del uso directo y la activación por margen},
+39: pdfauthor={Carlos Ayala y Joaquín Delgado},
+40: pdfsubject={Concatenación de descriptores, Top-k y clasificación por margen}
+41: }
+42: 
+43: \begin{document}
+44: \hypersetup{pageanchor=false}
+45: \begin{titlepage}
+46: \begin{center}
+47: \vspace*{1.4cm}
+48: {\Large\textbf{Universidad Nacional de Asunción}\par}
+49: \vspace{0.4cm}
+50: {\large Facultad Politécnica\par}
+51: \vspace{1.7cm}
+52: {\LARGE\bfseries\titulotesis\par}
+53: \vspace{1.5cm}
+54: {\large Carlos Ayala\\Joaquín Delgado\par}
+55: \vspace{1.1cm}
+56: {\large Tutor: José Vázquez\par}
+57: \vfill
+58: {\large Noviembre de 2026\par}
+59: \end{center}
+60: \end{titlepage}
+61: \clearpage
+62: \pagenumbering{roman}
+63: \hypersetup{pageanchor=true}
+64: 
+65: \chapter*{Agradecimientos}
+66: A nuestro tutor, José Vázquez, por acompañar la formulación del problema y la revisión del trabajo. A la Facultad Politécnica de la Universidad Nacional de Asunción, y a nuestras familias por su apoyo.
+67: 
+68: \chapter*{Resumen}
+69: \addcontentsline{toc}{chapter}{Resumen}
+70: La concatenación de descriptores permite combinar información para clasificar texturas, pero aumenta la representación y el trabajo de extracción. Esta tesis evalúa dos decisiones: qué bloques concatenar mediante un ranking Top-\(k\), y cuándo ejecutar esa concatenación mediante el margen de un clasificador base. Se estudian seis datasets, SVM lineal y una MLP residual sobre características, distinguiendo bibliotecas de 21 bloques sin N-gramas y la biblioteca consolidada de 22.
+71: 
+72: Accuracy (exactitud) es la métrica principal de esta versión; macro-F1, precisión macro y recall macro son complementarias. El barrido exploratorio de uno a 21 bloques contiene 47 condiciones por tamaño y clasificador. Con SVM, Top-4 registra accuracy media equiponderada por dataset de 0,944214, frente al máximo descriptivo de 0,945090 en \(k=10\), utilizando aproximadamente 15,42 \% de las dimensiones del barrido. Con ResMLP, el máximo aparece en \(k=5\). El resultado identifica una alternativa compacta, no un tamaño óptimo universal. Los controles con N-gramas y otras selecciones muestran que relevancia individual y complementariedad no son equivalentes.
+73: 
+74: La comparación histórica directa/por margen reconstruye 27 condiciones SVM. La ampliación E1 con Top-4 fijo completa las 27 condiciones en seis datasets, tras validar una corrección de preprocesamiento en KTH y conservar los resultados anteriores. Accuracy media es 0,944449 directa y 0,944581 condicional, con adquisición por componentes proyectada 75,00 \% menor. La diferencia de accuracy no es significativa en el contraste pareado exacto (\(p=0,5625\)) ni demuestra equivalencia. E2 reutiliza los puntajes para comparar margen, máximo y entropía; conserva ventajas descriptivas del margen en algunos puntos, sin diferencias significativas tras Holm. Estos costos no son nuevas latencias online. Las comparaciones externas utilizan adaptaciones identificadas y mantienen DeepLumina bajo revisión por no convergencia y cobertura incompleta.
+75: 
+76: La evidencia es exploratoria y conserva exposición previa a benchmarks, dependencia entre particiones y diferencias entre archivos. El cambio de métrica principal se fijó el 15-11-2026, después de observar los resultados históricos; sus rankings y selección de rutas basados en macro-F1 permanecen identificados. Se concluye que una concatenación pequeña puede ofrecer un compromiso útil y que su activación por margen debe evaluarse frente al mismo uso directo, contabilizando la base y separando dimensión, adquisición proyectada y latencia física.
+77: 
+78: \textbf{Palabras clave:} clasificación de texturas, concatenación de descriptores, Top-k, margen, N-gramas, adquisición condicional.
+79: 
+80: \chapter*{Abstract}
+81: \addcontentsline{toc}{chapter}{Abstract}
+82: Descriptor concatenation combines information for texture classification but increases representation size and extraction work. This thesis examines which blocks to concatenate using a Top-\(k\) ranking and when to execute that concatenation using the margin of a base classifier. Six datasets, a linear SVM and a residual feature MLP are studied, distinguishing a 21-block library without N-grams from the consolidated 22-block library.
+83: 
+84: Accuracy is the primary reporting metric in this version; macro-F1, macro precision and macro recall are complementary. An exploratory sweep from one to 21 blocks includes 47 conditions per size and classifier. For SVM, Top-4 achieves dataset-balanced mean accuracy 0.944214, compared with the descriptive maximum 0.945090 at \(k=10\), using approximately 15.42 \% of the sweep's feature dimensions. The ResMLP maximum occurs at \(k=5\). This identifies a compact alternative rather than a universally optimal size. Controls with N-grams and other selection methods show that individual relevance and complementarity are different properties.
+85: 
+86: The historical direct-versus-margin comparison reconstructs 27 SVM conditions. The fixed-four E1 extension completes all 27 conditions across six datasets after validating a KTH preprocessing correction while preserving previous results. Mean accuracy is 0.944449 for direct use and 0.944581 for the conditional policy, with projected component acquisition 75.00 \% lower. The accuracy difference is not significant in the exact paired test (\(p=0.5625\)) and does not establish equivalence. E2 reuses the scores to compare margin, maximum score and entropy, with descriptive margin advantages at some operating points but no significant differences after Holm adjustment. These costs are not newly measured online latencies. External comparisons use identified adaptations, retaining DeepLumina's nonconvergence and incomplete coverage.
+87: 
+88: The evidence remains exploratory, with prior benchmark exposure, dependent partitions and differences between archives. The primary-metric change was adopted on November 15, 2026, after the historical results had been observed; macro-F1-based historical rankings and route selection remain documented. A small concatenation can provide a useful trade-off, while margin-based activation must be compared with the same direct predictor, accounting for the base and separating feature dimensions, projected acquisition and physical latency.
+89: 
+90: \textbf{Keywords:} texture classification, descriptor concatenation, Top-k, margin, N-grams, conditional acquisition.
+91: 
+92: \chapter*{Siglas y notación}
+93: \addcontentsline{toc}{chapter}{Siglas y notación}
+94: \begin{tabular}{@{}lp{10.6cm}@{}}
+95: Top-\(k\) & Concatenación de los primeros \(k\) bloques de un ranking interno\\
+96: Top-4 & Caso de tamaño fijo \(k=4\), no cuatro identidades universales\\
+97: OOF & Predicciones fuera de pliegue del entrenamiento\\
+98: GFS & Selección secuencial hacia delante de bloques\\
+99: SVD & Descomposición en valores singulares truncada\\
+100: SVM & Máquina de vectores de soporte\\
+101: ResMLP & MLP residual sobre características\\
+102: \(S_k,h_k\) & Bloques seleccionados y clasificador de su concatenación\\
+103: \(h_b,m_b,\tau\) & Clasificador base, margen y umbral\\
+104: \(\widehat r_{\mathrm{OOF}},\widehat r_V\) & Fracciones derivadas interna y externa, respectivamente\\
+105: \(c_j,C_{\mathrm{inc}}\) & Costo por bloque y adquisición incremental\\
+106: P1, P2 & Preguntas de selección Top-k y uso directo/por margen\\
+107: CKA & Similitud entre representaciones, usada en estudios complementarios\\
+108: \end{tabular}
+109: \tableofcontents
+110: \listoffigures
+111: {\emergencystretch=1em\listoftables}
+112: \clearpage
+113: \pagenumbering{arabic}
+114: \input{chapters/01_introduccion}
+115: \input{chapters/02_literatura}
+116: \input{chapters/03_metodologia}
+117: \input{chapters/04_diseno_experimental}
+118: \input{chapters/05_resultados}
+119: \input{chapters/06_discusion}
+120: \input{chapters/07_conclusion}
+121: 
+122: \appendix
+123: \input{chapters/A_especificaciones}
+124: \input{chapters/B_procedencia}
+125: \input{chapters/C_resultados_adicionales}
+126: \input{chapters/D_reproducibilidad}
+127: \input{chapters/E_declaraciones}
+128: \input{chapters/F_estudios_complementarios}
+129: \clearpage
+130: \bibliographystyle{unsrtnat}
+131: \setlength{\bibsep}{3pt plus 1pt}
+132: \bibliography{articulo/borrador_profesor/references}
+133: \end{document}
+
+FILE: paper/chapters/01_introduccion.tex
+1: \chapter{Introducción}\label{sec:introduccion}
+2: 
+3: \section{Problema de investigación}
+4: Una imagen de textura puede describirse por la distribución de intensidades, la organización de patrones locales, las relaciones espaciales o las características aprendidas por una red. Estas representaciones responden de manera diferente a cambios de iluminación, escala y punto de vista. En consecuencia, un descriptor con buen rendimiento individual no necesariamente contiene toda la información útil para clasificar una superficie \citep{liu2019survey,cimpoi2016fisher}.
+5: 
+6: La concatenación permite reunir varios vectores en una única representación y entrenar un clasificador sobre ella. Sin embargo, incorporar más descriptores aumenta la dimensión y exige ejecutar más extractores. Además, la información añadida puede ser redundante o modificar desfavorablemente el ajuste del clasificador. Por ello, la decisión no consiste únicamente en combinar representaciones, sino en determinar cuáles y cuántas conviene utilizar.
+7: 
+8: Esta tesis estudia una regla sencilla: ordenar los descriptores según su desempeño individual dentro del entrenamiento y concatenar los primeros \(k\). A esta estrategia se la denomina Top-\(k\). El estudio compara sus prefijos con la concatenación completa y con otros criterios de selección. Top-4 es un caso de tamaño fijo de especial interés por el compromiso observado entre calidad y dimensión; no se presupone que sea el mejor tamaño para todo conjunto de datos.
+9: 
+10: Una segunda decisión surge durante la clasificación. Aunque se haya seleccionado una concatenación útil, no todas las imágenes necesariamente requieren adquirir sus bloques. Una primera etapa puede resolver una parte de las consultas y utilizar el margen de sus puntuaciones para decidir si ejecutar el Top-\(k\). La comparación relevante mantiene fijo ese Top-\(k\): utilizarlo directamente o activarlo según la decisión de una base. La adquisición condicional tiene antecedentes y se evalúa aquí como una aplicación concreta a una biblioteca heterogénea de texturas \citep{nan2017adaptive,han2021dynamic}.
+11: 
+12: \section{Recorrido: Top-k directo y versión optimizada}
+13: El argumento experimental tiene dos etapas. Primero se construye Top-\(k\), se estudia por qué seleccionar pocos descriptores puede resultar más conveniente que concatenarlos todos y se compara su desempeño con otros métodos. Después se toma esa concatenación como referencia y se optimiza su ejecución mediante la activación por margen: una base atiende cada imagen y el Top-\(k\) se calcula solo cuando la regla aprendida lo requiere. La versión optimizada constituye la segunda parte central del trabajo. Su evaluación debe mostrar cuánto costo evita y qué calidad conserva o pierde frente al uso directo del mismo Top-\(k\).
+14: 
+15: \section{Objetivo general}
+16: Evaluar la concatenación Top-\(k\) de descriptores para clasificar texturas y comparar su uso directo con su activación por margen, utilizando accuracy (exactitud) como métrica principal de calidad y distinguiendo dimensión de representación, costo de adquisición y latencia física. Macro-F1, precisión macro y recall macro complementan la evaluación cuando las predicciones disponibles permiten reconstruirlas.
+17: 
+18: \section{Objetivos específicos}
+19: \begin{enumerate}
+20: \item Caracterizar la biblioteca de descriptores y el procedimiento de ranking y concatenación, incluyendo el tratamiento de RGB Pixel N-grams y sus transformaciones aprendidas.
+21: \item Examinar el efecto de \(k\), explicar el origen experimental del caso Top-4 y contrastarlo con descriptores individuales, concatenaciones completas y selecciones alternativas.
+22: \item Comparar los resultados con implementaciones adaptadas de métodos de literatura, identificando diferencias de representación, protocolo y métrica.
+23: \item Evaluar el mismo Top-\(k\) como ruta directa y como rescate activado por margen, incluyendo el costo de la base y la reutilización de bloques.
+24: \item Delimitar qué conclusiones respaldan los registros guardados, los pilotos físicos y las comparaciones entre conjuntos, conservando las excepciones y reservas de procedencia.
+25: \end{enumerate}
+26: 
+27: \section{Preguntas y alcance}
+28: El trabajo se organiza alrededor de dos preguntas:
+29: \begin{description}
+30: \item[P1.] ¿Qué compromiso de desempeño y representación permite la concatenación Top-\(k\), y qué evidencia justifica estudiar Top-4 frente a otras concatenaciones y N-gramas?
+31: \item[P2.] ¿Cómo cambia ese compromiso al utilizar directamente el Top-\(k\) o activarlo mediante el margen de una primera etapa?
+32: \end{description}
+33: 
+34: Se utilizan DTD, FMD, CUReT, Outex-TC-00013, SoilOriginal y KTH-TIPS-2b. El estudio estático incluye SVM lineal y una MLP residual sobre características. La comparación histórica directa/por margen utiliza SVM y 27 condiciones; sus tamaños Top-\(k\) proceden de controles archivados y no son siempre cuatro. El barrido ampliado de tamaños contiene 47 condiciones por clasificador y tamaño. El número de condiciones no se interpreta como número de datasets independientes.
+35: 
+36: La biblioteca consolidada contiene 22 bloques, mientras que el barrido principal de \(k\) utiliza 21 sin N-gramas. Se identifican también las bibliotecas intermedias con N-gramas y sin BEiT-v2. Estas diferencias forman parte del diseño y no se ocultan bajo el nombre genérico de concatenación completa.
+37: 
+38: La ampliación E1/E2 del 15-11-2026 compara Top-4 fijo directo/por margen y otras compuertas de confianza. Su cierre reúne 27 condiciones y seis datasets completos: conserva 25 resultados y completa dos KTH después de una validación autorizada de fidelidad. Las predicciones sustentan la comparación de calidad; los perfiles por componentes permiten proyectar adquisición, sin atribuirles una medición online de las políticas completas.
+39: 
+40: El estudio es exploratorio: resultados externos observados influyeron en decisiones posteriores, incluida la atención prestada a \(k=4\). La separación interna de entrenamiento y prueba evita ciertas fugas dentro de cada ejecución, pero no convierte todo el proceso de investigación en una confirmación ciega. Tampoco se identifica una disminución dimensional con una reducción proporcional del tiempo.
+41: 
+42: El 15 de noviembre de 2026 los autores fijaron accuracy como métrica principal de presentación y contraste de esta tesis. Los resultados históricos ya se habían observado y sus rankings y políticas se eligieron con macro-F1. Se conserva esa cronología: cambiar la métrica de reporte no significa que se hayan elegido retrospectivamente los bloques o umbrales por accuracy.
+43: 
+44: \section{Aportes y organización}
+45: El aporte empírico es conectar dos decisiones de un clasificador de texturas: seleccionar una concatenación compacta y decidir para qué imágenes conviene ejecutarla. La primera se estudia mediante el barrido de tamaños y controles de composición; la segunda, manteniendo fijo el rescate y evaluando su activación por margen. El trabajo documenta las condiciones en que esta combinación mejora el compromiso entre calidad y adquisición, junto con sus pérdidas y límites. Su contribución reside en esa comparación trazable sobre la biblioteca y los datasets evaluados; el ranking Top-\(k\) y la adquisición condicional se sitúan respecto de sus antecedentes.
+46: 
+47: Los Capítulos~\ref{sec:trabajos} y~\ref{sec:metodo} presentan antecedentes y método; el Capítulo~\ref{sec:diseno}, el diseño. Los resultados siguen el mismo orden: construcción y comparación de Top-\(k\), N-gramas y literatura, y finalmente uso directo/por margen. La discusión y las conclusiones responden P1 y P2. Los ensambles y la poda desarrollados durante el proyecto se conservan como estudios complementarios en el Anexo~\ref{app:complementarios}, sin atribuirles la identidad del rescate Top-\(k\).
+
+FILE: paper/chapters/02_literatura.tex
+1: \chapter{Antecedentes y trabajos relacionados}\label{sec:trabajos}
+2: 
+3: \section{Representaciones para clasificar texturas}
+4: Los descriptores clásicos resumen regularidades locales mediante histogramas, filtros, gradientes o estadísticas de coocurrencia. LBP codifica comparaciones vecinales; Gabor caracteriza respuestas a frecuencia y orientación; GLCM resume relaciones entre niveles de intensidad, y HOG organiza orientaciones de gradiente \citep{ojala2002lbp,jain1991gabor,haralick1979glcm,dalal2005hog}. Cada familia destaca propiedades diferentes de la imagen. La invariancia buscada y el tamaño de su salida dependen de la implementación.
+5: 
+6: Las redes preentrenadas ofrecen otra fuente de características. CNN como ResNet y DenseNet, y modelos basados en atención como ViT, generan vectores que pueden utilizarse sin ajustar el backbone a la colección de texturas \citep{he2016resnet,huang2017densenet,dosovitskiy2021vit}. Un clasificador sobre esos vectores permite separar extracción y aprendizaje de la tarea. No obstante, una representación entrenada con otro dominio puede conservar información semántica o de forma que no coincide con la textura que se quiere distinguir.
+7: 
+8: RGB Pixel N-grams representa secuencias de píxeles de color mediante conteos \citep{paiva2023rgb}. Su interés en este trabajo es aportar información cromática y local a representaciones de otras familias. La implementación evaluada comprime sus conteos mediante SVD ajustada dentro del entrenamiento. Esa variante se denomina N-gramas+SVD y no se identifica automáticamente con todas las configuraciones ni los porcentajes del artículo original.
+9: 
+10: \section{Concatenación y selección de bloques}
+11: La concatenación es una fusión a nivel de características: reúne los vectores antes de entrenar el clasificador. Un ensamble, en cambio, combina decisiones o puntuaciones de varios clasificadores. Aunque un miembro de un ensamble pueda recibir una concatenación, ambas operaciones resuelven decisiones distintas.
+12: 
+13: Seleccionar los primeros \(k\) descriptores de un ranking individual ofrece una referencia de baja complejidad conceptual. El ranking estima relevancia individual; no mide necesariamente la complementariedad condicionada a los bloques que ya están presentes. Un descriptor que no ocupa una posición alta puede añadir información útil a otro subconjunto.
+14: 
+15: Los métodos \emph{wrapper} evalúan subconjuntos mediante el clasificador que los utilizará \citep{kohavi1997wrappers,guyon2003feature}. GFS construye el conjunto de manera secuencial, añadiendo bloques según un criterio interno. Frente al ranking Top-\(k\), esto examina más directamente la composición, pero exige más ajustes. La comparación debe informar por separado el número de bloques, la dimensión, el costo de selección y la inferencia.
+16: 
+17: Una selección realizada dentro del entrenamiento no justifica volver a elegir \(k\) mirando los resultados externos y describir esa elección como previa. El análisis de curvas externas es útil para explorar; su función y exposición deben declararse.
+18: 
+19: \section{Métodos de literatura utilizados como comparación}
+20: Neshov et al.\ extraen características de varios niveles de una arquitectura preentrenada y las concatenan antes de una MLP \citep{neshov2025aggregation}. El trabajo permite estudiar agregación entre capas, mientras que nuestro Top-\(k\) selecciona bloques de extractores diferentes. Las dos operaciones pueden relacionarse, pero no tienen el mismo costo ni la misma unidad de selección.
+21: 
+22: DeepLumina reúne características profundas obtenidas a partir de información RGB y de luminancia \citep{simon2022deeplumina}. HyTexNet combina una codificación local guiada por percentiles con características profundas \citep{gupta2026hytexnet}. El método de Chang et al.\ fusiona LBP multiescala y contornos producidos por CellNN \citep{chang2024cellnn}. Estos casos representan formas concretas de concatenar información complementaria. Las dimensiones, checkpoints y cabezas utilizados en nuestras adaptaciones se identifican en las recetas del proyecto.
+23: 
+24: Scabini et al.\ comparan extractores basados en Vision Transformers y consideran eficiencia junto con calidad \citep{scabini2025survey}. En el proyecto también existen mediciones derivadas de procesamiento por lotes. Su tiempo amortizado por imagen no se intercambia con la latencia individual de una consulta.
+25: 
+26: \begin{table}[!htbp]\centering\small
+27: \caption{Nivel de combinación y relación con la comparación propuesta.}
+28: \label{tab:antecedentes}
+29: \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{5.4cm}>{\raggedright\arraybackslash}p{4.0cm}@{}}
+30: \toprule
+31: Estrategia & Información combinada & Decisión que se estudia\\\midrule
+32: Top-\(k\) & Bloques mejor valorados internamente & Qué bloques y cuántos\\
+33: GFS & Bloques añadidos según utilidad conjunta & Composición del subconjunto\\
+34: Neshov & Características de varias capas & Agregación dentro de arquitectura\\
+35: DeepLumina & Características RGB/luminancia & Complementariedad cromática\\
+36: HyTexNet / CellNN & Características profundas y patrones locales & Fusión de representaciones\\
+37: Cascada por margen & Base y concatenación Top-\(k\) & Para qué imágenes adquirirla\\
+38: \bottomrule
+39: \end{tabular}
+40: \end{table}
+41: 
+42: \section{Activación condicional y margen}
+43: Las cascadas distribuyen trabajo según decisiones intermedias \citep{viola2001rapid}. La clasificación adaptativa bajo presupuesto incorpora una compuerta para limitar el uso de modelos costosos \citep{nan2017adaptive}. En sistemas con extractores independientes, el costo depende también de qué bloques puede reutilizar la segunda etapa.
+44: 
+45: El margen entre las dos mayores puntuaciones permite ordenar consultas según la separación que produce un clasificador. No es, por sí mismo, una probabilidad calibrada de acierto ni una garantía de que un rescate vaya a corregir el caso. La compuerta puede conservar aciertos de la base o evitar errores del Top-\(k\), pero también descartar una segunda etapa que habría sido útil.
+46: 
+47: Otros enfoques incorporan costo de extracción durante el aprendizaje o adquieren características por información esperada \citep{xu2012greedy,ma2019eddi}. Las salidas tempranas dentro de redes reutilizan activaciones de una misma arquitectura \citep{teerapittayanon2016branchynet,han2021dynamic}. La tesis no reproduce todas estas familias; estudia una regla de dos etapas con margen y una concatenación fijada.
+48: 
+49: \section{Criterio para comparar con un paper}
+50: Se distinguen tres alcances: una reproducción fiel requiere verificar el pipeline y protocolo; una aproximación conserva parte del diseño con supuestos explícitos; una adaptación permite comparar una receta en nuestro panel común. Coincidir en un porcentaje o reproducir una ecuación aislada no acredita identidad de datos, pesos, selección y evaluación.
+51: 
+52: La evaluación empírica utiliza macro-F1, accuracy y tiempos identificados por llamada. Los porcentajes publicados bajo otros repartos se usan como contexto. Para contrastar implementaciones se emparejan muestras y condiciones cuando la evidencia lo permite. Una referencia incompleta o cuyo ajuste exige revisión no se convierte en una media validada por omitir la condición fallida.
+
+FILE: paper/chapters/03_metodologia.tex
+1: \chapter{Concatenación Top-k y activación por margen}\label{sec:metodo}
+2: 
+3: \section{Bloques y bibliotecas de características}
+4: Sea \(\mathcal B\) una biblioteca de descriptores. El extractor \(j\) transforma la imagen \(x\) en un vector \(\phi_j(x)\in\mathbb R^{d_j}\). La unidad seleccionada es el bloque completo, no cada coordenada. Las características fijas se normalizan por imagen antes de la concatenación:
+5: \begin{equation}
+6: z_j(x)=\frac{\phi_j(x)}{\max(\|\phi_j(x)\|_2,10^{-12})},\qquad
+7: z_S(x)=\mathop{\Vert}_{j\in S} z_j(x),\qquad d_S=\sum_{j\in S}d_j.
+8: \label{eq:tk-concat}
+9: \end{equation}
+10: La concatenación no asigna por sí sola pesos de decisión: estos se aprenden al ajustar el clasificador sobre \(z_S\). La normalización impide identificar automáticamente una mayor norma bruta con mayor importancia.
+11: 
+12: \subsection{Ejemplo concreto: de cuatro vectores a una clase}
+13: En el archivo FMD/SVM, semilla 42 y pliegue externo 0, el prefijo de cuatro bloques es SigLIP-base (768 valores), DINOv2-large (1.024), EVA02-base (768) y DINOv2-base (768). Para una misma imagen se obtienen esos cuatro vectores, se normaliza cada uno con la Ecuación~\ref{eq:tk-concat} y se colocan consecutivamente:
+14: \begin{equation}
+15: z_{S_4}(x)=[z_{\mathrm{SigLIP}}(x)\Vert z_{\mathrm{DINO\,L}}(x)
+16: \Vert z_{\mathrm{EVA02}}(x)\Vert z_{\mathrm{DINO\,B}}(x)]
+17: \in\mathbb R^{3328}.
+18: \end{equation}
+19: Las filas de los cuatro bloques deben representar la misma imagen. Un único SVM se ajusta con estos vectores de 3.328 coordenadas y las etiquetas del entrenamiento. Para una imagen nueva se construye el vector en el mismo orden y el SVM entrega la clase de textura. La concatenación une características; el clasificador aprende cómo utilizarlas. Este ejemplo identifica una condición real, sin convertir sus cuatro nombres en una selección universal para todos los datasets.
+20: 
+21: El proyecto contiene bibliotecas relacionadas, pero diferentes. Sea \(\mathcal B_{20}\) la biblioteca previa sin N-gramas ni el bloque final BEiT-v2. La incorporación de cada uno genera dos bibliotecas de 21 bloques:
+22: \begin{equation}
+23: \mathcal B_{21}^{Ng}=\mathcal B_{20}\cup\{Ng\},\quad
+24: \mathcal B_{21}^{B}=\mathcal B_{20}\cup\{\mathrm{BEiT}\},\quad
+25: \mathcal B_{22}=\mathcal B_{20}\cup\{Ng,\mathrm{BEiT}\}.
+26: \label{eq:tk-libraries}
+27: \end{equation}
+28: El barrido de tamaños utiliza 21 bloques sin N-gramas. Por tanto, su prefijo \(k=21\) no es la concatenación completa de 22. Las etiquetas de carpetas históricas no sustituyen esta identificación de candidatos.
+29: 
+30: La biblioteca consolidada reúne operadores clásicos, N-gramas y representaciones aprendidas congeladas. El Anexo~\ref{app:especificaciones} conserva parámetros y dimensiones. La SVD de N-gramas se aprende en cada entrenamiento pertinente; no se ajusta una proyección con todas las imágenes antes de separar prueba.
+31: 
+32: \section{Ranking individual y construcción de Top-k}
+33: El ranking que produjo los archivos históricos utiliza macro-F1 interno, como se define abajo. Accuracy es la métrica principal de evaluación y reporte de esta versión de la tesis; se conserva el criterio de construcción realmente ejecutado, sin renombrarlo ni recalcular la selección a partir del test.
+34: Para una partición externa, \(T\) contiene el entrenamiento y \(V\) la evaluación. Dentro de \(T\), los pliegues \(T_\ell^{fit}\), \(T_\ell^{val}\) respetan los grupos de dependencia. Cada descriptor se puntúa individualmente con el clasificador que se estudiará:
+35: \begin{equation}
+36: a_j=\frac{1}{L}\sum_{\ell=1}^{L}
+37:  F_{1,\mathrm{macro}}\!\left(y_{T_\ell^{val}},
+38:  f_{j,\ell}(z_j(T_\ell^{val}))\right).
+39: \label{eq:tk-ranking}
+40: \end{equation}
+41: Se ordenan los bloques por \(a_j\) decreciente. En el barrido, los empates se resuelven por nombre. El prefijo de tamaño \(k\) es
+42: \begin{equation}
+43: S_k=\{j_{(1)},\ldots,j_{(k)}\},\qquad
+44: h_k=\mathrm{Ajustar}\bigl(z_{S_k}(T),y_T\bigr).
+45: \label{eq:tk-subset}
+46: \end{equation}
+47: Una vez fijado \(S_k\), se reajusta el clasificador con todo \(T\) y se evalúa en \(V\), reportando primero accuracy y después las métricas complementarias disponibles. El ranking puede cambiar entre datasets, clasificadores y particiones. Top-4 fija el número de bloques, no cuatro identidades universales.
+48: 
+49: \begin{figure}[!htbp]\centering
+50: \begin{tikzpicture}[node distance=0.65cm,
+51: box/.style={draw,rounded corners,align=center,text width=10.7cm,minimum height=0.85cm,font=\small},
+52: arr/.style={-{Latex},thick}]
+53: \node[box] (a) {Separar entrenamiento externo \(T\) y evaluación \(V\)};
+54: \node[box,below=of a] (b) {En \(T\): ajustar y puntuar cada descriptor por validación interna agrupada};
+55: \node[box,below=of b] (c) {Ordenar descriptores y fijar el prefijo \(S_k\)};
+56: \node[box,below=of c] (d) {Concatenar sus vectores y reajustar un clasificador con todo \(T\)};
+57: \node[box,below=of d] (e) {Evaluar el modelo fijado en \(V\); guardar predicciones y procedencia};
+58: \draw[arr] (a)--(b);\draw[arr] (b)--(c);\draw[arr] (c)--(d);\draw[arr] (d)--(e);
+59: \end{tikzpicture}
+60: \caption{Construcción de una concatenación Top-\(k\). Evaluar varios tamaños externos es una exploración; escoger uno después de observarlos no constituye selección interna de ese tamaño.}
+61: \label{fig:tk-training}
+62: \end{figure}
+63: 
+64: \section{Barrido de tamaños y origen del caso Top-4}
+65: El barrido ejecuta los prefijos \(k=1,\ldots,21\) del mismo orden interno. Cada punto permite examinar la relación entre calidad y representación. Se conserva también el descriptor añadido y el tamaño de la concatenación.
+66: 
+67: Hay dos controles distintos. En Top-4 se fija \(k=4\). En el Top-\(k\) histórico de igual tamaño que GFS, \(k\) se hereda del GFS archivado para esa condición y después se eligen los primeros bloques del ranking individual. Este control compara composiciones a un tamaño vinculado al otro procedimiento; no debe utilizarse para afirmar que cuatro fue el tamaño elegido en todas las condiciones.
+68: 
+69: La atención a Top-4 surgió al observar una región de la curva con buen compromiso de calidad y dimensión. Esa elección es exploratoria. Los máximos por dataset o clasificador son descripciones del barrido, no tamaños elegidos ciegamente para despliegue. La evaluación de Top-4 conserva también los casos en que tamaños mayores o la biblioteca completa obtienen mejor macro-F1.
+70: 
+71: \section{Controles de concatenación y papel de N-gramas}
+72: El mejor individual se selecciona dentro del entrenamiento. Completa utiliza todos los bloques de la biblioteca identificada. GFS valora adiciones conjuntas y devuelve el mejor paso según su regla interna; la selección homogénea compara familias. Los ensambles de tómbola y diversidad combinan decisiones de varios miembros y se utilizan como controles complementarios.
+73: 
+74: El aporte de N-gramas se examina mediante versiones emparejadas de la biblioteca y el procedimiento de selección. Añadirlo a Completa mantiene el resto de los bloques; ofrecerlo a GFS o Top-\(k\) puede cambiar el subconjunto y su tamaño. Esta última comparación mide el efecto de ampliar la biblioteca y reseleccionar, no una ablación con todos los demás componentes fijos.
+75: 
+76: Un buen ranking individual no garantiza complementariedad: que N-gramas no aparezca entre los cuatro primeros no demuestra que añadirlo al Top-4 sea inútil. Si no existe ese control específico bajo el mismo protocolo, no se sustituye por otra comparación.
+77: 
+78: \section{Uso directo y versión optimizada por margen}
+79: La optimización estudiada en esta segunda etapa modifica cuándo se ejecuta la concatenación seleccionada. Conserva el clasificador Top-\(k\) como rescate y añade una decisión de adquisición por imagen. Por ello se evalúa frente a su propio uso directo, además de las comparaciones estáticas de la primera etapa.
+80: 
+81: La ruta directa calcula \(z_{S_k}(x)\) y devuelve \(h_k(x)\) para todas las imágenes. No necesita ejecutar un clasificador base adicional.
+82: 
+83: La ruta condicional incorpora una base \(h_b\), un bloque base \(b\) y un umbral \(\tau\). Para SVM multiclase, el margen es la diferencia entre las dos mayores puntuaciones de su función de decisión:
+84: \begin{equation}
+85: m_b(x)=s_{b,(1)}(x)-s_{b,(2)}(x).
+86: \label{eq:tk-margin}
+87: \end{equation}
+88: En clasificación binaria, la implementación utiliza el valor absoluto de la función de decisión. El margen no es una probabilidad calibrada.
+89: 
+90: La implementación histórica de esta cascada usa la regla
+91: \begin{equation}
+92: h_{\mathrm{margen}}(x)=
+93: \begin{cases}
+94: h_b(x),&m_b(x)>\tau,\\
+95: h_k(x),&m_b(x)\leq\tau .
+96: \end{cases}
+97: \label{eq:tk-rule}
+98: \end{equation}
+99: Cuando se activa el rescate, su predicción reemplaza a la base. No se añade un voto ni se entrenan pesos de mezcla diferentes para la ruta directa y la condicional.
+100: 
+101: \begin{figure}[!htbp]\centering
+102: \begin{tikzpicture}[node distance=0.65cm,
+103: box/.style={draw,rounded corners,align=center,text width=4.1cm,minimum height=0.9cm,font=\small},
+104: arr/.style={-{Latex},thick}]
+105: \node[box] (base) {Imagen nueva: extraer la base\\y obtener \(h_b(x)\) y \(m_b(x)\)};
+106: \node[box,below=of base] (gate) {Comparar \(m_b(x)\) con el\\umbral \(\tau\) fijado en entrenamiento};
+107: \node[box,below left=1cm and 0.45cm of gate] (early) {Si \(m_b(x)>\tau\):\\entregar \(h_b(x)\)};
+108: \node[box,below right=1cm and 0.45cm of gate] (rescue) {Si \(m_b(x)\leq\tau\):\\extraer bloques adicionales de \(S_k\)};
+109: \node[box,below=of rescue] (late) {Reutilizar bloques compartidos\\y entregar el mismo \(h_k(x)\)};
+110: \draw[arr] (base)--(gate);\draw[arr] (gate)--(early);\draw[arr] (gate)--(rescue);\draw[arr] (rescue)--(late);
+111: \end{tikzpicture}
+112: \caption{Clasificación por margen. La ruta directa de comparación ejecuta \(h_k\) sin base. La condición de margen no utiliza la etiqueta verdadera de la imagen nueva.}
+113: \label{fig:tk-inference}
+114: \end{figure}
+115: 
+116: \section{Cómo se aprenden la base y el umbral}
+117: El umbral se obtiene de márgenes fuera de pliegue del entrenamiento externo. Para cada base candidata se consideran cuantiles \(q\in\{0,25;0,50;0,75\}\), utilizando la notación decimal de esos valores. El cuantil produce un umbral numérico y permite estimar la fracción derivada dentro del entrenamiento.
+118: 
+119: La selección de base compara ResNet-50, SigLIP, BEiT-v2 y ConvNeXt V2-T cuando existen bloque y costo registrado. Para cada base y cuantil, se reúnen las predicciones OOF de todo el entrenamiento externo y se calcula un único macro-F1 de la ruta condicional. Este estimando difiere del promedio de F1 por pliegue utilizado para ordenar los descriptores. Son elegibles las rutas cuyo macro-F1 OOF es al menos el del Top-\(k\) directo menos 0,005, es decir, 0,5 puntos porcentuales. Entre ellas se elige la de menor adquisición proyectada interna; el uso directo siempre es candidato. Los empates favorecen la ruta directa y después ResNet-50. Los mismos registros OOF sirven para comparar y elegir estos candidatos, por lo que su F1 seleccionado no es una evaluación independiente de la elección. La tolerancia constituye una decisión exploratoria, no una garantía poblacional de no inferioridad.
+120: 
+121: Finalmente se reajustan los modelos seleccionados con todo el entrenamiento externo y se conserva el umbral numérico. El porcentaje de imágenes nuevas que activa el rescate puede ser distinto del cuantil nominal. No se recalcula el umbral utilizando etiquetas ni márgenes de todo el test.
+122: 
+123: En FMD/SVM, semilla 42 y pliegue externo 0, la selección guardada utiliza SigLIP como base y \(q=0,25\), que produjo \(\tau=0,962190\) al redondear. La regla activa el rescate cuando el margen es menor o igual a ese umbral. En las predicciones externas guardadas se activó para 59 de 200 imágenes: 29,5 \%. El cuantil determina un umbral numérico; la tasa futura depende de los márgenes de las imágenes nuevas. En esa condición, la adquisición proyectada fue 133,966 ms durante la selección OOF y 153,384 ms en evaluación, frente a 457,598 ms del uso directo. Son costos por componentes, no latencias físicas adicionales.
+124: 
+125: \section{Costo incremental y medición física}
+126: Sean \(c_j\) los tiempos históricos por extractor. El costo directo y el incremental del rescate son
+127: \begin{equation}
+128: C_{\mathrm{dir}}=\sum_{j\in S_k}c_j,\qquad
+129: C_{\mathrm{inc}}=\sum_{j\in S_k\setminus\{b\}}c_j.
+130: \label{eq:tk-incremental}
+131: \end{equation}
+132: Un bloque base se reutiliza únicamente si su representación coincide con la que necesita \(h_k\). Se distinguen dos tasas: \(\widehat r_{\mathrm{OOF}}\), observada en las predicciones internas reunidas, y \(\widehat r_V\), observada al aplicar la política fijada al conjunto externo \(V\). Sus adquisiciones medias proyectadas son
+133: \begin{equation}
+134: \begin{aligned}
+135: \widehat C_{\mathrm{sel}} &= c_b+\widehat r_{\mathrm{OOF}}C_{\mathrm{inc}},\\
+136: \widehat C_V &= c_b+\widehat r_VC_{\mathrm{inc}}.
+137: \end{aligned}
+138: \label{eq:tk-cost}
+139: \end{equation}
+140: La primera magnitud se utiliza para seleccionar la política dentro del entrenamiento. La segunda describe su adquisición proyectada en evaluación y es la que reportan las tablas de resultados. Ambas emplean las mismas constantes por extractor dentro de la condición; ninguna es un cronometraje de la política completa. La cascada histórica utiliza sus perfiles archivados. El cierre E1 incorpora componentes KTH validados en sesiones identificadas, preservando las constantes ya aceptadas. El umbral y la ruta quedan fijados antes de obtener \(\widehat r_V\).
+141: 
+142: Las proyecciones de la Ecuación~\ref{eq:tk-cost} no incluyen automáticamente todos los clasificadores, transferencias o sobrecostos de la compuerta. La latencia física cronometra la ruta ejecutada y debe declarar si incluye decodificación, carga de pesos y calentamiento. En un sistema residente, la ruta condicional suma base, compuerta y, cuando corresponde, extracción incremental y clasificador Top-\(k\). La comparación directa ejecuta únicamente su concatenación y su clasificador.
+143: 
+144: La compacidad del vector, la extracción de bloques, el tiempo de selección, el entrenamiento y la latencia por consulta son magnitudes distintas. El diseño experimental y los resultados mantienen separadas sus unidades.
+
+FILE: paper/chapters/04_diseno_experimental.tex
+1: \chapter{Diseño experimental}\label{sec:diseno}
+2: 
+3: \section{Recorrido de las pruebas hasta Top-4 y su optimización}
+4: El estudio avanzó por una secuencia de preguntas. Los pasos siguientes reconstruyen ese recorrido experimental; los registros ampliados y las bibliotecas correspondientes se identifican después para evitar tratarlos como una única corrida.
+5: \begin{enumerate}
+6: \item \textbf{Establecer referencias individuales.} Se evaluaron los descriptores por separado y se calculó un ranking mediante validación interna del entrenamiento. Esto permite conocer qué representación funciona bien sola y definir el punto de partida de una selección.
+7: \item \textbf{Probar la concatenación completa.} Se entrenó un clasificador con todos los bloques de la biblioteca de cada corte. La comparación con Individual permitió examinar si añadir toda la información disponible compensa su mayor dimensión.
+8: \item \textbf{Comparar maneras de elegir bloques.} GFS construye combinaciones valorando las adiciones; Homogénea restringe familias; el control Top-\(k\) toma los primeros del ranking con el mismo número de bloques que el GFS de esa condición. Este control separa la cantidad seleccionada de la composición.
+9: \item \textbf{Recorrer todos los tamaños.} Un solo tamaño heredado no explica cuántos descriptores hacen falta. El barrido pasó a evaluar los 21 prefijos del ranking. El registro inicial SVM contenía 27 condiciones con semilla 42; los CSV ampliados contienen 47 por tamaño y clasificador, incluyendo ResMLP y más semillas FMD/Soil. La tesis utiliza la cobertura ampliada en sus curvas principales.
+10: \item \textbf{Examinar el aporte marginal.} Se compararon la calidad y la dimensión al pasar de uno a dos, tres, cuatro y más bloques. La zona de buen rendimiento con pocos bloques motivó prestar atención a Top-4. El máximo observado y las pérdidas por dataset se conservan, en lugar de imponer cuatro como ganador de todas las curvas.
+11: \item \textbf{Examinar alternativas y ampliaciones.} Los archivos exploratorios también incluyen reglas internas para elegir \(k\), SFFS y selecciones aleatorias; su cobertura no es la del barrido ampliado. Las comparaciones emparejadas con N-gramas estudian qué cambia al ampliar la biblioteca. Estos estudios contextualizan la elección sencilla por ranking, sin atribuirles una validación ciega de \(k=4\).
+12: \item \textbf{Contrastar con métodos externos.} Se comparó Top-4 con adaptaciones de métodos de literatura y se midieron predicción y tiempo de las mismas llamadas. Se conservaron por separado porcentajes publicados, recetas adaptadas y resultados locales.
+13: \item \textbf{Optimizar cuándo ejecutar Top-\(k\).} Se tomó el uso directo como referencia y se estudió una base que activa el mismo rescate según su margen. Esta segunda parte compara calidad y adquisición por imagen, y utiliza los pilotos físicos dentro de su alcance.
+14: \end{enumerate}
+15: La elección de Top-4 fue posterior a observar resultados del barrido. El ranking interno y la decisión exploratoria sobre un tamaño global son decisiones distintas. La secuencia documenta cómo surgió la opción compacta, sin presentarla como una regla derivada antes de ver toda la evidencia.
+16: 
+17: \section{Experimentos y unidades de análisis}
+18: La evaluación reúne tres archivos con funciones distintas. El barrido permite estudiar \(k\); el benchmark de selección compara estrategias sobre una biblioteca consolidada; la cascada contrasta el mismo Top-\(k\) directo y por margen. Un cuarto archivo físico permite describir las llamadas de Top-4 y de los comparadores externos. Sus cifras no se mezclan para construir una media nueva.
+19: 
+20: \begin{table}[!htbp]\centering\small
+21: \caption{Cobertura de los bloques experimentales utilizados en la tesis.}
+22: \label{tab:cobertura}
+23: \begin{tabular}{@{}lrrr@{}}\toprule
+24: Conjunto & Barrido por k/clasif. & Estático por clasif. & Directo/margen SVM\\\midrule
+25: DTD & 10 & 10 & 10\\
+26: FMD & 15 & 15 & 5\\
+27: CUReT & 2 & 2 & 2\\
+28: Outex13 & 1 & 1 & 1\\
+29: SoilOriginal & 15 & 15 & 5\\
+30: KTH-TIPS2b & 4 & 4 & 4\\\midrule
+31: Total & 47 & 47 & 27\\
+32: \bottomrule\end{tabular}
+33: \end{table}
+34: 
+35: El barrido contiene 21 tamaños por clasificador: 987 filas SVM y 987 ResMLP. Cada tamaño conserva las mismas 47 condiciones de su clasificador. Las 27 condiciones de cascada utilizan solo la semilla 42 en FMD y Soil, frente a tres semillas en los archivos ampliados. Las particiones oficiales DTD, las mitades complementarias de CUReT y las semillas repetidas comparten imágenes; sus condiciones no son réplicas independientes.
+36: 
+37: El panel online previo incluye cinco estrategias locales y dos clasificadores sobre 94 condiciones. La tesis extrae la evidencia de Top-4 de ese panel y la mantiene separada de sus otras políticas. Las 362.640 llamadas primarias del panel completo no son 362.640 llamadas de Top-4 ni una nueva medición del sistema directo/por margen.
+38: 
+39: \section{Colecciones y particiones}
+40: Se utilizaron manifiestos para comprobar etiquetas, orden, dimensiones y valores finitos de los vectores. Los hashes y grupos permiten detectar duplicados y separar unidades relacionadas. La existencia de una separación externa dentro de una corrida no elimina la exposición de sus resultados durante el desarrollo.
+41: 
+42: DTD contiene 47 clases y diez particiones oficiales \citep{cimpoi2014dtd}. El estudio estático selecciona dentro de la unión de entrenamiento y validación de cada partición; la prueba de esa ejecución permanece fuera del ajuste. Los duplicados byte-idénticos que cruzaban roles se retiraron del entrenamiento. La reserva física de una condición del panel online se conserva en su documentación y no se interpreta como una validación nueva de todas las representaciones.
+43: 
+44: FMD contiene 1.000 imágenes y diez categorías \citep{sharan2013fmd}. Se usan cinco pliegues estratificados y agrupados con semillas 42, 123 y 2026. Cada imagen se identifica mediante un hash; la cascada utiliza los cinco pliegues de la semilla 42.
+45: 
+46: CUReT se basa en la distribución gris recortada de 61 materiales y 92 condiciones por clase \citep{varma2003filter}. Se fijaron dos mitades de 46 condiciones y ambas direcciones de entrenamiento/prueba. Las condiciones de adquisición se agrupan para no cruzar una misma configuración. Este reparto no identifica el subconjunto histórico exacto de cada paper y sus direcciones son dependientes.
+47: 
+48: Outex-TC-00013 contiene 1.360 imágenes de 68 clases y una partición oficial de 680/680 \citep{ojala2002outex}. Se comprobaron imágenes RGB legibles, IDs y ausencia de duplicados exactos. Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva; la enmienda DeiT del panel no se atribuye automáticamente a todos los archivos históricos.
+49: 
+50: SoilOriginal utiliza solo imágenes originales de la versión 1 de la colección \emph{Comprehensive Soil Classification Datasets}. Tras deduplicación exacta se conservaron 1.140 imágenes, siete clases y 962 grupos conservadores por familia de nombre dentro de clase. No existe un split oficial utilizado en esta evaluación. Se aplican cinco pliegues agrupados y tres semillas en el archivo ampliado; la cascada conserva la semilla 42.
+51: 
+52: KTH-TIPS2b tiene 11 clases y cuatro muestras físicas por clase. El estudio mantiene cuatro particiones invertidas, con tres muestras para entrenar y una para probar. Algunos controles históricos difieren en agrupación interna y procedencia de representaciones. No se sustituye una media por la de otro control para dar por reconciliada toda la ruta. KTH se muestra descriptivamente y se excluye del contraste conjunto histórico de la cascada. Las aproximaciones al reparto de un tercio de algunos papers, con 44 muestras físicas compartidas entre entrenamiento y prueba, son otra evaluación y no se mezclan con este panel.
+53: 
+54: \section{Clasificadores y transformaciones}
+55: La SVM lineal CPU utiliza \texttt{LinearSVC}, \(C=1\), clases balanceadas, pérdida \emph{squared hinge}, regularización \(L_2\), estrategia uno-contra-el-resto, \texttt{dual=auto}, tolerancia \(10^{-4}\) y máximo de 10.000 iteraciones. El estado aleatorio sigue la semilla de la condición; la cascada histórica con base seleccionada utiliza 42. El código conserva los parámetros y el estado del ajuste. Los avisos de convergencia se informan sin cambiar retrospectivamente el solver para recuperar una cifra deseada.
+56: 
+57: ResMLP es una MLP residual sobre vectores de características. Proyecta a 256 unidades y utiliza tres bloques residuales, normalización de capa, GELU y \emph{dropout} de 0,1. Se ajusta con AdamW, tasa de aprendizaje \(10^{-3}\), decaimiento de pesos \(10^{-4}\), lotes de 256 y máximo de 100 épocas. La parada usa paciencia de diez épocas y una mejora mínima de \(10^{-4}\) en la pérdida media de entrenamiento; al finalizar restaura el mejor estado registrado. Esta regla no utiliza el test para elegir una época y no equivale a una parada basada en pérdida de validación.
+58: 
+59: La búsqueda interna utiliza pliegues estratificados y agrupados, limitada por disponibilidad de grupos. Las redes de extracción permanecen congeladas. Las transformaciones aprendidas, como SVD, se ajustan con el entrenamiento del pliegue correspondiente. Cuando se cambia la biblioteca o el clasificador, la selección se repite dentro de su protocolo; no se reutiliza un ranking de otro modelo como si fuera una nueva selección interna.
+60: 
+61: \section{Cómo se comparan los prefijos y las bibliotecas}
+62: En cada condición del barrido se mantiene un ranking y se evalúan sus prefijos de uno a 21 bloques. Se comprueba cobertura íntegra para cada \(k\), ausencia de duplicados de dataset/semilla/pliegue/tamaño y correspondencia con los resúmenes guardados. Esta evaluación no incluye N-gramas.
+63: 
+64: El estudio de N-gramas utiliza sus bibliotecas emparejadas y condiciones comunes. Las tablas de 20 frente a 21 bloques corresponden a un corte anterior a la incorporación final de BEiT-v2. Las tablas consolidadas de 22 y el barrido sin N-gramas responden a otro corte. La comparación no utiliza los nombres de las carpetas como prueba de identidad de bibliotecas.
+65: 
+66: Las medias principales se calculan dentro de cada dataset y luego se equiponderan los seis datasets:
+67: \begin{equation}
+68: \overline A=\frac{1}{D}\sum_{d=1}^{D}
+69: \left(\frac{1}{n_d}\sum_{r=1}^{n_d}A_{d,r}\right).
+70: \label{eq:tk-aggregation}
+71: \end{equation}
+72: Aquí \(A_{d,r}\) es accuracy en la condición \(r\) del dataset \(d\). Este estimando difiere de reunir todas las predicciones y calcular una exactitud global, que da mayor peso a los datasets con más observaciones. Las métricas secundarias siguen la misma equiponderación cuando corresponde. Las tablas indican cuando muestran una media por condición, un valor por llamada o un promedio OOF reunido.
+73: 
+74: \section{Contraste del mismo Top-k directo y por margen}
+75: Cada condición conserva el subconjunto Top-\(k\) archivado, ajusta su clasificador con el entrenamiento externo y utiliza ese mismo resultado como referencia de la ruta condicional. La selección de base y umbral usa únicamente sus predicciones internas fuera de pliegue. Se conserva la alternativa Top-\(k\) directo si la cascada no resulta elegida.
+76: 
+77: Para la revisión final se reconstruyeron las métricas de las 27 condiciones desde sus JSON de predicción. Se verificaron identidad de dataset/protocolo, unicidad de índices dentro de cada prueba, longitud de arrays, macro-F1, fracción activada, bloques del rescate y hash del archivo de origen. Para cada imagen derivada se exigió que la predicción condicional coincidiera con la del Top-\(k\) directo. Esta comprobación atribuye las diferencias a conservar la base en las otras imágenes, y no a utilizar otro rescate.
+78: 
+79: La auditoría cubre 31.984 observaciones externas, no ese número de imágenes independientes. Reconstruye las decisiones guardadas sin volver a ajustar modelos. La coincidencia con el registro es una prueba de consistencia del archivo, no una reproducción independiente desde RGB.
+80: 
+81: La ampliación E1/E2 del 15-11 se distingue de esa reconstrucción histórica. Conserva las 27 particiones previstas y fija cuatro bloques obtenidos del barrido. KTH agrupa los OOF por muestra física. Un primer corte completó 25 casos y detuvo dos KTH antes de ajustar clasificadores por costos sin fidelidad aceptada. Tras autorización explícita, una receta corregida superó coseno 0,999 en las mismas 33 imágenes de entrenamiento de EVA-02 y SigLIP. Se conservaron los 25 casos y se ajustaron únicamente los dos pendientes. El cierre audita las 27 condiciones y agrega los seis datasets con cobertura íntegra. E2 reutiliza sus scores en 486 filas, con nueve contrastes exactos y Holm por familia de métrica y régimen. Las fracciones de test se informan sin reajustar umbrales con sus etiquetas.
+82: 
+83: \section{Métricas y costos}
+84: La métrica principal es accuracy (exactitud), la proporción total de imágenes correctamente clasificadas. Para \(C\) clases se usan además precisión macro, recall macro y macro-F1:
+85: \begin{equation}
+86: \mathrm{accuracy}=\frac{1}{n}\sum_{i=1}^{n}\mathbb I[\widehat y_i=y_i],\qquad
+87: F_{1,\mathrm{macro}}=\frac1C\sum_{c=1}^{C}
+88: \frac{2TP_c}{2TP_c+FP_c+FN_c}.
+89: \label{eq:tk-metrics}
+90: \end{equation}
+91: \begin{equation}
+92: P_{\mathrm{macro}}=\frac1C\sum_{c=1}^{C}\frac{TP_c}{TP_c+FP_c},\qquad
+93: R_{\mathrm{macro}}=\frac1C\sum_{c=1}^{C}\frac{TP_c}{TP_c+FN_c}.
+94: \end{equation}
+95: Se aplica la convención registrada de valor cero ante denominador nulo. Accuracy y precisión no son sinónimos. Accuracy pondera cada imagen por igual; las métricas macro ponderan cada clase por igual y permiten identificar pérdidas ocultas por desbalance. Un aumento de accuracy no implica necesariamente el mismo cambio de macro-F1.
+96: 
+97: La decisión de priorizar accuracy se registró el 15-11-2026, después de observar los archivos históricos. El ranking y la tolerancia de selección de rutas de 0,005 en macro-F1 permanecen como componentes del método ejecutado. La evaluación E1/E2 nueva también conserva esos componentes para permitir la comparación del método, pero informa accuracy como resultado principal. Esta decisión no se presenta como un preregistro anterior a todos los tests.
+98: 
+99: Se informan también bloques, dimensión, tiempo de selección y ajuste, fracción derivada y costo incremental. Un porcentaje de dimensiones se refiere a su biblioteca de comparación. Un porcentaje de adquisición se refiere al modelo analítico de componentes. Ninguno se denomina automáticamente ahorro de latencia.
+100: 
+101: Los perfiles históricos de adquisición se midieron con imágenes de entrenamiento y se trasladaron como proxies entre dominios. El piloto físico de la cascada utiliza una condición por dataset, una imagen por clase y tres repeticiones pareadas, con modelos residentes e imágenes decodificadas. Sus 612 parejas corresponden a 204 imágenes. No se presentan como toda la prueba externa de cada dataset ni como latencia de arranque en frío.
+102: 
+103: El panel online posterior conserva predicción y tiempo de cada llamada batch1. Los tiempos de métodos diferentes proceden de fechas/estados de hardware distintos y tienen alcance descriptivo. Los tiempos amortizados de lotes de 32 pertenecen a otro régimen y no se incorporan a esas tablas.
+104: 
+105: \section{Comparadores externos y controles estadísticos}
+106: Se utilizan las adaptaciones Neshov BEiTv2+MLP, HyTexNet y 6LBP+dCellNN con 47 condiciones completas cada una. DeepLumina mantiene 46 condiciones terminadas, avisos de no convergencia en todas y una condición DTD interrumpida. La tabla DTD no tiene una media completa de ese método. El protocolo aproximado Neshov FMD 10 por 10 es una comprobación separada, no el panel común.
+107: 
+108: Los contrastes principales recalculados sobre accuracy comparan Individual, Completa-22 y Top-4, separados por clasificador. Se usa una media por dataset, Friedman con enumeración exacta de las 46.656 permutaciones de rangos y tres comparaciones Wilcoxon bilaterales exactas con Holm por clasificador. Con seis datasets la potencia es limitada. Las pruebas históricas de macro-F1 permanecen como evidencia secundaria en anexos y no se atribuyen a accuracy. En la cascada histórica se conserva la sensibilidad que excluye KTH. El no rechazo no demuestra equivalencia ni no inferioridad \citep{demsar2006statistical,garcia2008extension}.
+109: 
+110: \section{Reglas de cierre y reproducibilidad}
+111: Toda condición nueva requiere congelar receta, versiones, pesos, semillas, partición y presupuesto antes de medir. Se conserva un benchmark GPU, CPU a dos hilos y lock global, sin ajuste o extracción concurrente con el cronometraje. No se repiten paneles cerrados para sustituir resultados desfavorables. Los fallos científicos mantienen evidencia y revisión, sin omisión de casos ni cambios silenciosos de método.
+112: 
+113: La reconstrucción de tablas de accuracy no ejecuta un nuevo barrido ni añade predicciones o latencias a sus archivos históricos. La ampliación E1/E2 y el perfil temporal KTH del 15-11 se documentan por separado, con sus estados y fallos de fidelidad. Los estudios de ensamble, poda y réplicas OOF permanecen en los anexos con su propio alcance y sus métricas históricas explícitas.
+
+FILE: paper/chapters/05_resultados.tex
+1: \chapter{Resultados experimentales}\label{sec:resultados-experimentales}
+2: 
+3: Los resultados responden primero cómo se construye y se compara Top-\(k\), y después qué cambia al activarlo por margen. Accuracy (exactitud) es la métrica principal. Se conservan separados el archivo de características, el panel online y los pilotos físicos. La reconstrucción de accuracy del 15-11 se vincula con 144 fuentes mediante hashes, sin nuevos ajustes ni mediciones de esos archivos; la ampliación E1/E2 se identifica por separado.
+4: 
+5: \section{P1: del descriptor individual a la concatenación}\label{sec:resultados-fase1}
+6: El benchmark consolidado compara Individual, Completa, Top-\(k\), GFS y Homogénea sobre seis datasets y dos clasificadores. Individual designa la mejor alternativa seleccionada internamente, no el máximo externo de todos los descriptores. El Top-\(k\) de esta primera tabla hereda su tamaño del control GFS; su nombre no significa Top-4 fijo.
+7: 
+8: \input{articulo/borrador_profesor/generated/baseline_accuracy.tex}
+9: \input{articulo/borrador_profesor/generated/dimensions_primary.tex}
+10: 
+11: Las medias de accuracy muestran que una concatenación puede mejorar al mejor individual seleccionado, pero añadir indiscriminadamente bloques también puede empeorar. En FMD/SVM, Completa registra aproximadamente 0,9647, frente a 0,9727 de Individual y 0,9820 del Top-\(k\) del control. En Outex/SVM, en cambio, Completa alcanza aproximadamente 0,9662. Las diferencias entre datasets impiden definir una regla uniforme a partir del número de bloques.
+12: 
+13: La dimensión seleccionada y la calidad se reportan conjuntamente. La reducción de entrada al clasificador es informativa para almacenamiento y ajuste, pero no determina qué extractores dominan el tiempo de una consulta. Los contrastes del benchmark estático y su sensibilidad sin KTH se conservan en el Anexo~\ref{app:resultados-adicionales}. Su alcance no se extiende a los tamaños fijos nuevos por un cambio de etiqueta.
+14: 
+15: \section{Barrido de k y justificación del caso Top-4}
+16: La reconstrucción del barrido verifica 47 condiciones para cada tamaño de uno a 21 y cada clasificador. Las Tablas~\ref{tab:tm-curva}--\ref{tab:tm-top4-resmlp} y la Figura~\ref{fig:tm-curve} describen ese archivo ampliado. El README inicial del barrido corresponde a menos condiciones y no sustituye sus CSV ampliados.
+17: 
+18: \input{generated_accuracy_primary_20261115_v3/curva_k.tex}
+19: \begin{figure}[!htbp]\centering
+20: \includegraphics[width=\textwidth]{generated_accuracy_primary_20261115_v3/ganancias_k.pdf}
+21: \caption[Calidad y ganancia marginal al aumentar el número de descriptores.]{Calidad al aumentar el número de descriptores y ganancia de cada bloque adicional. Los círculos abiertos y la línea vertical señalan Top-4. Cada punto promedia primero dentro del dataset y después entre datasets. Una barra negativa indica pérdida al añadir ese bloque. Se muestran todos los tamaños, incluidos los máximos posteriores a cuatro.}
+22: \label{fig:tm-curve}
+23: \end{figure}
+24: 
+25: Con SVM, Top-4 obtiene accuracy media de 0,944214 y el máximo descriptivo aparece en \(k=10\), con 0,945090. La diferencia es 0,000876 de accuracy, o 0,0876 puntos porcentuales, mientras el porcentaje dimensional medio es aproximadamente 15,42 para cuatro bloques y 45,17 para diez, respecto a 21. Esto identifica una alternativa compacta cercana al máximo observado, no una prueba de equivalencia.
+26: 
+27: Con ResMLP, Top-4 registra accuracy media de 0,942022 y el máximo del barrido aparece en \(k=5\), con 0,944327. Por tanto, la elección de cuatro no maximiza todas las curvas. Tampoco puede reducirse la decisión al promedio global: la composición y la respuesta a \(k\) dependen del dataset y del clasificador.
+28: 
+29: \subsection{Por qué estudiar cuatro: ganancia frente a crecimiento del vector}
+30: El eje horizontal representa el número de descriptores concatenados. Se trata de una curva de desempeño frente al tamaño de la representación; el número de imágenes de entrenamiento y las épocas no varían en ese eje. Para explicar la contribución incremental se calcula
+31: \begin{equation}
+32: g_k=100\,[\overline A(k)-\overline A(k-1)],\qquad k=2,\ldots,21,
+33: \end{equation}
+34: en puntos porcentuales de accuracy; aquí \(A(k)\) representa la exactitud media para el tamaño \(k\). La Figura~\ref{fig:tm-curve} muestra cada incremento, incluidos los negativos.
+35: 
+36: Con SVM, pasar de uno a cuatro bloques aumenta la accuracy media de 0,927166 a 0,944214: una ganancia de 1,7048 puntos porcentuales. Pasar de cuatro al máximo observado en diez aporta 0,0876 puntos adicionales, mientras la dimensión media relativa aumenta de 15,42 a 45,17 \%. Cuatro concentra aproximadamente el 95,11 \% de la mejora observada entre uno y el máximo del barrido. Esta proporción describe la ganancia relativa de accuracy; no es la accuracy absoluta ni un intervalo de equivalencia.
+37: 
+38: Así, Top-4 resulta una elección compacta con buena calidad media y una regla de tamaño fácil de explicar. Después de cuatro se observan ocho pasos negativos y nueve positivos con SVM: el rendimiento fluctúa, en lugar de disminuir siempre. Con ResMLP, cinco aporta 0,212 puntos más que cuatro. La conclusión sustentada es que las ganancias posteriores pueden ser pequeñas frente al crecimiento de representación; identificar un mejor compromiso exige declarar qué calidad y costo se priorizan.
+39: 
+40: \input{generated_accuracy_primary_20261115_v3/top4_svm.tex}
+41: \input{generated_accuracy_primary_20261115_v3/top4_resmlp.tex}
+42: 
+43: En FMD, cuatro es el máximo medio de accuracy del barrido para ambos clasificadores y supera a concatenar toda la biblioteca. En Soil, cuatro también maximiza la curva SVM; con ResMLP el máximo de accuracy aparece en quince. Outex constituye una excepción relevante: la representación completa conserva una ventaja de calidad frente a cuatro. CUReT se encuentra cerca del techo de la métrica, donde diferencias pequeñas merecen una interpretación prudente. Los resultados KTH de este archivo conservan su variante histórica y no se utilizan para borrar la reserva de otra evaluación.
+44: 
+45: \begin{figure}[!htbp]\centering
+46: \includegraphics[width=\textwidth]{generated_accuracy_primary_20261115_v3/curvas_por_dataset.pdf}
+47: \caption[Barrido de tamaños en los seis datasets.]{Barrido de tamaños en los seis datasets. Cada panel muestra SVM y ResMLP con medias de las condiciones del dataset. La línea vertical y los círculos abiertos señalan cuatro. Las escalas verticales se ajustan por panel para mostrar las variaciones; KTH mantiene su reserva de procedencia.}
+48: \label{fig:tm-per-dataset-curves}
+49: \end{figure}
+50: 
+51: \section{Qué aportan N-gramas y las ampliaciones de biblioteca}
+52: Las tablas previas distinguen 21 bloques sin N-gramas de la biblioteca de 22. El control histórico emparejado de 20 frente a 21 con N-gramas examina otra ampliación, anterior a BEiT-v2. Se conserva en la Tabla~\ref{tab:ngram-svm} para SVM y en el Anexo~\ref{app:resultados-adicionales} para ResMLP.
+53: 
+54: \input{generated_accuracy_primary_20261115_v3/ngram_svm.tex}
+55: 
+56: En ese control, la tabla informa accuracy para ambas bibliotecas y su diferencia pareada. Añadir N-gramas beneficia la concatenación completa de Outex; en DTD no produce una mejora de esa estrategia. La ampliación también puede cambiar qué subconjunto elige GFS o el Top-\(k\) de tamaño heredado. El aporte no es uniforme y el resultado de una ampliación no se extrapola a todas las bibliotecas.
+57: 
+58: El ranking individual y la complementariedad responden preguntas distintas. La ausencia de N-gramas entre cuatro bloques mejor puntuados individualmente no demuestra que su combinación con ellos no sea útil. La tesis no presenta como ejecutado un control Top-4 más N-gramas que no tenga evidencia emparejada y cobertura identificada.
+59: 
+60: \section{Comparación externa de Top-4 en llamadas online}\label{sec:resultados-panel-online-sota}
+61: Las Tablas~\ref{tab:tm-externos-accuracy} y~\ref{tab:tm-externos-ms} extraen Top-4/SVM del panel físico auditado y lo comparan con las adaptaciones externas sobre las mismas imágenes de cada condición. Las métricas de cada método se reconstruyeron con predicción y tiempo de las mismas llamadas. No se reutiliza aquí la accuracy del barrido histórico con un tiempo medido después.
+62: 
+63: \input{generated_accuracy_primary_20261115_v3/externos_accuracy.tex}
+64: \input{generated_topk_margin/externos_ms.tex}
+65: 
+66: En FMD, Top-4 alcanza accuracy aproximada de 0,98233 frente a 0,94200 de la adaptación Neshov con MLP. Requiere más tiempo en las mediciones observadas. En Soil, Top-4 registra accuracy de 0,91581 frente a 0,90819 de Neshov, mientras su macro-F1 complementario es menor (0,85940 frente a 0,86310). El cambio de orden entre métricas muestra por qué deben conservarse las medidas por clase. La media temporal de Top-4 es mayor. Las mediciones de fechas distintas describen el archivo disponible y no identifican por sí solas una ventaja temporal causal.
+67: 
+68: Los valores Top-4 del panel online no se presentan como reproducción exacta de toda fila del barrido. Por ejemplo, Soil/SVM registra accuracy aproximada de 0,92721 en el archivo de tamaños y 0,91581 en este panel. La discrepancia entre archivos requiere trazabilidad de selección, representación y ajuste; no se atribuye a una causa no demostrada ni se escoge el mayor número para una tabla final. Las conclusiones del barrido y las comparaciones por llamadas se mantienen dentro de sus archivos.
+69: 
+70: \input{generated_accuracy_primary_20261115_v3/online_secundarias.tex}
+71: 
+72: DeepLumina conserva una reserva científica: las 46 condiciones terminadas contienen avisos de no convergencia y la inspección de modelos encontró 1.653 de 2.441 clasificadores binarios en el límite de iteraciones. DTD contiene nueve de diez condiciones terminadas y no se informa una media completa. La existencia de predicciones no convierte esos ajustes en una réplica validada.
+73: 
+74: La aproximación separada Neshov FMD de 100 condiciones y 10.000 llamadas registra accuracy 94,22 \%, frente a 96,7 \% publicado. La diferencia no se oculta ni se transforma en un cambio de receta para forzar coincidencia. Se trata de una aproximación con diferencias de partición y entorno. Los porcentajes de otros artículos se interpretan de igual modo según sus protocolos.
+75: 
+76: \section{P2: optimización mediante activación por margen}\label{sec:resultados-cascada}
+77: La auditoría reconstruye 27 condiciones SVM y 31.984 observaciones de prueba a partir de las predicciones guardadas. Verifica que, en todas las imágenes derivadas, el resultado condicional es el del mismo Top-\(k\) directo. Los tamaños del rescate van de uno a ocho: cinco condiciones usan cuatro. Son una evaluación de Top-\(k\) por condición, no 27 experimentos Top-4 fijo.
+78: 
+79: \input{generated_accuracy_primary_20261115_v3/cascada_calidad.tex}
+80: \input{generated_accuracy_primary_20261115_v3/cascada_secundarias.tex}
+81: 
+82: Se identificaron además las cinco condiciones cuyo rescate tiene cuatro bloques y coincide exactamente con el subconjunto Top-4 del barrido de esa partición. La Tabla~\ref{tab:tm-fixed4-margin} conserva sus aumentos, pérdidas y empates. El subconjunto se define por identidad de bloques y tamaño, no por favorecer la activación. No representa cobertura Top-4 por margen en los seis datasets.
+83: 
+84: \input{generated_accuracy_primary_20261115_v3/top4_margin_subset.tex}
+85: 
+86: Se selecciona cascada en 26 condiciones y uso directo en una. Las bases de las rutas condicionales son SigLIP en veinte condiciones, BEiT-v2 en cinco y ResNet-50 en una. Estas elecciones provienen del criterio interno identificado en el método; no se escoge una base por el mayor F1 externo.
+87: 
+88: En FMD, el uso directo registra accuracy media de 0,983000 y la política por margen 0,984000. En Outex, la política condicional baja de 0,944118 a 0,938235. CUReT presenta una pérdida pequeña; DTD queda muy próximo en promedio. Soil y el KTH histórico muestran aumentos. La compuerta no produce una mejora uniforme. Las métricas complementarias se calculan con esas mismas predicciones.
+89: 
+90: La ruta condicional puede superar a Top-\(k\) porque conserva la predicción base en las imágenes que no deriva. Top-\(k\) directo no es un techo matemático de esa combinación. Del mismo modo, un margen alto puede conservar un error que la segunda etapa habría corregido. La auditoría guarda ambos conteos, junto con los cambios de clase.
+91: 
+92: \section{Ampliación E1: Top-4 fijo directo y por margen}\label{sec:e1-fixed4}
+93: El 15-11-2026 se ejecutó la comparación específica que faltaba: exactamente cuatro bloques por condición en ambas rutas, con SVM, semilla 42 y las 27 condiciones previstas. Se guardaron índices, orden de clases, puntajes completos OOF y test de todas las bases, predicciones, selección previa al test, modelos, controles aleatorios y hashes. La selección de ruta conserva macro-F1 OOF y tolerancia 0,005 del método histórico; accuracy es la métrica principal de reporte. Los tests ya observados durante el desarrollo mantienen el carácter exploratorio de esta ampliación.
+94: 
+95: El cierre completó las 27 condiciones: DTD 10, FMD 5, CUReT 2, Outex 1, Soil 5 y KTH 4. Se conservaron 25 resultados y se ajustaron solo las dos condiciones KTH que se habían detenido antes de entrenar. La Tabla~\ref{tab:e1-fixed4-accuracy} presenta los seis datasets completos. Su accuracy media equiponderada es 0,944449 para Top-4 directo y 0,944581 para la política seleccionada: diferencia de +0,0132 puntos porcentuales. Wilcoxon exacto bilateral sobre esas seis medias da \(p=0,5625\); no acredita superioridad ni equivalencia. Los 27 Top-4 directos reproducen exactamente accuracy y macro-F1 de sus filas archivadas.
+96: 
+97: \input{generated_top4_fixed_closure_20261115/e1_accuracy.tex}
+98: \input{generated_top4_fixed_closure_20261115/e1_secundarias.tex}
+99: 
+100: La cascada mejora accuracy media en DTD, FMD, Soil y KTH, y pierde en CUReT y Outex. El sorteo utiliza la misma cantidad de imágenes derivadas y 100 repeticiones por condición; su media equiponderada es 0,928025. Este control nuevo corresponde a la base seleccionada de E1, a diferencia del control histórico con ResNet-50 fijo. La Tabla~\ref{tab:e1-bases-test} informa cada base sola en test; sus valores no se confunden con las métricas OOF empleadas para seleccionar. KTH evalúa como candidatas solo ResNet-50 y BEiTv2, por lo que las otras dos columnas no tienen resultados para ese dataset.
+101: 
+102: \input{generated_top4_fixed_closure_20261115/e1_bases.tex}
+103: \input{generated_top4_fixed_closure_20261115/e1_costos.tex}
+104: 
+105: La media equiponderada de costos por componentes pasa de 468,31 a 117,07 ms, reducción proyectada del 75,00 \% calculada como cociente de esas medias de seis datasets. Son proyecciones bajo perfiles identificados, no tiempos de ejecución online de las políticas nuevas. Ninguna ventaja física nueva se deduce de ese porcentaje. El corte anterior de cinco datasets conserva su archivo; la incorporación de KTH cambia el conjunto agregado y no representa una mejora medida sobre la misma media anterior.
+106: 
+107: El perfil KTH inicial se congeló con pesos locales, dos hilos CPU, batch1, cinco calentamientos y 33 imágenes de entrenamiento, tres por clase. EVA-02 registró coseno mínimo 0,931978 y SigLIP 0,981889, inferiores al mínimo fijado de 0,999; los otros seis bloques lo superaron. Los estados fallidos originales se conservaron.
+108: 
+109: La revisión de código y entradas identificó diferencias de preprocesamiento: EVA-02 requería resize bicúbico del lado corto a 248 y recorte central 224, mientras SigLIP histórico usaba resize bilineal explícito a 224. Tras autorización del autor, las recetas corregidas se validaron con los mismos pesos e imágenes y el mismo mínimo. Ambas superaron 0,999 en las 33 imágenes, con mínimos mayores que 0,99999999999. Fueron 66 llamadas evaluadas y diez calentamientos. Un error de serialización del informe de carga se corrigió antes del primer forward SigLIP, sin repetir EVA ni llamadas científicas fallidas. Se preservaron las seis constantes aceptadas y se añadieron las dos nuevas; sus sesiones temporales distintas permanecen identificadas.
+110: 
+111: La Tabla~\ref{tab:e1-kth-state} muestra ahora las cuatro condiciones completas. La validación acredita concordancia en las muestras comprobadas; no recupera la metadata productora original de todos los embeddings ni elimina las reservas de otras variantes KTH.
+112: 
+113: \input{generated_top4_fixed_closure_20261115/kth_status.tex}
+114: 
+115: \section{Ampliación E2: otras medidas de confianza}\label{sec:e2-confidence}
+116: Se reutilizaron los puntajes de E1 sin nuevos ajustes. Se comparan margen, puntuación máxima y entropía del softmax de las puntuaciones SVM, con temperatura fija uno. Esta última es una heurística de ordenamiento, no una probabilidad calibrada. La base es la elegida con entrenamiento para E1; si se elige uso directo, se conserva ResNet-50 como referencia predefinida. La selección de base realizada originalmente para margen puede favorecer esa regla y limita la interpretación.
+117: 
+118: Cada umbral se calcula en OOF para q=0,25, 0,50 y 0,75. Las fracciones reales de test se informan porque igual cuantil OOF no implica igual cantidad de imágenes derivadas después del reajuste. En q=0,25, por ejemplo, accuracy media es 0,944581 con margen, 0,942485 con máximo y 0,935649 con entropía, con activaciones reales diferentes. No se elige retrospectivamente el cuantil con mayor accuracy externa.
+119: 
+120: \input{generated_top4_fixed_closure_20261115/e2_accuracy_legible.tex}
+121: 
+122: Se añade un diagnóstico por lote que fuerza la misma cantidad de imágenes que activó el margen en cada condición, ordenando con los puntajes de test y sin consultar sus etiquetas. Aísla diferencias de ordenamiento a igual cantidad, pero requiere observar el lote y no constituye una compuerta individual online. Los resultados se separan del régimen de umbral OOF.
+123: 
+124: \input{generated_top4_fixed_closure_20261115/e2_matched_count.tex}
+125: 
+126: Los contrastes usan seis medias por dataset completo y nueve pares por familia: tres pares de compuertas por tres cuantiles, con Holm separado por métrica y régimen. En accuracy ningún par resulta significativo tras ese ajuste; el menor p ajustado es 0,5625. Las ganancias descriptivas del margen en algunos puntos no acreditan superioridad universal. Precisión macro, recall macro y macro-F1 de todos los controles quedan en los CSV de análisis.
+127: 
+128: \section{Adquisición proyectada y pilotos físicos históricos}\label{sec:resultados-gpu}
+129: \input{generated_topk_margin/cascada_costos.tex}
+130: \begin{figure}[!htbp]\centering
+131: \includegraphics[width=\textwidth]{generated_accuracy_primary_20261115_v3/directo_margen_legible.pdf}
+132: \caption{Comparación por dataset del uso directo y por margen: calidad a la izquierda y adquisición proyectada a la derecha. La diagonal indica igualdad de la magnitud; el panel de costo no es un cronometraje físico nuevo. KTH conserva su reserva.}
+133: \label{fig:tm-direct-margin}
+134: \end{figure}
+135: 
+136: La Tabla~\ref{tab:tm-costos} reporta \(\widehat C_V\): adquisición proyectada con la fracción externa observada después de fijar la política. La selección utilizó \(\widehat C_{\mathrm{sel}}\), calculada con las predicciones internas OOF. Que ambas tasas difieran no implica que se haya vuelto a elegir el umbral con el test. Los porcentajes describen el perfil de extracción por componentes y se mantienen separados de los cronometrajes físicos.
+137: 
+138: \begin{table}[!htbp]\centering\fontsize{8}{10}\selectfont
+139: \caption{Piloto físico de la política con base seleccionada, una condición por dataset. Modelos residentes e imágenes decodificadas; una imagen por clase y tres repeticiones pareadas.}
+140: \label{tab:gpu-benchmark}
+141: \begin{tabular}{@{}lrrrrl@{}}\toprule
+142: Dataset & Imágenes & Pares & Margen ms & Directo ms & Reserva\\\midrule
+143: DTD & 47 & 141 & 90,57 & 295,55 & alcance del piloto\\
+144: FMD & 10 & 30 & 13,01 & 208,08 & alcance del piloto\\
+145: CUReT & 61 & 183 & 92,52 & 270,60 & representación\\
+146: Outex13 & 68 & 204 & 111,47 & 354,31 & alcance del piloto\\
+147: Soil & 7 & 21 & 41,99 & 109,10 & representación\\
+148: KTH-TIPS2b & 11 & 33 & 46,08 & 188,33 & variante histórica\\
+149: \bottomrule\end{tabular}
+150: \end{table}
+151: 
+152: El piloto reúne 204 imágenes y 612 parejas, no 612 imágenes independientes. Los tiempos observados favorecen la ruta condicional en esas condiciones. Sin embargo, CUReT y Soil mantienen discrepancias entre los vectores físicos y cacheados; sus cosenos mínimos fueron aproximadamente -0,0707 y 0,0085. Coincidir en clase o ruta no demuestra identidad de representación. Los tiempos no cierran esa reserva ni acreditan reducción general en los seis conjuntos.
+153: 
+154: El control físico KTH con salida directa justa documentó también que una cascada puede ser más lenta cuando Top-\(k\) ya es barato. La posibilidad de elegir uso directo forma parte de la decisión estudiada, no constituye un caso que se deba omitir.
+155: 
+156: \section{Síntesis de evidencia}
+157: \input{generated_accuracy_primary_20261115_v3/estadistica_accuracy.tex}
+158: \input{generated_accuracy_primary_20261115_v3/estadistica_pares.tex}
+159: En el contraste estático de accuracy, el valor exacto de Friedman con SVM es 0,0521 y con ResMLP 0,4297. Ningún par alcanza 0,05 después del ajuste de Holm. Este resultado no prueba igualdad ni equivalencia de los métodos, ni convierte Top-4 en ganador estadístico de todos los tamaños.
+160: P1 queda respaldada por un barrido amplio y por comparaciones que identifican tanto ventajas de compactar como pérdidas frente a representaciones mayores. P2 dispone de una comparación por predicciones del mismo Top-\(k\), costos analíticos y pilotos físicos delimitados. La cobertura completa de las predicciones no convierte automáticamente los costos en latencias físicas completas.
+161: 
+162: Los experimentos de ensamble y poda permiten otras preguntas y se conservan en el Anexo~\ref{app:complementarios}. No se utilizan sus porcentajes de ahorro para atribuir un resultado al Top-\(k\) directo/por margen del cuerpo principal.
+
+FILE: paper/chapters/06_discusion.tex
+1: \chapter{Discusión}\label{sec:discusion}
+2: 
+3: \section{Qué justifica estudiar Top-4}
+4: El barrido muestra una mejora importante al pasar de una representación individual a concatenaciones pequeñas. Después aparece una región de variaciones menores, sin una ganancia monótona al añadir bloques. Con SVM, cuatro se encuentra cerca del máximo medio observado con una fracción reducida de dimensiones. Esto justifica estudiarlo como un compromiso práctico y explicable.
+5: 
+6: La conclusión no es que cuatro constituya una constante óptima de la clasificación de texturas. Con ResMLP, el máximo descriptivo del barrido aparece en cinco. Outex se beneficia de una representación mayor; otras colecciones tienen márgenes pequeños de mejora o se aproximan al techo de la métrica. El promedio global no reemplaza estas diferencias.
+7: 
+8: El origen de la elección también importa. Top-4 se destacó después de observar curvas externas, aunque los rankings de cada corrida se calcularan dentro del entrenamiento. Esa cronología permite una conclusión exploratoria sobre el archivo y una hipótesis para otra evaluación; no demuestra selección ciega de \(k\).
+9: 
+10: \section{Relevancia individual y complementariedad}
+11: Top-\(k\) ordena descriptores por cómo funcionan solos. Una concatenación, sin embargo, utiliza la información conjunta. Dos bloques individualmente fuertes pueden ser redundantes, y un bloque menos destacado puede corregir una limitación común de los primeros.
+12: 
+13: N-gramas es relevante para interpretar esa diferencia. Su información cromática y local puede cambiar una concatenación aunque no encabece el ranking individual. Los controles con/sin el bloque muestran beneficios en algunos casos y pérdidas en otros. La explicación no debe reducirse a que una familia sea intrínsecamente superior: cambian biblioteca, combinación, clasificador y dominio.
+14: 
+15: GFS permite examinar adiciones condicionadas al subconjunto, pero tiene una búsqueda más costosa y tampoco garantiza un óptimo global. El control que hereda su tamaño ayuda a separar composición y cantidad, siempre que se mantenga identificado como otra regla. Los ensambles permiten agregar decisiones, pero su ventaja no demuestra una mejora de la concatenación de un único vector.
+16: 
+17: \section{Cuándo tiene sentido la activación por margen}
+18: La ruta condicional reduce adquisición proyectada cuando el trabajo evitado compensa ejecutar la base. Para \(C_{\mathrm{inc}}>0\), las definiciones del método dan
+19: \begin{equation}
+20: \widehat C_V<C_{\mathrm{dir}}
+21: \quad\Longleftrightarrow\quad
+22: \widehat r_V<\frac{C_{\mathrm{dir}}-c_b}{C_{\mathrm{inc}}}.
+23: \end{equation}
+24: La desigualdad explica por qué importan tanto la base elegida como la fracción activada. Si \(c_b\geq C_{\mathrm{dir}}\), el perfil de componentes no permite un ahorro estricto mediante esa base. Si \(C_{\mathrm{inc}}=0\), se comparan directamente los costos sin dividir por cero. En todos los casos, el ahorro de latencia física exige contabilizar y medir los clasificadores, la compuerta y los demás sobrecostos de la implementación.
+25: 
+26: La compuerta conserva dos posibles beneficios: evitar adquirir información innecesaria y mantener aciertos de la base que Top-\(k\) no comparte. También introduce dos riesgos: descartar un rescate útil y ejecutar un rescate que empeora la predicción. Por eso, una fracción baja de derivación no basta para evaluar el método; se requieren calidad y costo en las mismas rutas.
+27: 
+28: La tolerancia interna de 0,005 limita el conjunto de candidatos del procedimiento registrado. No garantiza una pérdida externa menor a ese valor, ni tiene por sí sola el significado de una prueba de no inferioridad. El traslado del umbral al modelo reajustado puede cambiar la escala de márgenes y la tasa de rescate.
+29: 
+30: La ampliación con Top-4 fijo permite separar esta pregunta del tamaño heredado del GFS. En seis datasets completos su accuracy media queda muy próxima a la del uso directo: 0,944581 frente a 0,944449, con ganancias y pérdidas por dataset y adquisición proyectada 75,00 \% menor. La diferencia no es significativa (\(p=0,5625\)) ni permite afirmar equivalencia. E2 aporta una comparación con otras medidas de confianza, pero la selección previa de la base para margen, la falta de calibración y las diferencias de fracción real limitan una conclusión de superioridad. El diagnóstico de igual cantidad ayuda a estudiar el ordenamiento; no reemplaza la evaluación individual online.
+31: 
+32: \section{Qué permite afirmar el tiempo medido}
+33: La dimensión del vector es una propiedad de la representación. La latencia depende de extractores, hardware, preprocesamiento, residencia, transferencia y clasificadores. Cuatro bloques pueden incluir redes costosas; una representación de más coordenadas puede provenir de un extractor económico. No corresponde convertir el 15 \% de dimensiones de un punto en un 85 \% de ahorro temporal.
+34: 
+35: Los perfiles analíticos sirven para comparar candidatos bajo constantes comunes y seleccionar antes de evaluar. Los pilotos físicos comprueban comportamiento de una implementación y de una muestra de imágenes. El panel online posterior permite asociar accuracy, métricas complementarias y tiempo de cada llamada, pero sus diferencias entre fechas no son un experimento pareado simultáneo de todos los métodos.
+36: 
+37: Las discrepancias de representación de CUReT y Soil impiden cerrar el vínculo entre algunos embeddings y la ejecución física. La identidad de predicciones no resuelve esa diferencia. Se necesita una reconciliación de capa, transformación, checkpoint y muestras antes de extender el alcance, no una explicación causal elegida a partir de una coincidencia parcial.
+38: 
+39: El primer perfil KTH mostró fallos de fidelidad EVA-02 y SigLIP. Una revisión posterior identificó entradas incompatibles con el código histórico y, con autorización explícita, validó una receta corregida sobre las mismas 33 imágenes por red y el mismo mínimo 0,999. Esto permitió completar E1/E2, conservando los fallos y los 25 resultados ya terminados. La concordancia obtenida no demuestra identidad en todas las imágenes ni restituye la procedencia original completa de los NPY. Las sesiones distintas de adquisición tampoco constituyen una medición homogénea del tiempo de las políticas.
+40: 
+41: \section{Interpretación de la comparación con papers}
+42: La tabla externa responde cómo se comportaron adaptaciones en el panel local. No demuestra que nuestras recetas reproduzcan íntegramente los artículos ni que las cifras publicadas sean incorrectas. El protocolo aproximado Neshov, por ejemplo, conserva una diferencia observada de accuracy respecto del porcentaje publicado.
+43: 
+44: DeepLumina exige una reserva adicional de ajuste. No conocer el impacto de la no convergencia sobre F1 impide atribuir toda una diferencia a la calidad de su idea de concatenación. Una tabla con datos disponibles puede ser informativa si mantiene esa condición y la cobertura incompleta, pero no debe utilizarse como prueba definitiva de superioridad sobre el método del paper.
+45: 
+46: Top-4 también presenta pérdidas: frente a Completa-22 en Outex/SVM, por ejemplo. En Soil online supera la accuracy de Neshov y pierde en macro-F1. El desbalance permite que el orden cambie según la métrica; accuracy expresa acierto global y las métricas macro conservan la perspectiva por clase. La selección de un método exige decidir qué calidad y costo son aceptables para una aplicación; una clasificación global de ganadores ocultaría ese compromiso.
+47: 
+48: \section{Amenazas a la validez y alcance}
+49: La primera amenaza es la exposición acumulada a benchmarks durante el desarrollo. Separar pliegues sigue siendo necesario, pero no elimina la influencia de resultados anteriores sobre nuevas decisiones. Las bibliotecas intermedias y los distintos regímenes de medición constituyen otra fuente de confusión si no se identifican.
+50: 
+51: La segunda es la dependencia: semillas, particiones y repeticiones físicas reutilizan imágenes. Aumentar su número no equivale a incorporar nuevos dominios. Las desviaciones entre pliegues no son intervalos de generalización universal; el no rechazo estadístico no acredita igualdad.
+52: 
+53: La tercera es la conciliación entre archivos. El barrido, el benchmark estático y el panel online no se intercambian automáticamente. Las diferencias Top-4 de Soil y las variantes KTH requieren trazabilidad adicional antes de atribuir identidad de modelo y representación. Esta tesis conserva los archivos y no selecciona entre cifras según cuál favorece la hipótesis.
+54: 
+55: Finalmente, faltan controles específicos para algunas preguntas secundarias, como Top-4 más N-gramas bajo determinadas bibliotecas y una campaña física íntegra del mismo Top-\(k\) directo/condicional con todas sus representaciones reconciliadas. Su ausencia limita esas afirmaciones, pero no invalida la comparación descriptiva que sí dispone de predicciones y procedencia.
+56: 
+57: El cambio de métrica principal a accuracy se decidió después de observar los resultados históricos. La tesis informa esa decisión y conserva macro-F1, precisión macro y recall macro como complementos donde pueden reconstruirse. Los rankings y umbrales históricos siguen siendo los definidos por macro-F1 interno; no se atribuye su selección a accuracy ni se presenta este cambio como una confirmación preregistrada.
+58: 
+59: \section{Implicación para el diseño de un clasificador}
+60: El recorrido permite plantear una decisión ordenada: elegir primero una biblioteca y un clasificador, evaluar la representación pequeña frente a referencias y solo después estudiar si una base aporta ventaja de adquisición. Esa secuencia evita introducir una compuerta para compensar una concatenación que no fue comparada adecuadamente.
+61: 
+62: La contribución de la tesis es documentar ese recorrido con sus resultados y límites. No depende de que Top-4 gane todos los datasets, de que el margen siempre mejore accuracy o de que se igualen porcentajes publicados.
+
+FILE: paper/chapters/07_conclusion.tex
+1: \chapter{Conclusiones y trabajo futuro}\label{sec:conclusion}
+2: 
+3: \section{Respuesta a las preguntas de investigación}
+4: Esta tesis estudió primero la construcción y el uso directo de la concatenación Top-\(k\) de descriptores para clasificar texturas y después la optimización de su ejecución mediante activación por margen. Ambas etapas forman parte del aporte: seleccionar una representación útil y decidir para qué imágenes compensa adquirirla.
+5: 
+6: Para P1, el barrido de uno a 21 bloques, con 47 condiciones por tamaño y clasificador, mostró que aumentar la representación no mejora uniformemente accuracy, la métrica principal. Top-4/SVM alcanzó una media equiponderada por dataset de 0,944214, frente al máximo descriptivo de 0,945090 en \(k=10\), utilizando aproximadamente 15,42 \% de las dimensiones de la biblioteca sin N-gramas. Con ResMLP, Top-4 obtuvo 0,942022 y el máximo observado correspondió a cinco, con 0,944327. Los datos respaldan estudiar Top-4 como alternativa compacta, no declararlo óptimo universal ni equivalente estadísticamente al máximo.
+7: 
+8: La comparación por dataset conserva situaciones donde concatenar más información resulta útil. N-gramas mostró que relevancia individual y complementariedad no son intercambiables. Sus variantes con SVD y las bibliotecas intermedias deben identificarse para no atribuir a la selección un efecto producido por cambiar los candidatos. Las adaptaciones de papers ofrecen contexto empírico, con diferencias de receta y reservas explícitas.
+9: 
+10: Para P2, la comparación histórica de 27 condiciones SVM muestra que activar por margen el mismo Top-\(k\) puede mejorar o empeorar accuracy frente a ejecutarlo siempre: FMD pasa de 0,983000 a 0,984000 y Outex de 0,944118 a 0,938235. La auditoría verifica que las imágenes derivadas reciben la predicción del mismo rescate directo, por lo que los cambios provienen de conservar la base en las restantes. Cinco condiciones coinciden en tamaño y bloques con el Top-4 del barrido; los demás rescates utilizan otros valores de \(k\). La evidencia respalda estudiar cuándo activar una concatenación fijada y conserva esa diferencia de cobertura al interpretar la versión optimizada.
+11: 
+12: Los costos por componentes proyectan menor adquisición en las rutas elegidas; los pilotos físicos aportan observaciones favorables de tiempo en condiciones delimitadas. Las discrepancias de representación, las variantes KTH y el alcance de los cronometrajes impiden concluir ahorro físico universal o equivalencia predictiva. La complejidad del vector y la latencia son magnitudes que deben medirse por separado.
+13: 
+14: La ampliación E1 completó Top-4 fijo en 27 condiciones y seis datasets, tras validar una receta corregida KTH con el umbral original y conservar los 25 resultados previos. Accuracy media fue 0,944449 directa y 0,944581 condicional, con adquisición por componentes proyectada 75,00 \% menor. La diferencia no es significativa (\(p=0,5625\)), no acredita equivalencia y ese porcentaje no representa latencia online. E2 comparó margen, máximo y entropía con los mismos scores: el margen conserva ventajas descriptivas en algunos puntos, sin diferencias significativas tras Holm sobre seis datasets. Ambas ampliaciones dejan visibles las pérdidas y preservan la cronología de los fallos de fidelidad.
+15: 
+16: \section{Contribución y límites del cierre}
+17: El aporte consiste en un estudio trazable de selección, concatenación y adquisición por imagen: identifica cómo se obtiene el subconjunto, qué evidencia motiva un tamaño compacto y cuándo se utiliza una primera etapa para decidir su ejecución. Se conservan tanto mejoras como pérdidas y se separan archivos históricos, llamadas online y experimentos complementarios.
+18: 
+19: Las comparaciones externas no se presentan como reproducción fiel de todos los porcentajes publicados. DeepLumina permanece bajo revisión por no convergencia e incompletitud DTD. Las discrepancias entre archivos Top-4 tampoco se resuelven escogiendo la cifra más favorable. Las conclusiones son las de una investigación exploratoria con evidencia localizada, no las de una confirmación ciega de superioridad.
+20: 
+21: Accuracy se adoptó como métrica principal de reporte el 15-11-2026, con resultados históricos ya observados. El cambio no modifica los rankings y reglas históricas basadas en macro-F1. Las métricas macro complementarias siguen siendo necesarias: en Soil, por ejemplo, un orden favorable de accuracy puede coexistir con una pérdida de macro-F1. Los contrastes de accuracy sobre seis datasets no acreditan equivalencia entre métodos.
+22: 
+23: \section{Trabajo futuro delimitado}
+24: Con E1/E2 completo, las prioridades son conciliar las variantes pendientes de representación y procedencia; medir de manera pareada el sistema Top-4 directo/por margen bajo un régimen físico explícito; y completar los controles específicos de complementariedad con N-gramas y ResMLP que se decida incorporar. Toda condición nueva deberá fijar receta y criterio antes de evaluar, conservando los datos ya observados como tales. El perfil KTH aceptado es un avance de fidelidad delimitado, no el cierre de toda discrepancia histórica.
+25: 
+26: También es pertinente examinar bases y tamaños seleccionados con otros dominios de evaluación. Una compuerta más compleja o un rescate de ensamble constituye otra hipótesis y requiere controles propios. El estudio aquí presentado muestra que la pregunta útil no es cuántos descriptores se pueden concatenar, sino qué combinación aporta calidad y para qué imágenes compensa adquirirla.
+
+FILE: paper/chapters/A_especificaciones.tex
+1: \chapter{Especificaciones de representación y selección}\label{app:especificaciones}
+2: Este anexo conserva la parametrización necesaria para reproducir las representaciones y comparadores. Su extensión no implica que todos los bloques se adquieran para cada imagen de una ruta condicional.
+3: 
+4: La biblioteca de 21 bloques del barrido excluye N-gramas y tiene 20.396 dimensiones nominales. No es la biblioteca intermedia de 21 con N-gramas y sin BEiT-v2, de 19.884 dimensiones. La biblioteca consolidada de 22 suma 20.652. Se conserva esta distinción al interpretar los porcentajes de compacidad.
+5: 
+6: \section{Espacio de descriptores}
+7: 
+8: La biblioteca contiene cinco operadores clásicos, RGB N-gramas con SVD y 16 extractores aprendidos congelados. Cada uno constituye un bloque candidato sujeto al mismo criterio de selección. Las
+9: Tablas~\ref{tab:extractores-clasicos} y~\ref{tab:extractores-aprendidos}
+10: identifican la parametrización, los checkpoints y la dimensionalidad de cada
+11: bloque. Las redes preentrenadas se ejecutaron en modo evaluación y sin
+12: ajuste de pesos. En los modelos cargados mediante \texttt{timm} se eliminó la
+13: capa clasificadora (\texttt{num\_classes=0}) y se aplicó el preprocesamiento
+14: asociado al checkpoint. Para ViT, DeiT, Swin, MAE y SigLIP se utilizó la salida
+15: \emph{pooler} cuando estaba disponible y, en caso contrario, el token de
+16: clasificación. Todas las imágenes se convirtieron a RGB.
+17: 
+18: Los descriptores clásicos se basan en operadores LBP,
+19: Gabor, GLCM y HOG \citep{ojala2002lbp,mehta2016drlbp,jain1991gabor,haralick1979glcm,dalal2005hog}.
+20: Las CNN corresponden a VGG16, ResNet, DenseNet, EfficientNet y ConvNeXt V2
+21: \citep{simonyan2015vgg,he2016resnet,huang2017densenet,tan2019efficientnet,woo2023convnextv2}.
+22: El grupo Transformer incluye ViT, DeiT, Swin y EVA-02
+23: \citep{dosovitskiy2021vit,touvron2021deit,liu2021swin,fang2024eva02}; las
+24: representaciones con preentrenamiento autosupervisado o multimodal se basan en
+25: DINOv2, MAE y SigLIP \citep{oquab2024dinov2,he2022mae,zhai2023siglip}.
+26: 
+27: \begin{table}[!ht]
+28: \centering
+29: \caption{Seis descriptores basados en patrones, filtros, gradientes y conteos incluidos en la biblioteca. Cada fila constituye un bloque completo.}
+30: \label{tab:extractores-clasicos}
+31: \fontsize{9}{11}\selectfont
+32: \begin{tabular}{@{}l>{\raggedright\arraybackslash}p{7.0cm}>{\raggedright\arraybackslash}p{3.2cm}r@{}}
+33: \toprule
+34: Descriptor & Parametrización & Salida & Dim. \\
+35: \midrule
+36: LBP & multiescala $(P,R)=(8,1),(16,2),(24,3)$; mapeo \texttt{uniform} & histogramas normalizados & 54 \\
+37: LBP-rot & $P=8$, $R=1$; ocho rotaciones; códigos limitados a $[0,10]$ & histogramas $10\times 8$ & 80 \\
+38: Gabor & cuatro frecuencias 0,1--0,8; seis orientaciones & media y desv. de respuesta real & 48 \\
+39: GLCM & 256 niveles; distancias 1--3; cuatro ángulos; seis propiedades & promedios sobre ángulos & 18 \\
+40: HOG & nueve orientaciones; celda $16^2$; bloque $2^2$; norma L2-Hys & vector HOG & 1.764 \\
+41: N-gramas & ventana vertical $2\times1$; cuantización RGB por 12; 8.192 bins; SVD & vector normalizado & 256 \\
+42: \bottomrule
+43: \end{tabular}
+44: \end{table}
+45: 
+46: \begin{table}[!ht]
+47: \centering
+48: \caption{Representaciones aprendidas congeladas incluidas en la biblioteca (16 extractores profundos y de modelos fundacionales). ``Preclas.'' designa la salida inmediatamente anterior al clasificador del backbone.}
+49: \label{tab:extractores-aprendidos}
+50: \fontsize{9}{11}\selectfont
+51: \begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{6.5cm}lr@{}}
+52: \toprule
+53: Familia & Descriptor & Checkpoint & Salida & Dim. \\
+54: \midrule
+55: CNN & VGG16 & \texttt{vgg16.tv\_in1k} & preclas. & 4.096 \\
+56:  & ResNet-50 & \texttt{resnet50.a1\_in1k} & preclas. & 2.048 \\
+57:  & ResNet-101 & \texttt{resnet101.a1\_in1k} & preclas. & 2.048 \\
+58:  & DenseNet-121 & \texttt{densenet121.tv\_in1k} & preclas. & 1.024 \\
+59:  & EfficientNet-B0 & \texttt{efficientnet\_b0.ra\_in1k} & preclas. & 1.280 \\
+60:  & ConvNeXt V2-T & \texttt{convnextv2\_tiny.fcmae\_ft\_in22k\_in1k} & preclas. & 768 \\
+61: \midrule
+62: Transformer & ViT-B/16 & \texttt{google/vit-base-patch16-224} & pooler/CLS & 768 \\
+63:  & DeiT-S & \texttt{facebook/deit-small-patch16-224} & pooler/CLS & 384 \\
+64:  & Swin-T & \texttt{microsoft/swin-tiny-patch4-window7-224} & pooler & 768 \\
+65:  & EVA-02 base & \texttt{eva02\_base\_patch14\_224} & preclas. & 768 \\
+66:  & BEiT-v2-B$^\dagger$ & \texttt{beitv2\_base\_patch16\_224.}\allowbreak\texttt{in1k\_ft\_in22k\_in1k} & preclas. & 768 \\
+67: \midrule
+68: Autosup./multimodal & DINOv2-S & \texttt{vit\_small\_patch14\_dinov2.lvd142m} & preclas. & 384 \\
+69:  & DINOv2-B & \texttt{vit\_base\_patch14\_dinov2.lvd142m} & preclas. & 768 \\
+70:  & DINOv2-L & \texttt{vit\_large\_patch14\_dinov2.lvd142m} & preclas. & 1.024 \\
+71:  & MAE-B & \texttt{facebook/vit-mae-base} & pooler/CLS & 768 \\
+72:  & SigLIP-B & \texttt{google/siglip-base-patch16-224} & pooler/CLS & 768 \\
+73: \bottomrule
+74: \multicolumn{5}{l}{\footnotesize $^\dagger$BEiT-v2-B (768d) consolida la biblioteca en 22 extractores (20.652 dimensiones conjuntas).}
+75: \end{tabular}
+76: \end{table}
+77: 
+78: Los descriptores clásicos se calcularon en escala de grises con la implementación de scikit-image: LBP, LBP-rot, Gabor y GLCM sobre imágenes redimensionadas a $256\times256$, y HOG sobre $128\times128$. LBP-rot designa la implementación propia registrada como \texttt{drlbp} en los archivos experimentales: aplica LBP con mapeo \texttt{ror} a ocho rotaciones y concatena diez bins por rotación en el intervalo $[0,10]$. Los códigos fuera de ese intervalo se descartan; por tanto, es un histograma restringido, no una reproducción del DRLBP de Mehta y Egiazarian \citep{mehta2016drlbp}.
+79: 
+80: La biblioteca consolidada del estudio comprende 22 descriptores (cinco operadores clásicos, N-gramas con SVD y 16 extractores aprendidos), cuyos vectores concatenados suman 20.652 dimensiones (19.884 dimensiones correspondientes al conjunto preliminar de 21 descriptores más 768 componentes aportadas por BEiT-v2-B). Las características fijas y los conteos por imagen se almacenaron junto con etiquetas, orden de muestras y hashes de procedencia; las transformaciones aprendidas se ajustaron dentro de cada partición de entrenamiento. El estudio evalúa la selección y concatenación de bloques con extractores de imagen congelados y transformaciones ajustadas dentro del entrenamiento; no compara estrategias de \emph{fine-tuning}.
+81: 
+82: RGB Pixel N-grams \citep{paiva2023rgb} utiliza ventanas verticales de $2\times1$ píxeles con paso 1 sobre la imagen RGB en su resolución original. Cada canal se cuantiza mediante $q(v)=\lfloor v/12\rfloor$; los seis valores se codifican en base 22, recorriendo las dos posiciones de R, G y B. Los conteos se agrupan por el resto del código dividido por 8.192 y se comprimen mediante TruncatedSVD aleatorizado (256 componentes, cinco iteraciones y semilla de la condición). SVD se ajusta exclusivamente con el entrenamiento de cada partición interna y se reajusta sobre el entrenamiento externo para la evaluación final. El vector se normaliza con $L_2$ antes de concatenarlo. Esta parametrización comprimida se identifica como N-gramas + SVD y constituye una familia propia para la selección Homogénea.
+83: 
+84: \section{Greedy Forward Selection}
+85: 
+86: GFS se utiliza como un método \emph{wrapper}: los subconjuntos se valoran mediante el propio clasificador y exclusivamente dentro de la validación interna, como requieren los diseños de selección que separan búsqueda y evaluación externa \citep{kohavi1997wrappers,guyon2003feature}. La búsqueda comienza con un conjunto vacío. En el paso $t$, evalúa cada descriptor aún no seleccionado al añadirlo al subconjunto vigente y elige el candidato con mayor macro-F1 medio en la validación interna:
+87: \begin{equation}
+88:  j_t=\arg\max_{j\notin S_{t-1}}\widehat{F}_{1,\mathrm{inner}}(S_{t-1}\cup\{j\}),
+89:  \qquad S_t=S_{t-1}\cup\{j_t\}.
+90:  \label{eq:gfs}
+91: \end{equation}
+92: La búsqueda se limita a $k\leq 8$. Se detiene cuando la mejora respecto del paso anterior es menor que 0,001 durante dos pasos consecutivos, pero devuelve el mejor paso histórico, no necesariamente el último. Los empates se resuelven de forma determinista mediante el nombre del extractor. Todas las evaluaciones candidatas utilizan únicamente muestras pertenecientes al entrenamiento externo.
+93: 
+94: La Figura~\ref{fig:gfs-pasos} representa el mecanismo general de GFS. En cada ronda se comparan únicamente los bloques aún disponibles dentro de los folds internos; el bloque elegido se incorpora al subconjunto y el test externo permanece fuera de esa decisión.
+95: 
+96: \begin{figure}[!ht]
+97: \centering
+98: \includegraphics[width=\textwidth]{articulo/borrador_profesor/figures/gfs_pasos.pdf}
+99: \caption{Mecanismo de Greedy Forward Selection sobre bloques completos. En cada paso se elige el bloque que maximiza el macro-F1 medio de la validación interna; el test externo se utiliza únicamente tras cerrar el subconjunto.}
+100: \label{fig:gfs-pasos}
+101: \end{figure}
+102: \FloatBarrier
+103: 
+104: La Tabla~\ref{tab:config-gfs} concentra los parámetros de búsqueda, comunes a ambos clasificadores.
+105: 
+106: \begin{table}[!htbp]
+107: \centering
+108: \caption{Configuración de la selección GFS en el flujo general.}
+109: \label{tab:config-gfs}
+110: \fontsize{9}{11}\selectfont
+111: \begin{tabular}{lp{8.4cm}}
+112: \toprule
+113: Elemento & Configuración \\
+114: \midrule
+115: Unidad de selección & Bloque completo generado por un extractor \\
+116: Candidatos & Hasta 22 bloques candidatos \\
+117: Criterio interno & Macro-F1 medio en cuatro folds estratificados y agrupados \\
+118: Presupuesto & Hasta $k=8$ bloques \\
+119: Parada & Dos mejoras consecutivas menores que 0,001; se devuelve el mejor paso histórico \\
+120: Empates & Nombre del extractor, en orden determinista \\
+121: Información excluida & Test externo y sus etiquetas durante toda la selección \\
+122: \bottomrule
+123: \end{tabular}
+124: \end{table}
+125: \FloatBarrier
+126: 
+127: 
+128: 
+129: \section{Perfil numérico de costos del piloto}
+130: \input{generated_editorial/perfil_costos.tex}
+131: El perfil es una colección de constantes archivadas, no una medición de extremo a extremo del híbrido. Incluye un sobrecosto fijo de política de 0,45 ms cuando existe rescate y excluye la latencia completa de sus múltiples SVM, transferencias y régimen de carga/residencia. Las mediciones de la cascada anterior no se transfieren automáticamente a esta implementación.
+
+FILE: paper/chapters/B_procedencia.tex
+1: \chapter{Protocolos y variantes de referencia}\label{app:procedencia}
+2: 
+3: \section{Separación de evaluaciones}
+4: Las 47 condiciones estáticas por clasificador incluyen tres semillas en FMD y Soil. El panel canónico de 27 conserva solo la semilla 42 en esos conjuntos. Las medias de ambos paneles pueden diferir sin que una tabla reemplace a la otra. El piloto híbrido produce predicciones OOF de las 680 imágenes del entrenamiento oficial de Outex y mantiene fuera su test oficial.
+5: 
+6: En los experimentos de desarrollo anteriores de DTD se utilizó también una partición SGKF de 4.512/1.128 imágenes. Su entrenamiento incluye 1.501 imágenes del test oficial 1, por lo que esas exploraciones no se presentan como evaluación oficial ciega ni como controles directos del benchmark. No se mezclan sus métricas con las tablas principales.
+7: 
+8: \section{Procedencia de KTH}
+9: Las tablas estáticas conservan los resultados archivados de 22 bloques. El Top-$k$ SVM de origen registra macro-F1 medio aproximado de 0,9400; el control corregido con agrupación interna por muestra registra aproximadamente 0,9445. La cascada se construyó con el rescate anterior. Coincidir en una media no acredita que selecciones, transformaciones y predicciones sean idénticas.
+10: 
+11: Los contrastes estáticos sobre seis conjuntos describen el archivo indicado; no certifican que todos sus controles correspondan a la variante KTH corregida. La inferencia conjunta de la cascada excluye KTH hasta reconciliar su ruta completa. Tampoco se sustituye solo una cifra en el análisis para resolver esta reserva.
+12: 
+13: \section{Fidelidad de los pilotos físicos}
+14: El piloto de una condición por conjunto se documenta con registros por imagen y repetición. La coincidencia de rutas o clases no basta para establecer identidad del vector extraído. CUReT y Soil mantienen cosenos mínimos aproximados de -0,0707 y 0,0085 respecto al caché. No se atribuye la diferencia a una capa, interpolación o normalización concreta sin diagnóstico controlado.
+15: 
+16: \section{Particiones y multiplicidades del piloto híbrido}
+17: El desarrollo utiliza únicamente las 680 imágenes del entrenamiento oficial de Outex. Los pliegues productores estratificados y agrupados usan semilla 142; los internos, semilla 42. Cada ensamble contiene 15 votos, pero un subconjunto repetido reutiliza el mismo modelo y conserva su multiplicidad en la agregación.
+18: 
+19: \begin{table}[!htbp]
+20: \centering\small
+21: \caption{Tamaños y modelos únicos del control de diversidad permanente en cada pliegue productor. No son nuevas réplicas ni 15 ejecuciones distintas por imagen.}
+22: \label{tab:producer-folds}
+23: \begin{tabular}{@{}lrrrr@{}}
+24: \toprule
+25: Pliegue & Entrenamiento & Validación & Votos & Modelos únicos\\
+26: \midrule
+27: 0 & 453 & 227 & 15 & 9\\
+28: 1 & 453 & 227 & 15 & 11\\
+29: 2 & 454 & 226 & 15 & 12\\
+30: \bottomrule
+31: \end{tabular}
+32: \end{table}
+33: 
+34: El sorteo de diversidad usa las semillas 4.200.009, 4.200.019 y 4.200.029, derivadas de la semilla de desarrollo y del índice productor. Las particiones y miembros se conservan en los registros por pliegue. Un modelo único del rescate no equivale a un extractor único: su costo depende de la unión de los cuatro bloques de cada miembro, descontando la base cuando ya está adquirida.
+35: 
+36: \section{Figuras de la cascada de referencia}
+37: \begin{figure}[!htbp]
+38: \centering
+39: \includegraphics[width=0.85\textwidth]{figures/pareto_frontier_adaptive_cascade.pdf}
+40: \caption{Comparación histórica calidad--costo bajo su perfil analítico. No representa el rescate de diversidad ni una medición física de todas las rutas.}
+41: \label{fig:pareto-cascade}
+42: \end{figure}
+43: \begin{figure}[!htbp]
+44: \centering
+45: \includegraphics[width=0.85\textwidth]{figures/cascade_routing_efficiency.pdf}
+46: \caption{Enrutamiento de la cascada histórica según los artefactos archivados. Las proporciones no garantizan una tasa de salida para imágenes nuevas.}
+47: \label{fig:routing-efficiency}
+48: \end{figure}
+49: 
+50: 
+51: \FloatBarrier
+
+FILE: paper/chapters/C_resultados_adicionales.tex
+1: \chapter{Resultados secundarios y variabilidad}\label{app:resultados-adicionales}
+2: 
+3: \section{Macro-F1 complementario del estudio estático}
+4: \input{generated_accuracy_primary_20261115_v3/baseline_f1_secondary.tex}
+5: \input{generated_editorial/variabilidad_estatica.tex}
+6: Las desviaciones entre condiciones no son intervalos de generalización a otros dominios. Semillas y particiones pueden compartir imágenes; no se tratan como réplicas independientes. Outex tiene un único split, por lo que no se estima dispersión entre splits.
+7: 
+8: \section{Rankings y contrastes completos por clasificador}
+9: Las tablas de esta sección conservan los contrastes históricos basados en macro-F1 como análisis secundario. Los contrastes principales sobre accuracy se recalculan en el cuerpo de la tesis; estos valores no se renombran como accuracy.
+10: \input{articulo/borrador_profesor/generated/classifier_rankings.tex}
+11: \input{articulo/borrador_profesor/generated/classifier_global.tex}
+12: \input{articulo/borrador_profesor/generated/classifier_holm.tex}
+13: Los post-hoc aplican diferencias de rangos de Friedman y Holm por familia de diez pares. Sus valores no son Wilcoxon exactos ni contrastes del híbrido.
+14: \FloatBarrier
+15: 
+16: \subsection{Sensibilidad del benchmark sin KTH}
+17: Se conservan todos los pares del análisis sobre DTD, FMD, CUReT, Outex y SoilOriginal, con una media por dataset y clasificador. Las familias de Holm son separadas para SVM y ResMLP. Este recálculo no corrige la variante KTH archivada ni aumenta el número de datasets independientes.
+18: \input{generated_mesa_r2/kth_sensibilidad_global.tex}
+19: \input{generated_mesa_r2/kth_sensibilidad_holm.tex}
+20: \FloatBarrier
+21: 
+22: \section{N-gramas con ResMLP y ampliación de biblioteca}
+23: \input{generated_accuracy_primary_20261115_v3/ngram_resmlp.tex}
+24: Esta comparación conserva la biblioteca de 20 frente a 21 con N-gramas de su corte histórico; no equivale al barrido sin N-gramas de 21 ni a una prueba de Top-4 más N-gramas.
+25: 
+26: \subsection{Macro-F1 complementario de N-gramas y comparadores externos}
+27: \input{articulo/borrador_profesor/generated/ngram_svm.tex}
+28: \input{articulo/borrador_profesor/generated/ngram_resmlp.tex}
+29: \input{generated_topk_margin/externos_f1.tex}
+30: Estas tablas conservan métricas complementarias e identifican sus bibliotecas y reservas. Las tablas principales del cuerpo utilizan accuracy.
+31: 
+32: \subsection{N-gramas en el estudio complementario de rescate}
+33: El pool corregido conserva candidatos estáticos, sorteos, particiones y scores comunes al ofrecer versiones con y sin N-gramas. En marginal/B120, permitir color y reseleccionar cambia $0{,}900563/97{,}245$ ms a $0{,}906690/83{,}772$ ms. Cambia la ruta: no es una ablación de ruta fija. El rescate de diversidad utiliza otro pool, por lo que sus diferencias no se atribuyen únicamente al color.
+34: 
+35: 
+36: \section{Barrido del control de poda y compuerta}\label{sec:anexo-p0}
+37: La Tabla~\ref{tab:p0-barrido} conserva las doce configuraciones, incluidas las cuatro sin rescate. Se calcula macro-F1 sobre las 680 predicciones reunidas; los costos se ponderan por imagen. Las comparaciones comparten imágenes y no constituyen doce datasets ni réplicas independientes.
+38: 
+39: \input{generated_p0/barrido_p0.tex}
+40: \FloatBarrier
+41: 
+42: La base es la seleccionada en cada política. El rescate permanente conserva exactamente miembros y multiplicidades, omite una base innecesaria y no se reoptimiza para el presupuesto indicado. La ruta forzada, no mostrada en este barrido, tiene las mismas predicciones del rescate permanente y conserva base y sobrecosto de política; se distingue en la Tabla~\ref{tab:p0-b60}. Los cuatro casos sin rescate mantienen la base en todas las vistas.
+43: 
+44: \section{Réplica del rescate por condición y regla}\label{sec:anexo-replica}
+45: La réplica conserva cinco condiciones nuevas: FMD/42, FMD/123, FMD/2026, Outex/123 y Outex/2026. Outex/42 permanece en las tablas del piloto y no integra las medias nuevas. Las Tablas~\ref{tab:replica-barrido} y~\ref{tab:replica-referencias} mantienen los presupuestos completos y las referencias del mismo protocolo de desarrollo. No se escoge una regla por su F1 de validación productora.
+46: 
+47: \input{generated_replication/replica_barrido.tex}
+48: \input{generated_replication/replica_referencias.tex}
+49: \FloatBarrier
+50: 
+51: \subsection{Activación del mismo rescate en la réplica}
+52: La Tabla~\ref{tab:replica-p0} compara las mismas políticas con su rescate permanente, conservando miembros y puntuaciones. Las medias se calculan primero por condición y luego entre semillas del mismo dataset. En los casos sin rescate ambas vistas son la base. Las diferencias de calidad pueden ser positivas o negativas; no se traslada a estas condiciones la conclusión de ausencia de mejora de F1 del piloto Outex/42. El archivo de análisis conserva además las sesenta filas individuales por condición, regla y presupuesto.
+53: 
+54: \input{generated_replication/replica_p0.tex}
+55: \FloatBarrier
+56: 
+57: \section{Alcance de las exploraciones secundarias}
+58: Las exploraciones de proyecciones, residuos y políticas de más etapas pertenecen al desarrollo del proyecto. No se les atribuye aquí una pérdida general frente a concatenación, ni se usa la falta de un resultado reconciliado para refutar una familia metodológica. Solo un contraste con particiones, selección y medición compatibles permitiría esa conclusión.
+59: 
+60: Los registros de desarrollo conservan variantes con distintos protocolos y estimandos. Las tablas de este manuscrito incluyen resultados con fuentes identificadas y separan las comparaciones no reconciliadas. Así se evita atribuir a una misma evaluación cifras procedentes de diseños distintos.
+
+FILE: paper/chapters/D_reproducibilidad.tex
+1: \chapter{Reproducibilidad y disponibilidad}\label{app:reproducibilidad}
+2: 
+3: \section{Fuentes y versiones}
+4: El proyecto organiza código, manifiestos, decisiones de selección, predicciones y registros físicos. El código se conserva en el \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{repositorio público del proyecto}. Un commit y los cambios locales deben identificarse al reproducir una versión; la existencia de un archivo público no demuestra que incluya pesos, imágenes y entornos locales.
+5: 
+6: La revisión del 13 de noviembre reconstruye las curvas de tamaño y la comparación directa/por margen mediante \path{scripts/build_topk_margin_thesis_20261113.py}. Sus salidas están en \path{results/analysis/topk_margin_rewrite_20261113_v1/} y las tablas y figuras del manuscrito en \path{paper/generated_topk_margin/}. El resumen registra 124 fuentes ligadas por SHA-256, la cobertura y la ausencia de nuevos fits, predicciones o tiempos.
+7: 
+8: El barrido se reconstruye desde seis CSV por clasificador. La auditoría de cascada utiliza los 27 resultados, sus decisiones pretest, predicciones y archivos Top-\(k\) de origen. El panel externo procede de \path{results/analysis/reconciliation_full_panel_20261104_v1/}. Las referencias bibliográficas corregidas se contrastaron con los metadatos del DOI y se registraron en \path{reference_metadata.json} del directorio de auditoría.
+9: 
+10: Las figuras de ganancias y por dataset (252 puntos) se reconstruyen con \path{scripts/build_topk_progression_20261113.py}. Los cinco rescates con los bloques Top-4 del barrido se verifican con \path{scripts/audit_top4_margin_subset_20261113.py}. Ambos leen resultados existentes y conservan fuentes y hashes.
+11: 
+12: El cierre E1/E2 de seis datasets se audita con \path{scripts/audit_top4_kth_completion.py}. El índice de las 27 condiciones está en \path{results/exploratory/topk_cascade/top4_fixed_kth_completion_20261115_v1/}; enlaza 25 carpetas conservadas y dos nuevas, sin duplicar ajustes. La auditoría \path{results/analysis/top4_fixed_kth_completion_audit_20261115_v1/} conserva predicciones, agregados, 486 filas E2 y diferencias nulas de accuracy y macro-F1 frente al Top-4 directo archivado.
+13: 
+14: Las tablas de este cierre se generan con \path{scripts/build_thesis_six_dataset_closure.py}, en \path{paper/generated_top4_fixed_closure_20261115/}. El perfil corregido KTH identifica las sesiones EVA-02 y SigLIP, sus llamadas, las huellas de entrada y los errores de infraestructura previos a la ejecución pendiente. Las fuentes originales y sus estados fallidos permanecen conservados. Reproducir métricas desde los scores guardados no requiere repetir la validación neuronal ni entrenar las condiciones completas.
+15: 
+16: \section{Reconstrucción sin ejecutar modelos}\label{sec:trazabilidad}
+17: El siguiente comando utiliza salidas nuevas y rechaza sobreescribir el directorio de auditoría:
+18: \begin{lstlisting}[basicstyle=\ttfamily\scriptsize,breaklines=true]
+19: OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
+20: .venv-confirmatory/bin/python \
+21: scripts/build_topk_margin_thesis_20261113.py \
+22:   --audit results/analysis/topk_margin_rebuild_v1 \
+23:   --generated output/topk_margin_rebuild
+24: \end{lstlisting}
+25: La reconstrucción recalcula agregados y métricas guardadas; no reextrae imágenes ni reentrena. Sus tablas no deben confundirse con una nueva validación física. El directorio generado alternativo permite comparar resultados sin alterar los utilizados por el manuscrito.
+26: 
+27: Las pruebas de software verifican cobertura, integridad de fuentes y correspondencia entre predicciones derivadas y el mismo rescate. Las verificaciones de cortes anteriores, incluidas las auditorías del rescate de ensamble, se conservan con sus fechas. No se suman conteos de tests históricos para afirmar que toda la versión actual fue validada en una ejecución única.
+28: 
+29: \section{Datos, pesos y portabilidad}
+30: La disponibilidad y redistribución de imágenes, embeddings y pesos dependen de sus proveedores. El archivo público no incluye necesariamente los datasets, las características cacheadas o los modelos entrenados. Reproducir desde RGB exige checkpoints, capa y preprocesamiento de cada bloque, y ajustar las transformaciones aprendidas exclusivamente en el entrenamiento correspondiente.
+31: 
+32: Los nombres de diez artefactos CUReT se normalizaron sustituyendo dos puntos por doble guion bajo para permitir su descarga en Windows. El contenido y los identificadores de protocolo internos permanecieron iguales. Los generadores y lectores se actualizaron; las rutas absolutas históricas dentro de registros se interpretan con su mapeo, no como autorización para modificar resultados sellados.
+33: 
+34: Para Soil se conserva el archivo de la versión auditada y los manifiestos con los hashes de las 1.140 imágenes. Las agrupaciones por nombre son conservadoras y no acreditan conocer toda dependencia física. Las reservas KTH, Outex, CUReT/Soil y DeepLumina forman parte de los materiales y no desaparecen al empaquetar el PDF.
+35: 
+36: \section{Compilación y alcance de la entrega}
+37: La fuente principal es \path{paper/tesis.tex}, con siete capítulos y anexos. Las tablas históricas y las nuevas están incluidas por rutas explícitas. La bibliografía activa se encuentra en \path{paper/articulo/borrador_profesor/references.bib}. La compilación local utiliza Tectonic o un flujo LaTeX/BibTeX compatible; el registro de construcción identifica el resultado entregado.
+38: 
+39: Una compilación correcta y una auditoría de predicciones no constituyen aprobación académica ni certifican identidad completa de todos los pipelines físicos. La entrega distingue el manuscrito escrito de las comprobaciones científicas que continúan abiertas.
+
+FILE: paper/chapters/E_declaraciones.tex
+1: \chapter*{Declaraciones}
+2: \addcontentsline{toc}{chapter}{Declaraciones}
+3: 
+4: \section*{Financiación}
+5: Los autores declaran que no hubo financiación externa para este trabajo.
+6: 
+7: \section*{Conflictos de interés}
+8: Los autores declaran que no existen conflictos de interés.
+9: 
+10: \section*{Datos y consideraciones éticas}
+11: El estudio utiliza colecciones de imágenes preexistentes y no incorpora reclutamiento ni intervención sobre participantes. La disponibilidad de datos, código y registros se describe en el Anexo~\ref{app:reproducibilidad}. El acceso y la eventual redistribución de imágenes, características y pesos están sujetos a las condiciones de sus proveedores.
+12: 
+13: \section*{Asistencia en la revisión}
+14: Se utilizó asistencia de inteligencia artificial para reorganizar y redactar este borrador, revisar la argumentación y construir scripts de auditoría y presentación de resultados. Esa asistencia no se considera autora, fuente científica ni evidencia de validez experimental. Las afirmaciones y referencias deben ser revisadas por los autores, quienes conservan la responsabilidad de la entrega. Los resultados se vinculan con sus archivos de procedencia y se distinguen las verificaciones automáticas de una reproducción independiente.
+
+FILE: paper/chapters/F_estudios_complementarios.tex
+1: \chapter{Estudios complementarios de rescate de ensamble}\label{app:complementarios}
+2: 
+3: Este anexo conserva el estudio de ensambles y poda desarrollado durante el proyecto. Su rescate contiene varios clasificadores sobre subconjuntos y no equivale a ejecutar la misma concatenación Top-k del cuerpo principal. Sus resultados OOF, presupuestos y réplicas no se atribuyen automáticamente a la comparación directa/por margen de esta tesis. Se preservan como evidencia complementaria, incluidos los casos desfavorables y las reservas de costo proyectado.
+4: 
+5: 
+6: \section{Bloques, miembros y política de adquisición}
+7: Sea $\mathcal B=\{1,\ldots,M\}$ una biblioteca de extractores congelados. El bloque $j$ transforma una imagen $x_i$ en $\mathbf z_{ij}\in\mathbb R^{d_j}$. Para un subconjunto $S\subseteq\mathcal B$, se utiliza
+8: \begin{equation}
+9: \mathbf z_{i,S}=\mathop{\Vert}_{j\in S}
+10: \frac{\mathbf z_{ij}}{\max(\lVert\mathbf z_{ij}\rVert_2,10^{-12})},
+11: \qquad d_S=\sum_{j\in S}d_j .
+12: \label{eq:concat}
+13: \end{equation}
+14: Cada miembro $f_S$ es una SVM entrenada sobre una concatenación de bloques; distintos votos pueden corresponder al mismo modelo. Una política $\pi=(b,E,\tau)$ consta de un bloque base $b$, una lista de miembros de rescate $E$ y un umbral $\tau$. El ensamble completo puede contener miembros repetidos con efecto en el voto, aunque cada modelo único se ejecute una sola vez.
+15: 
+16: La biblioteca comprende 22 bloques y 20.652 dimensiones nominales. Los descriptores fijos se almacenan por imagen, mientras que la proyección SVD de N-gramas se aprende con el entrenamiento del ajuste pertinente. Los detalles de extracción, checkpoints y dimensiones se conservan en el Anexo~\ref{app:especificaciones}. La selección actúa sobre bloques completos, no sobre coordenadas individuales.
+17: 
+18: Se denomina entrenamiento productor al conjunto utilizado para construir candidatos, seleccionar la política y reajustar los modelos. Dentro de él se obtienen predicciones OOF internas para la selección. La validación productora permanece fuera de esas decisiones y evalúa la política elegida. El Capítulo~\ref{sec:diseno} detalla ambos niveles de partición.
+19: 
+20: \section{Generación del ensamble de subconjuntos}
+21: Se construye un ensamble de 15 miembros, cada uno con cuatro bloques. La relevancia $R_j$ se obtiene normalizando $a_j$, la media aritmética del macro-F1 individual entre los pliegues internos:
+22: \begin{equation}
+23: R_j=\frac{a_j-a_{\min}}{a_{\max}-a_{\min}},
+24: \label{eq:relevance}
+25: \end{equation}
+26: con denominador uno cuando todos los valores coinciden. La frontera de bases y las ganancias de poda, en cambio, usan macro-F1 sobre las predicciones OOF internas reunidas. Ambas agregaciones pueden producir ordenamientos diferentes. La similitud entre dos matrices de características centradas por columna, $X$ e $Y$, se calcula mediante CKA lineal \citep{kornblith2019similarity}:
+27: \begin{equation}
+28: \operatorname{CKA}(X,Y)=
+29: \frac{\lVert Y^\top X\rVert_F^2}
+30: {\lVert X^\top X\rVert_F\,\lVert Y^\top Y\rVert_F}.
+31: \label{eq:cka}
+32: \end{equation}
+33: Si el denominador es cero, la implementación devuelve cero. Se usa únicamente el entrenamiento productor, es decir, las imágenes disponibles para construir y seleccionar la ruta antes de evaluar su pliegue de validación.
+34: 
+35: Dado el conjunto parcial $S$, la utilidad de un candidato es
+36: \begin{equation}
+37: u_j(S)=R_j-\lambda\,|S|^{-1}\sum_{\ell\in S}\operatorname{CKA}(j,\ell);
+38: \qquad u_j(\varnothing)=R_j .
+39: \label{eq:utility}
+40: \end{equation}
+41: Los candidatos se ordenan por utilidad decreciente y nombre en caso de empate. Si quedan $n$ candidatos y $r_j=1$ identifica el mejor, el sorteo utiliza
+42: \begin{equation}
+43: p(j\mid S)=\frac{(n-r_j+1)^\beta}{\sum_{\ell=1}^{n}\ell^\beta}.
+44: \label{eq:lottery}
+45: \end{equation}
+46: Cada bloque elegido se retira del sorteo del mismo miembro. Entre miembros sí pueden repetirse subconjuntos. En el piloto se fijaron $\beta=8$ y $\lambda=0{,}25$, procedentes de la configuración archivada del ensamble. No se presentan como hiperparámetros óptimos universales.
+47: 
+48: \section{Puntuaciones y agregación}
+49: Cada SVM produce un vector de puntuaciones $s_S(x)\in\mathbb R^C$, con el mismo orden de clases. Su escala $\sigma_S$ es la desviación estándar poblacional de todas las puntuaciones de sus imágenes de entrenamiento, agrupando filas y clases. Se fija en uno si no es positiva o finita. La puntuación normalizada es
+50: \begin{equation}
+51: \widetilde s_S(x)=s_S(x)/\sigma_S,\qquad
+52: \widehat y_E(x)=\arg\max_c\frac{1}{|E|}
+53: \sum_{S\in E}\widetilde s_{S,c}(x).
+54: \label{eq:ensemble}
+55: \end{equation}
+56: La escala permanece congelada en validación; no se recalcula con el lote evaluado. Esta operación no convierte las puntuaciones en probabilidades calibradas. Los miembros repetidos conservan su multiplicidad en la suma del ensamble completo. El rescate podado, en cambio, usa pesos uniformes sobre modelos únicos seleccionados.
+57: 
+58: \section{Base y compuerta}
+59: Las bases candidatas pertenecen a la frontera no dominada de macro-F1 individual interno y costo proyectado. Una base se excluye si otra no es peor en calidad ni costo y la mejora estrictamente en al menos uno. Es una restricción del espacio de búsqueda: no demuestra que una base dominada individualmente carezca de utilidad para enrutamiento.
+60: 
+61: El margen de la base es la diferencia entre sus dos puntuaciones más altas:
+62: \begin{equation}
+63: m_b(x)=\widetilde s_{b,(1)}(x)-\widetilde s_{b,(2)}(x).
+64: \label{eq:margin}
+65: \end{equation}
+66: Para cada base se consideran cuantiles $q\in\{0{,}1;0{,}25;0{,}5\}$ de márgenes OOF internos. Un umbral $\tau_{b,q}$ define la regla
+67: \begin{equation}
+68: \widehat y_\pi(x)=
+69: \begin{cases}
+70: \widehat y_b(x),& E=\varnothing\ \text{o}\ m_b(x)\ge\tau_{b,q},\\
+71: \widehat y_E(x),& m_b(x)<\tau_{b,q}.
+72: \end{cases}
+73: \label{eq:decision-rule}
+74: \end{equation}
+75: Cuando se activa el rescate, su predicción reemplaza a la base; esta no se añade como voto adicional. El margen ordena las muestras para esta regla de parada, pero no es una probabilidad de acierto. Tras reajustar la base con todo el entrenamiento productor, su escala se vuelve a estimar únicamente con ese entrenamiento y se conserva el valor numérico del umbral OOF. No se recalcula el cuantil con la validación productora. Por ello, el cuantil seleccionado no fija una fracción exacta de derivación al evaluar.
+76: 
+77: \section{Costo compartido y presupuesto}
+78: Sea $U(E)$ la unión de bloques de los miembros y $c_j$ el costo por extractor del perfil fijado. Para la fracción interna derivada $\widehat r$, se estima
+79: \begin{equation}
+80: \widehat C(b,E)=
+81: \begin{cases}
+82: c_b,&E=\varnothing,\\
+83: c_b+c_{\mathrm{pol}}+\widehat r
+84: \displaystyle\sum_{j\in U(E)\setminus\{b\}}c_j,&E\ne\varnothing.
+85: \end{cases}
+86: \label{eq:cost-hybrid}
+87: \end{equation}
+88: Los bloques compartidos se contabilizan una vez y la representación base se reutiliza. El piloto fija $c_{\mathrm{pol}}=0{,}45$ ms como sobrecosto del perfil. Este valor no constituye un cronometraje de todos los clasificadores del híbrido. El Anexo~\ref{app:especificaciones} registra las constantes utilizadas.
+89: 
+90: Los presupuestos $B\in\{15,30,60,120\}$ ms restringen la media proyectada de selección, no el costo de cada imagen ni una media futura. La fracción derivada puede cambiar al evaluar. También se registra el número esperado de llamadas:
+91: \begin{equation}
+92: \widehat L=1+\widehat r\,|\operatorname{unique}(E)|.
+93: \end{equation}
+94: Menos llamadas no implica por sí solo una reducción física proporcional.
+95: 
+96: \subsection{Interpretación del costo de adquisición}
+97: Para una política no vacía, sea $A_{b,E}=\sum_{j\in U(E)\setminus\{b\}}c_j$ el costo adicional del rescate. El modelo por imagen es
+98: \begin{equation}
+99: C_\pi(x)=c_b+c_{\mathrm{pol}}+
+100: \mathbb I[m_b(x)<\tau]\,A_{b,E}.
+101: \end{equation}
+102: La media de esta expresión da la Ecuación~\ref{eq:cost-hybrid}. El sobrecosto fijo se aplica a todas las imágenes cuando existe rescate, no solo a las derivadas.
+103: 
+104: Una referencia que extrae permanentemente la misma unión tiene costo de adquisición $C_E=\sum_{j\in U(E)}c_j$, sin incluir latencia de clasificadores. Si $A_{b,E}>0$, la política condicional reduce ese costo estimado únicamente cuando
+105: \begin{equation}
+106: \widehat r < \frac{C_E-c_b-c_{\mathrm{pol}}}{A_{b,E}}.
+107: \label{eq:break-even}
+108: \end{equation}
+109: La condición muestra dos efectos distintos: podar puede reducir $U(E)$ y enrutar puede reducir $\widehat r$. Una base fuera de la unión añade un costo que debe compensarse; el umbral también puede derivar demasiadas imágenes para que la adquisición resulte ventajosa. Esta identidad del modelo de costos no es una garantía de latencia física. Además, comparar un rescate podado condicional con un ensamble completo permanente cambia ambos mecanismos, por lo que no aísla el aporte de la compuerta.
+110: 
+111: \section{Selección completa y poda del rescate}
+112: Sea $\mathcal P_B$ la familia restringida de políticas visitadas a partir de las bases candidatas, los cuantiles y la búsqueda de rescates para el presupuesto $B$. Se selecciona
+113: \begin{equation}
+114: \widehat\pi_B\in
+115: \underset{\pi\in\mathcal P_B:\,\widehat C(\pi)\le B}
+116: {\operatorname{arg\,max}}\;
+117: \widehat F_{1,\mathrm{OOF}}(\pi),
+118: \label{eq:policy-selection}
+119: \end{equation}
+120: donde el macro-F1 se calcula sobre las puntuaciones internas reunidas. El desempate favorece menor costo, menos miembros y, finalmente, los identificadores deterministas de la implementación. La optimalidad se refiere solo a los puntos visitados en $\mathcal P_B$; no a todos los subconjuntos posibles. Si ninguna base cabe en el presupuesto, la configuración se registra como inviable.
+121: 
+122: El criterio operativo de este estudio es maximizar calidad interna dentro de un presupuesto de adquisición fijado, no aceptar una pérdida de F1 elegida después de observar validación. Al evaluar se informan conjuntamente $\Delta F_1$, costo y cumplimiento del presupuesto frente a controles factibles para el mismo $B$. Una política domina descriptivamente a otra si no empeora ninguna de las dos magnitudes y mejora al menos una; de otro modo se conserva el compromiso, sin agregarlo en una puntuación arbitraria. No se escoge un presupuesto de despliegue ni se establece un margen retrospectivo de no inferioridad. Una excedencia en validación se registra como incumplimiento observado, aunque la selección interna fuera factible.
+123: 
+124: El rescate completo compara la base sola con los 15 votos para cada base, cuantil y presupuesto factibles. La poda empieza sin miembros y añade hasta tres modelos únicos del mismo ensamble. Cada adición debe mejorar el macro-F1 interno de la ruta y cumplir $\widehat C\le B$. Se comparan dos méritos:
+125: \begin{equation}
+126: h_{\mathrm{rel}}=\Delta F_1,\qquad
+127: h_{\mathrm{marg}}=\Delta F_1/\Delta\widehat C .
+128: \end{equation}
+129: Aquí $\Delta F_1$ es el cambio de macro-F1 de la ruta completa sobre las imágenes internas reunidas, manteniendo base y umbral; no el F1 aislado del candidato ni el F1 de las imágenes derivadas solamente. $\Delta\widehat C$ es la diferencia de costo de adquisición al añadir ese miembro a los ya elegidos.
+130: El primer criterio se denomina \emph{relevancia} en los registros, pero su mérito es la ganancia de macro-F1 de la ruta, no la relevancia individual $R_j$ usada para generar el ensamble. Solo se aceptan ganancias mayores que $10^{-12}$. En el criterio marginal, una ganancia positiva con costo incremental no mayor que $10^{-12}$ tiene prioridad sobre razones finitas; el criterio de relevancia ordena por ganancia sin utilizar ese cociente. Los desempates consideran ganancia, costo y nombre del miembro. Se conserva el mejor punto interno visitado, incluida base sola.
+131: 
+132: Esta es una búsqueda heurística sobre candidatos generados, no una solución global del problema combinatorio. La relevancia y la razón marginal usan el mismo pool, bases y cuantiles; cambiar ese pool constituiría otra comparación.
+133: 
+134: \begin{table}[H]
+135: \centering
+136: \caption{Procedimiento de selección dentro de un entrenamiento productor. La validación productora no interviene en estos pasos.}
+137: \label{tab:algoritmo-entrenamiento}
+138: \begin{minipage}{0.95\textwidth}\small
+139: \begin{enumerate}
+140: \item Recibir entrenamiento productor, biblioteca, grupos, semilla y perfil de costos.
+141: \item Calcular ranking individual y CKA; generar 15 subconjuntos de cuatro bloques.
+142: \item Obtener puntuaciones OOF internas de bases y miembros, ajustando SVD y escalas dentro de cada ajuste pertinente.
+143: \item Construir la frontera de bases; para cada presupuesto y cuantil, evaluar base sola y rescate completo o la secuencia de poda.
+144: \item Conservar la política de mayor macro-F1 interno bajo el presupuesto y los desempates especificados.
+145: \item Reajustar los modelos necesarios con el entrenamiento productor; congelar escalas y umbral. Guardar selección e índices antes de evaluar la validación productora.
+146: \end{enumerate}
+147: \end{minipage}
+148: \end{table}
+149: 
+150: \begin{table}[H]
+151: \centering
+152: \caption{Especificación de inferencia de la política seleccionada. El piloto la evalúa sobre puntuaciones guardadas; la ejecución física completa del híbrido no ha sido medida.}
+153: \label{tab:algoritmo-inferencia}
+154: \begin{minipage}{0.95\textwidth}\small
+155: \begin{enumerate}
+156: \item Extraer y normalizar la base; calcular su predicción y margen.
+157: \item Si no hay rescate o el margen es al menos el umbral, devolver la predicción base.
+158: \item En otro caso, adquirir $U(E)\setminus\{b\}$, reutilizando cada bloque ya disponible.
+159: \item Evaluar cada modelo único del rescate; agregar puntuaciones con sus escalas y multiplicidades fijadas. Devolver la clase de mayor puntuación.
+160: \end{enumerate}
+161: \end{minipage}
+162: \end{table}
+163: \FloatBarrier
+164: 
+165: \input{figures/hibrido_flujo.tex}
+166: 
+167: \section{Referencias estáticas y cascada de comparación}
+168: \label{sec:comparadores}
+169: Las estrategias estáticas son: Individual, mejor descriptor interno; Completa, los 22 bloques; GFS, selección secuencial; Top-$k$, los primeros del ranking individual con $k$ heredado de GFS; y Homogénea, GFS restringido a una familia con el límite de tamaño del GFS heterogéneo. Top-$k$ controla composición bajo igual número de bloques, no una elección independiente de $k$.
+170: 
+171: GFS inicia vacío y añade el bloque que maximiza macro-F1 interno, hasta ocho bloques. Se detiene tras dos mejoras consecutivas menores que 0,001 y devuelve el mejor paso visitado. Sus detalles y esquema se conservan en el Anexo~\ref{app:especificaciones}.
+172: 
+173: La cascada de referencia usa una base y una concatenación Top-$k$ archivada como rescate. Su compuerta deriva si $m(x)\le\tau$, mientras el híbrido usa $m(x)<\tau$. El umbral se seleccionó entre cuantiles 0,25/0,50/0,75 minimizando costo bajo tolerancia interna de F1 de 0,005. La ruta Top-$k$ no se reconstruyó dentro de cada pliegue productor OOF; esta dependencia se mantiene como límite de esa referencia. Si ninguna ruta cumple, se elige Top-$k$ directo.
+174: 
+175: En la referencia se consideraron ResNet-50, SigLIP, BEiT-v2 y ConvNeXt V2; KTH utilizó solo ResNet-50 y BEiT-v2. No se confunde este conjunto acotado de bases con la frontera individual del híbrido.
+176: 
+177: \section{Piloto de rescate de ensamble}
+178: Sea $D_{\mathrm{dev}}$ el entrenamiento oficial de Outex. Cada pliegue productor $h$ lo divide en entrenamiento $T_h$ y validación $V_h$, sin grupos compartidos. A su vez, $T_h$ se divide en tres pliegues internos. Se distinguen cuatro operaciones:
+179: \begin{enumerate}
+180: \item Construir el ranking, calcular CKA y generar los subconjuntos utilizando $T_h$.
+181: \item Reunir puntuaciones OOF internas de las imágenes de $T_h$ y seleccionar base, umbral y rescate mediante la Ecuación~\ref{eq:policy-selection}.
+182: \item Reajustar los modelos elegidos con $T_h$, estimar sus escalas y conservar el umbral numérico seleccionado.
+183: \item Predecir las imágenes de $V_h$ sin modificar la política a partir de sus etiquetas.
+184: \end{enumerate}
+185: Al reunir las tres validaciones $V_h$ se obtienen las 680 predicciones OOF de desarrollo, una por imagen y política. Esas predicciones son distintas de las puntuaciones OOF internas que guiaron la selección.
+186: 
+187: La biblioteca de candidatos se construye a nivel de $T_h$; no se genera de nuevo dentro de cada pliegue interno. Las puntuaciones internas, por tanto, sirven como criterio de selección dentro de una búsqueda adaptada a $T_h$, no como evaluación independiente del procedimiento completo. La evaluación productora conserva separadas las imágenes de $V_h$. La semilla de partición productora es 142 y la interna, 42; el Anexo~\ref{app:procedencia} registra tamaños y multiplicidades.
+188: 
+189: El piloto reutiliza puntuaciones de validación productora de los miembros del control de diversidad previamente auditado. Se ajustaron las puntuaciones internas faltantes y las bases necesarias, comprobando igualdad de particiones y procedencia. Los parámetros del ensamble, presupuestos y cuantiles se fijaron desde la configuración de desarrollo; no son una preespecificación ciega de toda la investigación.
+190: 
+191: Los controles del mismo piloto incluyen mejor individual interno, Top-3/4/5, Completa-22 y ensamble de diversidad permanente. Top-3/4/5 son tamaños fijos; no equivalen al Top-$k$ del benchmark que hereda $k$ de GFS. Se añadió un ensamble estático seleccionado bajo cada presupuesto, definido a continuación; no se dispone de GFS concatenado reajustado para este protocolo.
+192: 
+193: \subsection{Ablación del mismo rescate con y sin compuerta}\label{sec:diseno-p0}
+194: Se reconstruyeron cuatro vistas de cada una de las doce políticas a partir de puntuaciones y predicciones de validación productora guardadas: base sola, mismo rescate permanente, ruta forzada y ruta condicional. Se conservaron los miembros, multiplicidades, pesos, escalas, modelos y particiones; no se reentrenó ni se utilizó el test oficial. La base de cada vista es la elegida para esa política, no el mejor individual global.
+195: 
+196: El rescate permanente predice todas las imágenes con los miembros fijados y contabiliza únicamente la unión $U(E)$, sin extraer una base innecesaria. La ruta forzada conserva además la base y el sobrecosto de política, pero activa el mismo rescate en todas las imágenes. Ambas producen las mismas clases; la segunda tiene otra contabilidad de costo y llamadas. La vista condicional conserva la decisión archivada de la compuerta. Si el rescate es vacío, las cuatro vistas se reducen a la base; esos casos no aportan evidencia sobre enrutamiento.
+197: 
+198: El contraste entre rescate permanente y condicional aísla la activación para los modelos fijados en este archivo de desarrollo. No evalúa el mejor rescate estático posible: sus miembros fueron seleccionados conjuntamente con la compuerta. Las doce configuraciones reutilizan las mismas 680 imágenes y son dependientes. Se informan cambios predictivos, costos y llamadas, sin atribuirles significancia confirmatoria ni equivalencia poblacional.
+199: 
+200: \subsection{Control estático bajo presupuesto}\label{sec:diseno-estatico-presupuesto}
+201: En cada entrenamiento productor se reúnen los 22 clasificadores individuales y los modelos únicos del ensamble de diversidad, con las puntuaciones OOF internas guardadas. Se enumeran todos los ensambles de uno a tres miembros únicos de ese pool, con igual peso y sin repetición. Para cada presupuesto 15, 30, 60 y 120 ms se elige el mayor macro-F1 interno cuya unión de bloques sea factible. Los desempates favorecen menor costo, menos modelos y orden léxico. No se añade una base ni una compuerta al costo del control permanente.
+202: 
+203: Las doce decisiones se guardaron antes de calcular sus predicciones de validación productora. Se reutilizaron nueve modelos disponibles y se reajustaron nueve con la misma receta SVM y el mismo entrenamiento productor. La enumeración es exhaustiva dentro de ese pool y límite de tres miembros, no sobre todas las concatenaciones o ponderaciones posibles. Se conservan los mismos pliegues y constantes del híbrido; el control no sustituye una ejecución GFS bajo presupuesto.
+204: 
+205: Este análisis se diseñó después de conocer el piloto y P0. Su regla se fijó antes de obtener las nuevas predicciones, pero no constituye una preinscripción ciega. Se conserva todo el barrido y no se usa el test oficial ni se reajusta el híbrido a partir del resultado del control.
+206: 
+207: \subsection{Réplica en FMD y semillas adicionales}\label{sec:diseno-replica}
+208: La réplica conserva la biblioteca de 22 bloques, SVM, tres pliegues productores y tres internos, presupuestos 15/30/60/120 ms y cuantiles 0,10/0,25/0,50. Mantiene cinco sorteos de candidatos de tamaño cuatro, hasta tres miembros podados y el ensamble de quince votos con $\beta=8$ y $\lambda=0{,}25$. No se modificaron estos parámetros a partir de sus resultados. Las cinco condiciones y los comandos se fijaron antes de ejecutar la cola, después de conocer el piloto; no constituyen una preinscripción ciega de la investigación.
+209: 
+210: En FMD se reserva el pliegue externo 0 de la partición estratificada y agrupada de cada semilla 42, 123 y 2026: 800 imágenes forman $D_{\mathrm{dev}}$ y las 200 restantes quedan excluidas. En Outex se mantiene el entrenamiento oficial de 680 imágenes y se añaden las semillas 123 y 2026, sin evaluar las 680 imágenes de test. El piloto Outex/42 se conserva por separado. Las semillas alteran particiones, sorteos y transformaciones; no aíslan solamente el efecto de la inicialización. La partición productora usa semilla $s+100$ y la interna, $s$.
+211: 
+212: Cada condición evalúa referencias individuales, Top-3/4/5, Completa-22, ensambles permanentes, las tres reglas híbridas y el rival estático bajo presupuesto. La vista P0 vuelve a aplicar permanentemente exactamente el rescate seleccionado, sin reoptimizarlo. La cobertura se audita por imagen, grupo y transformación, manteniendo el test externo excluido. El perfil de costos es el mismo del piloto Outex, no una medición nueva de extracción en FMD. Las reglas completas y el detalle por semilla se conservan en el Anexo~\ref{sec:anexo-replica}.
+213: 
+214: \section{Resultados del rescate de ensamble en desarrollo Outex}\label{sec:resultados-hibrido}
+215: 
+216: El piloto usa las 680 imágenes del entrenamiento oficial de Outex, semilla 42, tres folds productores y tres internos. El test oficial no fue evaluado. La Tabla~\ref{tab:hybrid-oof} muestra todas sus políticas; no se comparan directamente con el F1 de test de la Tabla~\ref{tab:tm-cascada}.
+217: 
+218: \input{generated_editorial/controles_hibrido.tex}
+219: 
+220: \begin{figure}[!htbp]
+221: \centering
+222: \includegraphics[width=\textwidth]{figures/hibrido_calidad_costo.pdf}
+223: \caption{Políticas del piloto Outex y controles del mismo protocolo. Se muestran los cuatro presupuestos de cada variante, incluidos puntos coincidentes. El eje horizontal es costo proyectado en escala logarítmica, no latencia física; las líneas no representan una frontera óptima.}
+224: \label{fig:hibrido-calidad-costo}
+225: \end{figure}
+226: \FloatBarrier
+227: 
+228: \begin{table}[!htbp]
+229: \centering\small
+230: \caption{Piloto híbrido de Outex: macro-F1 OOF de desarrollo y costo proyectado. $B$ es el presupuesto de selección en ms; los costos no son latencias físicas.}
+231: \label{tab:hybrid-oof}
+232: \begin{tabular}{@{}lrrr@{}}
+233: \toprule
+234: Ruta & $B$ & Macro-F1 & Costo proyectado ms\\
+235: \midrule
+236: Diversidad15 permanente & -- & 0,914389 & 365,196\\
+237: Completo como rescate & 15 & 0,858056 & 12,220\\
+238: Podado marginal & 15 & 0,858056 & 12,220\\
+239: Podado relevancia & 15 & 0,858056 & 12,220\\
+240: Completo como rescate & 30 & 0,854129 & 20,485\\
+241: Podado marginal & 30 & 0,893488 & 25,394\\
+242: Podado relevancia & 30 & 0,893488 & 25,394\\
+243: Completo como rescate & 60 & 0,891759 & 57,839\\
+244: Podado marginal & 60 & 0,905140 & 55,365\\
+245: Podado relevancia & 60 & 0,910742 & 53,316\\
+246: Completo como rescate & 120 & 0,908603 & 104,660\\
+247: Podado marginal & 120 & 0,908781 & 84,018\\
+248: Podado relevancia & 120 & 0,909396 & 78,938\\
+249: \bottomrule
+250: \end{tabular}
+251: \end{table}
+252: 
+253: El punto podado por relevancia/B60 obtiene $0{,}910742$, frente a $0{,}914389$ de diversidad permanente, con 85,40\% menos costo estimado y una diferencia de F1 de $-0{,}003646$ (aproximadamente $-0{,}365$ puntos porcentuales). Top-5 obtiene $0{,}900824/288{,}435$ ms y Completa-22 $0{,}913957/1706{,}420$ ms. El híbrido supera numéricamente Top-5, pero no a Completa ni al ensamble permanente en calidad. B60 es un punto observado dentro del barrido de desarrollo, no un presupuesto validado de forma independiente después de su selección.
+254: 
+255: Ese punto deriva 278/680 imágenes: corrige 52 errores de las bases y perjudica cinco aciertos. El saldo de 47 aciertos adicionales describe exactitud, no una diferencia de macro-F1, que depende de la distribución de errores por clase. Sus bases son DINOv2-small, BEiT-v2-final y VGG16, con dos, dos y un modelos de rescate únicos. Las llamadas medias son 1,654 frente a 10,665 del ensamble permanente. El resto de las imágenes sale por la base; el Anexo~\ref{app:procedencia} aclara la diferencia entre votos y modelos ejecutados.
+256: 
+257: A presupuesto 15 se elige base sola; el rescate completo/B30 tampoco se activa. Relevancia supera a marginal en calidad y costo en los puntos de 60 y 120 ms. Los 36 presupuestos internos se cumplen, pero completo/B60/fold1 registra 70,019604 ms proyectados en validación frente a 59,602804 internos. Se conservan esa excedencia y la falta de monotonía del F1 con el presupuesto.
+258: 
+259: 
+260: La Tabla~\ref{tab:controles-hibrido} y la Figura~\ref{fig:hibrido-calidad-costo} permiten comparar referencias sin trasladar cifras de test externo. El primer control siguiente mantiene fijo el rescate; el segundo lo compara con una selección estática propia bajo presupuesto. GFS concatenado sigue sin evaluarse en este protocolo. El análisis emparejado de N-gramas se conserva como evidencia secundaria en el Anexo~\ref{app:resultados-adicionales}.
+261: 
+262: \subsection{Separación de poda y activación condicional}\label{sec:resultados-p0}
+263: La Tabla~\ref{tab:p0-b60} descompone el punto relevancia/B60 con el control de la Sección~\ref{sec:diseno-p0}. Son las mismas 680 imágenes y los mismos modelos del piloto; el recálculo no constituye otra evaluación independiente.
+264: 
+265: \input{generated_p0/descomposicion_b60.tex}
+266: 
+267: La poda cambia el ensamble permanente de $0{,}914389/365{,}196$ ms a $0{,}911993/110{,}421$ ms: reduce la adquisición proyectada en 69,76\%, con $\Delta\mathrm{F1}=-0{,}002395$. Activar condicionalmente ese mismo rescate reduce otros 51,72\% respecto de su ejecución permanente, hasta $53{,}316$ ms, con $\Delta\mathrm{F1}=-0{,}001251$. Las reducciones se aplican sucesivamente y no se suman; el descenso total frente al ensamble completo es 85,40\%. La ruta forzada retiene la base y tiene costo $110{,}871$ ms; se distingue de la referencia permanente eficiente, que omite ese trabajo.
+268: 
+269: Frente al mismo rescate permanente, la compuerta cambia tres clases predichas: corrige una y perjudica dos. La exactitud pasa de $0{,}914706$ a $0{,}913235$. Es un contraste distinto del balance de 52 errores corregidos y cinco aciertos perjudicados frente a las bases. Las llamadas medias apenas disminuyen un 0,79\% respecto del rescate podado permanente, de $1{,}668$ a $1{,}654$. La gran reducción de llamadas frente al ensamble completo corresponde principalmente a la poda, no a la compuerta.
+270: 
+271: En marginal/B60, las 680 predicciones condicionales coinciden exactamente con las del mismo rescate permanente: macro-F1 $0{,}905140$ y exactitud $0{,}907353$. Su costo proyectado pasa de $97{,}282$ a $55{,}365$ ms, una reducción de 43,09\%. Sin embargo, las llamadas aumentan de $1{,}334$ a $1{,}672$, un 25,36\%, porque la ruta también calcula la base. Menor adquisición proyectada puede coexistir con más evaluaciones de clasificadores; la coincidencia de clases en estas imágenes no prueba equivalencia poblacional.
+272: 
+273: El barrido completo, incluida la base sola, se presenta en la Tabla~\ref{tab:p0-barrido}. En ocho configuraciones existe rescate: la compuerta reduce F1 en siete y conserva las predicciones en marginal/B60; no mejora F1 en ninguna. Las otras cuatro se reducen a la base. Los rescates permanentes de ambos criterios en B60 superan 60 ms proyectados, mientras sus rutas condicionales quedan por debajo en la media reunida. Esto no descarta una alternativa estática distinta que cumpla el mismo presupuesto. La excedencia del rescate completo/B60 en un pliegue sigue vigente. Para esta ablación no se calcularon valores $p$ ni se midió latencia física.
+274: 
+275: \subsection{Comparación con selección estática bajo presupuesto}\label{sec:resultados-estatico-presupuesto}
+276: El control de la Sección~\ref{sec:diseno-estatico-presupuesto} cumple su presupuesto en las doce combinaciones de pliegue y presupuesto. Los pools contienen 31, 33 y 34 candidatos. En B60 se examinan 617 combinaciones factibles por pliegue; en B120, entre 1.287 y 1.701. La elección usa únicamente macro-F1 OOF interno. La Tabla~\ref{tab:estatico-presupuesto} conserva los cuatro presupuestos frente a relevancia, sin recomendar uno retrospectivamente.
+277: 
+278: \input{generated_mesa_r2/estatico_presupuesto.tex}
+279: 
+280: En B30, el híbrido por relevancia tiene mayor F1 observado y menor costo proyectado que el control: $0{,}893488/25{,}394$ ms frente a $0{,}861264/28{,}463$ ms. En B60 obtiene $0{,}910742$ frente a $0{,}892923$, pero también adquiere más información estimada: $53{,}316$ frente a $44{,}831$ ms. Ambos cumplen 60 ms en la media reunida; no son puntos de idéntico costo.
+281: 
+282: En B15, el estático tiene mayor F1 ($0{,}859690$ frente a $0{,}858056$) y mayor costo ($13{,}752$ frente a $12{,}220$ ms). En B120 también obtiene mayor F1 ($0{,}909612$ frente a $0{,}909396$) con mayor costo ($103{,}040$ frente a $78{,}938$ ms). Por tanto, la comparación no muestra superioridad uniforme de la adquisición condicional. La ventaja predictiva observada dentro de B60 corresponde a este pool, semilla y protocolo de desarrollo; no establece optimalidad global, significancia entre dominios ni aceleración física.
+283: \FloatBarrier
+284: 
+285: \section{Réplica del rescate en dos datasets}\label{sec:resultados-replica}
+286: Las cinco condiciones nuevas de la Sección~\ref{sec:diseno-replica} completaron sus etapas y la auditoría de índices, selecciones y predicciones. Las medias de la Tabla~\ref{tab:replica-medias} no incluyen el piloto Outex/42: resumen tres semillas FMD y dos semillas Outex. Se conserva relevancia como referencia de la discusión del piloto, sin cambiar la regla para escoger retrospectivamente el mejor resultado de cada fila. Las tres reglas completas y las referencias emparejadas figuran en las Tablas~\ref{tab:replica-barrido} y~\ref{tab:replica-referencias}.
+287: 
+288: \input{generated_replication/replica_medias.tex}
+289: \FloatBarrier
+290: 
+291: En B60, relevancia alcanza en FMD macro-F1 medio $0{,}977489$ y adquisición proyectada $35{,}689$ ms, frente a $0{,}974600/41{,}888$ ms del estático. En las dos semillas nuevas de Outex obtiene $0{,}905991/40{,}750$ ms frente a $0{,}889152/49{,}047$ ms. Son comparaciones bajo un mismo presupuesto de selección, no a idéntico costo realizado ni pruebas de significancia entre dominios. En FMD/B30 el mayor F1 del híbrido requiere más costo; en FMD/B120 las medias de F1 casi coinciden, sin demostrar equivalencia. En Outex/B15 el estático conserva mayor F1 a cambio de mayor adquisición.
+292: 
+293: El promedio FMD/B60 oculta diferencias importantes entre semillas. En la semilla 42, el estático supera al híbrido en calidad y costo: $0{,}978772/35{,}078$ ms frente a $0{,}977506/38{,}282$ ms. En 123, el híbrido pierde $0{,}000042$ de F1 con menor costo ($35{,}869$ frente a $52{,}565$ ms); en 2026 lo supera en ambas medidas. Tampoco se conserva una dominancia general de relevancia sobre marginal: en FMD/123/B30, marginal obtiene $0{,}975051/15{,}770$ ms frente a $0{,}973800/17{,}771$ ms. Las reglas compiten según condición y presupuesto.
+294: 
+295: La comparación del mismo rescate con y sin compuerta también cambia de signo entre dominios. En relevancia/B60, el promedio FMD pasa de $0{,}974596/281{,}061$ ms permanente a $0{,}977489/35{,}689$ ms condicional; en las semillas nuevas de Outex pasa de $0{,}912135/134{,}273$ ms a $0{,}905991/40{,}750$ ms. La compuerta puede conservar aciertos de la base que el rescate perdería, pero no mejora siempre la calidad. La Tabla~\ref{tab:replica-p0} presenta todos los presupuestos y reglas, incluidos los casos sin rescate. La referencia permanente no es un rival reoptimizado para cumplir el presupuesto del híbrido.
+296: 
+297: La réplica amplía la evidencia del piloto, pero sigue siendo desarrollo sobre benchmarks previamente observados. No valida una política única de despliegue, ni el híbrido en los seis conjuntos, ni el ahorro físico. GFS y Top-$k$ con tamaño seleccionado requieren ajustes propios bajo este protocolo; no se sustituyen por Top-3/4/5 ni por cifras de test externo.
+298: \FloatBarrier
+299: 
+
+FILE: paper/generated_top4_fixed_closure_20261115/e1_accuracy.tex
+1: \begin{table}[!htbp]\centering
+2: \fontsize{8}{10}\selectfont\setlength{\tabcolsep}{4pt}
+3: \caption{E1 cerrado: Top-4 fijo directo y por margen en seis datasets.}\label{tab:e1-fixed4-accuracy}
+4: \begin{tabular}{@{}lrrrrr@{}}\toprule
+5: Dataset & Directo Acc & Margen Acc & Sorteo Acc & $\Delta$ pp & Rescate \%\\\midrule
+6: DTD & 0,870266 & 0,871117 & 0,852416 & 0,085 & 22,96\\
+7: FMD & 0,982000 & 0,983000 & 0,972470 & 0,100 & 20,70\\
+8: CUReT & 0,998574 & 0,997862 & 0,979205 & -0,071 & 19,96\\
+9: Outex13 & 0,929412 & 0,926471 & 0,900309 & -0,294 & 19,85\\
+10: SoilOriginal & 0,928947 & 0,930702 & 0,914868 & 0,175 & 23,60\\
+11: KTH-TIPS2b & 0,957492 & 0,958333 & 0,948880 & 0,084 & 19,28\\
+12: \bottomrule\end{tabular}
+13: \par\smallskip\begin{minipage}{0.98\textwidth}\footnotesize 27 condiciones SVM/42; KTH incluye sus cuatro particiones. Sorteo de igual cantidad, 100 repeticiones. Selección por macro-F1 OOF; accuracy principal.\end{minipage}
+14: \end{table}
+
+FILE: paper/generated_top4_fixed_closure_20261115/e1_bases.tex
+1: \begin{table}[!htbp]\centering
+2: \fontsize{8}{10}\selectfont\setlength{\tabcolsep}{4pt}
+3: \caption{E1: accuracy de cada base sola en test.}\label{tab:e1-bases-test}
+4: \begin{tabular}{@{}lrrrr@{}}\toprule
+5: Dataset & ResNet-50 & SigLIP & BEiTv2 & ConvNeXt\\\midrule
+6: DTD & 0,733191 & 0,846968 & 0,807340 & 0,774681\\
+7: FMD & 0,852000 & 0,970000 & 0,930000 & 0,904000\\
+8: CUReT & 0,962580 & 0,965788 & 0,987349 & 0,978974\\
+9: Outex13 & 0,885294 & 0,857353 & 0,892647 & 0,880882\\
+10: SoilOriginal & 0,870175 & 0,910526 & 0,906140 & 0,885965\\
+11: KTH-TIPS2b & 0,865530 & -- & 0,946338 & --\\
+12: \bottomrule\end{tabular}
+13: \par\smallskip\begin{minipage}{0.98\textwidth}\footnotesize En KTH las candidatas son ResNet-50 y BEiTv2; los guiones identifican bases no evaluadas, no accuracy cero. Métricas de test, distintas de OOF.\end{minipage}
+14: \end{table}
+
+FILE: paper/generated_top4_fixed_closure_20261115/e1_costos.tex
+1: \begin{table}[!htbp]\centering
+2: \fontsize{8}{10}\selectfont\setlength{\tabcolsep}{4pt}
+3: \caption{E1: adquisición proyectada por componentes, seis datasets.}\label{tab:e1-fixed4-costs}
+4: \begin{tabular}{@{}lrrr@{}}\toprule
+5: Dataset & Directo ms & Margen ms & Reducción \%\\\midrule
+6: DTD & 586,94 & 154,85 & 73,62\\
+7: FMD & 586,94 & 142,19 & 75,78\\
+8: CUReT & 625,58 & 148,20 & 76,31\\
+9: Outex13 & 608,67 & 141,92 & 76,68\\
+10: SoilOriginal & 130,03 & 50,75 & 60,97\\
+11: KTH-TIPS2b & 271,68 & 64,53 & 76,25\\
+12: \bottomrule\end{tabular}
+13: \par\smallskip\begin{minipage}{0.98\textwidth}\footnotesize No es latencia online de políticas completas. Los componentes KTH proceden de sesiones explícitamente distintas.\end{minipage}
+14: \end{table}
+
+FILE: paper/generated_top4_fixed_closure_20261115/e1_secundarias.tex
+1: \begin{table}[!htbp]\centering
+2: \fontsize{8}{10}\selectfont\setlength{\tabcolsep}{4pt}
+3: \caption{E1: métricas complementarias de las mismas predicciones, seis datasets.}\label{tab:e1-secondary}
+4: \begin{tabular}{@{}lrrrrrr@{}}\toprule
+5: Dataset & Prec. D & Prec. M & Recall D & Recall M & F1 D & F1 M\\\midrule
+6: DTD & 0,8712 & 0,8721 & 0,8703 & 0,8711 & 0,8689 & 0,8695\\
+7: FMD & 0,9829 & 0,9839 & 0,9820 & 0,9830 & 0,9819 & 0,9829\\
+8: CUReT & 0,9986 & 0,9979 & 0,9986 & 0,9979 & 0,9986 & 0,9979\\
+9: Outex13 & 0,9331 & 0,9304 & 0,9294 & 0,9265 & 0,9288 & 0,9258\\
+10: SoilOriginal & 0,9147 & 0,9159 & 0,8775 & 0,8804 & 0,8876 & 0,8899\\
+11: KTH-TIPS2b & 0,9617 & 0,9621 & 0,9575 & 0,9583 & 0,9544 & 0,9551\\
+12: \bottomrule\end{tabular}
+13: \par\smallskip\begin{minipage}{0.98\textwidth}\footnotesize D: directo; M: margen. Promedios macro por clase y después por condición.\end{minipage}
+14: \end{table}
+
+FILE: paper/generated_top4_fixed_closure_20261115/e2_accuracy_legible.tex
+1: \begin{table}[!htbp]\centering
+2: \fontsize{8}{10}\selectfont\setlength{\tabcolsep}{4pt}
+3: \caption{E2: umbrales OOF y activación real en seis datasets.}\label{tab:e2-confidence-readable}
+4: \begin{tabular}{@{}lrrr@{}}\toprule
+5: q & Compuerta & Accuracy & Rescate real \%\\\midrule
+6: 0,25 & Margen & 0,944581 & 21,06\\
+7: 0,25 & Máximo & 0,942485 & 20,56\\
+8: 0,25 & Entropía softmax & 0,935649 & 16,24\\
+9: 0,5 & Margen & 0,944502 & 43,12\\
+10: 0,5 & Máximo & 0,944167 & 42,94\\
+11: 0,5 & Entropía softmax & 0,942080 & 37,57\\
+12: 0,75 & Margen & 0,944449 & 66,73\\
+13: 0,75 & Máximo & 0,944449 & 66,52\\
+14: 0,75 & Entropía softmax & 0,944220 & 60,91\\
+15: \bottomrule\end{tabular}
+16: \par\smallskip\begin{minipage}{0.98\textwidth}\footnotesize Media equiponderada de seis datasets. Mismo cuantil OOF no implica igual activación externa.\end{minipage}
+17: \end{table}
+
+FILE: paper/generated_top4_fixed_closure_20261115/e2_matched_count.tex
+1: \begin{table}[!htbp]\centering
+2: \fontsize{8}{10}\selectfont\setlength{\tabcolsep}{4pt}
+3: \caption{E2: diagnóstico por lote con igual cantidad derivada.}\label{tab:e2-matched}
+4: \begin{tabular}{@{}lrrr@{}}\toprule
+5: q & Compuerta & Accuracy & Rescate real \%\\\midrule
+6: 0,25 & Margen & 0,944581 & 21,06\\
+7: 0,25 & Máximo & 0,942543 & 21,06\\
+8: 0,25 & Entropía softmax & 0,939839 & 21,06\\
+9: 0,5 & Margen & 0,944502 & 43,12\\
+10: 0,5 & Máximo & 0,944167 & 43,12\\
+11: 0,5 & Entropía softmax & 0,943301 & 43,12\\
+12: 0,75 & Margen & 0,944449 & 66,73\\
+13: 0,75 & Máximo & 0,944449 & 66,73\\
+14: 0,75 & Entropía softmax & 0,944370 & 66,73\\
+15: \bottomrule\end{tabular}
+16: \par\smallskip\begin{minipage}{0.98\textwidth}\footnotesize Igual cantidad que el margen por condición, ordenada sin etiquetas de test. Es diagnóstico por lote, no política individual online.\end{minipage}
+17: \end{table}
+
+FILE: paper/generated_top4_fixed_closure_20261115/kth_status.tex
+1: \begin{table}[!htbp]\centering
+2: \fontsize{8}{10}\selectfont\setlength{\tabcolsep}{4pt}
+3: \caption{E1: cuatro particiones KTH completas tras la validación autorizada.}\label{tab:e1-kth-state}
+4: \begin{tabular}{@{}lrrr@{}}\toprule
+5: Partición & Estado & Directo Acc & Margen Acc\\\midrule
+6: 1 & Completada & 0,989057 & 0,988215\\
+7: 2 & Completada & 0,921717 & 0,921717\\
+8: 3 & Completada & 0,983165 & 0,987374\\
+9: 4 & Completada & 0,936027 & 0,936027\\
+10: \bottomrule\end{tabular}
+11: \par\smallskip\begin{minipage}{0.98\textwidth}\footnotesize Solo 1 y 3 se ajustaron en la continuación. Se conservaron 2 y 4, las otras 23 condiciones y los registros fallidos originales.\end{minipage}
+12: \end{table}
+
+FILE: paper/articulo/borrador_profesor/references.bib
+1: % ============================================================
+2: % references.bib — Tesis sobre concatenación de descriptores
+3: % ============================================================
+4: % Biblioteca normalizada del manuscrito. BibTeX imprime sólo las entradas citadas.
+5: % La auditoría vigente documenta por separado las fuentes comprobadas y su alcance.
+6: % ============================================================
+7: 
+8: % ----------- Descriptores clásicos -----------
+9: 
+10: @article{ojala2002lbp,
+11:   title={Multiresolution gray-scale and rotation invariant texture classification with local binary patterns},
+12:   author={Ojala, Timo and Pietik{\"a}inen, Matti and M{\"a}enp{\"a}{\"a}, Topi},
+13:   journal={IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)},
+14:   volume={24},
+15:   number={7},
+16:   pages={971--987},
+17:   year={2002},
+18:   month={07},
+19:   publisher={IEEE},
+20:   doi={10.1109/TPAMI.2002.1017623}
+21: }
+22: 
+23: @article{haralick1979glcm,
+24:   title={Statistical and structural approaches to texture},
+25:   author={Haralick, Robert M.},
+26:   journal={Proceedings of the IEEE},
+27:   volume={67},
+28:   number={5},
+29:   pages={786--804},
+30:   year={1979},
+31:   month={05},
+32:   doi={10.1109/PROC.1979.11328}
+33: }
+34: 
+35: @inproceedings{dalal2005hog,
+36:   title={Histograms of oriented gradients for human detection},
+37:   author={Dalal, Navneet and Triggs, Bill},
+38:   booktitle={IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR)},
+39:   pages={886--893},
+40:   year={2005},
+41:   month={06},
+42:   organization={IEEE},
+43:   doi={10.1109/CVPR.2005.177}
+44: }
+45: 
+46: @article{mehta2016drlbp,
+47:   title={Dominant rotated local binary patterns ({DRLBP}) for texture classification},
+48:   author={Mehta, Rakesh and Egiazarian, Karen},
+49:   journal={Pattern Recognition Letters},
+50:   volume={71},
+51:   pages={16--22},
+52:   year={2016},
+53:   month={02},
+54:   doi={10.1016/j.patrec.2015.11.019}
+55: }
+56: 
+57: @article{jain1991gabor,
+58:   title={Unsupervised texture segmentation using {Gabor} filters},
+59:   author={Jain, Anil K. and Farrokhnia, Farshid},
+60:   journal={Pattern Recognition},
+61:   volume={24},
+62:   number={12},
+63:   pages={1167--1186},
+64:   year={1991},
+65:   doi={10.1016/0031-3203(91)90143-S}
+66: }
+67: 
+68: % ----------- CNNs -----------
+69: 
+70: @misc{simonyan2015vgg,
+71:   title={Very Deep Convolutional Networks for Large-Scale Image Recognition},
+72:   author={Simonyan, Karen and Zisserman, Andrew},
+73:   year={2015},
+74:   note={International Conference on Learning Representations (ICLR)},
+75:   url={https://arxiv.org/abs/1409.1556}
+76: }
+77: 
+78: @inproceedings{he2016resnet,
+79:   title={Deep residual learning for image recognition},
+80:   author={He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+81:   booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+82:   pages={770--778},
+83:   year={2016},
+84:   month={06},
+85:   doi={10.1109/CVPR.2016.90}
+86: }
+87: 
+88: @inproceedings{tan2019efficientnet,
+89:   title={EfficientNet: Rethinking model scaling for convolutional neural networks},
+90:   author={Tan, Mingxing and Le, Quoc},
+91:   booktitle={International Conference on Machine Learning (ICML)},
+92:   pages={6105--6114},
+93:   volume={97},
+94:   series={Proceedings of Machine Learning Research},
+95:   year={2019},
+96:   month={06},
+97:   organization={PMLR},
+98:   url={https://proceedings.mlr.press/v97/tan19a.html}
+99: }
+100: 
+101: @inproceedings{huang2017densenet,
+102:   title={Densely Connected Convolutional Networks},
+103:   author={Huang, Gao and Liu, Zhuang and van der Maaten, Laurens and Weinberger, Kilian Q.},
+104:   booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+105:   pages={2261--2269},
+106:   year={2017},
+107:   month={07},
+108:   publisher={IEEE},
+109:   doi={10.1109/CVPR.2017.243},
+110:   url={https://openaccess.thecvf.com/content_cvpr_2017/html/Huang_Densely_Connected_Convolutional_CVPR_2017_paper.html}
+111: }
+112: 
+113: @inproceedings{woo2023convnextv2,
+114:   title={ConvNeXt V2: Co-designing and scaling ConvNets with masked autoencoders},
+115:   author={Woo, Sanghyun and Debnath, Shoubhik and Hu, Ronghang and Chen, Xinlei and Liu, Zhuang and Kweon, In So and Xie, Saining},
+116:   booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+117:   pages={16133--16142},
+118:   year={2023},
+119:   month={06},
+120:   doi={10.1109/CVPR52729.2023.01548}
+121: }
+122: 
+123: % ----------- Vision Transformers -----------
+124: 
+125: @misc{dosovitskiy2021vit,
+126:   title={An image is worth 16x16 words: Transformers for image recognition at scale},
+127:   author={Dosovitskiy, Alexey and Beyer, Lucas and Kolesnikov, Alexander and Weissenborn, Dirk and Zhai, Xiaohua and Unterthiner, Thomas and Dehghani, Mostafa and Minderer, Matthias and Heigold, Georg and Gelly, Sylvain and Uszkoreit, Jakob and Houlsby, Neil},
+128:   year={2021},
+129:   month={05},
+130:   note={International Conference on Learning Representations (ICLR)},
+131:   url={https://openreview.net/forum?id=YicbFdNTTy}
+132: }
+133: 
+134: @inproceedings{liu2021swin,
+135:   title={Swin Transformer: Hierarchical vision transformer using shifted windows},
+136:   author={Liu, Ze and Lin, Yutong and Cao, Yue and Hu, Han and Wei, Yixuan and Zhang, Zheng and Lin, Stephen and Guo, Baining},
+137:   booktitle={IEEE/CVF International Conference on Computer Vision (ICCV)},
+138:   pages={10012--10022},
+139:   year={2021},
+140:   month={10},
+141:   doi={10.1109/ICCV48922.2021.00986}
+142: }
+143: 
+144: @inproceedings{touvron2021deit,
+145:   title={Training data-efficient image transformers \& distillation through attention},
+146:   author={Touvron, Hugo and Cord, Matthieu and Douze, Matthijs and Massa, Francisco and Sablayrolles, Alexandre and J{\'e}gou, Herv{\'e}},
+147:   booktitle={International Conference on Machine Learning (ICML)},
+148:   pages={10347--10357},
+149:   volume={139},
+150:   series={Proceedings of Machine Learning Research},
+151:   year={2021},
+152:   month={07},
+153:   organization={PMLR},
+154:   url={https://proceedings.mlr.press/v139/touvron21a.html}
+155: }
+156: 
+157: % ----------- Self-supervised / DINOv2 -----------
+158: 
+159: @article{oquab2024dinov2,
+160:   title={DINOv2: Learning robust visual features without supervision},
+161:   author={Oquab, Maxime and Darcet, Timoth{\'e}e and Moutakanni, Th{\'e}o and Vo, Huy V. and Szafraniec, Marc and Khalidov, Vasil and Fernandez, Pierre and Haziza, Daniel and Massa, Francisco and El-Nouby, Alaaeldin and Assran, Mido and Ballas, Nicolas and Galuba, Wojciech and Howes, Russell and Huang, Po-Yao and Li, Shang-Wen and Misra, Ishan and Rabbat, Michael and Sharma, Vasu and Synnaeve, Gabriel and Xu, Hu and J{\'e}gou, Herv{\'e} and Mairal, Julien and Labatut, Patrick and Joulin, Armand and Bojanowski, Piotr},
+162:   journal={Transactions on Machine Learning Research (TMLR)},
+163:   year={2024},
+164:   month={07},
+165:   eprint={2304.07193},
+166:   archivePrefix={arXiv},
+167:   primaryClass={cs.CV},
+168:   url={https://arxiv.org/abs/2304.07193}
+169: }
+170: 
+171: @inproceedings{caron2021dino,
+172:   title={Emerging properties in self-supervised vision transformers},
+173:   author={Caron, Mathilde and Touvron, Hugo and Misra, Ishan and J{\'e}gou, Herv{\'e} and Mairal, Julien and Bojanowski, Piotr and Joulin, Armand},
+174:   booktitle={IEEE/CVF International Conference on Computer Vision (ICCV)},
+175:   pages={9650--9660},
+176:   year={2021},
+177:   month={10},
+178:   doi={10.1109/ICCV48922.2021.00951}
+179: }
+180: 
+181: % ----------- Datasets -----------
+182: 
+183: @inproceedings{cimpoi2014dtd,
+184:   title={Describing textures in the wild},
+185:   author={Cimpoi, Mircea and Maji, Subhransu and Kokkinos, Iasonas and Mohamed, Sammy and Vedaldi, Andrea},
+186:   booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+187:   pages={3606--3613},
+188:   year={2014},
+189:   month={06},
+190:   doi={10.1109/CVPR.2014.461}
+191: }
+192: 
+193: @article{sharan2013fmd,
+194:   title={Recognizing materials using perceptually inspired features},
+195:   author={Sharan, Lavanya and Liu, Ce and Rosenholtz, Ruth and Adelson, Edward H.},
+196:   journal={International Journal of Computer Vision (IJCV)},
+197:   volume={103},
+198:   number={3},
+199:   pages={348--371},
+200:   year={2013},
+201:   month={07},
+202:   doi={10.1007/s11263-013-0609-0}
+203: }
+204: 
+205: % ----------- Feature fusion / texture classification -----------
+206: 
+207: @inproceedings{mallikarjuna2005kth,
+208:   title={KTH-TIPS and KTH-TIPS2: Two databases for the evaluation of texture classification algorithms},
+209:   author={Mallikarjuna, P. and Fritz, Mario and Hayman, Eric and Caputo, Barbara and Eklundh, Jan-Olof},
+210:   booktitle={Swedish Symposium on Image Analysis},
+211:   year={2005},
+212:   month={03}
+213: }
+214: 
+215: @article{cimpoi2016fisher,
+216:   title={Deep filter banks for texture recognition, description, and segmentation},
+217:   author={Cimpoi, Mircea and Maji, Subhransu and Kokkinos, Iasonas and Vedaldi, Andrea},
+218:   journal={International Journal of Computer Vision (IJCV)},
+219:   volume={118},
+220:   number={1},
+221:   pages={65--94},
+222:   year={2016},
+223:   month={01},
+224:   doi={10.1007/s11263-015-0872-3}
+225: }
+226: 
+227: @article{sanchez2013image,
+228:   title={Image classification with the Fisher vector: Theory and practice},
+229:   author={S{\'a}nchez, Jorge and Perronnin, Florent and Mensink, Thomas and Verbeek, Jakob},
+230:   journal={International Journal of Computer Vision (IJCV)},
+231:   volume={105},
+232:   number={3},
+233:   pages={222--245},
+234:   year={2013},
+235:   month={12},
+236:   doi={10.1007/s11263-013-0636-x}
+237: }
+238: 
+239: % ----------- Greedy feature selection -----------
+240: 
+241: @inproceedings{fan2021autogfs,
+242:   title={AutoGFS: Automated Group-Based Feature Selection via Interactive Reinforcement Learning},
+243:   author={Fan, Wei and Liu, Kunpeng and Liu, Hao and Hariri, Ahmad and Dou, Dejing and Fu, Yanjie},
+244:   booktitle={Proceedings of the 2021 SIAM International Conference on Data Mining},
+245:   pages={342--350},
+246:   year={2021},
+247:   publisher={SIAM},
+248:   doi={10.1137/1.9781611976700.39}
+249: }
+250: 
+251: @inproceedings{ojala2002outex,
+252:   title={Outex---New Framework for Empirical Evaluation of Texture Analysis Algorithms},
+253:   author={Ojala, Timo and M{\"a}enp{\"a}{\"a}, Topi and Pietik{\"a}inen, Matti and Viertola, Jaakko and Kyll{\"o}nen, Juha and Huovinen, Sami},
+254:   booktitle={Proceedings of the 16th International Conference on Pattern Recognition},
+255:   volume={1},
+256:   pages={701--706},
+257:   year={2002},
+258:   publisher={IEEE},
+259:   doi={10.1109/ICPR.2002.1044854}
+260: }
+261: 
+262: % ----------- Trabajos relacionados en texturas -----------
+263: 
+264: @inproceedings{zhang2017deepten,
+265:   title={Deep {TEN}: Texture Encoding Network},
+266:   author={Zhang, Hang and Xue, Jia and Dana, Kristin},
+267:   booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+268:   pages={2896--2905},
+269:   year={2017},
+270:   month={07},
+271:   organization={IEEE},
+272:   doi={10.1109/CVPR.2017.309}
+273: }
+274: 
+275: @article{liu2019survey,
+276:   title={From {BoW} to {CNN}: Two Decades of Texture Representation for Texture Classification},
+277:   author={Liu, Li and Chen, Jie and Fieguth, Paul and Zhao, Guoying and Chellappa, Rama and Pietik{"a}inen, Matti},
+278:   journal={International Journal of Computer Vision (IJCV)},
+279:   volume={127},
+280:   pages={74--109},
+281:   year={2019},
+282:   doi={10.1007/s11263-018-1125-z}
+283: }
+284: 
+285: % ----------- Combinación de descriptores clásicos y fusión aprendida -----------
+286: 
+287: @article{guo2010clbp,
+288:   title={A Completed Modeling of Local Binary Pattern Operator for Texture Classification},
+289:   author={Guo, Zhenhua and Zhang, Lei and Zhang, David},
+290:   journal={IEEE Transactions on Image Processing},
+291:   volume={19},
+292:   number={6},
+293:   pages={1657--1663},
+294:   year={2010},
+295:   month={06},
+296:   doi={10.1109/TIP.2010.2044957}
+297: }
+298: 
+299: @article{maenpaa2004color,
+300:   title={Classification with color and texture: jointly or separately?},
+301:   author={M{\"a}enp{\"a}{\"a}, Topi and Pietik{\"a}inen, Matti},
+302:   journal={Pattern Recognition},
+303:   volume={37},
+304:   number={8},
+305:   pages={1629--1640},
+306:   year={2004},
+307:   month={08},
+308:   doi={10.1016/j.patcog.2004.03.001}
+309: }
+310: 
+311: @article{varma2009statistical,
+312:   title={A Statistical Approach to Material Classification Using Image Patch Exemplars},
+313:   author={Varma, Manik and Zisserman, Andrew},
+314:   journal={IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)},
+315:   volume={31},
+316:   number={11},
+317:   pages={2032--2047},
+318:   year={2009},
+319:   month={11},
+320:   doi={10.1109/TPAMI.2008.182}
+321: }
+322: 
+323: @inproceedings{lin2015bilinear,
+324:   title={Bilinear {CNN} Models for Fine-Grained Visual Recognition},
+325:   author={Lin, Tsung-Yu and RoyChowdhury, Aruni and Maji, Subhransu},
+326:   booktitle={IEEE International Conference on Computer Vision (ICCV)},
+327:   pages={1449--1457},
+328:   year={2015},
+329:   month={12},
+330:   doi={10.1109/ICCV.2015.170}
+331: }
+332: 
+333: @inproceedings{gao2016compact,
+334:   title={Compact Bilinear Pooling},
+335:   author={Gao, Yang and Beijbom, Oscar and Zhang, Ning and Huang, Thomas},
+336:   booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+337:   pages={317--326},
+338:   year={2016},
+339:   month={06},
+340:   doi={10.1109/CVPR.2016.41}
+341: }
+342: 
+343: @article{zhang2007kernel,
+344:   title={Local Features and Kernels for Classification of Texture and Object Categories: A Comprehensive Study},
+345:   author={Zhang, Jianguo and Marszalek, Marcin and Lazebnik, Svetlana and Schmid, Cordelia},
+346:   journal={International Journal of Computer Vision (IJCV)},
+347:   volume={73},
+348:   number={2},
+349:   pages={213--238},
+350:   year={2007},
+351:   month={06},
+352:   doi={10.1007/s11263-006-9794-4}
+353: }
+354: 
+355: @inproceedings{radford2021clip,
+356:   title={Learning Transferable Visual Models From Natural Language Supervision},
+357:   author={Radford, Alec and Kim, Jong Wook and Hallacy, Chris and Ramesh, Aditya and Goh, Gabriel and Agarwal, Sandhini and Sastry, Girish and Askell, Amanda and Mishkin, Pamela and Clark, Jack and Krueger, Gretchen and Sutskever, Ilya},
+358:   booktitle={International Conference on Machine Learning (ICML)},
+359:   pages={8748--8763},
+360:   volume={139},
+361:   series={Proceedings of Machine Learning Research},
+362:   year={2021},
+363:   month={07},
+364:   organization={PMLR},
+365:   url={https://proceedings.mlr.press/v139/radford21a.html}
+366: }
+367: 
+368: @article{touvron2021resmlp,
+369:   title={{ResMLP}: Feedforward Networks for Image Classification With Data-Efficient Training},
+370:   author={Touvron, Hugo and Bojanowski, Piotr and Caron, Mathilde and Cord, Matthieu and El-Nouby, Alaaeldin and Grave, Edouard and Izacard, Gautier and Joulin, Armand and Synnaeve, Gabriel and Verbeek, Jakob and J{\'e}gou, Herv{\'e}},
+371:   journal={IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)},
+372:   volume={45},
+373:   number={4},
+374:   pages={5314--5321},
+375:   year={2023},
+376:   month={04},
+377:   doi={10.1109/TPAMI.2022.3206148}
+378: }
+379: 
+380: % ----------- SOTA 2023-2026 en visión/SSL -----------
+381: 
+382: @inproceedings{he2022mae,
+383:   title={Masked Autoencoders Are Scalable Vision Learners},
+384:   author={He, Kaiming and Chen, Xinlei and Xie, Saining and Li, Yanghao and Doll{\'a}r, Piotr and Girshick, Ross},
+385:   booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+386:   pages={16000--16009},
+387:   year={2022},
+388:   month={06},
+389:   organization={IEEE},
+390:   doi={10.1109/CVPR52688.2022.01553}
+391: }
+392: 
+393: @article{fang2024eva02,
+394:   title={EVA-02: A Visual Representation for Neon Genesis},
+395:   author={Fang, Yuxin and Sun, Quan and Wang, Xinggang and Huang, Tiejun and Wang, Xinlong and Cao, Yue},
+396:   journal={Image and Vision Computing},
+397:   volume={149},
+398:   pages={105171},
+399:   year={2024},
+400:   month={09},
+401:   doi={10.1016/j.imavis.2024.105171}
+402: }
+403: 
+404: @inproceedings{zhai2023siglip,
+405:   title={Sigmoid Loss for Language Image Pre-Training},
+406:   author={Zhai, Xiaohua and Mustafa, Basil and Kolesnikov, Alexander and Beyer, Lucas},
+407:   booktitle={IEEE/CVF International Conference on Computer Vision (ICCV)},
+408:   pages={11941--11952},
+409:   year={2023},
+410:   month={10},
+411:   organization={IEEE},
+412:   doi={10.1109/ICCV51070.2023.01100}
+413: }
+414: 
+415: @inproceedings{varma2003filter,
+416:   title={Texture Classification: Are Filter Banks Necessary?},
+417:   author={Varma, Manik and Zisserman, Andrew},
+418:   booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+419:   volume={2},
+420:   pages={691--698},
+421:   year={2003},
+422:   organization={IEEE},
+423:   url={https://www.robots.ox.ac.uk/~vgg/publications/2003/Varma03/varma03.pdf}
+424: }
+425: @article{kohavi1997wrappers,
+426:   title={Wrappers for Feature Subset Selection},
+427:   author={Kohavi, Ron and John, George H.},
+428:   journal={Artificial Intelligence},
+429:   volume={97},
+430:   number={1--2},
+431:   pages={273--324},
+432:   year={1997},
+433:   doi={10.1016/S0004-3702(97)00043-X}
+434: }
+435: 
+436: @article{guyon2003feature,
+437:   title={An Introduction to Variable and Feature Selection},
+438:   author={Guyon, Isabelle and Elisseeff, Andr{\'e}},
+439:   journal={Journal of Machine Learning Research},
+440:   volume={3},
+441:   pages={1157--1182},
+442:   year={2003},
+443:   url={https://www.jmlr.org/papers/v3/guyon03a.html}
+444: }
+445: 
+446: @article{ruggieri2019complete,
+447:   title={Complete Search for Feature Selection in Decision Trees},
+448:   author={Ruggieri, Salvatore},
+449:   journal={Journal of Machine Learning Research},
+450:   volume={20},
+451:   number={104},
+452:   pages={1--34},
+453:   year={2019},
+454:   url={https://www.jmlr.org/papers/v20/18-035.html}
+455: }
+456: 
+457: @article{paiva2023rgb,
+458:   title={RGB Pixel N-grams: A Texture Descriptor},
+459:   author={Paiva Pav{\'o}n, F{\'a}tima Bel{\'e}n and Oru{\'e} Gil, Mar{\'i}a Cristina and V{\'a}zquez Noguera, Jos{\'e} Luis and G{\'o}mez-Adorno, Helena and Calzada-Ledesma, Valent{\'i}n},
+460:   journal={Signal Processing: Image Communication},
+461:   volume={118},
+462:   pages={117028},
+463:   year={2023},
+464:   doi={10.1016/j.image.2023.117028}
+465: }
+466: 
+467: @article{peng2022beitv2,
+468:   title={BEiT v2: Masked Image Modeling with Vector-Quantized Visual Tokenizers},
+469:   author={Peng, Zhiliang and Dong, Li and Bao, Hangbo and Ye, Qixiang and Wei, Furu},
+470:   journal={arXiv preprint arXiv:2208.06366},
+471:   year={2022},
+472:   doi={10.48550/arXiv.2208.06366}
+473: }
+474: 
+475: @article{neshov2025aggregation,
+476:   title={Improving Texture Recognition via Multi-Layer Feature Aggregation from Pre-Trained Vision Architectures},
+477:   author={Neshov, Nikolay and Tonchev, Krasimir and Bozhilov, Ivaylo and Petkova, Radostina and Manolova, Agata},
+478:   journal={Electronics},
+479:   volume={14},
+480:   number={23},
+481:   pages={4779},
+482:   year={2025},
+483:   doi={10.3390/electronics14234779}
+484: }
+485: 
+486: @article{simon2022deeplumina,
+487:   title={{DeepLumina}: A Method Based on Deep Features and Luminance Information for Color Texture Classification},
+488:   author={Simon, A. Philomina and Uma, B. V.},
+489:   journal={Computational Intelligence and Neuroscience},
+490:   volume={2022},
+491:   pages={9510987},
+492:   year={2022},
+493:   doi={10.1155/2022/9510987}
+494: }
+495: 
+496: @article{gupta2026hytexnet,
+497:   title={{HyTexNet}: Percentile-guided local encoding and deep feature fusion for enhanced texture classification},
+498:   author={Gupta, Vandana and Mishra, Ashish and Shrivastava, Nishant},
+499:   journal={Knowledge-Based Systems},
+500:   volume={338},
+501:   pages={115482},
+502:   year={2026},
+503:   doi={10.1016/j.knosys.2026.115482}
+504: }
+505: 
+506: @article{chang2024cellnn,
+507:   title={Multi-scale {LBP} fusion with the contours from deep {CellNNs} for texture classification},
+508:   author={Chang, Mingzhe and Ji, Luping and Zhu, Jiewen},
+509:   journal={Expert Systems with Applications},
+510:   volume={238},
+511:   pages={122100},
+512:   year={2024},
+513:   doi={10.1016/j.eswa.2023.122100}
+514: }
+515: 
+516: @article{scabini2025survey,
+517:   title={A Comparative Survey of Vision Transformers for Feature Extraction in Texture Analysis},
+518:   author={Scabini, Leonardo and Sacilotti, Arthur and Zielinski, Kamil M. and Ribas, Lucas C. and De Baets, Bernard and Bruno, Odemir M.},
+519:   journal={Journal of Imaging},
+520:   volume={11},
+521:   number={9},
+522:   pages={304},
+523:   year={2025},
+524:   doi={10.3390/jimaging11090304}
+525: }
+526: 
+527: @article{derrac2011practical,
+528:   title={A practical tutorial on the use of nonparametric statistical tests as a methodology for comparing evolutionary and swarm intelligence algorithms},
+529:   author={Derrac, Joaqu{\'i}n and Garc{\'i}a, Salvador and Molina, Daniel and Herrera, Francisco},
+530:   journal={Swarm and Evolutionary Computation},
+531:   volume={1},
+532:   number={1},
+533:   pages={3--18},
+534:   year={2011},
+535:   doi={10.1016/j.swevo.2011.02.002}
+536: }
+537: 
+538: @article{demsar2006statistical,
+539:   title={Statistical Comparisons of Classifiers over Multiple Data Sets},
+540:   author={Dem{\v{s}}ar, Janez},
+541:   journal={Journal of Machine Learning Research},
+542:   volume={7},
+543:   pages={1--30},
+544:   year={2006}
+545: }
+546: 
+547: % ----------- Inferencia dinámica y adquisición activa -----------
+548: 
+549: @inproceedings{viola2001rapid,
+550:   title={Rapid object detection using a boosted cascade of simple features},
+551:   author={Viola, Paul and Jones, Michael},
+552:   booktitle={IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR)},
+553:   volume={1},
+554:   pages={I--511},
+555:   year={2001},
+556:   organization={IEEE},
+557:   doi={10.1109/CVPR.2001.990517}
+558: }
+559: 
+560: @inproceedings{teerapittayanon2016branchynet,
+561:   title={BranchyNet: Fast inference via early exiting from deep neural networks},
+562:   author={Teerapittayanon, Surat and McDanel, Bradley and Kung, H. T.},
+563:   booktitle={23rd International Conference on Pattern Recognition (ICPR)},
+564:   pages={2464--2469},
+565:   year={2016},
+566:   organization={IEEE},
+567:   doi={10.1109/ICPR.2016.7900006}
+568: }
+569: 
+570: @article{han2021dynamic,
+571:   title={Dynamic Neural Networks: A Survey},
+572:   author={Han, Yizeng and Huang, Gao and Song, Shiji and Yang, Le and Wang, Honghui and Wang, Yulin},
+573:   journal={IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)},
+574:   volume={44},
+575:   number={11},
+576:   pages={7436--7456},
+577:   year={2021},
+578:   doi={10.1109/TPAMI.2021.3117837}
+579: }
+580: 
+581: @inproceedings{huang2017msdnet,
+582:   title={Multi-Scale Dense Networks for Resource-Constrained Image Classification},
+583:   author={Huang, Gao and Chen, Danlu and Li, Tianhong and Wu, Felix and van der Maaten, Laurens and Weinberger, Kilian Q.},
+584:   booktitle={International Conference on Learning Representations (ICLR)},
+585:   year={2017},
+586:   url={https://openreview.net/forum?id=Hk2myTqex}
+587: }
+588: 
+589: @inproceedings{ma2019eddi,
+590:   title={{EDDI}: Efficient Dynamic Discovery of High-Value Information with Partial {VAE}},
+591:   author={Ma, Chao and Tschiatschek, Sebastian and Palla, Konstantina and Hern{\'a}ndez-Lobato, Jos{\'e} Miguel and Nowozin, Sebastian and Zhang, Cheng},
+592:   booktitle={International Conference on Machine Learning (ICML)},
+593:   pages={4234--4243},
+594:   volume={97},
+595:   series={Proceedings of Machine Learning Research},
+596:   year={2019},
+597:   organization={PMLR},
+598:   url={https://proceedings.mlr.press/v97/ma19c.html}
+599: }
+600: 
+601: @inproceedings{kornblith2019similarity,
+602:   title={Similarity of Neural Network Representations Revisited},
+603:   author={Kornblith, Simon and Norouzi, Mohammad and Lee, Honglak and Hinton, Geoffrey},
+604:   booktitle={Proceedings of the 36th International Conference on Machine Learning},
+605:   series={Proceedings of Machine Learning Research},
+606:   volume={97},
+607:   pages={3519--3529},
+608:   year={2019},
+609:   url={https://proceedings.mlr.press/v97/kornblith19a.html}
+610: }
+611: 
+612: @inproceedings{caruana2004ensemble,
+613:   title={Ensemble Selection from Libraries of Models},
+614:   author={Caruana, Rich and Niculescu-Mizil, Alexandru and Crew, Geoff and Ksikes, Alex},
+615:   booktitle={Proceedings of the 21st International Conference on Machine Learning},
+616:   year={2004},
+617:   doi={10.1145/1015330.1015432},
+618:   url={https://www.cs.cornell.edu/~alexn/papers/shotgun.icml04.revised.rev2.pdf}
+619: }
+620: 
+621: @inproceedings{xu2012greedy,
+622:   title={The Greedy Miser: Learning under Test-time Budgets},
+623:   author={Xu, Zhixiang and Weinberger, Kilian Q. and Chapelle, Olivier},
+624:   booktitle={Proceedings of the 29th International Conference on Machine Learning},
+625:   year={2012},
+626:   url={https://icml.cc/2012/papers/592.pdf}
+627: }
+628: 
+629: @inproceedings{nan2017adaptive,
+630:   title={Adaptive Classification for Prediction Under a Budget},
+631:   author={Nan, Feng and Saligrama, Venkatesh},
+632:   booktitle={Advances in Neural Information Processing Systems},
+633:   volume={30},
+634:   year={2017},
+635:   url={https://proceedings.neurips.cc/paper_files/paper/2017/hash/d9ff90f4000eacd3a6c9cb27f78994cf-Abstract.html}
+636: }
+637: 
+638: @article{garcia2008extension,
+639:   title={An Extension on ``Statistical Comparisons of Classifiers Over Multiple Data Sets'' for all Pairwise Comparisons},
+640:   author={Garc{\'\i}a, Salvador and Herrera, Francisco},
+641:   journal={Journal of Machine Learning Research (JMLR)},
+642:   volume={9},
+643:   number={89},
+644:   pages={2677--2694},
+645:   year={2008},
+646:   url={https://jmlr.org/papers/v9/garcia08a.html}
+647: }
+648: 
+649: 
+</paper_content>
