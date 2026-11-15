@@ -2,6 +2,11 @@
 
 Fecha: 15 de noviembre de 2026, America/Asuncion.
 
+**Este documento conserva el corte de 25/27.** Después de la autorización
+se cerraron las dos condiciones KTH: el estado vigente es **27/27 en seis
+datasets**, con 98 pruebas aprobadas. Véase el [informe de cierre posterior](CIERRE_FIDELIDAD_KTH_E1_E2_2026-11-15.md).
+El PDF no fue recompilado con ese cierre nuevo.
+
 ## Qué quedó hecho
 
 - La tesis principal usa **accuracy (exactitud)** como métrica principal.

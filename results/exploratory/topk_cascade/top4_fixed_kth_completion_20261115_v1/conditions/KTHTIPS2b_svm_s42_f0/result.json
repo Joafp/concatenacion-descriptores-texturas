@@ -1,0 +1,135 @@
+{
+  "id": "KTHTIPS2b_svm_s42_f0",
+  "dataset": "KTHTIPS2b",
+  "protocol": "official1_inverted",
+  "top4_blocks": [
+    "beitv2_base_final",
+    "dinov2_large",
+    "dinov2",
+    "siglip_base"
+  ],
+  "n_test": 1188,
+  "primary_metric": "accuracy",
+  "metric_scope": "same cached predictions; costs projected, no online latency",
+  "metrics": {
+    "resnet50": {
+      "accuracy": 0.8872053872053872,
+      "precision_macro": 0.9075034785297593,
+      "recall_macro": 0.8872053872053872,
+      "macro_f1": 0.8864671636042233
+    },
+    "beitv2_base_final": {
+      "accuracy": 0.9671717171717171,
+      "precision_macro": 0.968576160283228,
+      "recall_macro": 0.9671717171717172,
+      "macro_f1": 0.9669702115944624
+    },
+    "top4_direct": {
+      "accuracy": 0.9890572390572391,
+      "precision_macro": 0.9892469915405695,
+      "recall_macro": 0.9890572390572391,
+      "macro_f1": 0.9890182668080492
+    }
+  },
+  "selected_cascade": {
+    "route": "cascade",
+    "cheap": "beitv2_base_final",
+    "q": 0.25,
+    "request_fraction": 0.12794612794612795,
+    "projected_component_ms": 47.288766891656664,
+    "metrics": {
+      "accuracy": 0.9882154882154882,
+      "precision_macro": 0.9883838497683368,
+      "recall_macro": 0.9882154882154882,
+      "macro_f1": 0.9881689680196427
+    }
+  },
+  "resnet50_route": {
+    "route": "cascade",
+    "cheap": "resnet50",
+    "q": 0.75,
+    "request_fraction": 0.5446127946127947,
+    "projected_component_ms": 159.58144684134106,
+    "metrics": {
+      "accuracy": 0.9890572390572391,
+      "precision_macro": 0.9892469915405695,
+      "recall_macro": 0.9890572390572391,
+      "macro_f1": 0.9890182668080492
+    }
+  },
+  "direct_projected_component_ms": 266.79942527281736,
+  "random_selected_route": {
+    "accuracy": {
+      "mean": 0.9698653198653198,
+      "std": 0.0016360695552315682
+    },
+    "precision_macro": {
+      "mean": 0.9710126099028773,
+      "std": 0.0015443049341055844
+    },
+    "recall_macro": {
+      "mean": 0.96986531986532,
+      "std": 0.0016360695552315296
+    },
+    "macro_f1": {
+      "mean": 0.9696758878331676,
+      "std": 0.001672827260920472
+    }
+  },
+  "resnet50_q_random": {
+    "0.25": {
+      "accuracy": {
+        "mean": 0.9046127946127949,
+        "std": 0.0032011135122225923
+      },
+      "precision_macro": {
+        "mean": 0.9194233939923323,
+        "std": 0.0024046513939950686
+      },
+      "recall_macro": {
+        "mean": 0.9046127946127949,
+        "std": 0.003201113512222604
+      },
+      "macro_f1": {
+        "mean": 0.904429129425877,
+        "std": 0.0033179448778133456
+      }
+    },
+    "0.5": {
+      "accuracy": {
+        "mean": 0.9229713804713804,
+        "std": 0.004777410291206587
+      },
+      "precision_macro": {
+        "mean": 0.9327794630427431,
+        "std": 0.00368395980515011
+      },
+      "recall_macro": {
+        "mean": 0.9229713804713804,
+        "std": 0.004777410291206582
+      },
+      "macro_f1": {
+        "mean": 0.9229847148362859,
+        "std": 0.0047842676337245945
+      }
+    },
+    "0.75": {
+      "accuracy": {
+        "mean": 0.9432323232323233,
+        "std": 0.004880893998812381
+      },
+      "precision_macro": {
+        "mean": 0.9486325203207439,
+        "std": 0.00407415256588228
+      },
+      "recall_macro": {
+        "mean": 0.9432323232323233,
+        "std": 0.0048808939988123955
+      },
+      "macro_f1": {
+        "mean": 0.9433551985639006,
+        "std": 0.004890335729474907
+      }
+    }
+  }
+}

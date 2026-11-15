@@ -5,12 +5,17 @@
 recall macro son complementarias. Se conserva el título acordado y el recorrido
 Top-k directo → optimización por margen.
 
+**Cierre experimental posterior:** E1/E2 ya tiene **27/27 condiciones y seis
+datasets**, con 98 pruebas aprobadas. El PDF todavía contiene el corte previo
+de 25/27; falta integrar estas cifras nuevas y recompilar.
+[Informe vigente del cierre](../docs/fsc_tex/CIERRE_FIDELIDAD_KTH_E1_E2_2026-11-15.md).
+
 - [Abrir la tesis PDF](tesis.pdf) y [fuente principal](tesis.tex).
 - [Informe del día y pendientes](../docs/fsc_tex/AVANCE_ACCURACY_E1_E2_2026-11-15.md).
 - [Plan vigente](../docs/fsc_tex/PLAN_TOPK_MARGEN_2026-11-13.md).
 - [Decisión de métrica y cronología](../docs/fsc_tex/DECISION_METRICA_ACCURACY_2026-11-15.md).
 
-## Evidencia actual
+## Evidencia incluida en el PDF de este corte
 
 1. Barrido de 21 tamaños × 47 condiciones por clasificador, seis datasets.
    Top-4/SVM: accuracy media por dataset 0,944214, frente al máximo descriptivo
@@ -38,8 +43,11 @@ siguen identificados; no se reetiquetan como selección por accuracy.
 - [Predicciones y scores E1/E2](../results/exploratory/topk_cascade/top4_fixed_primary22_20261115_v1/conditions/).
 - [Bibliografía activa](articulo/borrador_profesor/references.bib).
 
-KTH mantiene en revisión dos casos por fallos de fidelidad EVA-02/SigLIP; no
-se repitieron. Se conservan también las reservas históricas KTH/DTD,
+Los dos fallos originales de fidelidad EVA-02/SigLIP conservan sus archivos.
+Una ruta corregida autorizada superó 0,999 en las mismas 33 imágenes por red
+y permitió completar los dos casos que no habían ajustado clasificadores.
+Ese cierre nuevo tiene carpetas independientes y no reescribe el corte del PDF.
+Se conservan también las reservas históricas KTH/DTD,
 DeepLumina no convergente e incompleto, y diferencias de representación online.
 Los estudios de ensamble y poda permanecen en un anexo complementario.
 

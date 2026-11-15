@@ -7,31 +7,33 @@ Creado: 13-11-2026. Última revisión: 15-11-2026, America/Asuncion.
 La implementación, resultados y tesis del 15-11 están publicados en
 `7ea1000`. Los apartados fechados del 13 y 14 se conservan como registro del
 recorrido; las tareas en futuro de esos cortes no reemplazan este estado.
+El cierre posterior autorizado de KTH completa E1/E2 en seis datasets.
+Los cortes de 25/27 se conservan como antecedentes; el PDF de 87 páginas
+todavía contiene ese corte y está pendiente de integrar el cierre nuevo.
 
 | Bloque | Estado vigente |
 |---|---|
-| Tesis principal | 87 páginas; accuracy principal, con macro-F1, precisión y recall macro complementarios. |
-| Verificación | 66 pruebas aprobadas en el corte actual; el PDF conserva su compilación y revisión visual completa del corte de 52 pruebas. |
+| Tesis principal | 87 páginas; accuracy principal. Pendiente integrar el cierre experimental nuevo de seis datasets. |
+| Verificación | 98 pruebas aprobadas en el corte actual; el PDF conserva su compilación y revisión visual completa del corte de 52 pruebas. |
 | Paneles y barrido históricos | Conservados; no se repiten para sustituir resultados. |
-| E1: Top-4 fijo directo/por margen | 25/27 condiciones completas; cinco datasets íntegros y KTH 2/4. |
-| E2: margen/máximo/entropía | Calculado para los 25 casos; consolidados y contrastes de cinco datasets completos. |
-| Bloqueo de KTH | Incompatibilidad de preprocesamiento demostrada en 33/33 imágenes por red. Adaptadores candidatos probados en CPU; fidelidad neuronal de SigLIP/EVA-02 todavía en revisión. |
-| Latencia nueva de políticas E1 | Pendiente. El 74,87 % es reducción de adquisición proyectada, no latencia online medida. |
+| E1: Top-4 fijo directo/por margen | 27/27 condiciones auditadas en seis datasets; 25 conservadas y solo dos KTH nuevas. |
+| E2: margen/máximo/entropía | 486 filas auditadas y contrastes de seis datasets completos. |
+| Fidelidad de KTH | EVA-02 y SigLIP corregidos superan 0,999 en las mismas 33 imágenes por red. Los fallos originales conservan sus archivos. |
+| Latencia nueva de políticas E1 | Pendiente. El 75,00 % de seis datasets es reducción de adquisición proyectada, no latencia online medida. |
 
 **Orden propuesto para continuar:**
 
-1. **Decidir sobre la validación corregida de KTH.** La revisión de registros,
-   código y entradas en CPU ya identificó diferencias de resize/recorte en
-   EVA-02 y de interpolación en SigLIP. Está preparada una
-   [propuesta congelada](PROTOCOLO_VALIDACION_KTH_CORREGIDA_2026-11-15.md),
-   todavía sin ejecutar. Mantener los fallos científicos y sus muestras;
-   no repetirlos automáticamente ni bajar el mínimo de 0,999. Si se autoriza
-   y pasa, continuar solo KTH 1 y 3, que no ajustaron modelos, conservando las
-   otras 25 condiciones. E1/E2 siguen sin cierre en seis datasets.
+1. **Completado: validación corregida y cierre KTH.** El autor autorizó la
+   propuesta congelada; EVA-02/SigLIP superaron el umbral original con
+   66 llamadas evaluadas y diez calentamientos. Se completaron solo KTH 1 y 3;
+   las otras 25 condiciones se conservaron. Accuracy directa y por margen:
+   94,4449 % y 94,4581 % en seis datasets, p exacto=0,5625. Los fallos
+   anteriores permanecen registrados. [Informe de cierre](CIERRE_FIDELIDAD_KTH_E1_E2_2026-11-15.md).
 2. **Revisar el texto con autores y tutor.** Confirmar la interpretación de
    accuracy principal, el carácter exploratorio y la diferencia entre costo
-   proyectado y latencia. El ranking y la selección históricos por macro-F1
-   permanecen como componentes realmente ejecutados del método.
+   proyectado y latencia; incorporar el cierre nuevo de KTH al manuscrito.
+   El ranking y la selección históricos por macro-F1 permanecen como
+   componentes realmente ejecutados del método.
 3. **Preparar la medición online del mismo Top-4 directo/por margen** una vez
    resuelta la fidelidad necesaria. Congelar protocolo, clasificadores,
    imágenes, pesos y presupuesto; calidad y tiempos de las mismas llamadas.
@@ -45,9 +47,9 @@ no se da por resuelto mientras su procedencia siga pendiente. E6 conserva
 el diagnóstico ViT online/guardado de Soil/CUReT. E7 y E8 (memoria por
 política y variación entre equipos) siguen siendo opcionales.
 
-El próximo trabajo técnico depende de la decisión sobre la propuesta de
-validación. La revisión CPU no construyó redes ni extrajo embeddings; tampoco
-repitió E1/E2 o sus condiciones terminadas.
+El siguiente paso es revisar e integrar el cierre nuevo en el manuscrito y
+preparar el protocolo de latencia física de las políticas. No se repiten las
+27 condiciones completadas ni se presenta la proyección como cronometraje.
 
 [Informe consolidado](AVANCE_ACCURACY_E1_E2_2026-11-15.md) ·
 [Lista de experimentos y estados](../../carlos/EXPERIMENTOS_PENDIENTES.md) ·
@@ -55,6 +57,9 @@ repitió E1/E2 o sus condiciones terminadas.
 
 [Diagnóstico de preprocesamiento KTH](REVISION_FIDELIDAD_KTH_2026-11-15.md) ·
 [Propuesta con entradas y resultados conservados por hash](../../results/analysis/kth_reference_validation_proposal_20261115_v1/README.md).
+
+[Cierre vigente](CIERRE_FIDELIDAD_KTH_E1_E2_2026-11-15.md) ·
+[Auditoría de 27/27 y seis datasets](../../results/analysis/top4_fixed_kth_completion_audit_20261115_v1/summary.json).
 
 ## Título y recorrido confirmado
 
@@ -306,3 +311,15 @@ de fuentes, presupuesto de la propuesta y conservación de artefactos E1.
 
 [Informe de esta etapa](REVISION_FIDELIDAD_KTH_2026-11-15.md) y
 [propuesta pendiente de decisión](PROTOCOLO_VALIDACION_KTH_CORREGIDA_2026-11-15.md).
+
+### Cierre posterior autorizado del 15-11
+
+El autor aprobó la validación y la continuación condicional. Ambos bloques
+superaron el umbral 0,999 en las mismas 33 imágenes. Un error de serialización
+se corrigió antes del primer forward SigLIP; EVA no se repitió. Los dos casos
+KTH pendientes terminaron, preservando los 25 previos y los estados originales.
+Se auditaron 27/27 E1 y 486 filas E2 en seis datasets, sin medias parciales.
+
+Pasaron 98 pruebas. El PDF conserva su versión anterior de 87 páginas y
+requiere integrar este cierre, sin borrar la cronología o las reservas de
+procedencia y latencia. [Detalle y fuentes](CIERRE_FIDELIDAD_KTH_E1_E2_2026-11-15.md).

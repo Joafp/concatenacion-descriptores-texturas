@@ -10,7 +10,25 @@ Esa era la lista inicial del 14-11. El estado del 15-11 se detalla abajo.
 > E1/E2 y pidió accuracy como métrica principal de toda la tesis. Esa autorización cubrió esta ampliación;
 > no se considera autorización para repetir los fallos científicos ni para lanzar el resto de la lista.
 
-## Actualización de ejecución — 15-11-2026
+## Cierre posterior autorizado — 15-11-2026
+
+- **E1 completo: 27/27 condiciones y seis datasets.** Se conservaron los 25 casos
+  completos y se entrenaron solo los dos KTH que no habían ajustado modelos.
+- **E2 completo:** 486 filas auditadas, con umbrales OOF y diagnóstico por lote separados.
+- EVA-02 y SigLIP corrigieron el preprocesamiento conforme al código histórico y superaron
+  0,999 en las mismas 33 imágenes de cada red, tras autorización explícita. Los fallos
+  originales y el corte anterior se conservan; ninguna llamada científica fallida se repitió.
+- Accuracy media de seis datasets: **0,944448526 directa y 0,944580737 por margen**;
+  p exacto bilateral=0,5625. Adquisición por componentes **proyectada 75,00 % menor**;
+  aún falta medir latencia física de las políticas completas.
+- Pasaron **98 pruebas**. El PDF de 87 páginas conserva el corte anterior y requiere
+  integrar el cierre nuevo. E3 sigue condicional; E4–E8 no quedan resueltos por este cierre.
+
+Fuentes vigentes: [informe y reservas](../docs/fsc_tex/CIERRE_FIDELIDAD_KTH_E1_E2_2026-11-15.md),
+[auditoría de seis datasets](../results/analysis/top4_fixed_kth_completion_audit_20261115_v1/summary.json)
+y [tabla completa](../results/analysis/top4_fixed_kth_completion_audit_20261115_v1/e1_complete_dataset_means.csv).
+
+## Primer corte de ejecución — 15-11-2026 (antecedente, 25/27)
 
 - **E1:** 25 condiciones completadas de 27. DTD, FMD, CUReT, Outex y Soil están completos;
   KTH tiene dos condiciones completas y dos en `requires_review`.

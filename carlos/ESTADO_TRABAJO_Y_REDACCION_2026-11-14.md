@@ -2,6 +2,12 @@
 
 **Actualizado:** 15 de noviembre de 2026, America/Asuncion.
 
+**Cierre posterior vigente:** E1/E2 completo en 27/27 condiciones y seis
+datasets, con 98 pruebas aprobadas. Se conservaron 25 casos y se completaron
+solo dos KTH tras validar EVA-02/SigLIP con el umbral original. El PDF de 87
+páginas todavía refleja el corte anterior; falta integrar el cierre nuevo.
+[Informe y tabla de seis datasets](../docs/fsc_tex/CIERRE_FIDELIDAD_KTH_E1_E2_2026-11-15.md).
+
 El trabajo está organizado alrededor del título acordado:
 
 > Concatenación Top-k de descriptores para clasificar texturas: comparación del uso directo y la activación por margen
@@ -85,6 +91,12 @@ paper y la lista de experimentos pendientes. Ambos ya se integraron a esta copia
 
 ## 4. Qué estamos haciendo ahora
 
+El trabajo vigente es **integrar el cierre experimental completo en el texto
+y preparar el protocolo de latencia online**. Accuracy media: 94,4449 %
+directa y 94,4581 % por margen; p exacto=0,5625 y adquisición proyectada
+75,00 % menor. Las cifras anteriores de cinco datasets se conservan abajo
+como recorrido del mismo día, no como cobertura vigente.
+
 Se completó una revisión CPU de las entradas EVA-02/SigLIP de KTH. En las
 33 imágenes congeladas de cada red se demostraron diferencias entre el
 preprocesamiento histórico reconstruido y el online que falló. Hay adaptadores
@@ -117,8 +129,8 @@ no son ocho requisitos igualmente necesarios para terminar el texto.
 
 | Experimento | Estado al corte |
 |---|---|
-| E1 / B1: Top-4 fijo directo/por margen | Ejecutado: 25/27 completas. Cinco datasets completos; KTH 2/4, con dos condiciones en revisión por fidelidad. |
-| E2 / B2: margen frente a puntuación máxima y entropía | Calculado con los scores de las 25 condiciones completadas. Consolidados y contrastes de cinco datasets íntegros; KTH no tiene media completa. |
+| E1 / B1: Top-4 fijo directo/por margen | Cerrado y auditado: 27/27, seis datasets y KTH 4/4. Los fallos y el corte previo se conservan en sus carpetas. |
+| E2 / B2: margen frente a puntuación máxima y entropía | 486 filas auditadas de las 27 condiciones; consolidados y contrastes de seis datasets completos. |
 | E3: reconciliar la cascada histórica de KTH | Pendiente solo si se conserva esa comparación como central y no se hace E1. E1 con el protocolo corregido puede cubrir esa necesidad. |
 | E4 / B3: misma cascada con ResMLP | Pendiente; la política ResMLP del panel de ensamble es otra comparación. |
 | E5 / B4: Top-4 fijo más N-gramas | Pendiente como control específico; las ablaciones existentes no lo sustituyen. |
