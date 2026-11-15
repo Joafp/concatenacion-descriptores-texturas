@@ -35,7 +35,7 @@ en puntos porcentuales de accuracy; aquí \(A(k)\) representa la exactitud media
 
 Con SVM, pasar de uno a cuatro bloques aumenta la accuracy media de 0,927166 a 0,944214: una ganancia de 1,7048 puntos porcentuales. Pasar de cuatro al máximo observado en diez aporta 0,0876 puntos adicionales, mientras la dimensión media relativa aumenta de 15,42 a 45,17 \%. Cuatro concentra aproximadamente el 95,11 \% de la mejora observada entre uno y el máximo del barrido. Esta proporción describe la ganancia relativa de accuracy; no es la accuracy absoluta ni un intervalo de equivalencia.
 
-Así, Top-4 resulta una elección compacta con buena calidad media y una regla de tamaño fácil de explicar. Después de cuatro se observan ocho pasos negativos y nueve positivos con SVM: el rendimiento fluctúa, en lugar de disminuir siempre. Con ResMLP, cinco aporta 0,212 puntos más que cuatro. La conclusión sustentada es que las ganancias posteriores pueden ser pequeñas frente al crecimiento de representación; identificar un mejor compromiso exige declarar qué calidad y costo se priorizan.
+Así, Top-4 resulta una elección compacta con buena calidad media y una regla de tamaño fácil de explicar. Después de cuatro se observan ocho pasos negativos y nueve positivos con SVM: el rendimiento fluctúa, en lugar de disminuir siempre. Con ResMLP, cinco aporta 0,2305 puntos porcentuales de accuracy más que cuatro. La conclusión sustentada es que las ganancias posteriores pueden ser pequeñas frente al crecimiento de representación; identificar un mejor compromiso exige declarar qué calidad y costo se priorizan.
 
 \input{generated_accuracy_primary_20261115_v3/top4_svm.tex}
 \input{generated_accuracy_primary_20261115_v3/top4_resmlp.tex}
@@ -49,7 +49,7 @@ En FMD, cuatro es el máximo medio de accuracy del barrido para ambos clasificad
 \end{figure}
 
 \section{Qué aportan N-gramas y las ampliaciones de biblioteca}
-Las tablas previas distinguen 21 bloques sin N-gramas de la biblioteca de 22. El control histórico emparejado de 20 frente a 21 con N-gramas examina otra ampliación, anterior a BEiT-v2. Se conserva en la Tabla~\ref{tab:ngram-svm} para SVM y en el Anexo~\ref{app:resultados-adicionales} para ResMLP.
+Las tablas previas distinguen 21 bloques sin N-gramas de la biblioteca de 22. El control histórico emparejado de 20 frente a 21 con N-gramas examina otra ampliación, anterior a BEiT-v2. Se conserva en la Tabla~\ref{tab:ngram-accuracy-svm} para SVM y en el Anexo~\ref{app:resultados-adicionales} para ResMLP. El complemento de macro-F1 se conserva por separado en la Tabla~\ref{tab:ngram-svm}.
 
 \input{generated_accuracy_primary_20261115_v3/ngram_svm.tex}
 
@@ -61,7 +61,7 @@ El ranking individual y la complementariedad responden preguntas distintas. La a
 Las Tablas~\ref{tab:tm-externos-accuracy} y~\ref{tab:tm-externos-ms} extraen Top-4/SVM del panel físico auditado y lo comparan con las adaptaciones externas sobre las mismas imágenes de cada condición. Las métricas de cada método se reconstruyeron con predicción y tiempo de las mismas llamadas. No se reutiliza aquí la accuracy del barrido histórico con un tiempo medido después.
 
 \input{generated_accuracy_primary_20261115_v3/externos_accuracy.tex}
-\input{generated_topk_margin/externos_ms.tex}
+\input{generated_ars_revision_20261115/externos_ms.tex}
 
 En FMD, Top-4 alcanza accuracy aproximada de 0,98233 frente a 0,94200 de la adaptación Neshov con MLP. Requiere más tiempo en las mediciones observadas. En Soil, Top-4 registra accuracy de 0,91581 frente a 0,90819 de Neshov, mientras su macro-F1 complementario es menor (0,85940 frente a 0,86310). El cambio de orden entre métricas muestra por qué deben conservarse las medidas por clase. La media temporal de Top-4 es mayor. Las mediciones de fechas distintas describen el archivo disponible y no identifican por sí solas una ventaja temporal causal.
 
@@ -92,7 +92,13 @@ La ruta condicional puede superar a Top-\(k\) porque conserva la predicción bas
 \section{Ampliación E1: Top-4 fijo directo y por margen}\label{sec:e1-fixed4}
 El 15-11-2026 se ejecutó la comparación específica que faltaba: exactamente cuatro bloques por condición en ambas rutas, con SVM, semilla 42 y las 27 condiciones previstas. Se guardaron índices, orden de clases, puntajes completos OOF y test de todas las bases, predicciones, selección previa al test, modelos, controles aleatorios y hashes. La selección de ruta conserva macro-F1 OOF y tolerancia 0,005 del método histórico; accuracy es la métrica principal de reporte. Los tests ya observados durante el desarrollo mantienen el carácter exploratorio de esta ampliación.
 
+En E1, OOF conserva el alcance condicionado descrito en el método: se fija el Top-4 archivado y se reajusta el clasificador por pliegue, sin reaprender el ranking dentro de cada pliegue OOF. No se presenta este cierre como validación anidada integral de la selección.
+
 El cierre completó las 27 condiciones: DTD 10, FMD 5, CUReT 2, Outex 1, Soil 5 y KTH 4. Se conservaron 25 resultados y se ajustaron solo las dos condiciones KTH que se habían detenido antes de entrenar. La Tabla~\ref{tab:e1-fixed4-accuracy} presenta los seis datasets completos. Su accuracy media equiponderada es 0,944449 para Top-4 directo y 0,944581 para la política seleccionada: diferencia de +0,0132 puntos porcentuales. Wilcoxon exacto bilateral sobre esas seis medias da \(p=0,5625\); no acredita superioridad ni equivalencia. Los 27 Top-4 directos reproducen exactamente accuracy y macro-F1 de sus filas archivadas.
+
+La variación observada se informa sin tratar pliegues que comparten imágenes como réplicas independientes. La Tabla~\ref{tab:ars-e1-variation} muestra los rangos y cuantiles de las diferencias por condición; no son intervalos de confianza poblacionales. La Tabla~\ref{tab:ars-e1-lodo} recalcula la media al dejar fuera, por turno, cada dataset: la diferencia va de \(-0,0192\) a \(+0,0747\) puntos porcentuales. Cambiar el conjunto de datasets puede incluso cambiar el signo; no se elige una exclusión favorable como resultado principal.
+\input{generated_ars_revision_20261115/e1_observed_ranges.tex}
+\input{generated_ars_revision_20261115/e1_dataset_sensitivity.tex}
 
 \input{generated_top4_fixed_closure_20261115/e1_accuracy.tex}
 \input{generated_top4_fixed_closure_20261115/e1_secundarias.tex}
@@ -106,7 +112,13 @@ La media equiponderada de costos por componentes pasa de 468,31 a 117,07 ms, red
 
 El perfil KTH inicial se congeló con pesos locales, dos hilos CPU, batch1, cinco calentamientos y 33 imágenes de entrenamiento, tres por clase. EVA-02 registró coseno mínimo 0,931978 y SigLIP 0,981889, inferiores al mínimo fijado de 0,999; los otros seis bloques lo superaron. Los estados fallidos originales se conservaron.
 
-La revisión de código y entradas identificó diferencias de preprocesamiento: EVA-02 requería resize bicúbico del lado corto a 248 y recorte central 224, mientras SigLIP histórico usaba resize bilineal explícito a 224. Tras autorización del autor, las recetas corregidas se validaron con los mismos pesos e imágenes y el mismo mínimo. Ambas superaron 0,999 en las 33 imágenes, con mínimos mayores que 0,99999999999. Fueron 66 llamadas evaluadas y diez calentamientos. Un error de serialización del informe de carga se corrigió antes del primer forward SigLIP, sin repetir EVA ni llamadas científicas fallidas. Se preservaron las seis constantes aceptadas y se añadieron las dos nuevas; sus sesiones temporales distintas permanecen identificadas.
+La similitud coseno compara, para una misma imagen, el vector de referencia \(u\) y el extraído \(v\), ambos no nulos:
+\begin{equation}
+\operatorname{cos}(u,v)=\frac{u^{\mathsf T}v}{\|u\|_2\|v\|_2}\in[-1,1].
+\end{equation}
+Mide concordancia de dirección y es invariante a multiplicar los vectores por factores positivos. Un valor próximo a uno no prueba igualdad de magnitudes ni identidad global del pipeline. El mínimo 0,999 es un criterio de aceptación registrado para estas muestras, no un nivel de confianza estadística ni una garantía de calibración.
+
+La revisión identificó diferencias de preprocesamiento en EVA-02 y SigLIP. Tras autorización del autor, las recetas corregidas se validaron con los mismos pesos y las mismas 33 imágenes, conservando el mínimo 0,999. Ambos bloques alcanzaron mínimos mayores que 0,99999999999. Las sesiones y las seis constantes aceptadas previamente permanecen identificadas; el Anexo~\ref{sec:ars-kth-infra} conserva el detalle operativo sin sustituir los estados fallidos originales.
 
 La Tabla~\ref{tab:e1-kth-state} muestra ahora las cuatro condiciones completas. La validación acredita concordancia en las muestras comprobadas; no recupera la metadata productora original de todos los embeddings ni elimina las reservas de otras variantes KTH.
 

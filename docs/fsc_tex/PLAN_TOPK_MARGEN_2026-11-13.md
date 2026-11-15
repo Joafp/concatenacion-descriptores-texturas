@@ -333,3 +333,26 @@ Hecho: cierre de seis datasets incorporado en resúmenes, capítulos, tablas y t
 Hecho: revisión de cinco perspectivas con compromisos antes de leer, informes separados y síntesis validada. No se modificaron tesis ni experimentos. No se identificaron defectos Critical/Major; todas las observaciones son Minor. La regla F3 del contrato emite Major Revision por avisos en varias dimensiones obligatorias, sin elevar sus severidades ni constituir una decisión universitaria. [Informe y reparaciones mínimas](REVISION_ARS_TESIS_2026-11-15.md).
 
 La carga mínima es redacción y análisis de resultados guardados: variación de diferencias y sensibilidad de la familia principal de accuracy sin KTH histórico, más delimitación de procedencia. No se exige repetir modelos para sostener el alcance exploratorio actual. El roadmap conserva las propuestas; todavía no hay adjudicación del autor ni cambios aplicados. Los benchmarks online y E5 conservan su estado pendiente.
+
+## Aplicación posterior aprobada del 15-11
+
+Tras el «sí» del autor se aplicaron las quince acciones de la revisión, con
+gate de bloques y exportación exacta de fuentes. Se añadieron las sensibilidades
+de resultados guardados, las recetas de comparadores y la delimitación Outex.
+La procedencia física completa de sus filas continúa abierta; no se declara
+resuelta por coincidencias de arrays ni se omite Outex del cierre canónico.
+Los resultados científicos originales y los estados fallidos permanecen intactos.
+
+El cierre E1 sigue en 27/27 y seis datasets; no se ejecutaron modelos nuevos.
+La diferencia media es +0,0132211 pp y la sensibilidad por exclusión de dataset
+va de −0,0192224 a +0,0746888 pp. El contraste estático de accuracy sin KTH
+no tiene pares significativos tras Holm. La tesis revisada conserva el alcance
+exploratorio y el ahorro del 75 % como adquisición proyectada.
+
+Siguiente trabajo: resolver el alcance de fidelidad del protocolo online y
+completar su implementación congelada antes de medir. E5 permanece pendiente
+como control específico, no ejecutado por esta corrección editorial.
+[Cambios y evidencias](APLICACION_ARS_TESIS_2026-11-15.md).
+
+Validación de entrega: PDF de 94 páginas, 106 pruebas aprobadas, 48 cotejos
+de hashes, sin referencias indefinidas ni desbordes y revisión visual completa.

@@ -13,6 +13,11 @@ El cierre E1/E2 de seis datasets se audita con \path{scripts/audit_top4_kth_comp
 
 Las tablas de este cierre se generan con \path{scripts/build_thesis_six_dataset_closure.py}, en \path{paper/generated_top4_fixed_closure_20261115/}. El perfil corregido KTH identifica las sesiones EVA-02 y SigLIP, sus llamadas, las huellas de entrada y los errores de infraestructura previos a la ejecución pendiente. Las fuentes originales y sus estados fallidos permanecen conservados. Reproducir métricas desde los scores guardados no requiere repetir la validación neuronal ni entrenar las condiciones completas.
 
+\subsection{Detalle operativo de la corrección KTH}\label{sec:ars-kth-infra}
+EVA-02 requería resize bicúbico del lado corto a 248 y recorte central 224; SigLIP histórico usaba resize bilineal explícito a 224. La validación corregida utilizó 33 imágenes de entrenamiento por bloque, tres por clase: 66 llamadas evaluadas y diez calentamientos. Un error de serialización del informe de carga se corrigió antes del primer forward SigLIP, sin repetir EVA ni llamadas científicas fallidas. Se preservaron las seis constantes aceptadas y se añadieron las dos nuevas, con sesiones temporales distintas. Los recibos están en \path{results/analysis/kth_reference_validated_profile_20261115_v1/}.
+
+La revisión ARS del 15-11 añade análisis de resultados guardados mediante \path{scripts/analyze_ars_existing_results_20261115.py}. Sus fuentes, diferencias por condición, cuantiles y sensibilidades están vinculados por hashes en \path{results/analysis/ars_revision_existing_analyses_20261115_v1/}. No se realizaron nuevos fits, extracciones, predicciones de modelos ni cronometrajes. La matriz de alcance Outex se apoya en los recibos y en \path{docs/fsc_tex/AVANCE_OUTEX_HUELLAS_2026-11-09.md}; los detalles no verificados siguen abiertos.
+
 \section{Reconstrucción sin ejecutar modelos}\label{sec:trazabilidad}
 El siguiente comando utiliza salidas nuevas y rechaza sobreescribir el directorio de auditoría:
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize,breaklines=true]

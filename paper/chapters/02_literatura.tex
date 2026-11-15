@@ -10,6 +10,10 @@ RGB Pixel N-grams representa secuencias de píxeles de color mediante conteos \c
 \section{Concatenación y selección de bloques}
 La concatenación es una fusión a nivel de características: reúne los vectores antes de entrenar el clasificador. Un ensamble, en cambio, combina decisiones o puntuaciones de varios clasificadores. Aunque un miembro de un ensamble pueda recibir una concatenación, ambas operaciones resuelven decisiones distintas.
 
+Puig et al.\ propusieron una selección de métodos de textura de familias distintas para reducir el costo de su integración \citep{puig2010selection}. Su selección busca transferirse entre problemas y no equivale a nuestro ranking específico de cada entrenamiento externo. Este antecedente impide atribuir novedad a la idea general de seleccionar e integrar métodos de textura.
+
+Khan et al.\ combinaron descriptores locales y comprimieron la representación heterogénea mediante un criterio de información; además estudiaron fusión tardía con color \citep{khan2015compact}. Nuestro Top-\(k\) selecciona bloques enteros sin reproducir esa compresión. La contribución evaluada aquí es la comparación de tamaños y de uso directo frente a activación por margen bajo los archivos identificados, no la invención de concatenar descriptores.
+
 Seleccionar los primeros \(k\) descriptores de un ranking individual ofrece una referencia de baja complejidad conceptual. El ranking estima relevancia individual; no mide necesariamente la complementariedad condicionada a los bloques que ya están presentes. Un descriptor que no ocupa una posición alta puede añadir información útil a otro subconjunto.
 
 Los métodos \emph{wrapper} evalúan subconjuntos mediante el clasificador que los utilizará \citep{kohavi1997wrappers,guyon2003feature}. GFS construye el conjunto de manera secuencial, añadiendo bloques según un criterio interno. Frente al ranking Top-\(k\), esto examina más directamente la composición, pero exige más ajustes. La comparación debe informar por separado el número de bloques, la dimensión, el costo de selección y la inferencia.
@@ -20,6 +24,9 @@ Una selección realizada dentro del entrenamiento no justifica volver a elegir \
 Neshov et al.\ extraen características de varios niveles de una arquitectura preentrenada y las concatenan antes de una MLP \citep{neshov2025aggregation}. El trabajo permite estudiar agregación entre capas, mientras que nuestro Top-\(k\) selecciona bloques de extractores diferentes. Las dos operaciones pueden relacionarse, pero no tienen el mismo costo ni la misma unidad de selección.
 
 DeepLumina reúne características profundas obtenidas a partir de información RGB y de luminancia \citep{simon2022deeplumina}. HyTexNet combina una codificación local guiada por percentiles con características profundas \citep{gupta2026hytexnet}. El método de Chang et al.\ fusiona LBP multiescala y contornos producidos por CellNN \citep{chang2024cellnn}. Estos casos representan formas concretas de concatenar información complementaria. Las dimensiones, checkpoints y cabezas utilizados en nuestras adaptaciones se identifican en las recetas del proyecto.
+
+La Tabla~\ref{tab:ars-recetas} resume las implementaciones efectivamente comparadas. Las elecciones locales y las diferencias no verificadas forman parte del nombre de adaptación: ni el empleo de código de autor en un componente ni una dimensión coincidente acreditan reproducir los porcentajes del sistema completo.
+\input{generated_ars_revision_20261115/recetas_externas.tex}
 
 Scabini et al.\ comparan extractores basados en Vision Transformers y consideran eficiencia junto con calidad \citep{scabini2025survey}. En el proyecto también existen mediciones derivadas de procesamiento por lotes. Su tiempo amortizado por imagen no se intercambia con la latencia individual de una consulta.
 

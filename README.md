@@ -1,13 +1,13 @@
-# Selección y concatenación de descriptores heterogéneos para la clasificación de texturas
+# Concatenación Top-k de descriptores para clasificar texturas: comparación del uso directo y la activación por margen
 
 Tesis de grado de Carlos Ayala y Joaquín Delgado, Facultad Politécnica de la
 Universidad Nacional de Asunción. Tutor: Prof. José Vázquez.
 
 ## Pregunta de investigación
 
-¿En qué condiciones la concatenación de descriptores heterogéneos mejora la
-clasificación de texturas y qué balance ofrece la selección de subconjuntos
-entre desempeño y dimensionalidad?
+¿Qué compromiso de calidad y dimensión ofrece concatenar los primeros k
+descriptores de un ranking interno, y qué cambia al activar esa misma
+concatenación mediante el margen de un clasificador base?
 
 El trabajo trata cada extractor como un bloque completo. Compara, sin consultar
 el test durante la selección:
@@ -19,7 +19,16 @@ el test durante la selección:
 5. la concatenación de los `k` descriptores individualmente más fuertes,
    usando el mismo `k` de GFS.
 
-La métrica primaria es macro-F1 externo.
+La métrica principal de reporte es **accuracy**; macro-F1, precisión y recall
+macro son complementarias. Los rankings y la selección histórica de ruta
+conservan su criterio macro-F1 OOF. La elección de Top-4 y el cambio de métrica
+son exploratorios, posteriores a observar resultados del benchmark.
+
+La tesis vigente está en [paper/tesis.pdf](paper/tesis.pdf), con fuente
+[paper/tesis.tex](paper/tesis.tex). El cierre E1/E2 contiene 27 condiciones en
+seis datasets. La revisión ARS aprobada incorpora variación de diferencias,
+sensibilidades, recetas de comparadores y límites del OOF; no ejecuta modelos
+nuevos. [Estado y próximos pasos](docs/fsc_tex/APLICACION_ARS_TESIS_2026-11-15.md).
 
 ## Inicio rápido (clonar y verificar)
 
@@ -60,7 +69,7 @@ VisTex Reference-12 se conserva como análisis auxiliar; no entra en los contras
 La concatenación completa suma 20.652 dimensiones. Los backbones permanecen
 congelados y cada bloque se normaliza por muestra antes de concatenarse.
 
-## Protocolo confirmatorio (resumen)
+## Protocolo histórico de selección (resumen)
 
 - Clasificadores: SVM lineal y ResMLP.
 - Selección interna: cuatro folds estratificados y agrupados.
@@ -97,7 +106,8 @@ scripts/             orquestación (setup_env, protocolos, tablas)
 experiments/         tests automatizados del protocolo
 results/confirmatory/  resúmenes, manifiestos y evidencia principal
 results/extensions/  Outex, Soil, VisTex
-paper/articulo/      manuscrito LaTeX canónico
+paper/tesis.tex      fuente canónica de la tesis vigente
+paper/articulo/      artículo y materiales históricos
 docs/                datasets, reproducibilidad, traza SCI2S
 .tools/nonparametric/  CONTROLTEST y MULTIPLETEST (Java)
 archive/             nota sobre artefactos locales (no versionados)
@@ -106,7 +116,7 @@ archive/             nota sobre artefactos locales (no versionados)
 No se versionan: `data/`, `embeddings*/`, entornos `.venv*`, logs/checkpoints
 y respaldos en `archive/local/`. Detalle en `.gitignore`.
 
-## Resultados principales (lectura)
+## Resultados históricos de macro-F1 (lectura complementaria)
 
 La matriz principal contiene 94 condiciones externas (47 por clasificador) y
 470 resultados. Friedman, Iman--Davenport y Quade detectan diferencias globales
@@ -126,6 +136,11 @@ con `scripts/build_primary22_beitv2_paper.py`; ver
 
 ## Estado
 
-Bloque experimental de seis datasets y Outex oficial cerrados. El manuscrito
-está en revisión. Las salidas auditables de 22 descriptores ya están versionadas
-en este repositorio; todavía falta depositar una versión archivada e inmutable.
+Panel local 94/94 y cierre E1/E2 27/27 auditados. Las reservas de procedencia,
+fidelidad y no convergencia permanecen identificadas; cerrar cobertura no las
+elimina. La revisión editorial aplicada no constituye aprobación universitaria.
+Latencia online de las nuevas políticas y el control específico Top-4 más
+N-gramas siguen pendientes. No repetir paneles cerrados ni fallos científicos
+para recuperar un porcentaje. Todavía falta depositar una versión archivada
+e inmutable. Los runtimes efectivos se identifican por manifiesto; la sección
+de entorno anterior corresponde al protocolo histórico.

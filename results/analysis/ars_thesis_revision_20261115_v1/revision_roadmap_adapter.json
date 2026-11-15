@@ -1,0 +1,823 @@
+{
+  "schema_version": "revision-roadmap/1.0",
+  "revision_round": 1,
+  "base_draft_sha256": "f6deff648d56d0330ae82b473bd90a84a0d9e826c516d4b479fcd0591fb5a72c",
+  "block_manifest_sha256": "326ecc23ac3578fb8693efa024aa6619630a598e8f9865f56fbaa78cc6f98f87",
+  "items": [
+    {
+      "id": "REV-01",
+      "source_refs": [
+        {
+          "seat": "EIC",
+          "channel": "finding",
+          "ordinal": 1,
+          "subclaim_ordinal": 0
+        },
+        {
+          "seat": "R1",
+          "channel": "finding",
+          "ordinal": 4,
+          "subclaim_ordinal": 0
+        },
+        {
+          "seat": "DA",
+          "channel": "finding",
+          "ordinal": 2,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Corregir ganancia ResMLP k=4→5",
+      "reviewer": "EIC",
+      "sub_claim_ids": [
+        "SC-1"
+      ],
+      "obligation_class": "must_fix",
+      "severity": "minor",
+      "severity_source": "reports/eic_phase2.md W1",
+      "evidence_anchor": {
+        "anchor_type": "text",
+        "locator": "paper/chapters/05_resultados.tex:38, §5.2.1 — \"Con ResMLP, cinco aporta 0,212 puntos más que cuatro.\"",
+        "quote": "Con ResMLP, cinco aporta 0,212 puntos más que cuatro."
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "sentence",
+        "locator": "paper/chapters/05_resultados.tex:38, §5.2.1 — \"Con ResMLP, cinco aporta 0,212 puntos más que cuatro.\""
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/05_resultados.tex:38, §5.2.1 — \"Con ResMLP, cinco aporta 0,212 puntos más que cuatro.\""
+        }
+      },
+      "target_section": "paper/chapters/05_resultados.tex:38, §5.2.1 — \"Con ResMLP, cinco aporta 0,212 puntos más que cuatro.\"",
+      "suggested_action": "Corregir con las medias fuente: aproximadamente 0,2305 puntos porcentuales de accuracy; conservar unidad y precisión.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "La resta de las medias fuente coincide con la frase y la Tabla 5.3.",
+      "proposed_targets": [
+        {
+          "block_id": "B0125",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-02",
+      "source_refs": [
+        {
+          "seat": "EIC",
+          "channel": "finding",
+          "ordinal": 2,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Corregir referencia de tabla N-gramas",
+      "reviewer": "EIC",
+      "sub_claim_ids": [
+        "SC-2"
+      ],
+      "obligation_class": "should_fix",
+      "severity": "minor",
+      "severity_source": "reports/eic_phase2.md W2",
+      "evidence_anchor": {
+        "anchor_type": "text",
+        "locator": "paper/chapters/05_resultados.tex:52, §5.3 — \"para SVM y en el Anexo\"",
+        "quote": "para SVM y en el Anexo"
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "sentence",
+        "locator": "paper/chapters/05_resultados.tex:52, §5.3 — \"para SVM y en el Anexo\""
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/05_resultados.tex:52, §5.3 — \"para SVM y en el Anexo\""
+        }
+      },
+      "target_section": "paper/chapters/05_resultados.tex:52, §5.3 — \"para SVM y en el Anexo\"",
+      "suggested_action": "Apuntar a la tabla principal de accuracy y separar el complemento macro-F1 C.9.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "Las referencias del PDF conducen a la tabla descrita y no tienen etiquetas duplicadas.",
+      "proposed_targets": [
+        {
+          "block_id": "B0129",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-03",
+      "source_refs": [
+        {
+          "seat": "EIC",
+          "channel": "finding",
+          "ordinal": 3,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Actualizar pie de latencias a las métricas actuales",
+      "reviewer": "EIC",
+      "sub_claim_ids": [
+        "SC-3"
+      ],
+      "obligation_class": "should_fix",
+      "severity": "minor",
+      "severity_source": "reports/eic_phase2.md W3",
+      "evidence_anchor": {
+        "anchor_type": "text",
+        "locator": "results/analysis/ars_thesis_review_20261115_v1/inputs/manuscript_pdf_text.txt:1538, Tabla 5.8, PDF p.24 — \"tentan la tabla de macro-F1.\"",
+        "quote": "tentan la tabla de macro-F1."
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "sentence",
+        "locator": "results/analysis/ars_thesis_review_20261115_v1/inputs/manuscript_pdf_text.txt:1538, Tabla 5.8, PDF p.24 — \"tentan la tabla de macro-F1.\""
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "results/analysis/ars_thesis_review_20261115_v1/inputs/manuscript_pdf_text.txt:1538, Tabla 5.8, PDF p.24 — \"tentan la tabla de macro-F1.\""
+        }
+      },
+      "target_section": "results/analysis/ars_thesis_review_20261115_v1/inputs/manuscript_pdf_text.txt:1538, Tabla 5.8, PDF p.24 — \"tentan la tabla de macro-F1.\"",
+      "suggested_action": "Explicar que los tiempos corresponden a las mismas llamadas de accuracy y macro-F1; identificar sus tablas.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "Pie y referencias identifican Tablas 5.7 y C.11 sin confundir métricas.",
+      "proposed_targets": [
+        {
+          "block_id": "B0134",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-04",
+      "source_refs": [
+        {
+          "seat": "EIC",
+          "channel": "finding",
+          "ordinal": 4,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Reducir bitácora en resultados E1",
+      "reviewer": "EIC",
+      "sub_claim_ids": [
+        "SC-4"
+      ],
+      "obligation_class": "should_fix",
+      "severity": "minor",
+      "severity_source": "reports/eic_phase2.md W4",
+      "evidence_anchor": {
+        "anchor_type": "text",
+        "locator": "paper/chapters/05_resultados.tex:109, §5.6 — \"Un error de serialización del informe de carga se corrigió antes del primer forward SigLIP\"",
+        "quote": "Un error de serialización del informe de carga se corrigió antes del primer forward SigLIP"
+      },
+      "confidence": 4,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "section",
+        "locator": "paper/chapters/05_resultados.tex:109, §5.6 — \"Un error de serialización del informe de carga se corrigió antes del primer forward SigLIP\""
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/05_resultados.tex:109, §5.6 — \"Un error de serialización del informe de carga se corrigió antes del primer forward SigLIP\""
+        }
+      },
+      "target_section": "paper/chapters/05_resultados.tex:109, §5.6 — \"Un error de serialización del informe de carga se corrigió antes del primer forward SigLIP\"",
+      "suggested_action": "Conservar criterio y alcance científico; trasladar serialización y secuencia operativa al anexo D con referencia.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "La evidencia y los fallos siguen documentados y el cuerpo prioriza la interpretación.",
+      "proposed_targets": [
+        {
+          "block_id": "B0154",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        },
+        {
+          "block_id": "B0263",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-05",
+      "source_refs": [
+        {
+          "seat": "R1",
+          "channel": "finding",
+          "ordinal": 1,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Expresar variación e incertidumbre de diferencias",
+      "reviewer": "R1",
+      "sub_claim_ids": [
+        "SC-5"
+      ],
+      "obligation_class": "must_fix",
+      "severity": "minor",
+      "severity_source": "reports/methodology_phase2.md W1",
+      "evidence_anchor": {
+        "anchor_type": "absence",
+        "locator": "paper/chapters/05_resultados.tex:93-126, §§5.6-5.7 y Tablas 5.13-5.19",
+        "absence_scope": "incertidumbre o sensibilidad cuantificada de las diferencias pareadas principales",
+        "check_performed": "texto completo del PDF, tablas E1/E2 y Anexo C"
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "re_analysis",
+        "locator": "paper/chapters/05_resultados.tex:93-126, §§5.6-5.7 y Tablas 5.13-5.19"
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/05_resultados.tex:93-126, §§5.6-5.7 y Tablas 5.13-5.19"
+        }
+      },
+      "target_section": "paper/chapters/05_resultados.tex:93-126, §§5.6-5.7 y Tablas 5.13-5.19",
+      "suggested_action": "Con datos guardados, mostrar diferencias por condición o rangos y sensibilidad; definir unidad y población de cualquier intervalo sin independencia ficticia.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "La variación que se resume y la dependencia están justificadas; no se concluye equivalencia.",
+      "proposed_targets": [
+        {
+          "block_id": "B0148",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        },
+        {
+          "block_id": "B0263",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-06",
+      "source_refs": [
+        {
+          "seat": "R1",
+          "channel": "finding",
+          "ordinal": 2,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Sensibilidad del contraste principal de accuracy sin KTH",
+      "reviewer": "R1",
+      "sub_claim_ids": [
+        "SC-6"
+      ],
+      "obligation_class": "must_fix",
+      "severity": "minor",
+      "severity_source": "reports/methodology_phase2.md W2",
+      "evidence_anchor": {
+        "anchor_type": "absence",
+        "locator": "paper/chapters/04_diseno_experimental.tex:108 y paper/chapters/C_resultados_adicionales.tex:8-19, §4.8 y §C.2.1",
+        "absence_scope": "sensibilidad de los contrastes de accuracy Individual/Completa-22/Top-4 excluyendo KTH archivado",
+        "check_performed": "Tablas 5.22-5.23 y C.3-C.7 y discusión de procedencia en Anexo B"
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "re_analysis",
+        "locator": "paper/chapters/04_diseno_experimental.tex:108 y paper/chapters/C_resultados_adicionales.tex:8-19, §4.8 y §C.2.1"
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/04_diseno_experimental.tex:108 y paper/chapters/C_resultados_adicionales.tex:8-19, §4.8 y §C.2.1"
+        }
+      },
+      "target_section": "paper/chapters/04_diseno_experimental.tex:108 y paper/chapters/C_resultados_adicionales.tex:8-19, §4.8 y §C.2.1",
+      "suggested_action": "Recalcular los mismos pares y familia de accuracy Individual/Completa-22/Top-4 sobre cinco medias; conservar KTH archivado en su registro.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "Se muestran estimando, biblioteca, familia y cambios al excluir KTH sin sustituirlo por otra variante.",
+      "proposed_targets": [
+        {
+          "block_id": "B0109",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        },
+        {
+          "block_id": "B0243",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        },
+        {
+          "block_id": "B0263",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-07",
+      "source_refs": [
+        {
+          "seat": "R1",
+          "channel": "finding",
+          "ordinal": 3,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Precisar el OOF condicionado a Top-4 archivado en E1",
+      "reviewer": "R1",
+      "sub_claim_ids": [
+        "SC-7"
+      ],
+      "obligation_class": "must_fix",
+      "severity": "minor",
+      "severity_source": "reports/methodology_phase2.md W3",
+      "evidence_anchor": {
+        "anchor_type": "text",
+        "locator": "paper/chapters/05_resultados.tex:93, §5.6 — \"exactamente cuatro bloques por condición en ambas rutas\"; scripts/prepare_top4_fixed_cascade.py:166-200 y scripts/run_top4_fixed_e1_e2.py:125-145.",
+        "quote": "exactamente cuatro bloques por condición en ambas rutas"
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "section",
+        "locator": "paper/chapters/05_resultados.tex:93, §5.6 — \"exactamente cuatro bloques por condición en ambas rutas\"; scripts/prepare_top4_fixed_cascade.py:166-200 y scripts/run_top4_fixed_e1_e2.py:125-145."
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/05_resultados.tex:93, §5.6 — \"exactamente cuatro bloques por condición en ambas rutas\"; scripts/prepare_top4_fixed_cascade.py:166-200 y scripts/run_top4_fixed_e1_e2.py:125-145."
+        }
+      },
+      "target_section": "paper/chapters/05_resultados.tex:93, §5.6 — \"exactamente cuatro bloques por condición en ambas rutas\"; scripts/prepare_top4_fixed_cascade.py:166-200 y scripts/run_top4_fixed_e1_e2.py:125-145.",
+      "suggested_action": "Explicar que se reajusta el SVM por pliegue manteniendo el subconjunto archivado; separar selección de representación y elección de ruta.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "No se presenta ese OOF como evaluación independiente del procedimiento completo de selección.",
+      "proposed_targets": [
+        {
+          "block_id": "B0073",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        },
+        {
+          "block_id": "B0147",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-08",
+      "source_refs": [
+        {
+          "seat": "R1",
+          "channel": "finding",
+          "ordinal": 5,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Delimitar la reserva Outex por resultado",
+      "reviewer": "R1",
+      "sub_claim_ids": [
+        "SC-8"
+      ],
+      "obligation_class": "must_fix",
+      "severity": "minor",
+      "severity_source": "reports/methodology_phase2.md W5",
+      "evidence_anchor": {
+        "anchor_type": "text",
+        "locator": "paper/chapters/04_diseno_experimental.tex:48, §4.3 — \"Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva\"",
+        "quote": "Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva"
+      },
+      "confidence": 4,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "section",
+        "locator": "paper/chapters/04_diseno_experimental.tex:48, §4.3 — \"Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva\""
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/04_diseno_experimental.tex:48, §4.3 — \"Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva\""
+        }
+      },
+      "target_section": "paper/chapters/04_diseno_experimental.tex:48, §4.3 — \"Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva\"",
+      "suggested_action": "Mapear bloque, archivo, protocolo, comprobación y tablas; distinguir correspondencias verificadas de desconocidas sin presumir daño.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "Cada alerta tiene alcance identificable y enlaces de procedencia.",
+      "proposed_targets": [
+        {
+          "block_id": "B0090",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        },
+        {
+          "block_id": "B0263",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-09",
+      "source_refs": [
+        {
+          "seat": "R1",
+          "channel": "finding",
+          "ordinal": 5,
+          "subclaim_ordinal": 1
+        }
+      ],
+      "description": "Sensibilidad Outex solo si se identifica una fila afectada",
+      "reviewer": "R1",
+      "sub_claim_ids": [
+        "SC-9"
+      ],
+      "obligation_class": "must_fix",
+      "severity": "minor",
+      "severity_source": "reports/methodology_phase2.md W5",
+      "evidence_anchor": {
+        "anchor_type": "text",
+        "locator": "paper/chapters/04_diseno_experimental.tex:48, §4.3 — \"Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva\"",
+        "quote": "Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva"
+      },
+      "confidence": 4,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "re_analysis",
+        "locator": "paper/chapters/04_diseno_experimental.tex:48, §4.3 — \"Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva\""
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/04_diseno_experimental.tex:48, §4.3 — \"Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva\""
+        }
+      },
+      "target_section": "paper/chapters/04_diseno_experimental.tex:48, §4.3 — \"Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva\"",
+      "suggested_action": "Solo si el rastreo identifica una fila principal sin identidad comprobada: marcarla no validada y ofrecer sensibilidad sin ella. Si la condición no ocurre, documentarlo y no inventar el daño.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "La precondición queda resuelta por evidencia; solo se recalcula si corresponde.",
+      "proposed_targets": [
+        {
+          "block_id": "B0090",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-10",
+      "source_refs": [
+        {
+          "seat": "R2",
+          "channel": "finding",
+          "ordinal": 1,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Contextualizar selección de métodos de textura de Puig et al.",
+      "reviewer": "R2",
+      "sub_claim_ids": [
+        "SC-10"
+      ],
+      "obligation_class": "must_fix",
+      "severity": "minor",
+      "severity_source": "reports/domain_phase2.md W1",
+      "evidence_anchor": {
+        "anchor_type": "absence",
+        "locator": "paper/chapters/02_literatura.tex:10–17, §2.2, y paper/articulo/borrador_profesor/references.bib",
+        "absence_scope": "contextualización de selección de métodos de textura y compresión de descriptores combinados",
+        "check_performed": "capítulo 2 completo, bibliografía completa, docs/referencias/README.md y resúmenes de las copias locales Puig 2010 y Khan 2015"
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "section",
+        "locator": "paper/chapters/02_literatura.tex:10–17, §2.2, y paper/articulo/borrador_profesor/references.bib"
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/02_literatura.tex:10–17, §2.2, y paper/articulo/borrador_profesor/references.bib"
+        }
+      },
+      "target_section": "paper/chapters/02_literatura.tex:10–17, §2.2, y paper/articulo/borrador_profesor/references.bib",
+      "suggested_action": "Añadir antecedente y comparar unidad de selección, objetivo y protocolo con el estudio local.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "La comparación es fiel a la fuente y no exige ejecutar el método.",
+      "proposed_targets": [
+        {
+          "block_id": "B0040",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        },
+        {
+          "block_id": "B0424",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-11",
+      "source_refs": [
+        {
+          "seat": "R2",
+          "channel": "finding",
+          "ordinal": 1,
+          "subclaim_ordinal": 1
+        }
+      ],
+      "description": "Contextualizar combinación y compresión de Khan et al.",
+      "reviewer": "R2",
+      "sub_claim_ids": [
+        "SC-11"
+      ],
+      "obligation_class": "must_fix",
+      "severity": "minor",
+      "severity_source": "reports/domain_phase2.md W1",
+      "evidence_anchor": {
+        "anchor_type": "absence",
+        "locator": "paper/chapters/02_literatura.tex:10–17, §2.2, y paper/articulo/borrador_profesor/references.bib",
+        "absence_scope": "contextualización de selección de métodos de textura y compresión de descriptores combinados",
+        "check_performed": "capítulo 2 completo, bibliografía completa, docs/referencias/README.md y resúmenes de las copias locales Puig 2010 y Khan 2015"
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "section",
+        "locator": "paper/chapters/02_literatura.tex:10–17, §2.2, y paper/articulo/borrador_profesor/references.bib"
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/02_literatura.tex:10–17, §2.2, y paper/articulo/borrador_profesor/references.bib"
+        }
+      },
+      "target_section": "paper/chapters/02_literatura.tex:10–17, §2.2, y paper/articulo/borrador_profesor/references.bib",
+      "suggested_action": "Explicar la diferencia entre comprimir representaciones combinadas, elegir pocos extractores y activarlos por imagen.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "Fuente primaria y diferencias técnicas quedan citadas sin ampliar la novedad.",
+      "proposed_targets": [
+        {
+          "block_id": "B0040",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        },
+        {
+          "block_id": "B0424",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-12",
+      "source_refs": [
+        {
+          "seat": "R2",
+          "channel": "finding",
+          "ordinal": 2,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Identificar comparadores dentro del PDF",
+      "reviewer": "R2",
+      "sub_claim_ids": [
+        "SC-12"
+      ],
+      "obligation_class": "must_fix",
+      "severity": "minor",
+      "severity_source": "reports/domain_phase2.md W2",
+      "evidence_anchor": {
+        "anchor_type": "text",
+        "locator": "paper/chapters/02_literatura.tex:22, §2.3 — \"Las dimensiones, checkpoints y cabezas utilizados en nuestras adaptaciones se identifican en las recetas del proyecto.\"",
+        "quote": "Las dimensiones, checkpoints y cabezas utilizados en nuestras adaptaciones se identifican en las recetas del proyecto."
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "section",
+        "locator": "paper/chapters/02_literatura.tex:22, §2.3 — \"Las dimensiones, checkpoints y cabezas utilizados en nuestras adaptaciones se identifican en las recetas del proyecto.\""
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/02_literatura.tex:22, §2.3 — \"Las dimensiones, checkpoints y cabezas utilizados en nuestras adaptaciones se identifican en las recetas del proyecto.\""
+        }
+      },
+      "target_section": "paper/chapters/02_literatura.tex:22, §2.3 — \"Las dimensiones, checkpoints y cabezas utilizados en nuestras adaptaciones se identifican en las recetas del proyecto.\"",
+      "suggested_action": "Tabla por comparador: representación/dimensión, pesos/capa, cabeza, reparto y diferencias verificadas/no verificadas con la publicación; versión de receta.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "Las cuatro columnas externas se interpretan sin salir del PDF y conservan las etiquetas de adaptación.",
+      "proposed_targets": [
+        {
+          "block_id": "B0045",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-13",
+      "source_refs": [
+        {
+          "seat": "R3",
+          "channel": "finding",
+          "ordinal": 1,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Expandir SFFS, CNN y MLP",
+      "reviewer": "R3",
+      "sub_claim_ids": [
+        "SC-13"
+      ],
+      "obligation_class": "should_fix",
+      "severity": "minor",
+      "severity_source": "reports/perspective_phase2.md W1",
+      "evidence_anchor": {
+        "anchor_type": "absence",
+        "locator": "paper/tesis.tex:92–108 y paper/chapters/04_diseno_experimental.tex:11, siglas y §4.1",
+        "absence_scope": "expansión y breve función de SFFS, CNN y MLP para lectores de áreas vecinas",
+        "check_performed": "listado de siglas, capítulos completos, anexos y texto PDF completo"
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "sentence",
+        "locator": "paper/tesis.tex:92–108 y paper/chapters/04_diseno_experimental.tex:11, siglas y §4.1"
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/tesis.tex:92–108 y paper/chapters/04_diseno_experimental.tex:11, siglas y §4.1"
+        }
+      },
+      "target_section": "paper/tesis.tex:92–108 y paper/chapters/04_diseno_experimental.tex:11, siglas y §4.1",
+      "suggested_action": "Expandir siglas y explicar la función de SFFS y la diferencia extractor/cabeza.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "Primera aparición o glosario accesible y técnicamente correcto.",
+      "proposed_targets": [
+        {
+          "block_id": "B0016",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        },
+        {
+          "block_id": "B0081",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-14",
+      "source_refs": [
+        {
+          "seat": "R3",
+          "channel": "finding",
+          "ordinal": 2,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Explicar similitud coseno y alcance de fidelidad",
+      "reviewer": "R3",
+      "sub_claim_ids": [
+        "SC-14"
+      ],
+      "obligation_class": "should_fix",
+      "severity": "minor",
+      "severity_source": "reports/perspective_phase2.md W2",
+      "evidence_anchor": {
+        "anchor_type": "text",
+        "locator": "paper/chapters/05_resultados.tex:107 y 152, §§5.6 y 5.8 — \"inferiores al mínimo fijado de 0,999\"; \"Coincidir en clase o ruta no demuestra identidad de representación.\"",
+        "quote": "inferiores al mínimo fijado de 0,999 / Coincidir en clase o ruta no demuestra identidad de representación."
+      },
+      "confidence": 5,
+      "competence_basis": "Transported from the named reviewer finding; not a calibrated probability.",
+      "cost_scope": {
+        "kind": "sentence",
+        "locator": "paper/chapters/05_resultados.tex:107 y 152, §§5.6 y 5.8 — \"inferiores al mínimo fijado de 0,999\"; \"Coincidir en clase o ruta no demuestra identidad de representación.\""
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "paper/chapters/05_resultados.tex:107 y 152, §§5.6 y 5.8 — \"inferiores al mínimo fijado de 0,999\"; \"Coincidir en clase o ruta no demuestra identidad de representación.\""
+        }
+      },
+      "target_section": "paper/chapters/05_resultados.tex:107 y 152, §§5.6 y 5.8 — \"inferiores al mínimo fijado de 0,999\"; \"Coincidir en clase o ruta no demuestra identidad de representación.\"",
+      "suggested_action": "Definir comparación extraído/cacheado de una misma imagen, escala y criterio 0,999; conservar que la muestra no acredita identidad global.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "El lector interpreta el mínimo sin atribuirle validación de todas las imágenes o procedencia completa.",
+      "proposed_targets": [
+        {
+          "block_id": "B0153",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REV-15",
+      "source_refs": [
+        {
+          "seat": "DA",
+          "channel": "finding",
+          "ordinal": 1,
+          "subclaim_ordinal": 0
+        }
+      ],
+      "description": "Traer al método principal la dependencia OOF de la cascada histórica",
+      "reviewer": "DA",
+      "sub_claim_ids": [
+        "SC-15"
+      ],
+      "obligation_class": "must_fix",
+      "severity": "minor",
+      "severity_source": "reports/da_phase2.md, Observación menor m1",
+      "evidence_anchor": {
+        "anchor_type": "text",
+        "locator": "paper/chapters/F_estudios_complementarios.tex:173, \"La ruta Top-$k$ no se reconstruyó dentro de cada pliegue productor OOF\"",
+        "quote": "La ruta Top-$k$ no se reconstruyó dentro de cada pliegue productor OOF"
+      },
+      "confidence": 4,
+      "competence_basis": "DA checked the explicit historical annex statement, not the E1 implementation.",
+      "cost_scope": {
+        "kind": "section",
+        "locator": "§3.6 and historical annex E.7"
+      },
+      "consequence_if_unaddressed": {
+        "code": "interpretive_ambiguity_remains",
+        "target": {
+          "kind": "section",
+          "locator": "§3.6"
+        }
+      },
+      "target_section": "§3.6; paper/chapters/F_estudios_complementarios.tex:173",
+      "suggested_action": "Explicar selección histórica fija por OOF y distinguirla de E1; no afirmar contaminación del test ni exigir una repetición plenamente anidada para el alcance descriptivo.",
+      "consensus_level": "SINGLE-VERIFIER",
+      "verification_criteria": "Los dos niveles de selección y ambos archivos se distinguen; no se oculta la limitación histórica.",
+      "proposed_targets": [
+        {
+          "block_id": "B0073",
+          "allowed_operations": [
+            "replace_block"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_items": 15,
+  "obligation_counts": {
+    "must_fix": 10,
+    "should_fix": 5,
+    "consider": 0
+  },
+  "editorial_decision": "Major Revision",
+  "consensus_summary": "No CONSENSUS-3/4 or SPLIT established. Arithmetic is corroborated by EIC and R1 (2/4 non-DA), plus DA separately. All original observations retained in reports; roadmap is source-ordered, not a work ranking. All finding severities remain Minor.",
+  "dissenting_opinions": []
+}

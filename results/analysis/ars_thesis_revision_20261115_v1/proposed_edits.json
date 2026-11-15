@@ -1,0 +1,111 @@
+{
+  "B0125": {
+    "new": "Así, Top-4 resulta una elección compacta con buena calidad media y una regla de tamaño fácil de explicar. Después de cuatro se observan ocho pasos negativos y nueve positivos con SVM: el rendimiento fluctúa, en lugar de disminuir siempre. Con ResMLP, cinco aporta 0,2305 puntos porcentuales de accuracy más que cuatro. La conclusión sustentada es que las ganancias posteriores pueden ser pequeñas frente al crecimiento de representación; identificar un mejor compromiso exige declarar qué calidad y costo se priorizan.",
+    "items": [
+      "REV-01"
+    ]
+  },
+  "B0129": {
+    "new": "\\section{Qué aportan N-gramas y las ampliaciones de biblioteca}\nLas tablas previas distinguen 21 bloques sin N-gramas de la biblioteca de 22. El control histórico emparejado de 20 frente a 21 con N-gramas examina otra ampliación, anterior a BEiT-v2. Se conserva en la Tabla~\\ref{tab:ngram-accuracy-svm} para SVM y en el Anexo~\\ref{app:resultados-adicionales} para ResMLP. El complemento de macro-F1 se conserva por separado en la Tabla~\\ref{tab:ngram-svm}.",
+    "items": [
+      "REV-02"
+    ]
+  },
+  "B0134": {
+    "new": "\\input{generated_accuracy_primary_20261115_v3/externos_accuracy.tex}\n\\input{generated_ars_revision_20261115/externos_ms.tex}",
+    "items": [
+      "REV-03"
+    ]
+  },
+  "B0040": {
+    "new": "\\section{Concatenación y selección de bloques}\nLa concatenación es una fusión a nivel de características: reúne los vectores antes de entrenar el clasificador. Un ensamble, en cambio, combina decisiones o puntuaciones de varios clasificadores. Aunque un miembro de un ensamble pueda recibir una concatenación, ambas operaciones resuelven decisiones distintas.\n\nPuig et al.\\ propusieron una selección de métodos de textura de familias distintas para reducir el costo de su integración \\citep{puig2010selection}. Su selección busca transferirse entre problemas y no equivale a nuestro ranking específico de cada entrenamiento externo. Este antecedente impide atribuir novedad a la idea general de seleccionar e integrar métodos de textura.\n\nKhan et al.\\ combinaron descriptores locales y comprimieron la representación heterogénea mediante un criterio de información; además estudiaron fusión tardía con color \\citep{khan2015compact}. Nuestro Top-\\(k\\) selecciona bloques enteros sin reproducir esa compresión. La contribución evaluada aquí es la comparación de tamaños y de uso directo frente a activación por margen bajo los archivos identificados, no la invención de concatenar descriptores.",
+    "items": [
+      "REV-10",
+      "REV-11"
+    ]
+  },
+  "B0045": {
+    "new": "DeepLumina reúne características profundas obtenidas a partir de información RGB y de luminancia \\citep{simon2022deeplumina}. HyTexNet combina una codificación local guiada por percentiles con características profundas \\citep{gupta2026hytexnet}. El método de Chang et al.\\ fusiona LBP multiescala y contornos producidos por CellNN \\citep{chang2024cellnn}. Estos casos representan formas concretas de concatenar información complementaria. Las dimensiones, checkpoints y cabezas utilizados en nuestras adaptaciones se identifican en las recetas del proyecto.\n\nLa Tabla~\\ref{tab:ars-recetas} resume las implementaciones efectivamente comparadas. Las elecciones locales y las diferencias no verificadas forman parte del nombre de adaptación: ni el empleo de código de autor en un componente ni una dimensión coincidente acreditan reproducir los porcentajes del sistema completo.\n\\input{generated_ars_revision_20261115/recetas_externas.tex}",
+    "items": [
+      "REV-12"
+    ]
+  },
+  "B0073": {
+    "new": "La selección de base compara ResNet-50, SigLIP, BEiT-v2 y ConvNeXt V2-T cuando existen bloque y costo registrado. Para cada base y cuantil, se reúnen las predicciones OOF de todo el entrenamiento externo y se calcula un único macro-F1 de la ruta condicional. Este estimando difiere del promedio de F1 por pliegue utilizado para ordenar los descriptores. Son elegibles las rutas cuyo macro-F1 OOF es al menos el del Top-\\(k\\) directo menos 0,005, es decir, 0,5 puntos porcentuales. Entre ellas se elige la de menor adquisición proyectada interna; el uso directo siempre es candidato. Los empates favorecen la ruta directa y después ResNet-50. Los mismos registros OOF sirven para comparar y elegir estos candidatos, por lo que su F1 seleccionado no es una evaluación independiente de la elección. La tolerancia constituye una decisión exploratoria, no una garantía poblacional de no inferioridad.\n\nDebe distinguirse una segunda dependencia de selección. Tanto en la cascada histórica como en E1, el subconjunto de rescate se toma del archivo de selección del entrenamiento externo y se mantiene fijo al generar sus predicciones OOF. No se vuelve a aprender el ranking ni el subconjunto dentro de cada entrenamiento OOF. Por ello son predicciones OOF de los clasificadores condicionadas al subconjunto archivado, no una evaluación completamente anidada de todo el procedimiento de selección. Esta dependencia puede hacer optimistas los puntajes internos y es distinta de reutilizar esos puntajes para elegir base y cuantil. No implica que se ajustaran los modelos con las etiquetas del test externo; la exposición histórica a ese test es una limitación adicional ya declarada.",
+    "items": [
+      "REV-07",
+      "REV-15"
+    ]
+  },
+  "B0147": {
+    "new": "\\section{Ampliación E1: Top-4 fijo directo y por margen}\\label{sec:e1-fixed4}\nEl 15-11-2026 se ejecutó la comparación específica que faltaba: exactamente cuatro bloques por condición en ambas rutas, con SVM, semilla 42 y las 27 condiciones previstas. Se guardaron índices, orden de clases, puntajes completos OOF y test de todas las bases, predicciones, selección previa al test, modelos, controles aleatorios y hashes. La selección de ruta conserva macro-F1 OOF y tolerancia 0,005 del método histórico; accuracy es la métrica principal de reporte. Los tests ya observados durante el desarrollo mantienen el carácter exploratorio de esta ampliación.\n\nEn E1, ``OOF conserva el alcance condicionado descrito en el método: se fija el Top-4 archivado y se reajusta el clasificador por pliegue, sin reaprender el ranking dentro de cada pliegue OOF. No se presenta este cierre como validación anidada integral de la selección.",
+    "items": [
+      "REV-07"
+    ]
+  },
+  "B0148": {
+    "new": "El cierre completó las 27 condiciones: DTD 10, FMD 5, CUReT 2, Outex 1, Soil 5 y KTH 4. Se conservaron 25 resultados y se ajustaron solo las dos condiciones KTH que se habían detenido antes de entrenar. La Tabla~\\ref{tab:e1-fixed4-accuracy} presenta los seis datasets completos. Su accuracy media equiponderada es 0,944449 para Top-4 directo y 0,944581 para la política seleccionada: diferencia de +0,0132 puntos porcentuales. Wilcoxon exacto bilateral sobre esas seis medias da \\(p=0,5625\\); no acredita superioridad ni equivalencia. Los 27 Top-4 directos reproducen exactamente accuracy y macro-F1 de sus filas archivadas.\n\nLa variación observada se informa sin tratar pliegues que comparten imágenes como réplicas independientes. La Tabla~\\ref{tab:ars-e1-ranges} muestra los rangos y cuantiles de las diferencias por condición; no son intervalos de confianza poblacionales. La Tabla~\\ref{tab:ars-e1-lodo} recalcula la media al dejar fuera, por turno, cada dataset: la diferencia va de \\(-0,0192\\) a \\(+0,0747\\) puntos porcentuales. Cambiar el conjunto de datasets puede incluso cambiar el signo; no se elige una exclusión favorable como resultado principal.\n\\input{generated_ars_revision_20261115/e1_observed_ranges.tex}\n\\input{generated_ars_revision_20261115/e1_dataset_sensitivity.tex}",
+    "items": [
+      "REV-05"
+    ]
+  },
+  "B0109": {
+    "new": "Los contrastes principales recalculados sobre accuracy comparan Individual, Completa-22 y Top-4, separados por clasificador. Se usa una media por dataset, Friedman con enumeración exacta de las 46.656 permutaciones de rangos y tres comparaciones Wilcoxon bilaterales exactas con Holm por clasificador. Con seis datasets la potencia es limitada. Las pruebas históricas de macro-F1 permanecen como evidencia secundaria en anexos y no se atribuyen a accuracy. En la cascada histórica se conserva la sensibilidad que excluye KTH. El no rechazo no demuestra equivalencia ni no inferioridad \\citep{demsar2006statistical,garcia2008extension}.\n\nAdemás se repite la misma familia principal de accuracy sin el KTH archivado: cinco medias por dataset, 7.776 permutaciones exactas de Friedman y los mismos tres pares con Holm por clasificador. Esta sensibilidad del benchmark estático no excluye las cuatro condiciones KTH del cierre E1, que constituye otro archivo.",
+    "items": [
+      "REV-06"
+    ]
+  },
+  "B0243": {
+    "new": "\\subsection{Sensibilidad del benchmark sin KTH}\nSe conservan todos los pares del análisis sobre DTD, FMD, CUReT, Outex y SoilOriginal, con una media por dataset y clasificador. Las familias de Holm son separadas para SVM y ResMLP. Este recálculo no corrige la variante KTH archivada ni aumenta el número de datasets independientes.\n\\input{generated_mesa_r2/kth_sensibilidad_global.tex}\n\\input{generated_mesa_r2/kth_sensibilidad_holm.tex}\n\\FloatBarrier\n\nLa sensibilidad anterior corresponde a macro-F1 y a su familia histórica. Para la métrica principal actual se añade separadamente Individual/Completa-22/Top-4 sobre los mismos cinco datasets. Friedman exacto da \\(p=0,1242\\) en SVM y \\(p=0,5216\\) en ResMLP; ningún par es significativo tras Holm. Las exclusiones diagnósticas de Outex y de ambos datasets quedan en el CSV de sensibilidad, sin sustituir la comparación canónica ni demostrar que los datos excluidos estén dañados.\n\\input{generated_ars_revision_20261115/static_accuracy_without_kth.tex}\n\\input{generated_ars_revision_20261115/static_accuracy_without_kth_pairs.tex}",
+    "items": [
+      "REV-06"
+    ]
+  },
+  "B0090": {
+    "new": "Outex-TC-00013 contiene 1.360 imágenes de 68 clases y una partición oficial de 680/680 \\citep{ojala2002outex}. Se comprobaron imágenes RGB legibles, IDs y ausencia de duplicados exactos. Existe una alerta de correspondencia de filas y bloques de características cuyo rastreo se conserva como reserva; la enmienda DeiT del panel no se atribuye automáticamente a todos los archivos históricos.\n\nEl alcance se distingue en la Tabla~\\ref{tab:ars-outex-scope}. Los recibos del panel coinciden con el array ViT normalizado y con el DeiT enmendado; el DeiT histórico no coincide con ese recibo. Esta comprobación identifica matrices utilizadas, pero no valida independientemente la procedencia de todas sus filas. Para los archivos estáticos y el barrido no se ha establecido en esta revisión una identidad completa con esas matrices del panel. Se conserva la reserva y se proporciona una sensibilidad sin Outex en los análisis guardados; ninguna tabla canónica se reemplaza ni se declara afectada por inferencia a partir de otra receta.\n\\input{generated_ars_revision_20261115/outex_scope.tex}",
+    "items": [
+      "REV-08",
+      "REV-09"
+    ]
+  },
+  "B0016": {
+    "new": "\\chapter*{Siglas y notación}\n\\addcontentsline{toc}{chapter}{Siglas y notación}\n\\begin{tabular}{@{}lp{10.6cm}@{}}\nTop-\\(k\\) & Concatenación de los primeros \\(k\\) bloques de un ranking interno\\\\\nTop-4 & Caso de tamaño fijo \\(k=4\\), no cuatro identidades universales\\\\\nOOF & Predicciones fuera de pliegue del entrenamiento\\\\\nGFS & Selección secuencial hacia delante de bloques\\\\\nSVD & Descomposición en valores singulares truncada\\\\\nSVM & Máquina de vectores de soporte\\\\\nCNN & Red neuronal convolucional (\\emph{convolutional neural network})\\\\\nMLP & Perceptrón multicapa (\\emph{multilayer perceptron})\\\\\nSFFS & Selección secuencial flotante hacia delante: admite retirar bloques tras añadirlos\\\\\nResMLP & MLP residual sobre características\\\\\n\\(S_k,h_k\\) & Bloques seleccionados y clasificador de su concatenación\\\\\n\\(h_b,m_b,\\tau\\) & Clasificador base, margen y umbral\\\\\n\\(\\widehat r_{\\mathrm{OOF}},\\widehat r_V\\) & Fracciones derivadas interna y externa, respectivamente\\\\\n\\(c_j,C_{\\mathrm{inc}}\\) & Costo por bloque y adquisición incremental\\\\\nP1, P2 & Preguntas de selección Top-k y uso directo/por margen\\\\\nCKA & Similitud entre representaciones, usada en estudios complementarios\\\\\n\\end{tabular}\n\\tableofcontents\n\\listoffigures\n{\\emergencystretch=1em\\listoftables}\n\\clearpage\n\\pagenumbering{arabic}\n\\input{chapters/01_introduccion}\n\\input{chapters/02_literatura}\n\\input{chapters/03_metodologia}\n\\input{chapters/04_diseno_experimental}\n\\input{chapters/05_resultados}\n\\input{chapters/06_discusion}\n\\input{chapters/07_conclusion}",
+    "items": [
+      "REV-13"
+    ]
+  },
+  "B0081": {
+    "new": "\\section{Recorrido de las pruebas hasta Top-4 y su optimización}\nEl estudio avanzó por una secuencia de preguntas. Los pasos siguientes reconstruyen ese recorrido experimental; los registros ampliados y las bibliotecas correspondientes se identifican después para evitar tratarlos como una única corrida.\n\\begin{enumerate}\n\\item \\textbf{Establecer referencias individuales.} Se evaluaron los descriptores por separado y se calculó un ranking mediante validación interna del entrenamiento. Esto permite conocer qué representación funciona bien sola y definir el punto de partida de una selección.\n\\item \\textbf{Probar la concatenación completa.} Se entrenó un clasificador con todos los bloques de la biblioteca de cada corte. La comparación con Individual permitió examinar si añadir toda la información disponible compensa su mayor dimensión.\n\\item \\textbf{Comparar maneras de elegir bloques.} GFS construye combinaciones valorando las adiciones; Homogénea restringe familias; el control Top-\\(k\\) toma los primeros del ranking con el mismo número de bloques que el GFS de esa condición. Este control separa la cantidad seleccionada de la composición.\n\\item \\textbf{Recorrer todos los tamaños.} Un solo tamaño heredado no explica cuántos descriptores hacen falta. El barrido pasó a evaluar los 21 prefijos del ranking. El registro inicial SVM contenía 27 condiciones con semilla 42; los CSV ampliados contienen 47 por tamaño y clasificador, incluyendo ResMLP y más semillas FMD/Soil. La tesis utiliza la cobertura ampliada en sus curvas principales.\n\\item \\textbf{Examinar el aporte marginal.} Se compararon la calidad y la dimensión al pasar de uno a dos, tres, cuatro y más bloques. La zona de buen rendimiento con pocos bloques motivó prestar atención a Top-4. El máximo observado y las pérdidas por dataset se conservan, en lugar de imponer cuatro como ganador de todas las curvas.\n\\item \\textbf{Examinar alternativas y ampliaciones.} Los archivos exploratorios también incluyen reglas internas para elegir \\(k\\), selección secuencial flotante hacia delante (SFFS), que permite revisar y retirar bloques tras una incorporación, y selecciones aleatorias; su cobertura no es la del barrido ampliado. Las comparaciones emparejadas con N-gramas estudian qué cambia al ampliar la biblioteca. Estos estudios contextualizan la elección sencilla por ranking, sin atribuirles una validación ciega de \\(k=4\\).\n\\item \\textbf{Contrastar con métodos externos.} Se comparó Top-4 con adaptaciones de métodos de literatura y se midieron predicción y tiempo de las mismas llamadas. Se conservaron por separado porcentajes publicados, recetas adaptadas y resultados locales.\n\\item \\textbf{Optimizar cuándo ejecutar Top-\\(k\\).} Se tomó el uso directo como referencia y se estudió una base que activa el mismo rescate según su margen. Esta segunda parte compara calidad y adquisición por imagen, y utiliza los pilotos físicos dentro de su alcance.\n\\end{enumerate}\nLa elección de Top-4 fue posterior a observar resultados del barrido. El ranking interno y la decisión exploratoria sobre un tamaño global son decisiones distintas. La secuencia documenta cómo surgió la opción compacta, sin presentarla como una regla derivada antes de ver toda la evidencia.",
+    "items": [
+      "REV-13"
+    ]
+  },
+  "B0153": {
+    "new": "El perfil KTH inicial se congeló con pesos locales, dos hilos CPU, batch1, cinco calentamientos y 33 imágenes de entrenamiento, tres por clase. EVA-02 registró coseno mínimo 0,931978 y SigLIP 0,981889, inferiores al mínimo fijado de 0,999; los otros seis bloques lo superaron. Los estados fallidos originales se conservaron.\n\nLa similitud coseno compara, para una misma imagen, el vector de referencia \\(u\\) y el extraído \\(v\\), ambos no nulos:\n\\begin{equation}\n\\operatorname{cos}(u,v)=\\frac{u^{\\mathsf T}v}{\\|u\\|_2\\|v\\|_2}\\in[-1,1].\n\\end{equation}\nMide concordancia de dirección y es invariante a multiplicar los vectores por factores positivos. Un valor próximo a uno no prueba igualdad de magnitudes ni identidad global del pipeline. El mínimo 0,999 es un criterio de aceptación registrado para estas muestras, no un nivel de confianza estadística ni una garantía de calibración.",
+    "items": [
+      "REV-14"
+    ]
+  },
+  "B0154": {
+    "new": "La revisión identificó diferencias de preprocesamiento en EVA-02 y SigLIP. Tras autorización del autor, las recetas corregidas se validaron con los mismos pesos y las mismas 33 imágenes, conservando el mínimo 0,999. Ambos bloques alcanzaron mínimos mayores que 0,99999999999. Las sesiones y las seis constantes aceptadas previamente permanecen identificadas; el Anexo~\\ref{sec:ars-kth-infra} conserva el detalle operativo sin sustituir los estados fallidos originales.",
+    "items": [
+      "REV-04"
+    ]
+  },
+  "B0263": {
+    "new": "Las tablas de este cierre se generan con \\path{scripts/build_thesis_six_dataset_closure.py}, en \\path{paper/generated_top4_fixed_closure_20261115/}. El perfil corregido KTH identifica las sesiones EVA-02 y SigLIP, sus llamadas, las huellas de entrada y los errores de infraestructura previos a la ejecución pendiente. Las fuentes originales y sus estados fallidos permanecen conservados. Reproducir métricas desde los scores guardados no requiere repetir la validación neuronal ni entrenar las condiciones completas.\n\n\\subsection{Detalle operativo de la corrección KTH}\\label{sec:ars-kth-infra}\nEVA-02 requería resize bicúbico del lado corto a 248 y recorte central 224; SigLIP histórico usaba resize bilineal explícito a 224. La validación corregida utilizó 33 imágenes de entrenamiento por bloque, tres por clase: 66 llamadas evaluadas y diez calentamientos. Un error de serialización del informe de carga se corrigió antes del primer forward SigLIP, sin repetir EVA ni llamadas científicas fallidas. Se preservaron las seis constantes aceptadas y se añadieron las dos nuevas, con sesiones temporales distintas. Los recibos están en \\path{results/analysis/kth_reference_validated_profile_20261115_v1/}.\n\nLa revisión ARS del 15-11 añade análisis de resultados guardados mediante \\path{scripts/analyze_ars_existing_results_20261115.py}. Sus fuentes, diferencias por condición, cuantiles y sensibilidades están vinculados por hashes en \\path{results/analysis/ars_revision_existing_analyses_20261115_v1/}. No se realizaron nuevos fits, extracciones, predicciones de modelos ni cronometrajes. La matriz de alcance Outex se apoya en los recibos y en \\path{docs/fsc_tex/AVANCE_OUTEX_HUELLAS_2026-11-09.md}; los detalles no verificados siguen abiertos.",
+    "items": [
+      "REV-04",
+      "REV-05",
+      "REV-06",
+      "REV-08"
+    ]
+  },
+  "B0424": {
+    "new": "@article{garcia2008extension,\n  title={An Extension on ``Statistical Comparisons of Classifiers Over Multiple Data Sets'' for all Pairwise Comparisons},\n  author={Garc{\\'\\i}a, Salvador and Herrera, Francisco},\n  journal={Journal of Machine Learning Research (JMLR)},\n  volume={9},\n  number={89},\n  pages={2677--2694},\n  year={2008},\n  url={https://jmlr.org/papers/v9/garcia08a.html}\n}\n\n@article{puig2010selection,\n  author={Puig, Domenec and Garcia, Miguel Angel and Melendez, Jaime},\n  title={Application-independent feature selection for texture classification},\n  journal={Pattern Recognition}, volume={43}, number={10}, pages={3282--3297},\n  year={2010}, doi={10.1016/j.patcog.2010.05.005}\n}\n\n@article{khan2015compact,\n  author={Khan, Fahad Shahbaz and Anwer, Rao Muhammad and van de Weijer, Joost and Felsberg, Michael and Laaksonen, Jorma},\n  title={Compact color--texture description for texture classification},\n  journal={Pattern Recognition Letters}, volume={51}, pages={16--22},\n  year={2015}, doi={10.1016/j.patrec.2014.07.020}\n}",
+    "items": [
+      "REV-10",
+      "REV-11"
+    ]
+  }
+}

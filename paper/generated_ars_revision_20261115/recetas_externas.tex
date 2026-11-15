@@ -1,0 +1,16 @@
+\begingroup\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{6.2cm}@{}}
+\caption{Recetas locales de los comparadores externos: representación y alcance verificable.}\label{tab:ars-recetas}\\
+\toprule Método & Concatenación y cabeza & Implementación fijada y diferencia frente a la publicación\\\midrule
+\endfirsthead
+\toprule Método & Concatenación y cabeza & Implementación fijada y diferencia frente a la publicación\\\midrule
+\endhead
+Neshov adaptado & Cuatro capas de 768: 3.072 rasgos; MLP 64, BN, ReLU y dropout 0,2. & BEiTv2-base \path{in1k_ft_in22k_in1k}; capas 2/5/8/11, GAP sin CLS. Backbone congelado FP32; cabeza Adam, 100 épocas. Reimplementación local: no código oficial ni pesos/particiones idénticos acreditados.\\[4pt]
+HyTexNet adaptado & DenseNet 1.024 + HyTex 514 = 1.538; FC 256/ReLU, dropout 0,5 y FC clases. & DenseNet121 \texttt{tv\_in1k}, pooling sin cabeza ImageNet. Patrones signo, magnitud y centro guiados por percentil 75; entrada 128. Se congela backbone ante ambigüedad de entrenamiento del texto original; Adam, 100 épocas y preprocesamiento son decisiones locales explícitas.\\[4pt]
+6LBP+dCellNN adaptado & Seis escalas LBP y contornos; histogramas concatenados de 768; MLP de 400 unidades. & Código de autor \texttt{299502c}, checkpoint \texttt{af56a7e9...} cargado estrictamente; 20 recurrencias. Canal B, entrada 128. Paridad sintética de contornos e histogramas verificada; defaults sklearn y semilla locales no acreditan identidad del protocolo completo publicado.\\[4pt]
+DeepLumina adaptado & RGB 1.000 + Y 1.000 = 2.000; ECOC sparse-random con SVM binarios. & ResNet101 \texttt{a1\_in1k}, salida lineal final antes de softmax, dos pasadas y entrada 224. Pesos timm, normalización y solver locales, no equivalencia acreditada con MATLAB. Se conserva no convergencia; DTD incompleto.\\
+\bottomrule
+\end{longtable}
+\endgroup
+Los cuatro usan las particiones del panel común: 47 condiciones previstas en seis datasets, con entrenamiento propio de cada cabeza y prueba por llamada individual. Esto difiere de los repartos originales; la aproximación Neshov FMD 10\(\times\)10 se informa aparte. Las recetas versionadas del repositorio, bajo \path{docs/fsc_tex/}, son los protocolos de \href{https://github.com/Joafp/concatenacion-descriptores-texturas/blob/main/docs/fsc_tex/PROTOCOLO_NESHOV_PANEL_COMUN_2026-11-02.md}{Neshov, 02-11}, \href{https://github.com/Joafp/concatenacion-descriptores-texturas/blob/main/docs/fsc_tex/PROTOCOLO_HYTEX_ADAPTACION_FMD_2026-11-02.md}{HyTexNet, 02-11}, \href{https://github.com/Joafp/concatenacion-descriptores-texturas/blob/main/docs/fsc_tex/PROTOCOLO_CELLNN_ADAPTACION_FMD_2026-11-02.md}{CellNN, 02-11} y \href{https://github.com/Joafp/concatenacion-descriptores-texturas/blob/main/docs/fsc_tex/PROTOCOLO_DEEPLUMINA_ADAPTACION_FMD_2026-11-03.md}{DeepLumina, 03-11}. Sus manifiestos de extensión identifican los datasets añadidos y hashes completos. Ninguna coincidencia de arquitectura se interpreta como reproducción fiel de porcentajes.
