@@ -98,11 +98,31 @@ scores y tablas permiten auditar las métricas sin reentrenar.
 
 ## Próximos pasos
 
-1. Revisar los fallos de fidelidad EVA-02/SigLIP antes de completar KTH.
-   Una corrección de infraestructura no autoriza repetir el fallo científico.
+1. Decidir sobre la [validación corregida KTH](PROTOCOLO_VALIDACION_KTH_CORREGIDA_2026-11-15.md).
+   La revisión CPU encontró entradas distintas para las 33 imágenes de cada
+   red; no prueba todavía fidelidad de embeddings recuperada. Los dos casos
+   pendientes no ajustaron modelos. Una corrección de infraestructura no
+   autoriza repetir el fallo científico automáticamente.
 2. Revisar con autores y tutor la tesis y la interpretación del cambio de
    métrica, decidido después de observar resultados históricos.
 3. Mantener E4 (cascada ResMLP), E5 (Top-4 más N-gramas), E6 (ViT online),
    E7 (memoria por política) y E8 (variación entre equipos) como pendientes.
 4. Medir políticas completas en llamadas online cuando se haya resuelto
    fidelidad y congelado el protocolo correspondiente.
+
+## Revisión posterior de KTH, sin nuevas corridas científicas
+
+La [auditoría de preprocesamiento](REVISION_FIDELIDAD_KTH_2026-11-15.md)
+identificó diferencias concretas de resize/recorte para EVA-02 y de
+interpolación para SigLIP. Se conservaron pesos, imágenes, etiquetas y estados;
+la fidelidad neuronal permanece en revisión. Se prepararon adaptadores de
+entrada y un manifiesto de validación con presupuesto máximo de 66 llamadas
+evaluadas y diez calentamientos, todavía no ejecutados.
+
+La propuesta verifica los artefactos de las 25 condiciones completas,
+incluidos los clasificadores locales, y que las dos KTH completas no dependen
+de los componentes corregidos. La tesis de 87 páginas y sus números conservan
+la versión ya publicada; esta etapa añade diagnóstico y preparación.
+
+La suite ampliada pasó **66 pruebas en 42,56 s**. El diagnóstico y la
+propuesta no ejecutaron ninguna llamada neuronal. [Registro de verificación](../../results/analysis/kth_reference_validation_proposal_20261115_v1/verification.json).

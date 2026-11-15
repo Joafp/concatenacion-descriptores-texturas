@@ -1,0 +1,80 @@
+{
+  "eva_resolved_config_now": {
+    "input_size": [
+      3,
+      224,
+      224
+    ],
+    "interpolation": "bicubic",
+    "mean": [
+      0.48145466,
+      0.4578275,
+      0.40821073
+    ],
+    "std": [
+      0.26862954,
+      0.26130258,
+      0.27577711
+    ],
+    "crop_pct": 0.9,
+    "crop_mode": "center"
+  },
+  "eva_reference_transform": "Compose(\n    Resize(size=248, interpolation=bicubic, max_size=None, antialias=True)\n    CenterCrop(size=(224, 224))\n    MaybeToTensor()\n    Normalize(mean=tensor([0.4815, 0.4578, 0.4082]), std=tensor([0.2686, 0.2613, 0.2758]))\n)",
+  "eva_failed_online_transform": "Compose(\n    Resize(size=(224, 224), interpolation=bilinear, max_size=None, antialias=True)\n    CenterCrop(size=(224, 224))\n    ToTensor()\n    Normalize(mean=(0.48145466, 0.4578275, 0.40821073), std=(0.26862954, 0.26130258, 0.27577711))\n)",
+  "siglip_reference_transform": "Compose(\n    Resize(size=(224, 224), interpolation=bilinear, max_size=None, antialias=True)\n    ToTensor()\n    Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])\n)",
+  "siglip_processor_config": {
+    "do_normalize": true,
+    "do_rescale": true,
+    "do_resize": true,
+    "image_mean": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "image_processor_type": "SiglipImageProcessor",
+    "image_std": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "processor_class": "SiglipProcessor",
+    "resample": 3,
+    "rescale_factor": 0.00392156862745098,
+    "size": {
+      "height": 224,
+      "width": 224
+    }
+  },
+  "siglip_current_processor_class": "SiglipImageProcessor",
+  "siglip_current_processor_backend": "torchvision",
+  "cached_weight_and_config_checks": {
+    "eva02_base": {
+      "repository": "timm/eva02_base_patch14_224.mim_in22k",
+      "revision": "0ecfe3fab2be96198054b55157bd448097ba1828",
+      "checks": {
+        "/home/joaquin/.cache/huggingface/hub/models--timm--eva02_base_patch14_224.mim_in22k/snapshots/0ecfe3fab2be96198054b55157bd448097ba1828/model.safetensors": {
+          "expected_sha256": "a8f6984e7baf3d935b3c0d834e3fe1df5ebfe1d91f2e034041d1e0bf0afbed7b",
+          "actual_sha256": "a8f6984e7baf3d935b3c0d834e3fe1df5ebfe1d91f2e034041d1e0bf0afbed7b"
+        }
+      }
+    },
+    "siglip_base": {
+      "repository": "google/siglip-base-patch16-224",
+      "revision": "7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed",
+      "checks": {
+        "/home/joaquin/.cache/huggingface/hub/models--google--siglip-base-patch16-224/snapshots/7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed/model.safetensors": {
+          "expected_sha256": "2c63cb7d1f2e95ba501893cbb8faeb4ea9a3af295498d35097126228659c2af8",
+          "actual_sha256": "2c63cb7d1f2e95ba501893cbb8faeb4ea9a3af295498d35097126228659c2af8"
+        },
+        "/home/joaquin/.cache/huggingface/hub/models--google--siglip-base-patch16-224/snapshots/7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed/config.json": {
+          "expected_sha256": "cd85b3d28829722820bcb89a2cfbb4160e55fd359249a3044da724166a8d9688",
+          "actual_sha256": "cd85b3d28829722820bcb89a2cfbb4160e55fd359249a3044da724166a8d9688"
+        },
+        "/home/joaquin/.cache/huggingface/hub/models--google--siglip-base-patch16-224/snapshots/7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed/preprocessor_config.json": {
+          "expected_sha256": "d11ccb80f15d358a11bdb070e92e2d889005874b7db15823d5f10d9b2533b14a",
+          "actual_sha256": "d11ccb80f15d358a11bdb070e92e2d889005874b7db15823d5f10d9b2533b14a"
+        }
+      }
+    }
+  }
+}

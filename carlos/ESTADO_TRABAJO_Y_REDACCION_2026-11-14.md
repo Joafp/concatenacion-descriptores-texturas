@@ -85,6 +85,15 @@ paper y la lista de experimentos pendientes. Ambos ya se integraron a esta copia
 
 ## 4. Qué estamos haciendo ahora
 
+Se completó una revisión CPU de las entradas EVA-02/SigLIP de KTH. En las
+33 imágenes congeladas de cada red se demostraron diferencias entre el
+preprocesamiento histórico reconstruido y el online que falló. Hay adaptadores
+candidatos y una propuesta de validación preparada, sin inferencia neuronal
+nueva; no equivale a fidelidad recuperada. E1/E2 conservan 25/27 condiciones.
+El [informe](../docs/fsc_tex/REVISION_FIDELIDAD_KTH_2026-11-15.md) precisa
+hallazgos y reservas, y la [propuesta](../docs/fsc_tex/PROTOCOLO_VALIDACION_KTH_CORREGIDA_2026-11-15.md)
+define el siguiente paso pendiente de decisión sobre los fallos científicos.
+
 La etapa actual es **revisar la tesis actualizada y los resultados E1/E2 con
 los autores y tutor**. Las respuestas técnicas ya están incorporadas al paper
 breve; se mantiene la distinción entre Top-4 fijo y Top-k de tamaño heredado.

@@ -11,20 +11,23 @@ recorrido; las tareas en futuro de esos cortes no reemplazan este estado.
 | Bloque | Estado vigente |
 |---|---|
 | Tesis principal | 87 páginas; accuracy principal, con macro-F1, precisión y recall macro complementarios. |
-| Verificación | 52 pruebas aprobadas, compilación y revisión visual completa. |
+| Verificación | 66 pruebas aprobadas en el corte actual; el PDF conserva su compilación y revisión visual completa del corte de 52 pruebas. |
 | Paneles y barrido históricos | Conservados; no se repiten para sustituir resultados. |
 | E1: Top-4 fijo directo/por margen | 25/27 condiciones completas; cinco datasets íntegros y KTH 2/4. |
 | E2: margen/máximo/entropía | Calculado para los 25 casos; consolidados y contrastes de cinco datasets completos. |
-| Bloqueo de KTH | Particiones 1 y 3 en revisión por fidelidad de SigLIP y EVA-02. No se repetieron. |
+| Bloqueo de KTH | Incompatibilidad de preprocesamiento demostrada en 33/33 imágenes por red. Adaptadores candidatos probados en CPU; fidelidad neuronal de SigLIP/EVA-02 todavía en revisión. |
 | Latencia nueva de políticas E1 | Pendiente. El 74,87 % es reducción de adquisición proyectada, no latencia online medida. |
 
 **Orden propuesto para continuar:**
 
-1. **Revisar la fidelidad pendiente de KTH.** Contrastar pesos, versiones,
-   preprocesamiento y representación con las fuentes congeladas, comenzando
-   por una revisión de registros y código. Mantener los fallos científicos y
-   sus muestras; no repetirlos automáticamente ni bajar el mínimo de 0,999.
-   E1/E2 no se declaran completos en seis datasets mientras falten esos casos.
+1. **Decidir sobre la validación corregida de KTH.** La revisión de registros,
+   código y entradas en CPU ya identificó diferencias de resize/recorte en
+   EVA-02 y de interpolación en SigLIP. Está preparada una
+   [propuesta congelada](PROTOCOLO_VALIDACION_KTH_CORREGIDA_2026-11-15.md),
+   todavía sin ejecutar. Mantener los fallos científicos y sus muestras;
+   no repetirlos automáticamente ni bajar el mínimo de 0,999. Si se autoriza
+   y pasa, continuar solo KTH 1 y 3, que no ajustaron modelos, conservando las
+   otras 25 condiciones. E1/E2 siguen sin cierre en seis datasets.
 2. **Revisar el texto con autores y tutor.** Confirmar la interpretación de
    accuracy principal, el carácter exploratorio y la diferencia entre costo
    proyectado y latencia. El ranking y la selección históricos por macro-F1
@@ -42,12 +45,16 @@ no se da por resuelto mientras su procedencia siga pendiente. E6 conserva
 el diagnóstico ViT online/guardado de Soil/CUReT. E7 y E8 (memoria por
 política y variación entre equipos) siguen siendo opcionales.
 
-El próximo trabajo técnico es la revisión de fidelidad, no repetir E1/E2
-ni sus condiciones terminadas. Esta revisión del plan no lanzó corridas.
+El próximo trabajo técnico depende de la decisión sobre la propuesta de
+validación. La revisión CPU no construyó redes ni extrajo embeddings; tampoco
+repitió E1/E2 o sus condiciones terminadas.
 
 [Informe consolidado](AVANCE_ACCURACY_E1_E2_2026-11-15.md) ·
 [Lista de experimentos y estados](../../carlos/EXPERIMENTOS_PENDIENTES.md) ·
 [Auditoría E1/E2](../../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/summary.json).
+
+[Diagnóstico de preprocesamiento KTH](REVISION_FIDELIDAD_KTH_2026-11-15.md) ·
+[Propuesta con entradas y resultados conservados por hash](../../results/analysis/kth_reference_validation_proposal_20261115_v1/README.md).
 
 ## Título y recorrido confirmado
 
@@ -278,3 +285,24 @@ pendientes como experimentos específicos. No se repitieron paneles cerrados.
 
 [Informe consolidado del día](AVANCE_ACCURACY_E1_E2_2026-11-15.md) y
 [auditoría E1/E2](../../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/summary.json).
+
+### Revisión de fidelidad posterior, sin inferencia
+
+Se compararon los tensores de entrada de las mismas 33 imágenes congeladas.
+EVA-02 conserva resize corto bicúbico a 248 y recorte central 224 en la
+receta histórica reconstruida; el perfil online usó resize directo 224
+bilineal. SigLIP histórico aplica resize bilineal y el processor online
+actual usa bicúbico. Los 33 pares por bloque son distintos. Esto demuestra
+incompatibilidad de entradas, no la recuperación de los cosenos fallidos.
+
+Se verificaron pesos, etiquetas y orden de manifiestos. No se recuperó la
+metadata productora individual de los NPY; esa reserva permanece. Se añadieron
+adaptadores candidatos y una propuesta con presupuesto y hashes, sin modificar
+el ejecutor original, los estados `requires_review`, el PDF o los resultados.
+E1/E2 siguen en 25/27. El cierre propuesto solo usaría las dos condiciones
+que fallaron antes de ajustar clasificadores y conservaría las otras 25.
+La verificación ampliada pasó 66 pruebas en 42,56 s, incluidas integridad
+de fuentes, presupuesto de la propuesta y conservación de artefactos E1.
+
+[Informe de esta etapa](REVISION_FIDELIDAD_KTH_2026-11-15.md) y
+[propuesta pendiente de decisión](PROTOCOLO_VALIDACION_KTH_CORREGIDA_2026-11-15.md).

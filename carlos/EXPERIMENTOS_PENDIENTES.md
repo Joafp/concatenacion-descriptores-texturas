@@ -28,11 +28,18 @@ Esa era la lista inicial del 14-11. El estado del 15-11 se detalla abajo.
 - Los 25 controles directos reproducen exactamente accuracy y macro-F1 de su fila Top-4 archivada.
 - **E3 sigue condicional; E4–E8 no se ejecutaron como controles específicos de esta lista.** El nuevo
   perfil por extractor no es memoria por política (E7), ni resuelve el diagnóstico ViT de E6.
+- **Revisión KTH posterior, sin inferencia:** se demostró que el preprocesamiento histórico
+  reconstruido y el online producen entradas distintas en 33/33 imágenes de EVA-02 y SigLIP.
+  Se prepararon adaptadores candidatos y una propuesta congelada; todavía no se validó la
+  recuperación de embeddings ni se repitieron los fallos. E1 conserva 25/27.
 
 Fuentes: [auditoría E1/E2](../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/summary.json),
 [comparación con Top-4 guardado](../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/direct_reference_comparison.csv),
 [métricas de las bases en test](../results/analysis/top4_fixed_e1_e2_audit_20261115_v1/e1_cheap_candidate_test_metrics.csv)
 y [decisión de métrica principal](../docs/fsc_tex/DECISION_METRICA_ACCURACY_2026-11-15.md).
+
+Detalle nuevo: [diagnóstico KTH](../docs/fsc_tex/REVISION_FIDELIDAD_KTH_2026-11-15.md) y
+[propuesta de validación pendiente de decisión](../docs/fsc_tex/PROTOCOLO_VALIDACION_KTH_CORREGIDA_2026-11-15.md).
 
 Las recetas originales se conservan a continuación como antecedente del plan; su redacción en futuro
 no reemplaza este estado de ejecución ni elimina las reservas.
