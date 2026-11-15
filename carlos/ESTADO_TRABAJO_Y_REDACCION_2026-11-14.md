@@ -118,6 +118,14 @@ experimentos quedan como pendientes, sujetos a acuerdo del equipo. En las
 actualizaciones de redacción y auditoría del 13–14 de noviembre **no se
 hicieron nuevos entrenamientos, extracciones, predicciones ni benchmarks**.
 
+Ya se prepararon las entradas de E1/E2: 27 condiciones, particiones e inputs
+identificados con hashes; diez pruebas de la preparación aprobadas. El
+[informe de preparación](../results/analysis/top4_fixed_preparation_20261114_v1/README.md)
+señala dos tareas antes de ejecutar: implementar y probar el ejecutor Top-4
+fijo y completar el perfil temporal de cinco bloques de KTH. Los embeddings
+están disponibles en los seis datasets; el costo histórico cubre 23 condiciones
+y queda incompleto en las cuatro de KTH. E1/E2 siguen sin ejecutarse.
+
 ## 6. Dónde seguir
 
 | Material | Archivo |

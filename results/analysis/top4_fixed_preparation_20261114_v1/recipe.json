@@ -1,0 +1,45 @@
+{
+  "stage": "input_preparation_only",
+  "experiment_status": "not_executed",
+  "execution_ready": false,
+  "remaining_work": [
+    "Implement and test the fixed-four runner",
+    "Resolve recorded component-cost gaps before cost-based selection"
+  ],
+  "study_status": "exploratory_previously_observed_external_tests",
+  "classifier": "svm",
+  "seed": 42,
+  "fixed_k": 4,
+  "normalization": "existing l2_rows per block, float32, epsilon 1e-12",
+  "quantiles": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "f1_tolerance": 0.005,
+  "route_selection": "existing training-only OOF eligibility and projected-cost rule",
+  "random_control_repetitions": 100,
+  "e2_gates": [
+    "margin",
+    "maximum_score",
+    "softmax_entropy_temperature_1"
+  ],
+  "e2_selection": "thresholds from OOF only; report actual test request fractions and ties",
+  "costs": "historical component projections; no new online latency measured",
+  "required_new_outputs": [
+    "class_order",
+    "train_test_indices",
+    "oof_fold_indices",
+    "all_candidate_oof_and_test_scores",
+    "all_candidate_predictions",
+    "top4_direct_predictions",
+    "random_controls",
+    "selection_pretest",
+    "results",
+    "input_and_output_hashes",
+    "errors"
+  ],
+  "cpu_threads": 2,
+  "fits_or_inference_in_this_preparation": 0,
+  "gpu_benchmark_in_this_preparation": false
+}

@@ -172,3 +172,29 @@ Antes de una eventual implementación, hay que cerrar estos detalles técnicos:
 
 El plan y el [documento de estado](../../carlos/ESTADO_TRABAJO_Y_REDACCION_2026-11-14.md)
 se actualizan sin marcar los experimentos pendientes como completados.
+
+### Preparación de entradas E1/E2 realizada el 14-11
+
+Se añadió `scripts/prepare_top4_fixed_cascade.py`, que solo prepara y verifica
+entradas. Pasaron diez pruebas de sus contratos. Se verificaron las 27 listas
+Top-4/SVM/42, los embeddings y etiquetas necesarios, las particiones externas
+e internas y la disponibilidad de costos, con 142 archivos fuente y sus hashes
+(560.141.271 bytes). Se conservan explícitamente las filas purgadas de DTD
+por contenido duplicado; KTH usa agrupación física `sample` en los OOF.
+
+La [preparación](../../results/analysis/top4_fixed_preparation_20261114_v1/README.md)
+guarda bloques e índices por condición, receta candidata, versiones y SHA-256.
+**No es un ejecutor listo ni una corrida E1/E2 completada.** Falta implementar
+y probar el ejecutor que sustituya el rescate heredado por cuatro bloques y
+guarde todos los puntajes y controles.
+
+Además, el perfil temporal histórico de KTH no cubre cinco bloques que aparecen
+en Top-4: `dinov2`, `siglip_base`, `convnext_v2_t`, `eva02_base` y `dinov2_small`.
+Esto afecta sus cuatro condiciones; las otras 23 tienen cobertura de costos.
+Los costos faltantes quedan como ausentes, sin reemplazarlos por cero ni por
+otro dataset. Antes de seleccionar rutas por costo para los seis datasets,
+hay que resolver ese perfil con fuentes compatibles o una medición nueva
+con protocolo congelado. No se elimina KTH para presentar un cierre completo.
+
+Las verificaciones de entradas no son entrenamientos ni nuevas métricas.
+Siguen pendientes las corridas científicas de E1/E2 y la decisión de ejecución.
