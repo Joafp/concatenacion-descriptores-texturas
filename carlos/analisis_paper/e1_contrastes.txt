@@ -1,0 +1,23 @@
+# E1: activacion por margen de Top-4, 27 condiciones SVM, medias por dataset (accuracy)
+# Fuente: e1_condiciones.csv (extraido con e1_extraer.ps1) y Completa-22 de la matriz principal (semilla 42)
+dataset,Cascada,ResNet,Top4,Completa
+CUReT,0.997862,0.997505,0.998574,0.998931
+DTD,0.871117,0.870000,0.870266,0.865372
+FMD,0.983000,0.978000,0.982000,0.965000
+KTHTIPS2b,0.958333,0.954966,0.957492,0.960859
+Outex13Official1360,0.926471,0.929412,0.929412,0.966176
+SoilOriginal,0.930702,0.925439,0.928947,0.933333
+Media: Cascada=0.9446 ResNet=0.9426 Top4=0.9444 Completa=0.9483
+
+Wilcoxon exacto bilateral (valores p sin ajustar):
+  Wilcoxon Cascada vs Top4              dif=+0.0001 W+=14 W-=7 p=0.5625 
+  Wilcoxon Cascada vs ResNet            dif=+0.0020 W+=18 W-=3 p=0.1562 
+  Wilcoxon Cascada vs Completa          dif=-0.0037 W+=9 W-=12 p=0.8438 
+Holm sobre la familia de tres (cascada frente a Top-4, ResNet-50 y Completa-22): 1,0000; 0,4688; 1,0000
+
+Control aleatorio (misma base, misma cantidad, 100 repeticiones):
+base sola=0.9234 aleatorio=0.9280 margen=0.9446 ventaja=0.0166; margen>aleatorio en 27/27 condiciones y 6/6 datasets -> Wilcoxon exacto bilateral p=2/64=0,0312
+Cascada frente a Top-4 directo por condicion: mayor 10, igual 10, menor 7
+Etapa barata resnet50: 1
+Etapa barata beitv2_base_final: 6
+Etapa barata siglip_base: 20
