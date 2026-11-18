@@ -119,7 +119,7 @@ Para decir que la versión B convergió, propongo dos condiciones: ningún SVM c
 En `carlos/main.tex`:
 - la fila de DeepLumina y la columna de DTD de la tabla de comparación externa;
 - la nota ‡ sobre la no convergencia;
-- el párrafo de recetas externas (§4.10).
+- la sección de comparación con métodos recientes (§4.11 desde el 18-11).
 
 Si B converge, DeepLumina deja de figurar como «sujeta a revisión» por
 convergencia. Si no converge, se mantiene la reserva, pero con la causa
