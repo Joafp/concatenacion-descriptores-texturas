@@ -21,14 +21,14 @@ Leyenda del estado:
 | Accuracy frente a muchos métodos | Tablas 1–3 | Tabla de métodos recientes en el panel común (§4.11). Además, los corremos en nuestras mismas particiones, cosa que HyTexNet no hace: copia las cifras publicadas | Ya estaba |
 | Accuracy media en DTD sobre 10 particiones | Fig. 9 | DTD con sus 10 particiones oficiales en todas las tablas | Ya estaba |
 | Accuracy y macro-F1 | Tabla 6 | Accuracy principal y macro-F1 complementaria en todo el paper | Ya estaba |
-| Ablación de componentes y decisiones de diseño | Tabla 6, Fig. 15 | Curva de *k*; Individual vs Completa-22 vs Top-4; etapa barata ResNet-50 vs elegida; tres compuertas; tres cuantiles *q*; control aleatorio; SVM vs ResMLP | Ya estaba |
+| Ablación de componentes y decisiones de diseño | Tabla 6, Fig. 15 | Los resultados ya estaban repartidos en varias tablas. El 18-11 se juntaron en la **Tabla 14** (§4.12), con accuracy, macro-F1 y una lectura por fila, como la Tabla 6 de HyTexNet | Agregado 18-11 |
 | Estabilidad: media ± DE de 5 corridas e IC 95 % | Tabla 6, fila 7 | Media ± DE entre particiones y kappa (Tabla 10). Sin IC por dataset: las particiones comparten entrenamiento y CUReT y Outex tienen 2 y 1 condición | Agregado 18-11 |
 | Matrices de confusión normalizadas por fila | Figs. 5c–7c | Figura 4: FMD y KTH-TIPS2-b; las de los seis datasets en `e1_confusion.csv` | Agregado 18-11 |
 | Ejemplos de confusión entre clases parecidas (lino y algodón en KTH) | Fig. 14 | Encontramos la misma confusión: el 23 % del algodón va a lino (§4.8) | Agregado 18-11 (en texto) |
 | Pruebas estadísticas | — | HyTexNet **no informa ninguna**. Nosotros: Friedman, Holm, Wilcoxon exacto, no inferioridad y, desde el 18-11, McNemar exacto por condición | Ya estaba + agregado 18-11 |
 | Dimensión y tiempo por imagen de cada descriptor | Tabla 7 | Las tablas de extractores tienen la dimensión; los ms por bloque están en el perfil de latencias, pero no en esas tablas | Se puede sin experimentos |
 | Parámetros (M) y GFLOPs | Tablas 4 y 8 | No están. Los parámetros salen de las fichas de los modelos; los GFLOPs requieren un script que no entrena (pedir a Joaquín) | Se puede sin experimentos |
-| Ejemplos de imágenes mal clasificadas | Fig. 14 | Tenemos índices y predicciones por imagen, y las imágenes de KTH están en `data/KTH-TIPS2-b` | Se puede sin experimentos |
+| Ejemplos de imágenes mal clasificadas | Fig. 14 | Figura 5: algodón de la muestra b clasificado como lino, frente a algodón de las muestras a, c y d y lino bien clasificados. El 81 % de esos errores viene de esa muestra | Agregado 18-11 |
 | t-SNE de los embeddings | Fig. 11 | Los embeddings están en `embeddings_confirmatory/` (757 MB, fuera de git); hace falta Python, que esta máquina no tiene | Se puede sin experimentos |
 | Curvas de entrenamiento y pérdida | Figs. 5–8 | No aplica a SVM sobre redes congeladas, que no entrena por épocas. ResMLP sí; habría que ver si Joaquín guardó sus curvas | Preguntar |
 | Mapas de activación de la red | Fig. 12 | No aplica directamente: no modificamos las redes | No se propone |
