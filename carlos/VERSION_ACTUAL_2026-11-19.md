@@ -11,3 +11,7 @@ El PDF contiene 28 páginas; se revisaron todas en una hoja de contacto y se ins
 La versión para revisión [main_actual_2026-11-19_deeplumina_v2.tex](main_actual_2026-11-19_deeplumina_v2.tex) incorpora por separado la variante B escalada y conserva A y sus reservas. El original entregado permanece intacto. La tabla se generó a partir de la [auditoría](../results/analysis/deeplumina_carlos_online_audit_20261119_v1/datasets.csv). PDF de revisión: [main.pdf](../results/analysis/paper_actual_deeplumina_20261119_v2/main.pdf).
 
 **Importante:** al actualizar `main` se recibió un [manuscrito de Carlos](main.tex) con cambios adicionales sobre E4, E5 y ablaciones (commit `cc8e2e4`). Esa versión y la v2 de DeepLumina parten de textos diferentes; todavía hay que integrar y revisar ambos conjuntos de cambios para obtener un único paper actualizado. No presentar esta v2 como si ya incluyera los cambios nuevos de Carlos.
+
+## Actualización 23-11 (Carlos): versión única
+
+Los cambios de DeepLumina B de `main_actual_2026-11-19_deeplumina_v2.tex` se integraron en [main.tex](main.tex), que ya tenía E4, E5 y la ablación (`cc8e2e4`). Desde esta fecha **`main.tex` es otra vez la versión única del paper**. Los dos `main_actual_*.tex` se conservan sin cambios como referencia. La versión del 19-11 era idéntica a `main.tex` antes de E4 y E5, así que la integración no perdió cambios. Detalle en [PENDIENTES_JOAQUIN.md](PENDIENTES_JOAQUIN.md).

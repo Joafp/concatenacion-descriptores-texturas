@@ -2,6 +2,14 @@
 
 Fecha: 2026-11-18 · De: Carlos · Para: Joaquín
 
+> **Estado (23-11): resuelto.** Joaquín corrió la variante B: rasgos escalados
+> y hasta 100.000 iteraciones, en 47 de 47 condiciones, sin ningún SVM en el
+> tope (`docs/fsc_tex/REPORTE_DEEPLUMINA_CARLOS_2026-11-19.md`). La accuracy
+> cambia entre −0,29 y +0,30 puntos frente a la versión original, y DTD queda
+> completo con 70,55 %. La corrida A de `f3` sin límite de tiempo dejó 83 de
+> 84 SVM en el tope, lo que confirma que la causa era la falta de escalado. Ya
+> está integrado en `carlos/main.tex` (§4.11 y Tabla 13).
+
 Joaco, en la reunión el profesor preguntó por qué DeepLumina «no convergió en
 DTD» si en los otros datasets sí, y si no será un problema de implementación.
 Revisé los registros que ya están en el repo. Te dejo lo que encontré y lo que

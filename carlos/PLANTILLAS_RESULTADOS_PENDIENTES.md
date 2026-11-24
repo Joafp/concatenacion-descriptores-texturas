@@ -66,7 +66,10 @@ La Tabla~\ref{tab:latencia-e1} mide en línea las dos políticas de la Tabla~\re
 
 ---
 
-## P2. DeepLumina (§4.11, tabla de métodos recientes)
+## P2. DeepLumina (§4.11, tabla de métodos recientes) — integrado el 23-11
+
+> Ya se usó la versión de Joaquín, que pone las filas A y B en la Tabla 13 con
+> las notas ‡ y §. No hace falta esta plantilla; se conserva como referencia.
 
 **Dónde:** la fila de DeepLumina, la columna de DTD y la nota ‡ de la tabla
 `tab:sota`. También el párrafo de recetas externas de §4.11 y la frase de

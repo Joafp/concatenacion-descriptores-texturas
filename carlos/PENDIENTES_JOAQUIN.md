@@ -6,6 +6,36 @@ Joaco, junté acá todo lo que queda pendiente del paper (`carlos/main.tex`) y
 que necesita tu máquina, tus datos o tu decisión. Yo no corro experimentos;
 cuando algo esté, avisame qué carpeta queda como canónica y actualizo el paper.
 
+## Actualización 23-11: DeepLumina B integrado y versión única del paper
+
+Integré tus cambios de `main_actual_2026-11-19_deeplumina_v2.tex` en
+`carlos/main.tex`, que ya tenía E4, E5 y la ablación. **`main.tex` vuelve a
+ser la versión única del paper.** Tus `main_actual_*.tex` quedan como
+referencia.
+
+- **Comparación de versiones:** la versión que recibiste el 19-11 es idéntica
+  a `main.tex` antes de E4 y E5. No había cambios de Overleaf que se
+  perdieran.
+- **Tus cinco cambios entraron tal cual:**
+  - las filas A y B en la Tabla 13;
+  - las notas ‡ y §;
+  - el párrafo de B;
+  - la frase de las limitaciones;
+  - la aclaración sobre las comparaciones.
+- **Ajustes que hice:**
+  - «En la comparación previa a la variante B» pasó a decir que tampoco hay
+    diferencias negativas frente a B. Lo verifiqué: en los seis datasets,
+    todas las estrategias del panel superan a B en accuracy y en macro-F1.
+  - Agregué una frase con la lectura para el profesor: B cambia la accuracy
+    entre −0,0029 y +0,0030 frente a A, así que la falta de convergencia no
+    explica la distancia a Top-4.
+  - «pliegues» pasó a «folds» y «significación», a «significancia», por las
+    convenciones del paper.
+  - Las fuentes de B quedaron en el Apéndice A.
+- El punto 2 (DeepLumina) queda resuelto. La A de DTD `f3` sin límite de
+  tiempo (83 de 84 SVM en el tope) confirma que la causa era la falta de
+  escalado.
+
 ## Actualización 18-11 (noche): lo que integré de tu paquete
 
 Gracias por `results/metricas_compartidas_20261118_v1/` (commit `f635a5b`).
@@ -43,7 +73,7 @@ Antes de esto, ese mismo día, ya había agregado:
 | # | Qué | Tipo | Prioridad | Estado |
 |---|---|---|---|---|
 | 1 | Latencia online de E1: Top-4 directo frente a la cascada por margen con Top-4 | Experimento | **Alta** | Pendiente |
-| 2 | DeepLumina: completar DTD `f3` y corregir la convergencia | Experimento | **Alta** | Pendiente |
+| 2 | DeepLumina: completar DTD `f3` y corregir la convergencia | Experimento | — | **Integrado el 23-11** (variante B) |
 | 3 | E4: cascada con ResMLP | Experimento | — | **Integrado el 18-11** |
 | 4 | Reservas de KTH (evaluación estática) y Outex (DeiT-S) | Verificación | **Alta** | Pendiente |
 | 5 | Parámetros y GFLOPs de nuestras 16 redes | Cálculo sin entrenar | Media | Pendiente (el de HyTex ya está) |
@@ -78,9 +108,11 @@ En el paper actualizo la §4.9 (medición física), la discusión y las
 limitaciones. La plantilla está lista en
 [PLANTILLAS_RESULTADOS_PENDIENTES.md](PLANTILLAS_RESULTADOS_PENDIENTES.md).
 
-## 2. DeepLumina (alta)
+## 2. DeepLumina: resuelto el 23-11
 
-Está detallado en [PEDIDO_DEEPLUMINA_JOAQUIN.md](PEDIDO_DEEPLUMINA_JOAQUIN.md):
+Corriste B en las 47 condiciones, sin SVM en el tope, y está integrado en la
+§4.11 y la Tabla 13. Queda como referencia el pedido original,
+[PEDIDO_DEEPLUMINA_JOAQUIN.md](PEDIDO_DEEPLUMINA_JOAQUIN.md):
 - **A:** completar DTD `s42_f3` sin el límite de 1 h.
 - **B:** escalar los rasgos y subir `max_iter` en las 47 condiciones.
 - **C (opcional):** un SVM más parecido al de MATLAB.
