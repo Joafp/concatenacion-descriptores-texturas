@@ -1,6 +1,6 @@
 % English manuscript draft. Compile from carlos/.
 \PassOptionsToPackage{hypertexnames=false}{hyperref}
-\documentclass[a4paper,fleqn]{cas-sc}
+\documentclass[a4paper,fleqn,review]{cas-sc}
 
 \usepackage[T1]{fontenc}
 \renewcommand{\rmdefault}{lmr}
@@ -162,6 +162,9 @@ Route selection uses the training escalation rate; reporting uses the observed t
 
 For the Top-4 comparison we evaluated $q\in\{0.25,0.50,0.75\}$. Candidate first-stage blocks were ResNet-50, SigLIP-B, BEiTv2-B and ConvNeXt V2-T, with candidates restricted to ResNet-50 and BEiTv2-B for KTH-TIPS2-b. We chose the lowest projected-cost route whose out-of-fold macro-F1 was no more than 0.005 below direct Top-4. Direct use remained available if the candidates offered no admissible savings. The heads were refitted across the inner folds for threshold estimation, with the four blocks already fixed by the outer training split.
 
+For each candidate block and quantile, we substitute the Top-4 prediction on inner out-of-fold calls at or below the candidate threshold. We compute macro-F1 on the pooled substituted predictions and compare it with the pooled macro-F1 of direct Top-4. Eligible routes compete on projected mean extraction cost. Exact cost ties favor direct Top-4 and then a ResNet-50 first stage among cascades. The selected heads are fitted on the full outer training split, and the selected threshold is applied unchanged. The quantile determines how the threshold is learned; the test margin distribution determines the test escalation rate.
+
+
 \subsection{Margin-gated ensemble for online measurement}\label{sec:variante-panel}
 
 The online policy chooses a first-stage block on the internal macro-F1 versus cost frontier and searches quantiles $\{0.10,0.25,0.50\}$. When $m(x)<\tau_q$, it aggregates the scores of up to three four-block concatenations from a diversity-based ensemble. The ensemble contains 15 subsets sampled using internal block relevance with a centered kernel alignment similarity penalty ($\lambda=0.25$, $\beta=8$) \citep{kornblith2019similarity}. The policy chooses the first stage, threshold, and escalation subsets to maximize three-fold internal macro-F1 under a projected mean budget of 60 ms. We refer to this policy as the \emph{margin-gated ensemble}; \emph{Top-4 cascade} refers to Equation~\eqref{eq:regla} with $k=4$.
@@ -317,6 +320,15 @@ Margin vs.\ direct (E4, ResMLP) & $-0.03$ & Noninferiority & Lower bound 95\,\%:
 \end{tabular}
 \end{table}
 
+
+\paragraph{What the gate can change.}
+For a paired test set of size $n$, let $A_i$ indicate a correct first-stage prediction, $T_i$ a correct direct Top-4 prediction, and $G_i$ an escalation. Cascade correctness on call $i$ is $A_i+G_i(T_i-A_i)$. Its accuracy differences from the first stage and direct Top-4 are
+\begin{align}
+ \Delta_{\mathrm{first}} &= n^{-1}\sum_{i=1}^{n}G_i(T_i-A_i),\\
+ \Delta_{\mathrm{direct}} &= n^{-1}\sum_{i=1}^{n}(1-G_i)(A_i-T_i).
+\end{align}
+The first contrast counts corrections minus lost correct predictions among escalations. The second counts retained correct predictions minus missed corrections on the remaining calls. With the same Top-4 head in both policies, these identities give pooled gains of 704 correct predictions over the first stage and 17 over direct Top-4 in E1. The primary estimate weights datasets equally, so it describes a different aggregation from the pooled gain.
+
 \subsection{Observed online latency}
 
 The margin-gated ensemble lowers mean latency relative to direct Top-4 in all twelve dataset--classifier combinations. SVM latency falls from 245.06 to 39.93 ms per image, with accuracy changing from 94.23\% to 93.96\%. For ResMLP, latency falls from 232.76 to 36.10 ms and accuracy rises from 94.02\% to 94.39\%. On KTH-TIPS2-b, accuracy falls by 1.60 and 1.51 points respectively; on Outex it rises by 3.24 points with ResMLP. On Soil, even as mean latency drops, the 95th percentile rises from 117.6 to 136.7 ms for SVM and from 128.4 to 145.4 ms for ResMLP. Escalated inputs can incur the cost of both stages (Table~\ref{tab:panel}).
@@ -399,7 +411,7 @@ Sources: Neshov, Table 4. HyTexNet, Table 1 and Section 4.5. Chang, Table 4. Dee
 
 Selecting fewer blocks and invoking them conditionally reduce different parts of the extraction workload. Once the subset is fixed, a gate is useful only to the extent that its selection helps the joint head correct the right errors. Outex illustrates why the baseline matters. The cascade gains 23 net correct predictions over the first stage, but trails direct Top-4 by two because it misses three possible corrections and retains one correct first-stage prediction that Top-4 would overwrite. A low margin is a signal of uncertainty in the first stage, while the value of escalating also depends on whether the additional blocks can resolve that uncertainty.
 
-The SVM sweep flattens after four blocks, but the operating point depends on the head and descriptor library. We chose four after inspecting the outer curves; some splits also appeared in earlier pilots. The Top-4 ranking was fixed when estimating the out-of-fold routing rule, which may favor internal estimates. The retrospective noninferiority comparison has six dataset-level units. The ResMLP rerun tests a change of head on the same blocks.
+The SVM sweep flattens after four blocks, but the operating point depends on the head and descriptor library. We chose four after inspecting the outer curves; some splits also appeared in earlier pilots. The Top-4 ranking was fixed when estimating the out-of-fold routing rule, which may favor internal estimates. The retrospective noninferiority comparison has six dataset-level units. The ResMLP rerun tests a change of head on the same blocks. In E1, leaving one dataset out shifts the mean difference from $-0.019$ points without Soil to $+0.075$ without Outex. On DTD mean accuracy rises, while individual condition changes range from $-0.319$ to $+0.479$ points. Table~\ref{tab:e1-ranges} reports the observed ranges and signs by dataset. In the static comparison, excluding KTH-TIPS2-b gives exact Friedman $p$-values of 0.1242 with SVM and 0.5216 with ResMLP. These checks describe the influence of the included benchmarks; the primary estimates retain all six.
 
 The 117.1 ms estimate for the Top-4 cascade sums component costs. Some KTH-TIPS2-b profiles combine sessions. A prior timing pilot used a different archived Top-$k$ recipe, and the present online panel uses ensemble escalation. Measuring the exact Top-4 cascade and its direct reference across the same calls is needed to establish end-to-end savings. Batch processing could change the cost of escalation.
 
@@ -556,9 +568,95 @@ Matched escalation count & Margin & 21.06 & 94.46 & 93.68 \\
 \end{table}
 \FloatBarrier
 
+\section{Sensitivity and audit of the selected routes}
+
+\subsection{How the sweep varies by dataset}
+
+Figure~\ref{fig:curves-by-dataset} shows why a single mean curve is insufficient for choosing $k$ on a particular dataset. In FMD, four blocks attain the highest accuracy in the sweep for both heads. In CUReT, the best point is within 0.10 percentage points of Top-4 for either head. In Outex, both heads peak at 18 blocks in this sweep. Compared with four blocks, the gain is 3.24 points with SVM and 2.21 with ResMLP. Outex has one official split; gains at larger $k$ describe that split. The curves summarize existing test results and serve as a diagnostic of the compression trade-off.
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/english/curves_by_dataset.pdf}
+\caption{Outer-test accuracy relative to direct Top-4 for each dataset and head. For each curve, zero is that head's accuracy at $k=4$ on the same dataset. Values above zero favor the indicated block count. Each point averages the outer conditions for that dataset; Outex uses one official split. The six panels share the same vertical scale.}
+\label{fig:curves-by-dataset}
+\end{figure}
+\FloatBarrier
+
+\subsection{Choosing the block count within training}
+
+For each outer condition, the maximum rule takes the smallest $k$ with maximum inner macro-F1. The gain rule stops at the first $k$ for which adding block $k+1$ changes inner macro-F1 by less than the tolerance; if it never stops, it retains all 21 ranked blocks. Table~\ref{tab:k-rules} reports external accuracy using the selected size for each condition. With SVM, the maximum rule chooses 6.32 blocks on average and obtains 94.14\% accuracy, against 94.42\% at four. With ResMLP, it selects 7.26 blocks and obtains 94.30\%, against 94.20\% at four. The fixed settings and the gain rules describe smaller operating points. The choice of four blocks trades accuracy against size and depends on the head.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Block-count rules applied to the inner macro-F1 curve. Entries give mean selected $k$ and outer accuracy (\%) by head. Conditions are averaged within dataset; the six datasets have equal weight.}
+\label{tab:k-rules}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Selection rule & SVM $k$ & SVM acc. & ResMLP $k$ & ResMLP acc. \\
+\midrule
+Maximize inner macro-F1 & 6.32 & 94.14 & 7.26 & 94.30 \\
+First gain below 0.001 & 3.23 & 94.11 & 2.15 & 93.93 \\
+First gain below 0.005 & 1.92 & 93.82 & 1.71 & 93.78 \\
+First gain below 0.010 & 1.68 & 93.52 & 1.30 & 93.22 \\
+Fixed $k=3$ & 3.00 & 94.25 & 3.00 & 94.28 \\
+Fixed $k=4$ & 4.00 & 94.42 & 4.00 & 94.20 \\
+Fixed $k=6$ & 6.00 & 94.36 & 6.00 & 93.98 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Variation across archived conditions}
+
+The pooled error counts in E1 give more weight to datasets with more test calls. DTD contributes ten conditions and 18,800 predictions in total; Outex contributes one condition and 680 predictions. In contrast, the main estimate gives the two datasets equal weight. Table~\ref{tab:e1-ranges} describes the variation observed within each dataset. Outex contributes a single change. Reused test images across splits limit the independence of these observations.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Observed changes in E1. Changes are cascade minus direct accuracy, in percentage points. Gains, ties, and losses count conditions. The extrema describe the archived conditions.}
+\label{tab:e1-ranges}
+\small
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+Dataset & Conditions & Mean & Minimum & Maximum & Gains & Ties & Losses \\
+\midrule
+DTD & 10 & +0.085 & -0.319 & +0.479 & 6 & 0 & 4 \\
+FMD & 5 & +0.100 & +0.000 & +0.500 & 1 & 4 & 0 \\
+CUReT & 2 & -0.071 & -0.143 & +0.000 & 0 & 1 & 1 \\
+Outex & 1 & -0.294 & -0.294 & -0.294 & 0 & 0 & 1 \\
+Soil & 5 & +0.175 & +0.000 & +0.439 & 2 & 3 & 0 \\
+KTH-TIPS2-b & 4 & +0.084 & -0.084 & +0.421 & 1 & 2 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Coverage and selected first-stage descriptors}
+
+The E1 route is chosen separately in each outer training split, and every condition selects a cascade. SigLIP-B is the first stage in all 20 DTD, FMD, and Soil conditions. BEiTv2-B is selected in all five KTH-TIPS2-b and Outex conditions. The two complementary CUReT splits use different first stages. The selected descriptor determines both the scores used by the gate and the extractions left to perform if it escalates.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Split coverage and first-stage selections with SVM. Static and E1 count outer conditions. The remaining columns count E1 conditions selecting each first-stage descriptor. E4 refits with ResMLP on the E1 splits.}
+\label{tab:e1-routes}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Dataset & Static & E1 & ResNet-50 & SigLIP-B & BEiTv2-B & ConvNeXt V2-T \\
+\midrule
+DTD & 10 & 10 & 0 & 10 & 0 & 0 \\
+FMD & 15 & 5 & 0 & 5 & 0 & 0 \\
+CUReT & 2 & 2 & 1 & 0 & 1 & 0 \\
+Outex & 1 & 1 & 0 & 0 & 1 & 0 \\
+Soil & 15 & 5 & 0 & 5 & 0 & 0 \\
+KTH-TIPS2-b & 4 & 4 & 0 & 0 & 4 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+
 \section{Data and code availability}
 
-The \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{project repository} contains the code and evaluation records. Datasets are available from their distributors under the respective collection terms. The static curves and online metrics are consolidated in \nolinkurl{results/analysis/thesis_accuracy_primary_20261115_v3/}. The audit of E1 and E2 is in \nolinkurl{results/analysis/top4_fixed_kth_completion_audit_20261115_v1/}. The per-image analysis and the recipe for reconstructing its counts are in \nolinkurl{carlos/analisis_paper/}. The E4 and E5 audits are in \nolinkurl{results/analysis/e4_resmlp_complete_audit_20261116_v1/} and \nolinkurl{results/analysis/e5_top4_plus_ngram_audit_20261116_v1/}. The published figures and protocols are documented in \nolinkurl{docs/fsc_tex/METRICAS_PUBLICADAS_Y_COMPARABILIDAD_2026-11-23.md}.
+The \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{project repository} contains the code and evaluation records. Datasets are available from their distributors under the respective collection terms. The static curves and online metrics are consolidated in \nolinkurl{results/analysis/thesis_accuracy_primary_20261115_v3/}. Figure~\ref{fig:curves-by-dataset} uses \nolinkurl{per_dataset_curves.csv} from that directory. The audit of E1 and E2 is in \nolinkurl{results/analysis/top4_fixed_kth_completion_audit_20261115_v1/}. The per-image analysis and the recipe for reconstructing its counts are in \nolinkurl{carlos/analisis_paper/}. That directory contains \nolinkurl{reglas_k.awk} and \nolinkurl{reglas_k.txt}, which reproduce Table~\ref{tab:k-rules} from the archived sweeps. Table~\ref{tab:e1-ranges} comes from \nolinkurl{e1_dataset_observed_ranges.csv} in the archived sensitivity analysis \nolinkurl{results/analysis/ars_revision_existing_analyses_20261115_v1/}. Table~\ref{tab:e1-routes} tallies the \texttt{cheap} field of \nolinkurl{e1_conditions.csv}. The E4 and E5 audits are in \nolinkurl{results/analysis/e4_resmlp_complete_audit_20261116_v1/} and \nolinkurl{results/analysis/e5_top4_plus_ngram_audit_20261116_v1/}. The published figures and protocols are documented in \nolinkurl{docs/fsc_tex/METRICAS_PUBLICADAS_Y_COMPARABILIDAD_2026-11-23.md}.
 
 \section*{Declarations}
 

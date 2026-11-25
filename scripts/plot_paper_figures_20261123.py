@@ -14,6 +14,7 @@ from matplotlib.ticker import FuncFormatter
 ROOT = Path(__file__).resolve().parents[1]
 ANALYSIS = ROOT / "results/analysis"
 CURVES = ANALYSIS / "thesis_accuracy_primary_20261115_v3/curves.csv"
+DATASET_CURVES = CURVES.with_name("per_dataset_curves.csv")
 INNER = ROOT / "results/exploratory/k_sweep"
 E1 = ANALYSIS / "top4_fixed_kth_completion_audit_20261115_v1/e1_complete_dataset_means.csv"
 DATASETS = {
@@ -31,6 +32,7 @@ INK = "#1d2938"
 GUIDE = "#ced9e3"
 ENGLISH_LABELS = {
     "Número de bloques ($k$)": "Number of blocks ($k$)",
+    "Diferencia frente a Top-4 (pp)": "Accuracy relative to Top-4 (pp)",
     "(a) Prueba externa": "(a) Outer test",
     "Accuracy media (%)": "Mean accuracy (%)",
     "Máximo en $k=6$": "Peak at $k=6$",
@@ -162,10 +164,48 @@ def plot_paired_e1(folder, language):
     write_figure(fig, folder, "comparacion_pareada_e1")
 
 
+def plot_dataset_curves(folder, language):
+    text, decimal = figure_text(language)
+    data = defaultdict(dict)
+    for row in rows(DATASET_CURVES):
+        key = row["dataset"], row["classifier"]
+        k = int(row["k"])
+        assert k not in data[key]
+        data[key][k] = float(row["accuracy"])
+    sizes = list(range(1, 22))
+    assert set(data) == {(dataset, head) for dataset in DATASETS for head in ("svm", "resmlp")}
+    assert all(sorted(curve) == sizes for curve in data.values())
+
+    fig, axes = plt.subplots(3, 2, sharex=True, sharey=True, figsize=(6.0, 5.25))
+    fig.subplots_adjust(left=.125, right=.975, bottom=.155, top=.95, hspace=.42, wspace=.15)
+    for number, (ax, (dataset, label)) in enumerate(zip(axes.flat, DATASETS.items(), strict=True)):
+        ax.set_title(f"({chr(97 + number)}) {label}", loc="left")
+        ax.axhline(0, color="#677382", lw=.7)
+        ax.axvline(4, color="#677382", lw=.85, ls=(0, (3, 2)))
+        ax.grid(axis="y", alpha=.8)
+        for head, legend, color, marker, style in (
+            ("svm", "SVM", DIRECT, "o", "-"),
+            ("resmlp", "ResMLP", ALT, "s", "--"),
+        ):
+            curve = data[dataset, head]
+            diff = [100 * (curve[k] - curve[4]) for k in sizes]
+            ax.plot(sizes, diff, color=color, marker=marker, ls=style, label=legend)
+        ax.set_xlim(.65, 21.35)
+        ax.set_xticks([1, 4, 8, 12, 16, 21])
+        ax.set_yticks([-3, -1.5, 0, 1.5, 3])
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: decimal(v, 1)))
+    fig.supxlabel(text("Número de bloques ($k$)"), y=.075, fontsize=8)
+    fig.supylabel(text("Diferencia frente a Top-4 (pp)"), x=.027, fontsize=8)
+    handles, labels = axes[0, 0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", ncol=2, frameon=False, fontsize=8)
+    write_figure(fig, folder, "curves_by_dataset")
+
+
 def main():
     parser = ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path, help="Folder for the figure PDFs and PNGs")
     parser.add_argument("--language", choices=("es", "en"), default="es", help="Figure labels")
+    parser.add_argument("--by-dataset", action="store_true", help="Also plot the six dataset curves")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update({
@@ -179,6 +219,8 @@ def main():
     })
     plot_curves(args.output, args.language)
     plot_paired_e1(args.output, args.language)
+    if args.by_dataset:
+        plot_dataset_curves(args.output, args.language)
 
 
 if __name__ == "__main__":

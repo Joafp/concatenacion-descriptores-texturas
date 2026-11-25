@@ -13,7 +13,7 @@
 
 ## Pendientes de envío
 
-1. Revisar con los autores la [versión completa en inglés](../main_en.tex) y cotejar la maquetación con la guía de la revista. El [PDF en inglés](../main_topk_margen_en.pdf) incluye las mismas 13 tablas y las cuatro figuras localizadas. El borrador usa la clase CAS de una columna. Una compilación de prueba con la opción de revisión de CAS (doble espacio) dio 17 páginas. La ficha de la revista indica un intervalo de 20 a 35 páginas para artículos originales. Esta versión se conserva como borrador de trabajo. La ficha editorial de Pattern Recognition indica formato de una columna y doble espacio. La guía completa enlazada desde la ficha no estuvo accesible en esta revisión, así que se mantienen abiertas las comprobaciones específicas del envío.
+1. Revisar con los autores la [versión completa en inglés](../main_en.tex) y cotejar la maquetación con la guía de la revista. El [PDF en inglés](../main_topk_margen_en.pdf) incluye 16 tablas y cinco figuras, con las curvas por dataset, reglas internas para elegir el tamaño y el desglose de E1 por condición. El borrador usa la clase CAS de una columna. La compilación con la opción de revisión de CAS da 20 páginas, en una columna y con texto a doble espacio. La ficha indica un intervalo de 20 a 35 páginas; hay que confirmar cómo cuenta anexos y referencias la guía completa. La ficha editorial de Pattern Recognition indica formato de una columna y doble espacio. La guía completa enlazada desde la ficha no estuvo accesible en esta revisión, así que se mantienen abiertas las comprobaciones específicas del envío.
 2. Confirmar con los autores contribuciones, financiamiento, conflictos y declaración de asistencia de IA. El borrador declara el uso confirmado de Codex en esta revisión. La política del editor también requiere verificar los detalles de herramientas empleadas en diagramas y visualizaciones, incluidos el modelo o versión y el uso concreto. [Política de IA de Elsevier](https://www.elsevier.com/en-gb/about/policies-and-standards/generative-ai-policies-for-journals)
 3. Revisar qué material puede usar un tercero desde una copia del repositorio. Las predicciones por imagen y el análisis de E1 están versionados. Las cabezas serializadas y los embeddings citados por la auditoría tienen disponibilidad local. [Reconstrucción de conteos archivados](../analisis_paper/README.md)
 4. Si la conclusión del artículo requiere una cifra de ahorro físico para la cascada Top-4 exacta, respaldarla con evidencia de esa implementación frente a su uso directo. La evidencia publicada en el manuscrito permite atribuir el ahorro del 75 % al modelo de costo y las mediciones físicas al ensamble.
@@ -24,7 +24,7 @@
 Desde la raíz del repositorio, las figuras de resultados se pueden regenerar con Python y Matplotlib a partir del barrido interno de SVM y los CSV archivados. El diagrama se compila por separado para que TeX encuentre la imagen DTD en el directorio superior.
 
 ~~~bash
-python3 scripts/plot_paper_figures_20261123.py /tmp/tesis_figuras_en --language en
+python3 scripts/plot_paper_figures_20261123.py /tmp/tesis_figuras_en --language en --by-dataset
 (cd carlos/figures/english && pdflatex -halt-on-error descriptor_pipeline.tex)
 (cd carlos && pdflatex -halt-on-error main_en.tex &&
  bibtex main_en && pdflatex -halt-on-error main_en.tex &&
