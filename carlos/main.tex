@@ -1,14 +1,5 @@
-% ============================================================
-% Manuscrito: Concatenación Top-k de descriptores para clasificar texturas
-% Template: Elsevier CAS Single Column (cas-sc)
-% Estructura tomada de la versión anterior (main_previo.tex):
-%   §1 introducción; §2 trabajos relacionados; §3 método;
-%   §4 resultados experimentales; §5 discusión; §6 conclusión.
-% Compilar con pdfLaTeX + BibTeX. Requiere figures/concatenacion_v02.pdf,
-% references.bib y los archivos de la clase CAS (cas-sc.cls, cas-common.sty,
-% cas-model2-names.bst).
-% ============================================================
-
+% Artículo nuevo a partir de los resultados archivados de la tesis.
+\PassOptionsToPackage{hypertexnames=false}{hyperref}
 \documentclass[a4paper,fleqn]{cas-sc}
 
 \usepackage[T1]{fontenc}
@@ -38,8 +29,11 @@
 \usepackage{float}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta}
-\usepackage{pgfplots}
-\pgfplotsset{compat=1.16}
+\definecolor{figblue}{HTML}{1B416C}
+\definecolor{figteal}{HTML}{087B76}
+\definecolor{figink}{HTML}{1D2938}
+\definecolor{figline}{HTML}{A4B1C0}
+\definecolor{figgray}{HTML}{F3F6F9}
 \usepackage{hyperref}
 \newenvironment{resulttable}{\begin{table}[pos=htbp]}{\end{table}}
 
@@ -108,7 +102,7 @@
 \shorttitle{Concatenación Top-$k$: uso directo y activación por margen}
 \shortauthors{C. Ayala y J. Delgado}
 
-\title[mode=title]{Concatenación Top-$k$ de descriptores para clasificar texturas: comparación del uso directo y la activación por margen}
+\title[mode=title]{Concatenación \texorpdfstring{Top-$k$}{Top-k} de descriptores para clasificar texturas: comparación del uso directo y la activación por margen}
 
 \tnotemark[1]
 \tnotetext[1]{Borrador de trabajo de Tesis de Grado, Facultad Politécnica, Universidad Nacional de Asunción (UNA-FP). Documento preparado para revisión con el tutor.}
@@ -134,116 +128,347 @@
 \cortext[1]{Autor de correspondencia}
 \fntext[1]{Ambos autores contribuyeron al diseño y ejecución del estudio. Tutor: Prof. José Vázquez.}
 
-% --- Aspectos destacados ---
-\begin{highlights}[Aspectos destacados]
-\item Top-4 usa el 15\,\% de las dimensiones y queda cerca de la concatenación completa.
-\item Activar Top-4 por margen conserva su accuracy con 75\,\% menos costo proyectado.
-\item Con igual etapa barata, el margen elige mejor que un sorteo en las 27 condiciones.
-\item En línea, una variante por margen con rescate tarda en promedio 22--54 ms por imagen.
-\item La activación por margen es no inferior al uso directo (pérdida máxima 0,01).
-\end{highlights}
-
 \begin{abstract}[Resumen]
-Concatenar descriptores heterogéneos mejora la clasificación de texturas, pero obliga a extraer todos los bloques en cada imagen. Este trabajo compara dos usos de una concatenación Top-$k$, formada por los $k$ mejores descriptores de un ranking interno: el uso directo, que la calcula para toda imagen, y la activación por margen, que primero clasifica con un descriptor barato y calcula Top-$k$ solo cuando la diferencia entre las dos clases más puntuadas queda bajo un umbral fijado con el entrenamiento. Con 22 descriptores, seis datasets y dos clasificadores (SVM lineal y ResMLP), la curva de desempeño se aplana alrededor de $k=4$. Top-4 usa cerca del 15\,\% de las dimensiones y obtiene una accuracy media de 0,9442 con SVM y 0,9420 con ResMLP, frente a 0,9473 y 0,9388 de la concatenación completa. En 27 condiciones con SVM, activar Top-4 por margen escala el 21\,\% de las imágenes y obtiene 0,9446 frente a 0,9444 del uso directo, con un costo proyectado 75\,\% menor, y es no inferior (margen de no inferioridad de 0,01). Ambos usos difieren solo en el 1\,\% de las predicciones, y McNemar no detecta diferencias en ninguna condición. Con igual cantidad de imágenes escaladas, el margen supera a un sorteo en las 27 condiciones y no es peor que el puntaje máximo ni la entropía. En un panel online de 94 condiciones, una política por margen con rescate tarda 22--54 ms por imagen frente a 71--334 ms de Top-4, con accuracy media similar ($-0{,}0027$ con SVM; $+0{,}0037$ con ResMLP).
+El costo de combinar descriptores de textura depende de cuántos bloques se calculan y de cuántas imágenes los necesitan. Estudiamos una concatenación Top-$k$ que ordena los descriptores por su macro-F1 individual en validación interna. Comparamos el uso directo con una cascada que empieza con un descriptor de bajo costo y activa la concatenación si el margen entre las dos mayores puntuaciones es pequeño. En seis datasets, Top-4 ocupa cerca del 15\,\% de las dimensiones de la biblioteca completa. Su accuracy media es 94,42\,\% con SVM y 94,20\,\% con ResMLP, frente a 94,73\,\% y 93,88\,\% al concatenar los 22 bloques. El valor $k=4$ se seleccionó de forma exploratoria. En una comparación pareada de 27 condiciones con SVM, el margen activa Top-4 en el 21,1\,\% de las imágenes en promedio. La accuracy pasa de 94,44\,\% a 94,46\,\% y el costo proyectado de 468,3 a 117,1 ms por imagen. Con la misma cantidad de activaciones, elegir por margen supera al sorteo en las 27 condiciones. En un panel online de 94 condiciones, una política por margen con rescate por ensamble reduce la latencia media frente a Top-4 directo en las doce combinaciones de dataset y clasificador. La mayor pérdida de accuracy ocurre en KTH-TIPS2-b y el percentil 95 de latencia aumenta en Soil. La reducción de costo depende tanto de la elección de bloques como de qué imágenes activan el rescate.
 \end{abstract}
 
-% --- Palabras clave ---
 \begin{keywords}[Palabras clave]
-clasificación de texturas \sep concatenación de descriptores \sep selección Top-$k$ \sep activación por margen \sep clasificación en cascada \sep costo de inferencia
+clasificación de texturas \sep fusión de descriptores \sep Top-$k$ \sep inferencia condicional \sep latencia
 \end{keywords}
 
-% La clase `cas-sc` superpone la caja lateral de keywords con una caja de ancho
-% cero; el margen se amplía solo en este punto para evitar un falso overfull.
 \hfuzz=.25\textwidth
 \maketitle
 \hfuzz=0.1pt
 
-% ============================================================
-% 1. INTRODUCCION
-% ============================================================
-\section{Introducción}\label{sec:introduccion}
+\section{Introducción}
 
-La clasificación de texturas depende de señales locales, distribuciones espaciales y respuestas en frecuencia que cambian con el dominio, la escala, la iluminación y el punto de vista \citep{cimpoi2014dtd,cimpoi2016fisher,liu2019survey}. Los descriptores clásicos resumen propiedades diseñadas, como microestructuras, coocurrencias y gradientes \citep{ojala2002lbp,haralick1979glcm,dalal2005hog}; las redes convolucionales, los Transformers y los modelos autosupervisados producen características aprendidas con arquitecturas y objetivos de preentrenamiento diferentes \citep{he2016resnet,tan2019efficientnet,dosovitskiy2021vit,liu2021swin,oquab2024dinov2}. Ninguna de estas representaciones captura necesariamente todas las variaciones, y combinarlas es una estrategia habitual para mejorar el reconocimiento \citep{sanchez2013image,cimpoi2016fisher,zhang2017deepten}.
+Una imagen de textura puede describirse por la repetición de patrones locales, la distribución de orientaciones o la respuesta de una red preentrenada. Estas representaciones son útiles bajo distintas variaciones de escala, iluminación y punto de vista \citep{ojala2002lbp,haralick1979glcm,cimpoi2014dtd,cimpoi2016fisher}. Al concatenarlas, un clasificador accede a todas esas señales en un mismo vector. Para construirlo en inferencia, sin embargo, debe ejecutarse cada extractor seleccionado. Una concatenación más corta reduce ese costo por imagen. Una cascada añade otra posibilidad: calcular la representación conjunta solo cuando un primer clasificador necesita ayuda.
 
-La forma más directa de combinarlas es concatenar los vectores de varios extractores y entrenar un único clasificador sobre el espacio conjunto. El costo de esa concatenación crece con cada bloque, porque para clasificar una imagen deben ejecutarse todos los extractores que la componen. En la biblioteca de 22 descriptores utilizada aquí, la concatenación completa suma 20.652 dimensiones y, en el panel online de este trabajo, tarda entre 1,55 y 1,82 segundos por imagen. Ese costo puede reducirse por dos vías complementarias: usar menos bloques o calcularlos en menos imágenes.
+Estudiamos esas dos decisiones en contextos donde interesa procesar una imagen por vez. Primero estimamos cuánto aporta ampliar una concatenación cuyos bloques se ordenan por su desempeño individual en el entrenamiento. Luego, con la concatenación fija, comparamos dos formas de usarla: calcularla para todas las imágenes o activarla según el margen de una predicción inicial. El contraste mantiene fijo el clasificador que recibe la concatenación. Así podemos examinar qué cambia por decidir \emph{cuándo} calcularla.
 
-La primera vía conduce a una concatenación Top-$k$: se ordenan los descriptores por su desempeño individual en validación interna y se concatenan los $k$ primeros. Su uso directo calcula esos $k$ bloques para toda imagen. La segunda vía proviene de la inferencia condicional, en la que un modelo barato resuelve los casos sencillos y uno costoso se reserva para los difíciles \citep{viola2001rapid,teerapittayanon2016branchynet,han2021dynamic}. Aplicada a Top-$k$, una etapa barata clasifica cada imagen con un único descriptor y la concatenación se calcula solo cuando el margen entre sus dos clases más puntuadas es pequeño. Esta activación por margen puede ahorrar extracción sin cambiar el modelo Top-$k$, pero solo funciona si el margen identifica las imágenes en las que la etapa barata se equivoca.
+La evaluación con seis datasets y dos clasificadores identifica cuatro bloques como un compromiso compacto para estudiar la activación. Comparamos la cascada con la predicción inicial sola y con un control aleatorio de igual cantidad de activaciones. En un panel adicional medimos el desempeño y la latencia de una variante que conserva el margen como regla de decisión y usa un ensamble como rescate. Esta medición complementa la comparación pareada. La literatura aporta un contexto adicional mediante los resultados que cada artículo publica bajo su propio protocolo.
 
-La pregunta de estudio es \emph{cuánto desempeño se resigna al reemplazar la concatenación completa por una Top-$k$ corta, y cuánto costo se ahorra al activarla solo cuando la etapa barata duda, frente a usarla siempre}. Para responderla se evaluaron 22 descriptores sobre DTD, FMD, CUReT, Outex, Soil y KTH-TIPS2-b con SVM lineal y ResMLP, bajo un protocolo anidado que realiza toda selección dentro del entrenamiento. Primero se traza la curva de desempeño en función de $k$ y se fija $k=4$; luego se compara Top-4 con el descriptor individual elegido internamente y con la concatenación completa en 47 condiciones externas por clasificador, y se mide qué aporta agregarle el bloque de color, que el ranking no incluía. La activación por margen de Top-4 se evalúa en 27 condiciones con SVM de los seis datasets, frente a la misma Top-4 usada siempre, frente a un escalamiento aleatorio con igual cantidad de imágenes y frente a otras dos medidas de confianza, y se repite con ResMLP sobre los mismos bloques. Sus costos son proyecciones por componente. Por último, se miden latencias por imagen en un piloto físico de una cascada anterior y en un panel online de 94 condiciones, que usa una variante de la activación por margen con rescate por ensamble.
+\section{Trabajos relacionados}
 
-El trabajo aporta tres resultados. Muestra que, con el ranking interno, la curva de accuracy se aplana alrededor de cuatro bloques, que ocupan cerca del 15\,\% de las dimensiones de la biblioteca. Compara de forma pareada el uso directo de Top-4 y su activación por margen, con un control que separa el efecto del margen del efecto de escalar más imágenes y con un análisis de no inferioridad que acota la pérdida, y examina la diferencia imagen por imagen con McNemar, matrices de confusión y la calidad de la compuerta. Por último, mide en línea la latencia por imagen de Top-4 y de esa variante por margen, y las compara con cuatro métodos recientes de concatenación evaluados sobre las mismas particiones. No se propone un nuevo extractor ni un nuevo algoritmo de selección: el objetivo es medir qué se gana y qué se pierde con cada forma de usar una concatenación corta.
+La integración de descriptores tiene antecedentes directos en texturas. Puig et al. seleccionan métodos de textura con la intención de reutilizar un subconjunto en distintas aplicaciones \citep{puig2010selection}. Khan et al. combinan descriptores de color y textura y comprimen la representación resultante \citep{khan2015compact}. Los enfoques difieren en la unidad que conservan: un método de extracción, componentes de una representación fusionada o, en nuestro caso, un bloque completo por descriptor. La búsqueda secuencial hacia adelante evalúa el aporte de cada candidato al subconjunto que ya se eligió. El ranking individual requiere puntuar cada bloque una vez por fold para ordenar la biblioteca y puede omitir complementariedades \citep{kohavi1997wrappers,guyon2003feature}.
 
-El resto del artículo se organiza de la siguiente manera. La segunda sección revisa la concatenación de descriptores, la inferencia condicional y los métodos recientes de concatenación para texturas. La tercera describe la biblioteca, el ranking interno, la concatenación Top-$k$ y la activación por margen. La cuarta presenta los datasets, los clasificadores, el protocolo anidado, el análisis estadístico y los resultados experimentales. La quinta discute los hallazgos y sus limitaciones. Finalmente, la sexta sección concluye.
+Los comparadores recientes ilustran distintas fuentes de información complementaria. Neshov et al. reúnen activaciones de varias capas de un mismo backbone, entre ellos BEiTv2 \citep{neshov2025aggregation}. HyTexNet combina una codificación local basada en percentiles con características de DenseNet-121 \citep{gupta2026hytexnet}. Chang et al. concatenan LBP multiescala con contornos producidos por redes neuronales celulares profundas \citep{chang2024cellnn}. DeepLumina combina características profundas de color con información de luminancia \citep{simon2022deeplumina}. Sus resultados publicados sirven de referencia para situar distintas formas de combinar representaciones en la clasificación de texturas.
 
-% ============================================================
-% 2. TRABAJOS RELACIONADOS
-% ============================================================
-\section{Trabajos relacionados}\label{sec:trabajos}
+Las cascadas y las salidas tempranas vinculan el costo de cómputo con la dificultad de cada entrada \citep{viola2001rapid,teerapittayanon2016branchynet,wang2018idk,han2021dynamic}. En clasificación con costos de adquisición, un sistema también puede decidir qué características adicionales obtener \citep{xu2012greedy,nan2017adaptive,ma2019eddi}. Aquí aplicamos esa idea a extractores ya fijados: el margen de la cabeza inicial decide si se conservan sus puntuaciones o se obtienen los bloques que faltan para un clasificador conjunto. El costo evitado está en la extracción omitida.
 
-\subsection{Concatenación y selección de bloques}
+\section{Método}
 
-Los descriptores de textura resumen señales distintas de una misma imagen: microestructuras (LBP), coocurrencias, orientación de gradientes y patrones en frecuencia \citep{haralick1979glcm,ojala2002lbp,dalal2005hog,mehta2016drlbp}. Las representaciones aprendidas introducen sesgos adicionales derivados de arquitecturas convolucionales, Transformers y objetivos de preentrenamiento supervisado, autosupervisado o multimodal \citep{he2016resnet,tan2019efficientnet,dosovitskiy2021vit,liu2021swin,caron2021dino,oquab2024dinov2,he2022mae,radford2021clip,zhai2023siglip}. Vectores de distinto origen pueden contener información redundante, pero también señales complementarias aprovechables por un clasificador conjunto.
+\subsection{De un descriptor individual a una concatenación}
 
-La fusión por concatenación conserva las coordenadas de cada representación y permite entrenar un único clasificador sobre el espacio conjunto, sin introducir un módulo de fusión parametrizado. Los Fisher vectors \citep{sanchez2013image}, los bancos de filtros profundos \citep{cimpoi2016fisher} y DeepTEN \citep{zhang2017deepten} mostraron que reunir respuestas distintas puede mejorar la representación de texturas. El vector resultante, sin embargo, crece con cada extractor incorporado y puede acumular escalas incompatibles, variables redundantes y dimensiones poco informativas.
-
-Elegir qué bloques concatenar es un problema de selección de características por grupos. Los métodos \emph{wrapper} valoran subconjuntos con el propio clasificador y exploran combinaciones, por ejemplo mediante búsqueda secuencial hacia adelante; los filtros puntúan cada variable o bloque por separado y conservan los mejores \citep{kohavi1997wrappers,guyon2003feature}. Top-$k$ pertenece a esta segunda familia: evalúa cada descriptor una sola vez y no examina sus interacciones, lo que la hace barata y estable, aunque puede reunir bloques redundantes. En ambos casos, la selección debe realizarse dentro del entrenamiento y separarse de la evaluación externa \citep{kohavi1997wrappers,guyon2003feature}.
-
-En texturas, seleccionar e integrar métodos de familias distintas tiene antecedentes directos. Puig et al. eligen una sola vez un subconjunto de métodos de textura para reducir el costo de integrarlos, con la intención de que sirva para cualquier problema \citep{puig2010selection}; aquí, en cambio, el ranking se rehace con el entrenamiento de cada condición. Khan et al. muestran que combinar varios descriptores locales supera al mejor descriptor aislado, a costa de una representación de alta dimensión que luego comprimen con un criterio de teoría de la información \citep{khan2015compact}. Top-$k$ reduce la dimensión de otra forma: conserva o descarta bloques enteros, sin transformarlos. El aporte de este trabajo no es, por lo tanto, la idea de concatenar o seleccionar descriptores, sino la comparación entre usar siempre una concatenación corta y activarla por margen.
-
-\subsection{Inferencia condicional y costo de adquisición}
-
-Las cascadas reducen el costo medio de inferencia al aplicar primero clasificadores baratos y reservar los costosos para los casos que aquellos no resuelven. El detector de Viola y Jones descarta la mayoría de las ventanas con etapas simples y aplica etapas más complejas solo a las restantes \citep{viola2001rapid}. En redes profundas, BranchyNet agrega salidas tempranas que terminan la inferencia cuando la predicción es suficientemente confiable \citep{teerapittayanon2016branchynet}, y MSDNet organiza clasificadores intermedios para operar bajo presupuestos de cómputo por imagen o por lote \citep{huang2017msdnet}. Han et al. reúnen estas y otras redes dinámicas que adaptan su cómputo a cada entrada \citep{han2021dynamic}. Las cascadas IDK componen modelos ya entrenados, sin reentrenarlos, y delegan la imagen en un modelo mayor cuando el menor responde «no sé» \citep{wang2018idk}. La confianza de un clasificador también se usa para abstenerse: la clasificación selectiva rechaza las entradas de baja confianza para controlar el riesgo \citep{geifman2017selective}, y el puntaje máximo del softmax es una referencia habitual para detectar errores de clasificación \citep{hendrycks2017baseline}.
-
-Otra línea trata cada característica como una medición con costo de adquisición. Greedy Miser incorpora ese costo al entrenamiento para clasificar bajo un presupuesto en test \citep{xu2012greedy}; Nan y Saligrama aprenden una compuerta que decide, para cada entrada, si basta un modelo de bajo costo o debe consultarse uno de alto costo \citep{nan2017adaptive}; y EDDI elige de forma secuencial qué variable adquirir según la información esperada \citep{ma2019eddi}. La activación por margen estudiada aquí es una versión simple de esa idea: los extractores congelados son las mediciones costosas, la confianza se mide con la diferencia entre las dos mayores puntuaciones de la etapa barata y el umbral se fija con márgenes fuera de pliegue del entrenamiento, sin entrenar una compuerta adicional.
-
-\subsection{Concatenación en texturas y métodos recientes}
-
-Varios trabajos recientes concatenan representaciones para clasificar texturas. Neshov et al. agregan capas internas y finales de arquitecturas preentrenadas, entre ellas BEiTv2, y entrenan un perceptrón multicapa (MLP) sobre la concatenación; informan que el efecto de la agregación depende de la arquitectura \citep{neshov2025aggregation}. Scabini et al. comparan 25 variantes Transformer como extractores congelados y encuentran que BEiTv2-B/16 obtiene el mejor promedio entre sus modelos \citep{scabini2025survey}. DeepLumina combina características profundas con información de luminancia para texturas en color \citep{simon2022deeplumina}; HyTexNet fusiona una codificación local guiada por percentiles con características de DenseNet-121 \citep{gupta2026hytexnet}; y Chang et al. concatenan LBP multiescala con contornos obtenidos por redes neuronales celulares profundas \citep{chang2024cellnn}. Estos métodos fijan de antemano qué representaciones se combinan y las calculan para toda imagen. El presente trabajo elige los bloques mediante un ranking interno sobre una biblioteca heterogénea y estudia en qué imágenes conviene calcularlos.
-
-% ============================================================
-% 3. METODO
-% ============================================================
-\section{Método}\label{sec:metodo}
-
-\subsection{Representación conjunta}
-
-Cada extractor transforma una imagen $x_i$ en un vector $\mathbf{z}_{ij}\in\mathbb{R}^{d_j}$, donde $j$ identifica el descriptor y $d_j$ su dimensionalidad. Para un subconjunto $S$ de extractores, la representación conjunta se define como
+Sea $z_j(x)\in\mathbb{R}^{d_j}$ el descriptor $j$ de la imagen $x$. Normalizamos cada bloque por su propia norma antes de unir sus coordenadas. Esto evita que un bloque domine por su escala de entrada. Para un conjunto ordenado $S$,
 \begin{equation}
- \mathbf{z}_{i,S}=\mathop{\Vert}_{j\in S}\frac{\mathbf{z}_{ij}}{\max(\lVert\mathbf{z}_{ij}\rVert_2,10^{-12})},
- \label{eq:concat}
+ v_S(x)=\mathop{\Vert}_{j\in S}\frac{z_j(x)}{\max(\lVert z_j(x)\rVert_2,10^{-12})},
+ \qquad d_S=\sum_{j\in S}d_j.
 \end{equation}
-donde $\Vert$ denota concatenación. La normalización $L_2$ se aplica por descriptor y por muestra antes de unir los bloques, para evitar que la escala de un extractor determine por sí sola su contribución al clasificador. La dimensión conjunta es $d_S=\sum_{j\in S}d_j$.
-
-La Figura~\ref{fig:pipeline} muestra cómo una misma imagen produce representaciones diferentes. Un descriptor resume patrones, relaciones entre intensidades o activaciones aprendidas en un vector. Después de normalizar cada bloque, se conserva un descriptor individual o se concatenan los bloques seleccionados.
+La cabeza $h_S$ recibe ese vector de longitud fija y produce una puntuación por clase. La Figura~\ref{fig:pipeline} ilustra las coordenadas que recibe cada cabeza. Con un solo bloque se obtiene el clasificador individual correspondiente. La biblioteca reúne seis descriptores clásicos y dieciséis representaciones aprendidas con pesos congelados. Las Tablas~\ref{tab:extractores-clasicos} y~\ref{tab:extractores-aprendidos} detallan la configuración de cada bloque.
 
 \begin{figure}[pos=htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/concatenacion_v02.pdf}
-\caption{Extracción y concatenación de descriptores. La misma imagen de DTD se representa mediante cinco ejemplos: patrones locales (LBP), respuestas de filtros (Gabor), coocurrencias (GLCM), una red convolucional (ResNet) y secuencias RGB (N-gramas). Las transformaciones internas se muestran esquemáticamente; no representan mapas de importancia por píxel. Cada rama produce un bloque normalizado que puede utilizarse individualmente o concatenarse con otros. En este trabajo, el subconjunto concatenado es la biblioteca completa o una concatenación Top-$k$.}
+\includegraphics[width=\textwidth]{figures/concatenacion_clasificador.pdf}
+\caption{Extracción y concatenación a partir de una misma imagen. (a) Cada extractor produce un bloque normalizado. Los bloques resaltados son los que se usan en el ejemplo de (b). (b) La cabeza individual recibe el bloque de LBP. La cabeza conjunta recibe un único vector que concatena los bloques de LBP y ResNet en el orden indicado. La barra señala el límite entre bloques. Las coordenadas de dos dimensiones son ilustrativas.}
 \label{fig:pipeline}
 \end{figure}
+
+Para formar Top-$k$, ajustamos y evaluamos una cabeza sobre cada bloque en los folds internos del entrenamiento. Ordenamos el macro-F1 medio de mayor a menor, $\pi_1,\ldots,\pi_{21}$, y tomamos $S_k=(\pi_1,\ldots,\pi_k)$. El bloque RGB N-gramas + SVD queda fuera de ese ranking y participa en Completa-22 y en una comparación específica de color. Cada condición tiene su propio ranking. El uso directo de Top-$k$ calcula $v_{S_k}$ para toda imagen y asigna la clase con mayor puntuación de $h_{S_k}$. Completa-22 calcula y concatena los 22 bloques. Individual elige un único bloque con el criterio interno de la matriz principal.
+
+\subsection{Activación de Top-$k$ por margen}
+
+Para cada imagen se evalúa primero una cabeza $h_b$ que recibe solo el bloque $b$. Si $s_{(1)}(x)$ y $s_{(2)}(x)$ son sus dos mayores puntuaciones, usamos
+\begin{equation}
+ m(x)=s_{(1)}(x)-s_{(2)}(x), \qquad
+ \hat{y}(x)=
+ \begin{cases}
+ \operatorname*{arg\,max}_{c}\{h_{S_k}(x)_c\}, & m(x)\leq \tau_q,\\
+ \operatorname*{arg\,max}_{c}\{h_b(x)_c\}, & m(x)>\tau_q.
+ \end{cases}
+ \label{eq:regla}
+\end{equation}
+En SVM, las puntuaciones proceden de las funciones de decisión uno contra el resto. En ResMLP se usan los logits. Un margen pequeño indica que las dos primeras clases están próximas en la escala de la cabeza. La cascada calcula los bloques faltantes y reemplaza la predicción inicial por la de Top-$k$ en esa rama. Si $b\in S_k$, el bloque ya calculado se reutiliza. La Figura~\ref{fig:cascada} muestra las dos salidas posibles.
+
+\begin{figure}[pos=htbp]
+\centering
+\begin{tikzpicture}[
+  x=1cm, y=1cm, font=\sffamily\small, text=figink,
+  caja/.style={rounded corners=2pt, draw=#1!75, fill=#1!8, align=center,
+               text width=24mm, minimum height=11mm, inner sep=1mm},
+  arr/.style={-{Stealth[length=1.9mm]}, line width=.72pt, draw=figink!72}
+]
+\node[caja=figink, text width=16mm] (img) at (.91,0) {\textbf{Imagen}\\$x$};
+\node[caja=figblue, text width=28mm] (base) at (3.55,0)
+  {\textbf{Etapa inicial}\\$z_b(x)\to h_b$\\ \scriptsize Puntúa las clases};
+\node[caja=figink, text width=28mm] (gate) at (7.3,0)
+  {\textbf{Calcula el margen}\\$m=s_{(1)}-s_{(2)}$\\ \scriptsize Compara con $\tau_q$};
+\node[caja=figblue, text width=45mm] (out) at (12.22,.76)
+  {$m>\tau_q$\\ \textbf{Conserva la predicción inicial}};
+\node[caja=figteal, text width=45mm] (top) at (12.22,-.76)
+  {$m\leq\tau_q$\\ \textbf{Extrae los bloques faltantes}\\ \scriptsize Concatena y clasifica con $h_{S_k}$};
+\draw[arr] (img) -- (base);
+\draw[arr] (base) -- (gate);
+\coordinate (split) at (9.23,0);
+\draw[line width=.72pt,draw=figink!72] (gate.east) -- (split);
+\draw[arr,draw=figblue] (split) |- (out.west);
+\draw[arr,draw=figteal] (split) |- (top.west);
+\fill[figink!72] (split) circle (1.1pt);
+\end{tikzpicture}
+\caption{Inferencia de la cascada Top-$k$. El margen es la diferencia entre las dos puntuaciones más altas de la etapa inicial. Si el margen supera $\tau_q$, se conserva la clase de la primera etapa. En otro caso se calcula la concatenación, reutilizando el bloque inicial cuando forma parte de ella, y se devuelve la clase de la cabeza conjunta. El umbral se fija antes del test.}
+\label{fig:cascada}
+\end{figure}
+
+El umbral $\tau_q$ es el cuantil $q$ de los márgenes obtenidos al predecir cada fold con una cabeza ajustada en los demás folds del entrenamiento externo. Ese cuantil se fija antes de predecir el test. La proporción observada de imágenes escaladas, $\rho_q$, puede diferir de $q$. Con costos por bloque $C_j$, las proyecciones para el uso directo y la cascada son
+\begin{equation}
+ C_{\mathrm{directo}}=\sum_{j\in S_k} C_j,\qquad
+ C_{\mathrm{margen}}= C_b + \rho_q \sum_{j\in S_k\setminus\{b\}}C_j.
+ \label{eq:costos}
+\end{equation}
+En la selección se emplea la fracción escalada en entrenamiento. Para reportar el costo proyectado del test se usa la fracción observada allí. El ahorro requiere que evitar parte de las extracciones compense el costo de ejecutar la etapa inicial en todas las imágenes.
+
+Para la comparación de Top-4 evaluamos los cuantiles $0{,}25$, $0{,}50$ y $0{,}75$. Las etapas iniciales candidatas usan ResNet-50, SigLIP-B, BEiTv2-B o ConvNeXt V2-T. En KTH-TIPS2-b se consideran ResNet-50 y BEiTv2-B. Elegimos la ruta de menor costo proyectado entre las que quedan a lo sumo 0,005 por debajo del macro-F1 fuera de pliegue de Top-4. El uso directo queda disponible como referencia de calidad y como ruta si las candidatas no ofrecen un ahorro admisible. Se reajustan las cabezas dentro de los folds para obtener los márgenes. Los cuatro bloques ya están fijados por el ranking del entrenamiento externo al realizar ese paso.
+
+\subsection{Variante para medición online}\label{sec:variante-panel}
+
+La política evaluada en línea usa el mismo tipo de margen y otro rescate. Selecciona una etapa inicial en la frontera entre macro-F1 interno y costo y busca un cuantil en $\{0{,}10;\,0{,}25;\,0{,}50\}$. Si $m(x)<\tau_q$, agrega las puntuaciones de hasta tres concatenaciones de cuatro bloques de un ensamble por diversidad. El ensamble tiene 15 subconjuntos muestreados según la relevancia interna de los bloques, con penalización por similitud CKA ($\lambda=0{,}25$, $\beta=8$) \citep{kornblith2019similarity}. La selección de etapa inicial, umbral y rescates maximiza macro-F1 interno en tres folds bajo un presupuesto proyectado de 60 ms de media. En adelante, \emph{cascada Top-4} designa la regla de la Ecuación~\eqref{eq:regla} con $k=4$ y \emph{margen con ensamble} designa la variante online.
+
+\section{Protocolo experimental}
+
+La unidad experimental es una condición, definida por una partición externa y una configuración de evaluación. DTD usa sus diez tests oficiales, con entrenamiento y validación unidos para la selección interna y deduplicación de entrenamiento frente al test \citep{cimpoi2014dtd}. FMD y Soil usan cinco folds estratificados y agrupados con cada una de las semillas 42, 123 y 2026 \citep{sharan2013fmd}. Soil usa 1.140 imágenes originales tras eliminar duplicados exactos y agrupa familias de archivos. CUReT usa dos mitades complementarias de 46 condiciones de captura para sus 61 clases \citep{varma2003filter}. Outex usa una partición oficial de la suite TC 00013 (680 imágenes por lado) \citep{ojala2002outex}. KTH-TIPS2-b evalúa cuatro particiones que reservan una muestra física por clase para test y entrenan con las otras tres \citep{mallikarjuna2005kth,scabini2023radam}.
+
+La SVM lineal usa $C=1$, ponderación balanceada, pérdida cuadrática \emph{hinge}, regularización $L_2$, tolerancia $10^{-4}$ y hasta 10.000 iteraciones. ResMLP es una cabeza residual sobre vectores: dimensión interna 256, tres bloques, normalización de capa, GELU y \emph{dropout} 0,1. Se ajusta con AdamW, tasa $10^{-3}$, decaimiento $10^{-4}$, lotes de 256 y hasta 100 épocas. La parada restaura el mejor estado según la pérdida de entrenamiento, con paciencia de diez épocas y cambio mínimo de $10^{-4}$. Para el ranking y la selección de ruta se usa macro-F1. La métrica principal de reporte es accuracy, la proporción de imágenes correctamente clasificadas. La precisión mide el acierto entre las predicciones de cada clase y el recall mide la recuperación entre sus ejemplos reales. Sus promedios macro dan el mismo peso a cada clase. El macro-F1 promedia el F1 calculado por clase. Las tres métricas complementarias están disponibles para el panel propio y se usa macro-F1 en los contrastes que lo requieren.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Cobertura y medición de los experimentos principales. E1 y E4 comparten particiones y bloques.}
+\label{tab:protocolo}
+\small
+\begin{tabular}{@{}p{.27\textwidth}p{.29\textwidth}p{.37\textwidth}@{}}
+\toprule
+Experimento & Cobertura & Evidencia \\
+\midrule
+Tamaño de la concatenación & 47 condiciones por cabeza & Predicciones con descriptores almacenados \\
+\addlinespace
+Top-4 directo y cascada Top-4 & 27 condiciones por cabeza, semilla 42 & Predicciones pareadas y costo proyectado para SVM (E1). Con ResMLP se usan los bloques de SVM (E4) \\
+\addlinespace
+Panel con margen y ensamble & 94 condiciones, cinco políticas & Accuracy y latencia de las mismas llamadas online, una imagen por llamada \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Para el barrido y la cascada Top-4, la validación interna usa cuatro folds estratificados y agrupados dentro del entrenamiento externo. La Tabla~\ref{tab:protocolo} resume la cobertura. El barrido estático examina la dimensión y la calidad. E1 contrasta las dos formas de usar la misma Top-4, con perfiles de extracción por componente. En E4 se cambia la cabeza sobre los bloques elegidos para SVM y se evalúa la accuracy sin proyección de costo. En el panel se vuelven a extraer los descriptores y se registran predicción y tiempo por imagen en una RTX 4060. La latencia se mide en inferencia, con los modelos ya preparados. La carga de pesos, la extracción previa para entrenamiento y el ajuste de cabezas corresponden a la preparación del sistema. No hay una tabla comparable de tiempo de preparación para todas las recetas.
+
+Calculamos medias por dataset primero y después damos el mismo peso a los seis datasets. En los contrastes, cada dataset constituye un bloque y las particiones repetidas pueden compartir imágenes. Los intervalos de diferencias se refieren a esos seis bloques. Tanto la elección de $k=4$ como la prioridad de accuracy en el reporte se fijaron tras observar resultados. El análisis de no inferioridad de la cascada es retrospectivo y usa una tolerancia de un punto porcentual. Las diferencias numéricas se interpretan como evidencia exploratoria.
+
+\FloatBarrier
+\section{Resultados}
+
+\subsection{Ganancia de concatenar y tamaño del vector}
+
+La Figura~\ref{fig:curva-k} muestra cuánto cambia la accuracy al agregar bloques del ranking. Con SVM aumenta 1,70 puntos porcentuales entre uno y cuatro bloques (92,72\,\% a 94,42\,\%). Entre cinco y 21 bloques oscila de 94,33\,\% a 94,51\,\%. Con ResMLP, cinco bloques obtienen el máximo de 94,43\,\% y cuatro alcanzan 94,20\,\%. La curva interna de SVM, medida en macro-F1, sigue creciendo hasta seis bloques y después desciende. Cuatro bloques dejan alrededor de 3.150 dimensiones de las 20.652 de Completa-22. Elegimos ese punto para comparar las dos rutas de inferencia. Las reglas que eligieron $k$ con curvas internas por condición propusieron otros tamaños, lo que limita la generalización de $k=4$ como regla fija.
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/curva_k.pdf}
+\caption{Efecto de agregar bloques del ranking interno. (a) Accuracy en test con SVM y ResMLP. (b) Macro-F1 de la validación interna de SVM, con un máximo en $k=6$. Cada punto promedia primero las condiciones por dataset y después los seis datasets. La línea vertical marca $k=4$, el tamaño elegido para el estudio de la cascada. El barrido comprende 21 bloques y excluye N-gramas + SVD.}
+\label{fig:curva-k}
+\end{figure}
+
+La Tabla~\ref{tab:top4} muestra que Top-4 mejora respecto del descriptor Individual en once de las doce combinaciones de dataset y clasificador. Frente a Completa-22, pierde 0,31 puntos en la media con SVM y gana 0,32 con ResMLP. El mayor retroceso se observa con SVM en Outex (3,68 puntos). El Friedman exacto para los tres métodos da $p=0{,}0521$ con SVM y $p=0{,}4297$ con ResMLP. Ningún par alcanza el nivel nominal tras ajustar por comparaciones múltiples. Para una tolerancia exploratoria de un punto, la cota inferior unilateral del 95\,\% para Top-4 frente a Completa-22 es de $-1{,}80$ puntos con SVM y $-0{,}64$ con ResMLP. Solo la segunda queda dentro de la tolerancia.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Accuracy externa de Individual, Completa-22 y Top-4. Medias entre condiciones externas: 47 por clasificador; Outex tiene una única partición oficial. La última fila indica la dimensión media.}
+\label{tab:top4}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+ & \multicolumn{3}{c}{SVM} & \multicolumn{3}{c}{ResMLP} \\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+Dataset & Individual & Completa-22 & Top-4 & Individual & Completa-22 & Top-4 \\
+\midrule
+DTD & 0,8448 & 0,8654 & \textbf{0,8703} & 0,8382 & \textbf{0,8635} & 0,8624 \\
+FMD & 0,9727 & 0,9647 & \textbf{0,9823} & 0,9690 & 0,9563 & \textbf{0,9800} \\
+CUReT & 0,9948 & \textbf{0,9989} & 0,9986 & 0,9971 & \textbf{0,9991} & 0,9984 \\
+Outex & 0,9103 & \textbf{0,9662} & 0,9294 & \textbf{0,9485} & 0,9456 & 0,9368 \\
+Soil & 0,9044 & \textbf{0,9281} & 0,9272 & 0,9044 & \textbf{0,9184} & 0,9149 \\
+KTH-TIPS2-b & 0,9415 & \textbf{0,9609} & 0,9575 & 0,9099 & 0,9499 & \textbf{0,9596} \\
+\midrule
+Media & 0,9281 & \textbf{0,9473} & 0,9442 & 0,9279 & 0,9388 & \textbf{0,9420} \\
+Dimensión media & 873 & 20.652 & 3.144 & 656 & 20.652 & 3.170 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El ranking individual puede dejar fuera representaciones complementarias. Al agregar RGB N-gramas + SVD a Top-4 con SVM, la media pasa de 94,42\,\% a 94,89\,\%. Tres datasets mejoran y tres retroceden (Tabla~\ref{tab:e5-datasets}). Outex presenta el mayor aumento, de 3,24 puntos, sobre la misma partición que registra la mayor pérdida de Top-4 frente a Completa-22. La SVD se ajustó dentro del entrenamiento de cada condición. Esta comparación identifica una señal útil para algunos dominios y deja abierta su contribución si compite con los otros bloques dentro del ranking.
+
+Como comparación complementaria, la evaluación archivada por macro-F1 incluye selección secuencial hacia adelante (GFS). Con SVM, Top-4 obtiene 93,66\,\% frente a 92,95\,\% de GFS. Con ResMLP, obtiene 93,31\,\% frente a 93,36\,\%. Estos promedios corresponden a la comparación por macro-F1 de ocho estrategias y no establecen una ventaja uniforme del ranking individual frente a la búsqueda de subconjuntos.
+
+\subsection{Cuándo conviene activar la concatenación}
+
+La Tabla~\ref{tab:cascada} compara las dos rutas sobre las mismas imágenes. Con SVM, el margen escala el 21,1\,\% en promedio y la accuracy pasa de 94,44\,\% a 94,46\,\%. El costo proyectado cae un 75,0\,\%, de 468,3 a 117,1 ms por imagen. La mayor ganancia ocurre en Soil ($+0{,}18$ puntos porcentuales) y la mayor pérdida en Outex ($-0{,}29$). La precisión, el recall y el F1 macro de ambas rutas figuran en la Tabla~\ref{tab:e1-macro}. Con ResMLP sobre los bloques elegidos para SVM, la cascada escala el 22,5\,\% y obtiene 94,24\,\% frente a 94,28\,\% del uso directo.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Top-4 directo y cascada Top-4 con SVM en las mismas 27 condiciones de test (E1). $\Delta$ es la diferencia de accuracy en puntos porcentuales, calculada antes de redondear. Escaladas indica la proporción que activa Top-4. Los costos son proyecciones por componente. La última fila da el mismo peso a cada dataset.}
+\label{tab:cascada}
+\small
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+ & & \multicolumn{3}{c}{Accuracy} & & \multicolumn{2}{c}{Costo proyectado (ms/imagen)} \\
+\cmidrule(lr){3-5}\cmidrule(l){7-8}
+Dataset & Cond. & Directo (\%) & Margen (\%) & $\Delta$ (pp) & Escaladas (\%) & Directo & Margen \\
+\midrule
+DTD & 10 & 87,03 & 87,11 & $+0{,}09$ & 23,0 & 586,9 & 154,8 \\
+FMD & 5 & 98,20 & 98,30 & $+0{,}10$ & 20,7 & 586,9 & 142,2 \\
+CUReT & 2 & 99,86 & 99,79 & $-0{,}07$ & 20,0 & 625,6 & 148,2 \\
+Outex & 1 & 92,94 & 92,65 & $-0{,}29$ & 19,9 & 608,7 & 141,9 \\
+Soil & 5 & 92,89 & 93,07 & $+0{,}18$ & 23,6 & 130,0 & 50,7 \\
+KTH-TIPS2-b & 4 & 95,75 & 95,83 & $+0{,}08$ & 19,3 & 271,7 & 64,5 \\
+\midrule
+Media & 27 & 94,44 & 94,46 & $+0{,}01$ & 21,1 & 468,3 & 117,1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La Figura~\ref{fig:e1-por-dataset} muestra que el costo proyectado baja en los seis datasets, con ganancias y pérdidas de accuracy según el dataset.
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/comparacion_pareada_e1.pdf}
+\caption{Cambio de accuracy y costo proyectado de la cascada Top-4 por dataset, con SVM (E1, 27 condiciones). (a) Cada punto es la diferencia media de accuracy en puntos porcentuales, calculada como margen menos directo. Los puntos a la izquierda de cero corresponden a pérdidas. (b) Cada par de puntos muestra el costo proyectado de las dos rutas sobre las mismas condiciones.}
+\label{fig:e1-por-dataset}
+\end{figure}
+
+El control aleatorio usa la misma etapa inicial y escala la misma cantidad de imágenes en cada condición. Con SVM, la etapa inicial sola obtiene 92,34\,\%. La media sube a 92,80\,\% al elegir las imágenes al azar (100 repeticiones por condición) y a 94,46\,\% al elegirlas por margen. La ventaja frente al sorteo aparece en las 27 condiciones. Con umbral fuera de pliegue para $q=0{,}25$, las alternativas de puntaje máximo y entropía obtienen 94,25\,\% y 93,56\,\%, respectivamente, con proporciones escaladas distintas. Al igualar la cantidad escalada mediante un diagnóstico por lote, las diferencias se reducen. La señal de confianza aporta valor para decidir qué imágenes escalar y el margen es una regla simple para aplicarla.
+
+En el conjunto de 31.984 predicciones con SVM, la compuerta dirige a Top-4 el 72,9\,\% de los errores de la etapa inicial al escalar el 21,8\,\% de las predicciones sumadas entre condiciones. En esas llamadas, Top-4 corrige 1.176 errores y pierde 472 aciertos de la etapa inicial. Entre ambas políticas hay 319 casos en los que solo una acierta: 168 para la cascada y 151 para el uso directo. Son discordancias de acierto; dos métodos también pueden equivocarse asignando clases diferentes. Las particiones pueden reutilizar imágenes y ningún contraste exacto de McNemar por condición alcanza significación.
+
+La Tabla~\ref{tab:contrastes-margen} resume las comparaciones pareadas. Para la cascada con SVM frente al uso directo, el intervalo bilateral del 95\,\% para la diferencia media va de $-0{,}17$ a $+0{,}19$ pp. El contraste bilateral no detecta una diferencia. El análisis exploratorio de no inferioridad pregunta si la pérdida rebasa 1 pp. Se estima con una cota unilateral basada en $t$ de Student sobre las seis diferencias por dataset. Ambas cotas superan el umbral de $-1$ pp. Para el contraste bilateral de E1 frente al uso directo, Holm ajusta sobre tres comparaciones de la cascada: Top-4 directo, cascada restringida a ResNet-50 y Completa-22. Los contrastes comparten datasets y la no inferioridad se analizó después de observar E1.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Contrastes exploratorios de accuracy en la activación de Top-4. La unidad es el dataset, con seis pares de medias. Las diferencias en puntos porcentuales restan al resultado por margen el de su comparador. El umbral de no inferioridad es $-1$ pp.}
+\label{tab:contrastes-margen}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{.29\textwidth}rp{.24\textwidth}p{.315\textwidth}@{}}
+\toprule
+Contraste & $\Delta$ (pp) & Análisis & Resultado \\
+\midrule
+Margen vs.\ directo (E1, SVM) & $+0{,}01$ & Wilcoxon exacto bilateral & $p=0{,}5625$, $p_{\mathrm{Holm}}=1{,}0000$ \\
+\addlinespace
+Margen vs.\ aleatorio (E1, SVM) & $+1{,}66$ & Wilcoxon exacto bilateral & $p=0{,}0312$ sin ajuste \\
+\addlinespace
+Margen vs.\ directo (E1, SVM) & $+0{,}01$ & No inferioridad & Cota inferior 95\,\%: $-0{,}13$ pp \\
+\addlinespace
+Margen vs.\ directo (E4, ResMLP) & $-0{,}03$ & No inferioridad & Cota inferior 95\,\%: $-0{,}21$ pp \\
+\bottomrule
+\end{tabular}
+\end{table}
 \FloatBarrier
 
-\subsection{Espacio de descriptores}
+\subsection{Latencia observada de nuestras políticas}
 
-La biblioteca contiene 22 descriptores, agrupados según el tipo de representación. Las
-Tablas~\ref{tab:extractores-clasicos} y~\ref{tab:extractores-aprendidos}
-identifican la parametrización, los checkpoints y la dimensionalidad de cada
-bloque. Las redes preentrenadas se ejecutaron en modo evaluación y sin
-ajuste de pesos. En los modelos cargados mediante \texttt{timm} se eliminó la
-capa clasificadora (\texttt{num\_classes=0}) y se aplicó el preprocesamiento
-asociado al checkpoint. Para ViT, DeiT, Swin, MAE y SigLIP se utilizó la salida
-\emph{pooler} cuando estaba disponible y, en caso contrario, el token de
-clasificación. Todas las imágenes se convirtieron a RGB.
+En el panel online (Tabla~\ref{tab:panel}), el margen con ensamble reduce la latencia media de Top-4 en las doce combinaciones. Con SVM, la media pasa de 245,06 a 39,93 ms y la accuracy de 94,23\,\% a 93,96\,\%. Con ResMLP, la latencia pasa de 232,76 a 36,10 ms y la accuracy de 94,02\,\% a 94,39\,\%. Los efectos varían por dataset. En KTH-TIPS2-b, la accuracy baja 1,60 y 1,51 puntos con SVM y ResMLP. En Outex sube 3,24 puntos con ResMLP. En Soil mejora la latencia media, pero el percentil 95 del margen con ensamble sube de 117,6 a 136,7 ms con SVM y de 128,4 a 145,4 ms con ResMLP. Los casos que requieren rescate pueden pagar el costo de las dos etapas.
 
-Los descriptores clásicos se basan en operadores LBP,
-Gabor, GLCM y HOG \citep{ojala2002lbp,mehta2016drlbp,jain1991gabor,haralick1979glcm,dalal2005hog}.
-Las redes neuronales convolucionales (CNN) corresponden a VGG16, ResNet, DenseNet, EfficientNet y ConvNeXt V2
-\citep{simonyan2015vgg,he2016resnet,huang2017densenet,tan2019efficientnet,woo2023convnextv2}.
-El grupo Transformer incluye ViT, DeiT, Swin y EVA-02
-\citep{dosovitskiy2021vit,touvron2021deit,liu2021swin,fang2024eva02}; las
-representaciones con preentrenamiento autosupervisado o multimodal se basan en
-DINOv2, MAE, SigLIP y BEiTv2 \citep{oquab2024dinov2,he2022mae,zhai2023siglip,peng2022beitv2}.
+\begin{table}[pos=htbp]
+\centering
+\caption{Panel online de 94 condiciones (\texttt{batch=1}, RTX 4060): accuracy media entre particiones y latencia media en ms por imagen, medidas en las mismas llamadas. La política por margen rescata con subconjuntos de cuatro bloques de un ensamble por diversidad (Sección~\ref{sec:variante-panel}). Los dos ensambles del panel se resumen en el texto.}
+\label{tab:panel}
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}llrrrrrr@{}}
+\toprule
+ & & \multicolumn{2}{c}{Top-4} & \multicolumn{2}{c}{Política por margen} & \multicolumn{2}{c}{Completa-22} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(l){7-8}
+Dataset & Clasif. & Acc. & ms & Acc. & ms & Acc. & ms \\
+\midrule
+DTD$^{\dagger}$ & SVM & \textbf{0,8703} & 333,98 & 0,8686 & 54,35 & 0,8651 & 1.611,57 \\
+ & ResMLP & 0,8624 & 267,50 & \textbf{0,8675} & 47,61 & 0,8634 & 1.551,34 \\
+FMD & SVM & \textbf{0,9823} & 268,96 & 0,9777 & 38,63 & 0,9650 & 1.759,50 \\
+ & ResMLP & \textbf{0,9800} & 258,56 & 0,9760 & 36,35 & 0,9577 & 1.759,70 \\
+CUReT & SVM & 0,9986 & 270,69 & 0,9984 & 36,83 & \textbf{0,9989} & 1.712,57 \\
+ & ResMLP & 0,9984 & 268,42 & 0,9989 & 30,47 & \textbf{0,9991} & 1.618,51 \\
+Outex & SVM & 0,9294 & 265,38 & 0,9294 & 40,33 & \textbf{0,9574} & 1.574,19 \\
+ & ResMLP & 0,9294 & 263,77 & \textbf{0,9618} & 21,65 & 0,9485 & 1.563,18 \\
+Soil & SVM & 0,9158 & 70,99 & 0,9222 & 38,49 & \textbf{0,9275} & 1.651,20 \\
+ & ResMLP & 0,9152 & 78,21 & 0,9184 & 48,33 & \textbf{0,9219} & 1.823,24 \\
+KTH-TIPS2-b & SVM & 0,9575 & 260,38 & 0,9415 & 30,95 & \textbf{0,9606} & 1.579,08 \\
+ & ResMLP & \textbf{0,9558} & 260,11 & 0,9407 & 32,16 & 0,9472 & 1.626,70 \\
+\midrule
+Media & SVM & 0,9423 & 245,06 & 0,9396 & 39,93 & \textbf{0,9457} & 1.648,02 \\
+ & ResMLP & 0,9402 & 232,76 & \textbf{0,9439} & 36,10 & 0,9396 & 1.657,11 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.35em}
+\begin{minipage}{0.98\textwidth}\footnotesize
+$^{\dagger}$En DTD con SVM se conserva una reserva sobre la medición de tiempos por una pausa durante una ventana nocturna; la mediana de la política por margen es 14,10 ms con SVM y 14,77 ms con ResMLP. Por esa pausa, la media de Top-4 con SVM (333,98 ms) supera a su percentil 95 (291,77 ms).
+\end{minipage}
+\end{table}
+
+\FloatBarrier
+\subsection{Resultados publicados en clasificación de texturas}
+
+La Tabla~\ref{tab:publicados} documenta los resultados de referencia, ordenados por dataset. Cada fila identifica el método, la accuracy y el reparto utilizado en el artículo. Nuestro contraste entre Top-4 directo y activación por margen se realiza con las predicciones pareadas de la Tabla~\ref{tab:cascada}.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Resultados publicados por dataset y protocolo. La accuracy está expresada en porcentaje. Neshov et al. informan desviación estándar en las tres filas con $\pm$.}
+\label{tab:publicados}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{.145\textwidth}p{.258\textwidth}r p{.435\textwidth}@{}}
+\toprule
+Dataset & Método & Acc. (\%) & Protocolo del artículo \\
+\midrule
+DTD & Neshov, BEiTv2 \citep{neshov2025aggregation} & $82{,}0\pm0{,}9$ & Diez particiones provistas por DTD \\
+ & HyTexNet \citep{gupta2026hytexnet} & 73,2 & Media de diez repartos de entrenamiento, validación y test \\
+ & DeepLumina \citep{simon2022deeplumina} & 73,63 & Reparto aleatorio 80/20 \\
+\addlinespace
+FMD & Neshov, BEiTv2 \citep{neshov2025aggregation} & $96{,}7\pm1{,}9$ & Diez repeticiones de validación cruzada de diez folds \\
+ & DeepLumina \citep{simon2022deeplumina} & 90,15 & Reparto aleatorio 80/20 \\
+\addlinespace
+KTH-TIPS2-b & Neshov, BEiTv2 \citep{neshov2025aggregation} & $96{,}8\pm2{,}5$ & Cuatro particiones fijas \\
+ & HyTexNet \citep{gupta2026hytexnet} & 99,79 & Un tercio para entrenar, seleccionado por pose, iluminación y escala \\
+ & 6LBP+dCellNNs \citep{chang2024cellnn} & 91,29 & Un tercio para entrenar, seleccionado por pose, iluminación y escala \\
+\addlinespace
+CUReT (color) & RGB Pixel N-grams \citep{paiva2023rgb} & 96,2 & Validación cruzada de diez folds \\
+Outex TC 00013 & RGB Pixel N-grams \citep{paiva2023rgb} & 96,3 & Partición oficial \\
+Soil (aumentado) & Neshov, BEiTv2 \citep{neshov2025aggregation} & 94,5 & Reparto 70/15/15 y aumento del entrenamiento \\
+\bottomrule
+\end{tabular}
+
+\medskip
+\begin{minipage}{.97\textwidth}\footnotesize
+Fuentes: Neshov, Tabla 4. HyTexNet, Tabla 1 y Sección 4.5. Chang, Tabla 4. DeepLumina, Tablas 4--5, ResNet101 + SVM con RGB y luminancia. Paiva, Tabla 5, implementación 1 con el mejor clasificador de su estudio para cada dataset.
+\end{minipage}
+\end{table}
+\FloatBarrier
+
+Compartir la métrica o el nombre del dataset permite ubicar los resultados. La comparación directa requiere verificar las particiones, las imágenes y la receta. En KTH-TIPS2-b, por ejemplo, nuestras particiones excluyen del entrenamiento la muestra física completa que se evalúa en test. Para CUReT usamos imágenes en gris y agrupamos por condición de captura. El Soil de nuestro panel se construyó a partir de imágenes originales deduplicadas.
+
+Los artículos aportan otras medidas para preguntas específicas. Neshov informa dispersión entre particiones y complejidad del backbone. HyTexNet presenta curvas de aprendizaje, matrices de confusión, robustez y estabilidad entre inicializaciones. Las AUC-ROC y AUC-PR de Chang evalúan la detección de contornos en DRIVE. Nuestro análisis por imagen estudia qué errores dirige la compuerta a Top-4.
+
+\FloatBarrier
+\section{Discusión y limitaciones}
+
+Reducir el número de bloques y activar una concatenación según la imagen actúan sobre partes diferentes del costo. Top-4 limita el tamaño de la representación que recibe la cabeza. La cascada reduce la frecuencia con que se construye esa representación. Cuando la etapa inicial ya es uno de los bloques de Top-4, activarla tampoco obliga a repetir su extracción. El control aleatorio indica que el efecto observado depende de dirigir el cómputo a imágenes con mayor probabilidad de error inicial. La etapa inicial puede equivocarse con un margen grande y la concatenación también puede introducir errores en imágenes que inicialmente estaban bien clasificadas. La utilidad final depende del equilibrio entre ambos casos.
+
+La ganancia media después del cuarto bloque es pequeña en el barrido de SVM. Los resultados de ResMLP y el efecto de agregar color en Outex muestran por qué ese aplanamiento debe interpretarse en el contexto de la biblioteca, el ranking y el dominio. El tamaño cuatro se fijó con resultados externos ya observados. También se reutilizaron particiones de pilotos anteriores al evaluar la cascada. El ranking de Top-4 se mantiene fijo al estimar la regla de ruta fuera de pliegue, lo que puede favorecer la estimación interna. La no inferioridad se analiza sobre seis datasets y se definió después de ver el resultado de la cascada. La repetición con ResMLP controla el cambio de cabeza para los mismos bloques.
+
+El costo de 117,1 ms de la cascada Top-4 proviene de un perfil por componente. Parte del perfil de KTH-TIPS2-b combina sesiones. La evidencia física de un piloto anterior corresponde a otra Top-$k$ archivada, y la del panel principal a un rescate por ensamble. Por ello, la magnitud del ahorro observado para el ensamble y la estimada para la cascada Top-4 responden a preguntas distintas. El procesamiento por lotes podría cambiar el costo de las imágenes escaladas.
+
+La evaluación estática conserva una reserva sobre la agrupación interna de algunos controles archivados de KTH-TIPS2-b y sobre las matrices históricas de ViT-B/16 y DeiT-S en Outex. En Soil, los resultados de Top-4 con SVM cambian al reextraer en línea en las ocho condiciones que incluyen ViT-B/16 y coinciden en las otras siete. Esa discrepancia condiciona la lectura conjunta de ambas evaluaciones. En DTD con SVM se conserva una pausa nocturna en la medición, que afecta la media. Tampoco se auditó el solapamiento de los corpus de preentrenamiento con los benchmarks. En la tabla bibliográfica, cada cifra depende de la receta, la versión de los datos y el reparto usado por sus autores. Las diferencias de protocolo limitan la comparación directa de accuracies entre artículos.
+
+\section{Conclusión}
+
+Con el ranking interno empleado, cuatro bloques recuperan gran parte de la accuracy de la concatenación de 22 y ocupan alrededor del 15\,\% de su dimensión. Sobre esa representación fija, la cascada por margen mantiene una accuracy media cercana al uso directo con SVM y reduce 75\,\% el costo proyectado al escalar cerca de una quinta parte de las imágenes. El control de igual cantidad confirma que importa cuáles imágenes se escalan. En las mediciones online, la variante con ensamble reduce la latencia media y presenta pérdidas de accuracy o aumentos de latencia de cola en algunos datasets. La decisión de usar la concatenación siempre o bajo demanda debe considerar la calidad de la primera predicción, el costo del rescate y la latencia que se tolera para las imágenes que lo requieren.
+
+\appendix
+\section{Biblioteca y comprobación del bloque de color}
 
 \begin{table}[pos=htbp]
 \centering
@@ -263,7 +488,6 @@ N-gramas & ventana vertical $2\times1$; cuantización RGB por 12; 8.192 bins; SV
 \bottomrule
 \end{tabular}
 \end{table}
-
 \begin{table}[pos=htbp]
 \centering
 \caption{Dieciséis representaciones aprendidas congeladas incluidas en la biblioteca. ``Preclas.'' designa la salida inmediatamente anterior al clasificador del backbone.}
@@ -295,689 +519,66 @@ Autosup./multimodal & DINOv2-S & \texttt{vit\_small\_patch14\_dinov2.lvd142m} & 
 \bottomrule
 \end{tabular}
 \end{table}
-
-Los descriptores clásicos se calcularon en escala de grises con la implementación de scikit-image: LBP, LBP-rot, Gabor y GLCM sobre imágenes redimensionadas a $256\times256$, y HOG sobre $128\times128$. LBP-rot designa una implementación propia: aplica LBP con mapeo \texttt{ror} a ocho rotaciones y concatena diez bins por rotación en el intervalo $[0,10]$. Los códigos fuera de ese intervalo se descartan; por tanto, es un histograma restringido, no una reproducción del DRLBP de Mehta y Egiazarian \citep{mehta2016drlbp}. BEiTv2-B utiliza la salida final preclasificador de 768 dimensiones; las imágenes se redimensionan y recortan a $224\times224$ con la normalización asociada al checkpoint. Los 22 vectores concatenados suman 20.652 dimensiones. Las características fijas y los conteos por imagen se almacenaron junto con etiquetas, orden de muestras y hashes de procedencia; las transformaciones aprendidas se ajustaron dentro de cada partición de entrenamiento.
-
-RGB Pixel N-grams \citep{paiva2023rgb} utiliza ventanas verticales de $2\times1$ píxeles con paso 1 sobre la imagen RGB en su resolución original. Cada canal se cuantiza mediante $q(v)=\lfloor v/12\rfloor$; los seis valores se codifican en base 22, recorriendo las dos posiciones de R, G y B. Los conteos se agrupan por el resto del código dividido por 8.192 y se comprimen mediante TruncatedSVD aleatorizado (256 componentes, cinco iteraciones y semilla de la condición). SVD se ajusta exclusivamente con el entrenamiento de cada partición interna y se reajusta sobre el entrenamiento externo para la evaluación final. El vector se normaliza con $L_2$ antes de concatenarlo. Esta parametrización comprimida se identifica como N-gramas + SVD.
-
-\subsection{Ranking interno y concatenación Top-$k$}\label{sec:topk}
-
-Para cada condición externa, cada descriptor $j$ se evalúa por separado en cuatro folds internos estratificados y agrupados del entrenamiento externo. Su puntuación es el macro-F1 medio de esa validación, $r_j=\widehat{F}_{1,\mathrm{inner}}(\{j\})$. Si $\pi_1,\pi_2,\ldots$ ordena los descriptores por puntuación decreciente, la concatenación Top-$k$ es
-\begin{equation}
- S_k=\{\pi_1,\ldots,\pi_k\},
- \label{eq:topk}
-\end{equation}
-y su representación $\mathbf{z}_{i,S_k}$ se obtiene con la Ecuación~\eqref{eq:concat}. En el uso directo, el clasificador $h_{S_k}$ se entrena con esa representación y, en inferencia, se extraen los $k$ bloques de toda imagen. Top-$k$ no evalúa combinaciones: si dos bloques fuertes son redundantes, ambos pueden quedar entre los primeros.
-
-La curva de $k$ evalúa los prefijos $S_1,\ldots,S_{21}$ de cada condición. En la curva externa, cada prefijo se ajusta con todo el entrenamiento externo y se evalúa una sola vez en el test; en la curva interna, los mismos prefijos se puntúan en los folds internos, sin consultar el test. En ambos barridos los candidatos son los 21 bloques almacenados: N-gramas + SVD, que se reconstruye en cada partición a partir de las imágenes, no participó del ranking. A partir de esas curvas se fija $k=4$ para todos los datasets y ambos clasificadores (Sección~\ref{sec:curva-k}). El término \emph{Top-4} designa esa concatenación.
-
-\subsection{Activación por margen}\label{sec:margen}
-
-La activación por margen antepone a Top-$k$ una etapa barata formada por un descriptor $b$ y su clasificador $h_b$, entrenados con todo el entrenamiento externo. Para una imagen $x$, sean $s_{(1)}(x)\geq s_{(2)}(x)$ las dos mayores puntuaciones de $h_b$; en la SVM son valores de la función de decisión uno-contra-el-resto. El margen
-\begin{equation}
- m(x)=s_{(1)}(x)-s_{(2)}(x)
- \label{eq:margen}
-\end{equation}
-es pequeño cuando la etapa barata duda entre dos clases. La predicción de la cascada es
-\begin{equation}
- \hat{y}(x)=
- \begin{cases}
- h_{S_k}(x), & m(x)\leq\tau_q,\\
- h_b(x), & m(x)>\tau_q,
- \end{cases}
- \label{eq:cascada}
-\end{equation}
-de modo que la predicción de Top-$k$ reemplaza a la barata; no se combinan sus puntuaciones. Cuando una imagen pasa a Top-$k$ se dice que se \emph{escala}. El umbral $\tau_q$ es el cuantil $q$ de los márgenes fuera de pliegue (OOF) de $h_b$ sobre el entrenamiento externo, calculados con folds agrupados. Así, $q$ aproxima la fracción de imágenes que se escalan; en el test, la fracción observada $\rho_q$ puede diferir de $q$.
-
-Si $C_b$ es el costo de la etapa barata y $C_j$ el de extraer el bloque $j$, el costo medio proyectado por imagen es
-\begin{equation}
- C(q)=C_b+\rho_q\sum_{j\in S_k\setminus\{b\}}C_j ,
- \label{eq:costo}
-\end{equation}
-frente a $C_{\mathrm{dir}}=\sum_{j\in S_k}C_j$ del uso directo; si $b$ pertenece a $S_k$, su bloque se reutiliza. La cascada ahorra cuando $C(q)<C_{\mathrm{dir}}$, lo que depende tanto de la fracción escalada como de la razón entre los costos. Si Top-$k$ es barata, por ejemplo cuando contiene un solo bloque liviano, la etapa barata puede agregar costo sin ahorrar extracción.
-
-La ruta se elige con datos de entrenamiento (Tabla~\ref{tab:config-margen}). Las candidatas son Top-4 directo y la cascada con cada combinación de etapa barata y cuantil $q\in\{0{,}25;\,0{,}50;\,0{,}75\}$. Entre las rutas cuyo macro-F1 OOF no es menor que el de Top-4 menos 0,005, se elige la de menor costo proyectado; si ninguna cumple, se usa Top-4 directo. La regla usa macro-F1 porque fue la métrica de selección registrada; el cambio posterior a accuracy como métrica de reporte (Sección~\ref{sec:analisis-estadistico}) no la modificó. Las etapas baratas candidatas son ResNet-50, SigLIP-B, BEiTv2-B y ConvNeXt V2-T; en KTH-TIPS2-b solo ResNet-50 y BEiTv2-B. Como referencia, la misma regla se aplica restringida a ResNet-50. Los márgenes y el macro-F1 OOF se obtienen reajustando en cada fold los clasificadores de la etapa barata y de Top-4, con la Top-4 ya fijada por el ranking interno de todo el entrenamiento externo; el ranking no se vuelve a aprender dentro de cada fold. La elección de etapa barata, cuantil y ruta queda así condicionada a esa Top-4, y su estimación OOF no valida por sí sola el procedimiento completo de selección.
-
-La etapa cara es la Top-4 de cada condición, la misma de la curva de $k$, de modo que el uso directo y la activación por margen comparten bloques y clasificador. Las etapas baratas candidatas, la grilla de cuantiles, la regla de ruta y el perfil de costos se congelaron antes de esta evaluación. Sin embargo, las mismas particiones ya se habían inspeccionado en pilotos anteriores, incluida una cascada que usaba la Top-$k$ archivada de cada condición, con $k$ heredado de la selección secuencial hacia adelante (Apéndice~\ref{app:reproducibilidad}), y la tolerancia de 0,005 proviene de un análisis exploratorio que había observado resultados externos. Por eso esta evaluación es exploratoria. La Figura~\ref{fig:cascada} resume el flujo.
-
-Para saber si el margen es una buena medida de confianza, y no solo mejor que un sorteo, la misma etapa barata elegida se compara con otras dos compuertas sin volver a entrenar: el puntaje máximo $s_{(1)}(x)$, análogo a la probabilidad máxima del softmax que se usa para detectar errores \citep{hendrycks2017baseline}, y la entropía del softmax de las puntuaciones, calculada sobre los valores crudos de la función de decisión, sin calibración ni temperatura. En cada una, la imagen se escala cuando su confianza queda por debajo del cuantil $q$ de los valores OOF. Como las tres medidas pueden escalar fracciones distintas en el test, se agrega un diagnóstico por lote que escala en cada compuerta exactamente la misma cantidad de imágenes que el margen. Ese diagnóstico ordena las imágenes de test por su confianza, sin usar sus etiquetas, y no corresponde a una compuerta aplicable imagen por imagen.
-
-\begin{figure}[pos=htbp]
-\centering
-\begin{tikzpicture}[
-  node distance=5mm and 8mm,
-  caja/.style={draw=black!55, rounded corners=2pt, fill=#1, align=center, font=\small, minimum height=11mm, text width=26mm},
-  caja/.default=white,
-  flecha/.style={-{Stealth[length=2.2mm]}, semithick}
-]
-\node[caja=gray!8] (img) {Imagen $x$};
-\node[caja=blue!6, right=of img] (base) {Etapa barata\\ bloque $b$ y $h_b$};
-\node[caja=yellow!15, right=of base, text width=22mm] (gate) {¿$m(x)\leq\tau_q$?};
-\node[caja=green!8, above right=3mm and 10mm of gate] (out1) {Predicción $h_b(x)$};
-\node[caja=red!6, below right=3mm and 10mm of gate, text width=32mm] (topk) {Top-$k$: extraer\\ $S_k\setminus\{b\}$ y predecir $h_{S_k}(x)$};
-\draw[flecha] (img) -- (base);
-\draw[flecha] (base) -- node[above, font=\footnotesize]{$m(x)$} (gate);
-\draw[flecha] (gate.north) |- node[pos=0.3, left, font=\footnotesize]{no} (out1.west);
-\draw[flecha] (gate.south) |- node[pos=0.3, left, font=\footnotesize]{sí} (topk.west);
-\end{tikzpicture}
-\caption{Activación por margen. Toda imagen pasa por la etapa barata; solo las que tienen margen menor o igual que el umbral calculan los bloques de Top-$k$ que faltan, y la predicción de Top-$k$ reemplaza a la barata. En la evaluación, $k=4$. El umbral, la etapa barata y la elección entre cascada y Top-4 directo se fijan con el entrenamiento externo.}
-\label{fig:cascada}
-\end{figure}
-\FloatBarrier
-
 \begin{table}[pos=htbp]
 \centering
-\caption{Configuración de la activación por margen frente a Top-4 directo.}
-\label{tab:config-margen}
-\small
-\begin{tabular}{lp{10.2cm}}
-\toprule
-Elemento & Configuración \\
-\midrule
-Etapa barata & Un descriptor y su clasificador: ResNet-50, SigLIP-B, BEiTv2-B o ConvNeXt V2-T (en KTH-TIPS2-b, ResNet-50 o BEiTv2-B) \\
-Etapa cara & Top-4 de la condición, la misma del uso directo \\
-Margen & Diferencia entre las dos mayores puntuaciones de la etapa barata \\
-Umbral & Cuantiles 0,25, 0,50 y 0,75 de márgenes OOF agrupados del entrenamiento externo \\
-Compuerta & Se calcula Top-4 si $m(x)\leq\tau_q$; su predicción reemplaza a la barata \\
-Elección de ruta & Menor costo proyectado entre las rutas con macro-F1 OOF $\geq$ Top-4 $-$ 0,005; si ninguna cumple, Top-4 directo \\
-Costo & Perfil de latencias por componente; excluye carga de modelos y ajuste del clasificador \\
-Control & Escalamiento aleatorio de la misma cantidad de imágenes con la misma etapa barata, 100 repeticiones \\
-Otras compuertas & Puntaje máximo $s_{(1)}$ y entropía del softmax de las puntuaciones, con umbrales OOF y con igual cantidad escalada \\
-Información excluida & Test externo y sus etiquetas durante toda la selección \\
-\bottomrule
-\end{tabular}
-\end{table}
-\FloatBarrier
-
-\subsection{Variante con rescate por ensamble}\label{sec:variante-panel}
-
-Para la medición online de las 94 condiciones se utilizó una variante que conserva la compuerta por margen y cambia la etapa cara. La base se elige en la frontera de Pareto entre macro-F1 OOF y latencia de los 22 descriptores individuales, y el umbral es un cuantil $q\in\{0{,}10;\,0{,}25;\,0{,}50\}$ de sus márgenes OOF; la compuerta escala si $m(x)<\tau_q$. El rescate agrega las puntuaciones de hasta tres subconjuntos de cuatro bloques tomados de un ensamble por diversidad: 15 subconjuntos muestreados según la relevancia interna de cada bloque, penalizada por su similitud CKA con los demás ($\lambda=0{,}25$; $\beta=8$) \citep{kornblith2019similarity}. La base, el cuantil y los subconjuntos se eligen con tres folds sobre el entrenamiento, maximizando el macro-F1 OOF con un costo medio proyectado no mayor que 60 ms. En lo que sigue esta variante se denomina \emph{política por margen}. No calcula Top-4: sus subconjuntos de rescate tienen cuatro bloques, pero no son necesariamente los cuatro primeros del ranking.
-
-% ============================================================
-% 4. RESULTADOS EXPERIMENTALES
-% ============================================================
-\section{Resultados experimentales}\label{sec:resultados-experimentales}
-
-\subsection{Conjuntos de datos y control de integridad}\label{sec:datos}
-
-Antes del análisis se construyó un manifiesto por dataset y se verificaron etiquetas, orden de muestras, dimensiones, valores finitos y grupos de dependencia. Se utilizaron DTD, FMD, CUReT, Outex, Soil y KTH-TIPS2-b.
-
-DTD contiene 5.640 imágenes de texturas en condiciones no controladas y proporciona diez particiones oficiales de entrenamiento, validación y prueba \citep{cimpoi2014dtd}. En cada partición se unieron entrenamiento y validación para ejecutar la selección interna, mientras que el test oficial se reservó para una única evaluación. Los duplicados byte-idénticos que cruzaban roles fueron retirados del conjunto de entrenamiento, conservando intacta la evaluación.
-
-FMD reúne 1.000 fotografías de diez categorías de materiales \citep{sharan2013fmd}. Las características fijas y los conteos por imagen se obtuvieron desde las imágenes oficiales en un orden canónico. Cada imagen presentó un hash único y se utilizó como unidad de agrupación. La evaluación externa empleó cinco folds estratificados y agrupados, repetidos con semillas 42, 123 y 2026.
-
-De Outex se usa la suite Outex\_TC\_00013, con 1.360 BMP RGB de $128\times128$ píxeles organizados en 68 clases balanceadas. La auditoría verificó archivos legibles, IDs continuos 000000--001359, ausencia de duplicados y la partición oficial de 680 imágenes de entrenamiento y 680 de prueba, con diez muestras de cada clase en cada lado \citep{ojala2002outex}. Se conserva una reserva sobre la correspondencia entre filas y bloques: los arreglos de ViT-B/16 y del DeiT-S corregido que usa el panel online coinciden con sus registros, pero el arreglo histórico de DeiT-S no coincide, y para los archivos de la evaluación estática no se estableció una identidad completa con las matrices del panel. Top-4 no usa ninguno de esos dos bloques en Outex; Completa-22 incluye ambos.
-
-Para CUReT se utilizó la distribución gris recortada de 61 materiales, con 92 condiciones compartidas por clase \citep{varma2003filter}. Cada condición constituye un grupo para impedir que la misma configuración de adquisición aparezca a ambos lados de una partición. Se definieron dos mitades complementarias deterministas de 46 condiciones: A para selección y entrenamiento con B como test, y la dirección inversa. Esta asignación reproduce de manera transparente el tamaño 46/46 publicado, pero no se presenta como la partición histórica exacta. Debido a que las dos direcciones son complementarias y dependientes, sus resultados se interpretan descriptivamente.
-
-Soil se recuperó de la versión 1 archivada del repositorio \emph{Comprehensive Soil Classification Datasets} de ai4a-lab. Se conservaron solo las imágenes originales, se eliminaron 49 duplicados exactos y se definieron grupos conservadores a partir de las familias de nombres. El manifiesto final contiene 1.140 imágenes de siete clases y 962 grupos. La evaluación usa cinco folds estratificados y agrupados, repetidos con las semillas 42, 123 y 2026.
-
-KTH-TIPS2-b contiene 4.752 imágenes RGB de $200\times200$ píxeles, correspondientes a 11 materiales y cuatro muestras físicas por material \citep{mallikarjuna2005kth}. Se emplea el protocolo de cuatro particiones usado por RADAM \citep{scabini2023radam}: en cada una, tres muestras físicas por clase quedan en entrenamiento y la restante en prueba. El manifiesto conserva el hash de cada archivo y usa la muestra física como grupo, por lo que ninguna muestra aparece en ambos lados de una partición.
-
-\subsection{Clasificadores}
-
-Se emplearon dos clasificadores con sesgos diferentes. La SVM lineal se implementa con \texttt{LinearSVC} de scikit-learn: $C=1$, ponderación balanceada por clase, pérdida \emph{squared hinge}, regularización $L_2$, esquema uno-contra-el-resto, tolerancia $10^{-4}$ y un máximo de 10.000 iteraciones.
-
-Se denomina ResMLP a la MLP residual implementada para este estudio sobre vectores de características; no es una reproducción del modelo de imágenes del mismo nombre \citep{touvron2021resmlp}. Proyecta la entrada a 256 unidades y aplica tres bloques residuales, normalización de capa, activaciones GELU, \emph{dropout} de 0,1 y una salida multiclase. Se entrena con entropía cruzada y AdamW, tasa de aprendizaje $10^{-3}$, decaimiento de pesos $10^{-4}$, lotes de 256 muestras y un máximo de 100 épocas. La parada se basa en la pérdida media de entrenamiento: tras diez épocas sin una disminución mayor que $10^{-4}$, se detiene y restaura el mejor estado registrado. No utiliza el test ni una validación adicional para elegir la época. Las semillas se fijan para NumPy y PyTorch; cuando está disponible, la red se ejecuta en GPU.
-
-\subsection{Configuración experimental y protocolo anidado}\label{sec:protocolo}
-
-La selección interna utiliza cuatro folds estratificados y agrupados. En DTD se ejecuta dentro de la unión \emph{train+val} de cada partición oficial; en FMD y Soil, dentro del entrenamiento de cada fold externo; en CUReT, dentro de la mitad de 46 condiciones asignada al entrenamiento; y en Outex y KTH-TIPS2-b, dentro del entrenamiento definido por su partición oficial. Después de fijar el ranking, el umbral y la ruta, cada modelo se ajusta con todo el entrenamiento externo y se evalúa una sola vez en el test correspondiente. Se verifica programáticamente que ningún grupo aparezca en entrenamiento y prueba.
-
-Los resultados provienen de tres evaluaciones principales que no se mezclan entre sí, más un piloto físico de una cascada anterior (Sección~\ref{sec:piloto}). La evaluación estática usa las 47 condiciones externas de cada clasificador: diez de DTD, quince de FMD y quince de Soil, dos de CUReT, una de Outex y cuatro de KTH-TIPS2-b. Sobre ellas se trazan las curvas de $k$ y se compara Top-4 con Individual, el descriptor con mayor macro-F1 interno, y con Completa-22, la concatenación de los 22 bloques. Individual y Completa-22 provienen de la matriz principal del proyecto; Top-4 se ejecutó después con el mismo protocolo; con ResMLP se entrenó en GPU para DTD, KTH-TIPS2-b, CUReT y Outex y en CPU para FMD y Soil, y la variación entre equipos no se midió. En KTH-TIPS2-b, la evaluación estática conserva los resultados archivados de 22 bloques, y no está certificado que todos sus controles correspondan a la variante corregida con agrupación interna por muestra física; por eso se informa también la sensibilidad de los contrastes sin ese dataset, y sin Outex por la reserva anterior.
-
-La evaluación de la activación por margen usa 27 condiciones con SVM y semilla 42 (DTD 10, FMD 5, CUReT 2, Outex 1, Soil 5 y KTH-TIPS2-b 4) y embeddings almacenados. En las 27, Top-4 directo reproduce exactamente la accuracy y el macro-F1 de la evaluación estática. Sus costos son proyecciones con perfiles de latencia por componente, medidos en imágenes de entrenamiento de Outex para cinco datasets y en KTH-TIPS2-b para ese dataset. En KTH-TIPS2-b, los tiempos de EVA-02 y SigLIP-B se midieron en sesiones distintas de las del resto del perfil, tras verificar en 33 imágenes de entrenamiento por red, tres por clase, que la extracción reproducía los embeddings almacenados. Para cada imagen se comparó el vector almacenado $\mathbf{u}$ con el reextraído $\mathbf{v}$ mediante la similitud coseno, $\mathbf{u}^{\top}\mathbf{v}/(\lVert\mathbf{u}\rVert_2\lVert\mathbf{v}\rVert_2)$, que vale 1 cuando ambos tienen la misma dirección y no depende de su escala; se exigió un mínimo de 0,999 en las 33 imágenes, un umbral que acredita esa muestra y no toda la colección. Esas dos constantes se agregaron al perfil después de completar las otras 25 condiciones, que no las necesitaban, y antes de ajustar las dos restantes de KTH-TIPS2-b. La misma comparación se repitió con ResMLP en las 27 condiciones, con los bloques de Top-4 elegidos para SVM. Además, sobre las 47 condiciones con SVM se evaluó Top-4 más N-gramas + SVD, con la SVD ajustada solo con el entrenamiento de cada partición. La tercera evaluación es un panel online de 94 condiciones, las 47 particiones con ambos clasificadores, en el que cada imagen se procesa individualmente (\texttt{batch=1}) en una GPU RTX 4060 y la accuracy y la latencia provienen de las mismas llamadas. El panel evalúa cinco estrategias por clasificador: Top-4, la política por margen de la Sección~\ref{sec:variante-panel}, Completa-22 y dos ensambles de 15 subconjuntos de cuatro bloques, muestreados por diversidad o al azar, que no son concatenaciones de un único vector y se informan como referencia. En total son 470 filas condición--estrategia y 362.640 inferencias. El panel usa clasificadores ajustados con los embeddings almacenados, pero vuelve a extraer en línea los descriptores de cada imagen, por lo que sus resultados pueden diferir de los de la evaluación estática (Sección~\ref{sec:panel}).
-
-\subsection{Análisis estadístico}\label{sec:analisis-estadistico}
-
-La accuracy (exactitud) es la proporción de imágenes clasificadas correctamente. Macro-F1 promedia el F1 de las $C$ clases con igual peso: $\mathrm{macro\mbox{-}F1}=C^{-1}\sum_{c=1}^{C}2TP_c/(2TP_c+FP_c+FN_c)$, donde $TP_c$, $FP_c$ y $FN_c$ son los verdaderos positivos, falsos positivos y falsos negativos de la clase $c$. Esta media evita que la contribución de una clase dependa directamente de su número de muestras.
-
-La accuracy es la métrica principal de reporte. Macro-F1 se informa como complemento para mostrar las pérdidas por clase en datasets desbalanceados como Soil, donde ambas métricas se separan. El proyecto usó macro-F1 como métrica primaria hasta que los autores decidieron reportar accuracy, después de haber observado los resultados. El cambio no altera el método: el ranking interno, la elección de Individual y la ruta de la cascada siguen basados en macro-F1, y las pruebas se recalcularon con accuracy sin reutilizar valores $p$ de macro-F1. Para cada contraste se promedian las condiciones externas dentro de cada dataset y clasificador, manteniendo SVM y ResMLP separados. Así, salvo la comparación imagen por imagen descrita más abajo, cada prueba usa seis bloques emparejados, uno por dataset, y no trata las particiones repetidas como problemas independientes. La media y la desviación entre particiones describen la variación observada, pero no convierten las particiones dependientes en réplicas independientes.
-
-En la evaluación estática se comparan Individual, Completa-22 y Top-4 por separado para SVM y ResMLP, con la metodología de comparaciones múltiples entre datasets \citep{demsar2006statistical,garcia2008extension,derrac2011practical}. Se aplican Friedman, con su valor $p$ asintótico y con el exacto obtenido al enumerar las 46.656 asignaciones posibles de rangos, e Iman--Davenport. Los tres pares se comparan con la prueba post hoc basada en los rangos de Friedman y con Wilcoxon exacto bilateral, y cada familia de tres valores $p$ se ajusta con Holm. La familia de ocho estrategias del proyecto, que incluye ensambles y variantes de la selección secuencial hacia adelante (GFS) no tratadas aquí, se resume en el Apéndice~\ref{app:reproducibilidad}. La comparación de Top-4 con Completa-22 se plantea además como prueba de no inferioridad, con un margen de no inferioridad $\delta=0{,}01$ que fija la mayor pérdida considerada tolerable; no debe confundirse con el margen de la compuerta: se informa la cota inferior unilateral al 95\,\% de la diferencia media ($t$ de Student) y Wilcoxon exacto unilateral. Ese margen se fijó para macro-F1 antes de calcular las pruebas, y su aplicación a accuracy es posterior al cambio de métrica.
-
-En la activación por margen, cada prueba usa las seis medias por dataset de las 27 condiciones. La cascada con la etapa barata elegida se compara con Top-4 directo, con la cascada restringida a ResNet-50 y con Completa-22 mediante Wilcoxon exacto bilateral, y la familia de tres valores $p$ se ajusta con Holm. La diferencia entre la cascada y Top-4 directo se evalúa además como no inferioridad, con el mismo margen $\delta=0{,}01$ y las mismas pruebas que la evaluación estática, para SVM y para ResMLP; este análisis se definió después de observar los resultados de la cascada. El control aleatorio se resume por condición y mediante Wilcoxon exacto bilateral. Las tres compuertas se comparan por pares en cada cuantil, y cada familia de nueve comparaciones por régimen se ajusta con Holm. Como las 27 condiciones guardan la predicción de cada imagen de test, la cascada y Top-4 directo se comparan además imagen por imagen. En cada condición se aplica McNemar exacto, una prueba binomial sobre las imágenes en las que acierta solo una de las dos políticas, y la familia de 27 valores $p$ se ajusta con Holm. Es la única prueba cuya unidad es la imagen y no el dataset. Trata como independientes las imágenes de una condición, aunque las de una misma muestra física o clase están correlacionadas, por lo que sus valores $p$ pueden resultar demasiado pequeños; ese sesgo favorece encontrar diferencias, no ocultarlas. Se informa también el coeficiente kappa de Cohen, $\kappa=(p_o-p_e)/(1-p_e)$, donde $p_o$ es la accuracy y $p_e$ el acuerdo entre predicción y etiqueta esperado por azar dadas las frecuencias de ambas. Se adopta $\alpha=0{,}05$. La ausencia de significancia no demuestra equivalencia, y las latencias se interpretan descriptivamente.
-
-\subsection{Curva de $k$ y elección de $k=4$}\label{sec:curva-k}
-
-La Figura~\ref{fig:curva-k} muestra la accuracy media de los prefijos del ranking interno. Con SVM, la curva externa sube de 0,9272 con un bloque a 0,9442 con cuatro y después oscila entre 0,9433 y 0,9451 hasta los 21 bloques. Con ResMLP, el máximo es 0,9443 con cinco bloques y Top-4 obtiene 0,9420, el 99,8\,\% de ese máximo. La curva interna, calculada solo con el entrenamiento, está en macro-F1 porque esa fue la métrica del ranking: con SVM crece 0,0014 de $k=3$ a $k=4$ y 0,0009 de $k=4$ a $k=5$, alcanza su máximo en $k=6$ y desciende desde allí. Top-4 ocupa en promedio 3.144 dimensiones con SVM y 3.170 con ResMLP, cerca del 15\,\% de las 20.652 de la biblioteca.
-
-\begin{figure}[pos=htbp]
-\centering
-\begin{tikzpicture}
-\begin{axis}[
-  name=ext,
-  width=0.53\textwidth, height=6.0cm,
-  title={(a) Curva externa}, title style={font=\small},
-  xlabel={Bloques concatenados ($k$)}, ylabel={Accuracy media},
-  xmin=0.5, xmax=21.5, ymin=0.924, ymax=0.948,
-  xtick={1,4,8,12,16,21}, ytick={0.925,0.930,0.935,0.940,0.945},
-  yticklabel style={/pgf/number format/.cd, fixed, fixed zerofill, precision=3, use comma},
-  legend style={at={(0.97,0.03)}, anchor=south east, font=\footnotesize, draw=none, fill=white, fill opacity=0.85, text opacity=1},
-  legend cell align=left,
-  grid=major, grid style={gray!20},
-  tick label style={font=\footnotesize}, label style={font=\small}
-]
-\addplot[thick, color=blue!70!black, mark=*, mark size=1.2pt] coordinates {
-(1,0.9272) (2,0.9381) (3,0.9425) (4,0.9442) (5,0.9433) (6,0.9436) (7,0.9446) (8,0.9443) (9,0.9447) (10,0.9451) (11,0.9442) (12,0.9446) (13,0.9445) (14,0.9446) (15,0.9442) (16,0.9443) (17,0.9442) (18,0.9445) (19,0.9443) (20,0.9442) (21,0.9442)};
-\addlegendentry{SVM}
-\addplot[thick, color=orange!85!black, mark=square*, mark size=1.1pt] coordinates {
-(1,0.9277) (2,0.9414) (3,0.9428) (4,0.9420) (5,0.9443) (6,0.9398) (7,0.9425) (8,0.9439) (9,0.9378) (10,0.9427) (11,0.9426) (12,0.9399) (13,0.9399) (14,0.9411) (15,0.9404) (16,0.9396) (17,0.9395) (18,0.9411) (19,0.9374) (20,0.9385) (21,0.9396)};
-\addlegendentry{ResMLP}
-\draw[gray!70, dashed] (axis cs:4,0.924) -- (axis cs:4,0.948);
-\end{axis}
-\begin{axis}[
-  at={(ext.east)}, anchor=west, xshift=19mm,
-  width=0.40\textwidth, height=6.0cm,
-  title={(b) Curva interna, SVM}, title style={font=\small},
-  xlabel={Bloques concatenados ($k$)}, ylabel={Macro-F1 interno medio},
-  xmin=0.5, xmax=21.5, ymin=0.908, ymax=0.926,
-  xtick={1,4,8,12,16,21},
-  yticklabel style={/pgf/number format/.cd, fixed, fixed zerofill, precision=3, use comma},
-  grid=major, grid style={gray!20},
-  tick label style={font=\footnotesize}, label style={font=\small}
-]
-\addplot[thick, dashed, color=blue!70!black, mark=o, mark size=1.2pt] coordinates {
-(1,0.9102) (2,0.9182) (3,0.9208) (4,0.9221) (5,0.9230) (6,0.9235) (7,0.9223) (8,0.9211) (9,0.9211) (10,0.9199) (11,0.9191) (12,0.9182) (13,0.9182) (14,0.9174) (15,0.9159) (16,0.9163) (17,0.9160) (18,0.9156) (19,0.9151) (20,0.9147) (21,0.9147)};
-\draw[gray!70, dashed] (axis cs:4,0.908) -- (axis cs:4,0.926);
-\end{axis}
-\end{tikzpicture}
-\caption{Curvas de los prefijos del ranking interno, con medias por dataset sobre las 47 condiciones de cada clasificador. (a) Accuracy externa: cada prefijo se ajusta con el entrenamiento externo y se evalúa una vez en el test. (b) Macro-F1 interno de SVM: los mismos prefijos puntuados en los folds internos del entrenamiento, con la métrica del ranking. La línea vertical marca $k=4$. Los 21 bloques no incluyen N-gramas + SVD.}
-\label{fig:curva-k}
-\end{figure}
-\FloatBarrier
-
-El valor $k=4$ se fijó al observar la curva externa de macro-F1 de SVM, de modo que esa elección no es independiente del test. La curva interna muestra la misma forma: la regla del codo con tolerancia 0,001, que devuelve el último $k$ antes de la primera ganancia interna menor que la tolerancia, elige $k=4$ cuando se aplica a la curva interna media de SVM y $k=6$ con la de ResMLP. Aplicadas condición por condición, en cambio, las reglas internas no recuperan $k=4$ (Tabla~\ref{tab:reglas-k}). El máximo interno elige en promedio 6,3 bloques con SVM y 7,3 con ResMLP, y el codo con tolerancia 0,001 elige 3,2 y 2,1. Con SVM, ambas reglas quedan por debajo de $k=4$ fijo (0,9414 y 0,9411 frente a 0,9442); con ResMLP, el máximo interno obtiene 0,9430, por encima de Top-4. La correlación de Spearman entre las curvas interna y externa de macro-F1 es positiva pero débil, 0,269 con SVM y 0,321 con ResMLP, y negativa en algunos datasets. Por eso se adopta una constante común en lugar de elegir $k$ por condición.
-
-\begin{table}[pos=htbp]
-\centering
-\caption{Reglas para elegir $k$ con datos de entrenamiento: $k$ medio elegido con la curva interna de macro-F1 y accuracy externa resultante, con medias por dataset sobre 47 condiciones por clasificador.}
-\label{tab:reglas-k}
+\caption{E5: accuracy de Top-4 y Top-4 con N-gramas + SVD por dataset. $\Delta$ está en puntos porcentuales y es la media de las diferencias por condición. La SVD se ajustó solo con entrenamiento; los resultados son exploratorios y no incluyen latencia online.}
+\label{tab:e5-datasets}
 \small
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
- & \multicolumn{2}{c}{SVM} & \multicolumn{2}{c}{ResMLP} \\
-\cmidrule(lr){2-3}\cmidrule(l){4-5}
-Regla & $k$ medio & Accuracy & $k$ medio & Accuracy \\
+Dataset & Cond. & Top-4 & Top-4 + N-gramas & $\Delta$ (pp) \\
 \midrule
-Máximo de la curva interna & 6,3 & 0,9414 & 7,3 & \textbf{0,9430} \\
-Codo, tolerancia 0,001 & 3,2 & 0,9411 & 2,1 & 0,9393 \\
-Codo, tolerancia 0,005 & 1,9 & 0,9382 & 1,7 & 0,9378 \\
-Codo, tolerancia 0,01 & 1,7 & 0,9352 & 1,3 & 0,9322 \\
-\addlinespace
-Fijo, $k=3$ & 3 & 0,9425 & 3 & 0,9428 \\
-Fijo, $k=4$ & 4 & \textbf{0,9442} & 4 & 0,9420 \\
-Fijo, $k=6$ & 6 & 0,9436 & 6 & 0,9398 \\
+DTD & 10 & 0,8703 & 0,8636 & -0,67 \\
+FMD & 15 & 0,9823 & 0,9807 & -0,17 \\
+CUReT & 2 & 0,9986 & 0,9988 & +0,02 \\
+Outex & 1 & 0,9294 & 0,9618 & +3,24 \\
+Soil & 15 & 0,9272 & 0,9257 & -0,15 \\
+KTH-TIPS2-b & 4 & 0,9575 & 0,9628 & +0,53 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
 \FloatBarrier
+\section{Métricas complementarias de la cascada Top-4}
 
-\subsection{Top-4 directo frente a Individual y la concatenación completa}\label{sec:top4}
-
-La Tabla~\ref{tab:top4} compara Top-4 con Individual y Completa-22 en las mismas condiciones. Top-4 supera a Individual en los seis datasets con SVM y en cinco con ResMLP, con ganancias medias de 0,0161 y 0,0141. Frente a Completa-22, Top-4 pierde 0,0031 con SVM y gana 0,0032 con ResMLP. Con SVM supera a Completa-22 en DTD y FMD y en 31 de las 47 condiciones; con ResMLP lo hace en FMD y KTH-TIPS2-b y en 28 condiciones. Outex concentra la mayor pérdida con SVM, $-0{,}0368$, y Completa-22 conserva una ventaja menor en CUReT, Soil y KTH-TIPS2-b con ese clasificador. En macro-F1, Top-4 obtiene 0,9366 con SVM y 0,9331 con ResMLP, frente a 0,9391 y 0,9288 de Completa-22.
+La Tabla~\ref{tab:e1-macro} resume las métricas macro de las mismas predicciones de E1. Dado que cada clase pesa igual, estas medidas complementan la accuracy cuando las clases tienen tamaños diferentes. En el panel online, los agregados por política se conservan por separado, ya que allí la activación por margen rescata con un ensamble.
 
 \begin{table}[pos=htbp]
 \centering
-\caption{Accuracy externa de Individual, Completa-22 y Top-4. Medias entre condiciones externas: 47 por clasificador; Outex tiene una única partición oficial. La última fila indica la dimensión media.}
-\label{tab:top4}
+\caption{Precisión macro, recall macro y macro-F1 (\%) de Top-4 directo y la cascada Top-4 en E1 (SVM). Se calcula cada métrica por condición y se promedian las condiciones dentro de cada dataset. Media da el mismo peso a cada dataset.}
+\label{tab:e1-macro}
 \small
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
- & \multicolumn{3}{c}{SVM} & \multicolumn{3}{c}{ResMLP} \\
+ & \multicolumn{3}{c}{Top-4 directo} & \multicolumn{3}{c}{Cascada Top-4} \\
 \cmidrule(lr){2-4}\cmidrule(l){5-7}
-Dataset & Individual & Completa-22 & Top-4 & Individual & Completa-22 & Top-4 \\
+Dataset & Precisión & Recall & F1 & Precisión & Recall & F1 \\
 \midrule
-DTD & 0,8448 & 0,8654 & \textbf{0,8703} & 0,8382 & \textbf{0,8635} & 0,8624 \\
-FMD & 0,9727 & 0,9647 & \textbf{0,9823} & 0,9690 & 0,9563 & \textbf{0,9800} \\
-CUReT & 0,9948 & \textbf{0,9989} & 0,9986 & 0,9971 & \textbf{0,9991} & 0,9984 \\
-Outex & 0,9103 & \textbf{0,9662} & 0,9294 & \textbf{0,9485} & 0,9456 & 0,9368 \\
-Soil & 0,9044 & \textbf{0,9281} & 0,9272 & 0,9044 & \textbf{0,9184} & 0,9149 \\
-KTH-TIPS2-b & 0,9415 & \textbf{0,9609} & 0,9575 & 0,9099 & 0,9499 & \textbf{0,9596} \\
+DTD & 87,12 & 87,03 & 86,89 & 87,21 & 87,11 & 86,95 \\
+FMD & 98,29 & 98,20 & 98,19 & 98,39 & 98,30 & 98,29 \\
+CUReT & 99,86 & 99,86 & 99,86 & 99,79 & 99,79 & 99,79 \\
+Outex & 93,31 & 92,94 & 92,88 & 93,04 & 92,65 & 92,58 \\
+Soil & 91,47 & 87,75 & 88,76 & 91,59 & 88,04 & 88,99 \\
+KTH-TIPS2-b & 96,17 & 95,75 & 95,44 & 96,21 & 95,83 & 95,51 \\
 \midrule
-Media & 0,9281 & \textbf{0,9473} & 0,9442 & 0,9279 & 0,9388 & \textbf{0,9420} \\
-Dimensión media & 873 & 20.652 & 3.144 & 656 & 20.652 & 3.170 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Con SVM, los rangos medios son 1,50 para Completa-22, 1,67 para Top-4 y 2,83 para Individual. Friedman rechaza la igualdad de los tres métodos con la aproximación asintótica ($\chi^2=6{,}33$; $p=0{,}0421$) y con Iman--Davenport ($p=0{,}0235$), pero no con el valor exacto ($p=0{,}0521$). Tras ajustar con Holm, ningún par alcanza el nivel nominal: Top-4 frente a Individual queda en $p_{\mathrm{Holm}}=0{,}0866$ con la prueba post hoc y en $0{,}0938$ con Wilcoxon, cuyo valor sin ajustar, $0{,}0312$, es el mínimo posible con seis datasets; Top-4 frente a Completa-22 queda en $p_{\mathrm{Holm}}=0{,}7728$ y $0{,}8438$. En macro-F1, el orden de Top-4 y Completa-22 con SVM se invierte (rangos 1,50 y 1,67), con los mismos estadísticos de Friedman. Con ResMLP, Friedman no rechaza ($\chi^2=2{,}33$; $p=0{,}3114$; exacto $0{,}4297$; Iman--Davenport $p=0{,}3392$). Sin KTH-TIPS2-b, Friedman exacto da $p=0{,}1242$ con SVM y $0{,}5216$ con ResMLP, y sin Outex, $0{,}1242$ con ambos; en ninguno de los dos casos un par alcanza el nivel nominal tras Holm. Sin Outex, Top-4 queda 0,0036 por encima de Completa-22 con SVM. Estas exclusiones son diagnósticos: cambian el conjunto de datasets y no reemplazan el análisis con los seis. La Tabla~\ref{tab:no-inferioridad} presenta la no inferioridad frente a Completa-22. Con ResMLP se descarta una pérdida de 0,01 (cota inferior $-0{,}0064$; $p=0{,}0198$). Con SVM no se descarta: la cota inferior es $-0{,}0180$ y $p=0{,}1979$, principalmente por la pérdida en Outex.
-
-Top-4 no podía incluir N-gramas + SVD, el bloque de color, porque el ranking no lo contenía. Para medir qué se pierde por eso, se agregó ese bloque a la Top-4 de cada una de las 47 condiciones con SVM, con la SVD ajustada solo con el entrenamiento de cada partición; en las 27 condiciones con semilla 42, Top-4 reprodujo exactamente sus predicciones. Top-4 más N-gramas obtiene una accuracy media de 0,9489 frente a 0,9442 de Top-4 ($+0{,}0047$) y queda por encima de Completa-22 (0,9473) con unas 3.400 dimensiones, cerca del 16\,\% de la biblioteca. La mejora no es uniforme: sube en Outex ($+0{,}0324$), KTH-TIPS2-b ($+0{,}0053$) y CUReT ($+0{,}0002$) y baja en DTD ($-0{,}0067$), FMD ($-0{,}0017$) y Soil ($-0{,}0015$), de modo que Wilcoxon exacto bilateral no detecta diferencia ($p=1{,}0$). En macro-F1, las medias son 0,9412 y 0,9366. Como el resto de las comparaciones, es exploratoria: las particiones de test ya se habían observado, y Outex conserva su reserva de procedencia.
-
-\begin{table}[pos=htbp]
-\centering
-\caption{No inferioridad de Top-4 frente a Completa-22 sobre las medias de accuracy de seis datasets, con margen de no inferioridad $\delta=0{,}01$. Cota: límite inferior unilateral al 95\,\% de la diferencia media ($t$ de Student). $p$: hipótesis nula de pérdida mayor o igual que 0,01.}
-\label{tab:no-inferioridad}
-\small
-\begin{tabular}{@{}lrrrr@{}}
-\toprule
-Clasif. & $\Delta$ medio & Cota 95\,\% & $p$ ($t$) & $p$ (Wilcoxon) \\
-\midrule
-SVM & $-0{,}0031$ & $-0{,}0180$ & $0{,}1979$ & $0{,}1562$ \\
-ResMLP & $0{,}0032$ & $-0{,}0064$ & $0{,}0198$ & $0{,}0156$ \\
+Media & 94,37 & 93,59 & 93,67 & 94,37 & 93,62 & 93,68 \\
 \bottomrule
 \end{tabular}
 \end{table}
 \FloatBarrier
 
-\subsection{Activación por margen frente a Top-4 directo}\label{sec:resultados-margen}
+\section{Trazabilidad}
 
-La Tabla~\ref{tab:cascada} compara, en las 27 condiciones con SVM, Top-4 usado siempre con su activación por margen bajo la ruta elegida en el entrenamiento. La regla eligió la cascada con $q=0{,}25$ en las 27 condiciones, con SigLIP-B como etapa barata en 20, BEiTv2-B en seis y ResNet-50 en una. En 26 de las 27 condiciones, la etapa barata es uno de los cuatro bloques de Top-4: la cascada calcula primero ese bloque y completa los otros tres solo cuando duda, de modo que no desperdicia la extracción barata. La excepción es la dirección A$\to$B de CUReT, cuya etapa barata es ResNet-50. En el test se escaló el 21,1\,\% de las imágenes como media de los seis datasets, entre el 9,9 y el 30,1\,\% según la condición. La cascada obtiene una accuracy media de 0,9446 frente a 0,9444 de Top-4 directo, con un costo proyectado de 117,1 frente a 468,3 ms por imagen, una reducción del 75,0\,\%. Supera a Top-4 directo en diez condiciones, lo iguala en diez y queda por debajo en siete; por dataset, gana en DTD, FMD, Soil y KTH-TIPS2-b y pierde en CUReT ($-0{,}0007$) y Outex ($-0{,}0029$). En macro-F1, las medias son 0,9368 y 0,9367. Restringida a ResNet-50, la misma regla escala el 48,5\,\% de las imágenes y obtiene 0,9426 con 249,5 ms, un 46,7\,\% menos que Top-4 directo.
-
-\begin{table}[pos=htbp]
-\centering
-\caption{Top-4 directo y activación por margen en 27 condiciones con SVM y semilla 42: accuracy externa y costo proyectado en ms por imagen. La ruta, el umbral y la etapa barata se eligen con el entrenamiento; «base elegida» designa esa etapa barata. Completa-22 se muestra como referencia sobre las mismas condiciones.}
-\label{tab:cascada}
-\small
-\setlength{\tabcolsep}{4.5pt}
-\begin{tabular}{@{}lrrrrrrrr@{}}
-\toprule
- & & \multicolumn{2}{c}{Top-4 directo} & \multicolumn{2}{c}{Cascada, ResNet-50} & \multicolumn{2}{c}{Cascada, base elegida} & Completa-22 \\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(l){9-9}
-Dataset & Cond. & Acc. & ms & Acc. & ms & Acc. & ms & Acc. \\
-\midrule
-DTD & 10 & 0,8703 & 586,9 & 0,8700 & 445,1 & \textbf{0,8711} & 154,8 & 0,8654 \\
-FMD & 5 & 0,9820 & 586,9 & 0,9780 & 380,4 & \textbf{0,9830} & 142,2 & 0,9650 \\
-CUReT & 2 & 0,9986 & 625,6 & 0,9975 & 151,1 & 0,9979 & 148,2 & \textbf{0,9989} \\
-Outex & 1 & 0,9294 & 608,7 & 0,9294 & 291,8 & 0,9265 & 141,9 & \textbf{0,9662} \\
-Soil & 5 & 0,9289 & 130,0 & 0,9254 & 82,5 & 0,9307 & 50,7 & \textbf{0,9333} \\
-KTH-TIPS2-b & 4 & 0,9575 & 271,7 & 0,9550 & 146,0 & 0,9583 & 64,5 & \textbf{0,9609} \\
-\midrule
-Media & 27 & 0,9444 & 468,3 & 0,9426 & 249,5 & 0,9446 & 117,1 & \textbf{0,9483} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-La cascada puede superar a Top-4 directo porque conserva la predicción barata cuando esta es confiable; Top-4 no es un techo para la combinación. Completa-22 obtiene la mayor media, 0,9483, sobre todo por su ventaja en Outex. Wilcoxon exacto bilateral sobre las seis medias no detecta diferencias entre la cascada y Top-4 directo ($p=0{,}5625$), la cascada restringida a ResNet-50 ($p=0{,}1562$) o Completa-22 ($p=0{,}8438$); tras ajustar con Holm, los tres valores quedan en 1,0000, 0,4688 y 1,0000. Ese no rechazo, por sí solo, no establece equivalencia. Para acotar la pérdida se usa el análisis de no inferioridad: por dataset, la diferencia entre la cascada y Top-4 directo va de $-0{,}0029$ en Outex a $+0{,}0018$ en Soil, con media $+0{,}0001$ e intervalo de confianza al 95\,\% de $[-0{,}0017;\,0{,}0019]$. La cota inferior unilateral al 95\,\% es $-0{,}0013$, de modo que se descarta una pérdida de 0,01 ($p<0{,}0001$ con $t$; $p=0{,}0156$ con Wilcoxon exacto unilateral, el mínimo posible con seis datasets). La conclusión se mantiene con un margen de no inferioridad de 0,005 ($p=0{,}0004$ con $t$). Por condición, la diferencia va de $-0{,}0032$ a $+0{,}0050$, y al excluir un dataset por vez la diferencia media queda entre $-0{,}0002$ (sin Soil) y $+0{,}0007$ (sin Outex), sin que ninguna exclusión alcance significancia. El intervalo toma como unidad la media de cada dataset: no incorpora la variación entre particiones, que reutilizan imágenes, ni se extiende a otros dominios de textura.
-
-Con ResMLP, la misma comparación usa los bloques de Top-4 elegidos para SVM y aplica la regla de ruta a los márgenes de sus logits; mide, por tanto, el cambio de clasificador y no una Top-4 propia de ResMLP, y por eso su Top-4 directo difiere del de la Tabla~\ref{tab:top4}. En las 27 condiciones, la activación por margen escaló en promedio el 22,5\,\% de las imágenes, entre el 6,6 y el 38,7\,\% según la condición, y obtuvo una accuracy media de 0,9424 frente a 0,9428 de Top-4 directo. Por dataset, la diferencia va de $-0{,}0044$ en Outex a $+0{,}0017$ en KTH-TIPS2-b y es nula en FMD, CUReT y Soil; por condición, la cascada mejora en diez, iguala en diez y empeora en siete, igual que con SVM. La diferencia media es $-0{,}0003$ y su cota inferior unilateral al 95\,\% es $-0{,}0021$, de modo que también se descarta una pérdida de 0,01 ($p<0{,}0001$ con $t$). En macro-F1, las medias son 0,9331 y 0,9337. Esta comparación no informa costos proyectados.
-
-La Tabla~\ref{tab:control-aleatorio} examina si el margen elige bien qué imágenes escalar. En cada condición, la cascada elegida se compara con un escalamiento de exactamente la misma cantidad de imágenes elegidas al azar, con la misma etapa barata, repetido 100 veces. La etapa barata sola obtiene 0,9234 en el test. Escalar al azar el 21\,\% de las imágenes la lleva a 0,9280, mientras que escalar las de menor margen la lleva a 0,9446, por encima de Top-4 directo. El margen supera al sorteo en las 27 condiciones, con una ventaja media de 0,0166, y Wilcoxon exacto bilateral sobre las seis medias alcanza su mínimo posible, $p=0{,}0312$. La paridad con Top-4 no proviene, entonces, de que la etapa barata ya lo iguale: sola queda en promedio 0,0210 por debajo.
-
-\begin{table}[pos=htbp]
-\centering
-\caption{Etapa barata sola (columna «Base sola»), escalamiento aleatorio y escalamiento por margen de la misma cantidad de imágenes, en 27 condiciones con SVM. Medias por dataset de accuracy. Escaladas: proporción de imágenes de test en las que se calculó Top-4. El escalamiento aleatorio promedia 100 repeticiones por condición.}
-\label{tab:control-aleatorio}
-\small
-\begin{tabular}{@{}lrrrrrr@{}}
-\toprule
-Dataset & Escaladas & Base sola & Aleatorio & Margen & Top-4 directo & Margen $>$ aleatorio \\
-\midrule
-DTD & 23,0\,\% & 0,8470 & 0,8524 & \textbf{0,8711} & 0,8703 & 10/10 \\
-FMD & 20,7\,\% & 0,9700 & 0,9725 & \textbf{0,9830} & 0,9820 & 5/5 \\
-CUReT & 20,0\,\% & 0,9740 & 0,9792 & 0,9979 & \textbf{0,9986} & 2/2 \\
-Outex & 19,9\,\% & 0,8926 & 0,9003 & 0,9265 & \textbf{0,9294} & 1/1 \\
-Soil & 23,6\,\% & 0,9105 & 0,9149 & \textbf{0,9307} & 0,9289 & 5/5 \\
-KTH-TIPS2-b & 19,3\,\% & 0,9463 & 0,9489 & \textbf{0,9583} & 0,9575 & 4/4 \\
-\midrule
-Media & 21,1\,\% & 0,9234 & 0,9280 & \textbf{0,9446} & 0,9444 & 27/27 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-La Tabla~\ref{tab:compuertas} compara el margen con el puntaje máximo y la entropía como compuertas, con la misma etapa barata elegida. Con umbrales OOF y $q=0{,}25$, el margen obtiene 0,9446, el puntaje máximo 0,9425 y la entropía 0,9356. La entropía escala menos imágenes (16,2\,\% frente a 21,1\,\%), lo que explica parte de su pérdida: con la misma cantidad escalada que el margen, las tres obtienen 0,9446, 0,9425 y 0,9398. A medida que $q$ crece, las tres compuertas convergen hacia Top-4 directo. Ninguna comparación alcanza el nivel nominal tras ajustar con Holm: el menor $p_{\mathrm{Holm}}$ es 0,5625 con umbrales OOF y 0,8438 con igual cantidad. El margen es la mejor de las tres en promedio, pero con seis datasets no se distingue de las otras.
-
-\begin{table}[pos=htbp]
-\centering
-\caption{Compuertas alternativas con la etapa barata elegida, en 27 condiciones con SVM: medias por dataset. Con umbral OOF, la imagen se escala si su confianza queda por debajo del cuantil $q$ de los valores OOF; se informan la proporción escalada en el test, la accuracy y el costo proyectado en ms. Igual cantidad: diagnóstico por lote que escala tantas imágenes como el margen.}
-\label{tab:compuertas}
-\small
-\begin{tabular}{@{}llrrrr@{}}
-\toprule
- & & \multicolumn{3}{c}{Umbral OOF} & Igual cantidad \\
-\cmidrule(lr){3-5}\cmidrule(l){6-6}
-$q$ & Compuerta & Escaladas & Accuracy & ms & Accuracy \\
-\midrule
-0,25 & Margen & 21,1\,\% & \textbf{0,9446} & 117,1 & \textbf{0,9446} \\
- & Puntaje máximo & 20,6\,\% & 0,9425 & 114,8 & 0,9425 \\
- & Entropía & 16,2\,\% & 0,9356 & 93,2 & 0,9398 \\
-\addlinespace
-0,50 & Margen & 43,1\,\% & \textbf{0,9445} & 216,3 & \textbf{0,9445} \\
- & Puntaje máximo & 42,9\,\% & 0,9442 & 214,9 & 0,9442 \\
- & Entropía & 37,6\,\% & 0,9421 & 188,4 & 0,9433 \\
-\addlinespace
-0,75 & Margen & 66,7\,\% & \textbf{0,9444} & 323,3 & \textbf{0,9444} \\
- & Puntaje máximo & 66,5\,\% & \textbf{0,9444} & 322,0 & \textbf{0,9444} \\
- & Entropía & 60,9\,\% & 0,9442 & 294,9 & \textbf{0,9444} \\
-\bottomrule
-\end{tabular}
-\end{table}
-\FloatBarrier
-
-\subsection{Análisis por imagen de la activación por margen}\label{sec:por-imagen}
-
-Cada condición guarda, para cada imagen de test, la clase real y las predicciones de la etapa barata, de Top-4 directo y de la cascada. Con esas 31.984 predicciones, sin nuevos ajustes, la Tabla~\ref{tab:por-imagen} examina tres aspectos que las medias por dataset no muestran. El primero es la variación entre particiones. La desviación estándar de la accuracy entre las condiciones de un mismo dataset va de 0,0005 a 0,0345 y es del mismo orden con ambas políticas, y kappa sigue a la accuracy: con la cascada va de 0,8683 en DTD a 0,9978 en CUReT. No se informan intervalos de confianza por dataset, porque las particiones comparten imágenes de entrenamiento y CUReT y Outex tienen dos condiciones y una.
-
-El segundo aspecto es la comparación pareada. Las dos políticas aciertan o fallan juntas en 31.665 de las 31.984 predicciones; en DTD, una misma imagen puede aparecer en el test de varias particiones oficiales. De las 319 restantes (1,0\,\%), Top-4 directo acierta solo en 151 y la cascada solo en 168. Estas discordancias ocurren únicamente en imágenes no escaladas, porque en las escaladas la cascada devuelve la predicción de Top-4. Ninguna condición muestra una diferencia significativa con McNemar exacto: el menor valor $p$ sin ajustar es 0,0625, en una partición de KTH-TIPS2-b con cinco imágenes a favor de la cascada y ninguna en contra, y tras ajustar con Holm los 27 valores son 1.
-
-El tercero es la calidad de la compuerta. En las imágenes que no escala, la etapa barata acierta el 96,2\,\% de las veces en conjunto, desde el 94,0\,\% en DTD hasta el 99,9\,\% en FMD y CUReT. A la vez, la compuerta envía a Top-4 el 72,9\,\% de los errores de la etapa barata, desde el 69,6\,\% en DTD hasta el 96,7\,\% en FMD. Los dos valores conjuntos ponderan cada dataset por su número de predicciones: DTD aporta el 59\,\% y tiene las tasas más bajas, de modo que ambos quedan por debajo de los de los otros cinco datasets. Al escalar, Top-4 corrige 1.176 errores de la etapa barata y se equivoca en 472 imágenes en las que ella acertaba. El margen concentra así casi tres cuartos de los errores de la etapa barata en el 21,8\,\% de las predicciones, la proporción escalada sobre el total (21,1\,\% como media de los seis datasets, la convención de las Tablas~\ref{tab:cascada} y~\ref{tab:control-aleatorio}); por eso la cascada puede igualar a Top-4 directo calculándolo en una de cada cinco imágenes.
-
-\begin{table}[pos=htbp]
-\centering
-\caption{Análisis por imagen de Top-4 directo (T4) y la cascada por margen (Casc.) en las 27 condiciones con SVM. Accuracy: media $\pm$ desviación estándar entre las condiciones de cada dataset. $\kappa$: kappa de Cohen medio. Discord.: imágenes en las que acierta solo Top-4 directo / solo la cascada. Base OK: accuracy de la etapa barata en las imágenes no escaladas. Errores esc.: proporción de los errores de la etapa barata que la compuerta envía a Top-4. Corr./perd.: errores de la etapa barata que Top-4 corrige / aciertos de la etapa barata que Top-4 pierde, entre las imágenes escaladas. La fila Total suma las imágenes de las 27 condiciones.}
-\label{tab:por-imagen}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lrccrrrrrr@{}}
-\toprule
- & & \multicolumn{2}{c}{Accuracy} & \multicolumn{2}{c}{$\kappa$} & & \multicolumn{3}{c}{Compuerta} \\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(l){8-10}
-Dataset & Cond. & T4 & Casc. & T4 & Casc. & Discord. & Base OK & Errores esc. & Corr./perd. \\
-\midrule
-DTD & 10 & $0{,}8703\pm0{,}0081$ & $0{,}8711\pm0{,}0075$ & 0,8674 & 0,8683 & 141/157 & 94,0\,\% & 69,6\,\% & 865/411 \\
-FMD & 5 & $0{,}9820\pm0{,}0168$ & $0{,}9830\pm0{,}0160$ & 0,9800 & 0,9811 & 0/1 & 99,9\,\% & 96,7\,\% & 17/4 \\
-CUReT & 2 & $0{,}9986\pm0{,}0005$ & $0{,}9979\pm0{,}0015$ & 0,9986 & 0,9978 & 4/0 & 99,9\,\% & 96,6\,\% & 135/1 \\
-Outex & 1 & 0,9294 & 0,9265 & 0,9284 & 0,9254 & 3/1 & 98,7\,\% & 90,4\,\% & 28/5 \\
-Soil & 5 & $0{,}9289\pm0{,}0177$ & $0{,}9307\pm0{,}0195$ & 0,9131 & 0,9153 & 1/3 & 99,2\,\% & 93,1\,\% & 41/18 \\
-KTH-TIPS2-b & 4 & $0{,}9575\pm0{,}0336$ & $0{,}9583\pm0{,}0345$ & 0,9532 & 0,9542 & 2/6 & 98,7\,\% & 80,4\,\% & 90/33 \\
-\midrule
-Total & 27 & & & & & 151/168 & 96,2\,\% & 72,9\,\% & 1.176/472 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-La Figura~\ref{fig:confusion} muestra las matrices de confusión de la cascada en FMD, un benchmark de materiales, y en KTH-TIPS2-b, el dataset que analiza HyTexNet. Sus 10 y 11 clases caben en una figura legible, a diferencia de las 47, 61 y 68 de DTD, CUReT y Outex, y en ambos cada imagen aparece una sola vez en el test. Las de Top-4 directo son casi idénticas: difieren en 2 celdas en FMD y en 8 en KTH-TIPS2-b, ninguna en más de cuatro imágenes. En FMD, el recall de todas las clases es al menos 0,96. En KTH-TIPS2-b, el error se concentra en el algodón: el 23\,\% de sus imágenes se clasifica como lino y el 6\,\% como pana, de modo que su recall es 0,655 con ambas políticas, mientras que el de las otras diez clases es al menos 0,94. La confusión entre lino y algodón, dos tejidos de aspecto parecido, es también la que HyTexNet señala en este dataset \citep{gupta2026hytexnet}. Aquí, además, el error depende de la muestra física. De las 100 imágenes de algodón que la cascada asigna a lino, 81 pertenecen a la muestra b, que solo aparece en el test de una partición; en esa partición, son 81 de sus 108 imágenes de algodón. La Figura~\ref{fig:errores-kth} sugiere por qué: esa muestra es una tela de trama abierta, con los hilos visibles como en el lino, mientras que las muestras a, c y d tienen un tejido más cerrado y otro color. Como el modelo no ve la muestra de test durante el entrenamiento, el error refleja el cambio entre muestras físicas que KTH-TIPS2-b busca evaluar. Las métricas por clase de los seis datasets se indican en el Apéndice~\ref{app:reproducibilidad}.
-
-\begin{figure}[pos=htbp]
-\centering
-\pgfplotsset{
-  confusion/.style={
-    width=6.4cm, height=6.4cm, scale only axis=false,
-    enlargelimits=false, axis on top,
-    colormap={azul}{color(0)=(white) color(1)=(blue!55)},
-    point meta min=0, point meta max=100,
-    y dir=reverse, tick style={draw=none},
-    x tick label style={rotate=90, font=\scriptsize},
-    y tick label style={font=\scriptsize},
-    xlabel={Clase predicha}, ylabel={Clase real},
-    label style={font=\footnotesize}, title style={font=\footnotesize},
-    nodes near coords={\pgfmathfloatifflags{\pgfplotspointmeta}{0}{}{\pgfmathprintnumber[fixed,precision=0]{\pgfplotspointmeta}}},
-    nodes near coords style={font=\sffamily\tiny, anchor=center},
-    name=ax,
-  }
-}
-\begin{tikzpicture}[baseline=(ax.north)]
-\begin{axis}[confusion, title={(a) FMD},
-  xtick={0,...,9}, ytick={0,...,9},
-  xticklabels={tela,follaje,vidrio,cuero,metal,papel,plástico,piedra,agua,madera},
-  yticklabels={tela,follaje,vidrio,cuero,metal,papel,plástico,piedra,agua,madera}]
-\addplot[matrix plot*, point meta=explicit, mesh/cols=10, mesh/rows=10] table[meta=v, row sep=\\]{
-x y v\\
-0 0 99\\ 1 0 0\\ 2 0 0\\ 3 0 0\\ 4 0 0\\ 5 0 1\\ 6 0 0\\ 7 0 0\\ 8 0 0\\ 9 0 0\\
-0 1 0\\ 1 1 100\\ 2 1 0\\ 3 1 0\\ 4 1 0\\ 5 1 0\\ 6 1 0\\ 7 1 0\\ 8 1 0\\ 9 1 0\\
-0 2 0\\ 1 2 0\\ 2 2 99\\ 3 2 0\\ 4 2 0\\ 5 2 0\\ 6 2 1\\ 7 2 0\\ 8 2 0\\ 9 2 0\\
-0 3 0\\ 1 3 0\\ 2 3 0\\ 3 3 98\\ 4 3 2\\ 5 3 0\\ 6 3 0\\ 7 3 0\\ 8 3 0\\ 9 3 0\\
-0 4 0\\ 1 4 0\\ 2 4 0\\ 3 4 0\\ 4 4 99\\ 5 4 0\\ 6 4 1\\ 7 4 0\\ 8 4 0\\ 9 4 0\\
-0 5 0\\ 1 5 0\\ 2 5 0\\ 3 5 0\\ 4 5 0\\ 5 5 99\\ 6 5 0\\ 7 5 1\\ 8 5 0\\ 9 5 0\\
-0 6 1\\ 1 6 0\\ 2 6 0\\ 3 6 0\\ 4 6 1\\ 5 6 2\\ 6 6 96\\ 7 6 0\\ 8 6 0\\ 9 6 0\\
-0 7 0\\ 1 7 0\\ 2 7 2\\ 3 7 0\\ 4 7 0\\ 5 7 0\\ 6 7 0\\ 7 7 97\\ 8 7 0\\ 9 7 1\\
-0 8 0\\ 1 8 2\\ 2 8 1\\ 3 8 0\\ 4 8 0\\ 5 8 0\\ 6 8 0\\ 7 8 0\\ 8 8 97\\ 9 8 0\\
-0 9 0\\ 1 9 0\\ 2 9 0\\ 3 9 1\\ 4 9 0\\ 5 9 0\\ 6 9 0\\ 7 9 0\\ 8 9 0\\ 9 9 99\\
-};
-\end{axis}
-\end{tikzpicture}\hfill
-\begin{tikzpicture}[baseline=(ax.north)]
-\begin{axis}[confusion, title={(b) KTH-TIPS2-b},
-  xtick={0,...,10}, ytick={0,...,10},
-  xticklabels={aluminio,pan integral,pana,corcho,algodón,galleta,lechuga,lino,pan blanco,madera,lana},
-  yticklabels={aluminio,pan integral,pana,corcho,algodón,galleta,lechuga,lino,pan blanco,madera,lana}]
-\addplot[matrix plot*, point meta=explicit, mesh/cols=11, mesh/rows=11] table[meta=v, row sep=\\]{
-x y v\\
-0 0 100\\ 1 0 0\\ 2 0 0\\ 3 0 0\\ 4 0 0\\ 5 0 0\\ 6 0 0\\ 7 0 0\\ 8 0 0\\ 9 0 0\\ 10 0 0\\
-0 1 0\\ 1 1 100\\ 2 1 0\\ 3 1 0\\ 4 1 0\\ 5 1 0\\ 6 1 0\\ 7 1 0\\ 8 1 0\\ 9 1 0\\ 10 1 0\\
-0 2 0\\ 1 2 0\\ 2 2 98\\ 3 2 0\\ 4 2 2\\ 5 2 0\\ 6 2 0\\ 7 2 0\\ 8 2 0\\ 9 2 0\\ 10 2 0\\
-0 3 0\\ 1 3 0\\ 2 3 0\\ 3 3 100\\ 4 3 0\\ 5 3 0\\ 6 3 0\\ 7 3 0\\ 8 3 0\\ 9 3 0\\ 10 3 0\\
-0 4 0\\ 1 4 0\\ 2 4 6\\ 3 4 0\\ 4 4 66\\ 5 4 0\\ 6 4 1\\ 7 4 23\\ 8 4 0\\ 9 4 1\\ 10 4 3\\
-0 5 0\\ 1 5 0\\ 2 5 0\\ 3 5 0\\ 4 5 0\\ 5 5 100\\ 6 5 0\\ 7 5 0\\ 8 5 0\\ 9 5 0\\ 10 5 0\\
-0 6 0\\ 1 6 0\\ 2 6 0\\ 3 6 0\\ 4 6 0\\ 5 6 0\\ 6 6 100\\ 7 6 0\\ 8 6 0\\ 9 6 0\\ 10 6 0\\
-0 7 0\\ 1 7 0\\ 2 7 0\\ 3 7 0\\ 4 7 6\\ 5 7 0\\ 6 7 0\\ 7 7 94\\ 8 7 0\\ 9 7 0\\ 10 7 0\\
-0 8 0\\ 1 8 0\\ 2 8 0\\ 3 8 0\\ 4 8 0\\ 5 8 0\\ 6 8 0\\ 7 8 0\\ 8 8 100\\ 9 8 0\\ 10 8 0\\
-0 9 0\\ 1 9 0\\ 2 9 0\\ 3 9 0\\ 4 9 0\\ 5 9 0\\ 6 9 0\\ 7 9 0\\ 8 9 0\\ 9 9 100\\ 10 9 0\\
-0 10 0\\ 1 10 0\\ 2 10 1\\ 3 10 0\\ 4 10 2\\ 5 10 0\\ 6 10 0\\ 7 10 0\\ 8 10 0\\ 9 10 0\\ 10 10 97\\
-};
-\end{axis}
-\end{tikzpicture}
-\caption{Matrices de confusión de la cascada por margen con SVM, sumadas sobre las condiciones de cada dataset y normalizadas por fila: porcentaje de las imágenes de cada clase real asignado a cada clase predicha, sin los valores que redondean a cero. Cada imagen de test aparece una vez: 1.000 en FMD (cinco folds) y 4.752 en KTH-TIPS2-b (cuatro particiones). Las matrices de Top-4 directo difieren en 2 celdas en FMD y en 8 en KTH-TIPS2-b, ninguna en más de cuatro imágenes.}
-\label{fig:confusion}
-\end{figure}
-
-\begin{figure}[pos=htbp]
-\centering
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{cccc}
-\includegraphics[width=0.2\textwidth]{figures/kth_errores/algodon_b_escala2.png} &
-\includegraphics[width=0.2\textwidth]{figures/kth_errores/algodon_b_escala5.png} &
-\includegraphics[width=0.2\textwidth]{figures/kth_errores/algodon_b_escala8.png} &
-\includegraphics[width=0.2\textwidth]{figures/kth_errores/algodon_b_escala10.png} \\
-\footnotesize Algodón b, escala 2 & \footnotesize Algodón b, escala 5 & \footnotesize Algodón b, escala 8 & \footnotesize Algodón b, escala 10 \\[4pt]
-\includegraphics[width=0.2\textwidth]{figures/kth_errores/algodon_a_escala10.png} &
-\includegraphics[width=0.2\textwidth]{figures/kth_errores/algodon_c_escala10.png} &
-\includegraphics[width=0.2\textwidth]{figures/kth_errores/algodon_d_escala10.png} &
-\includegraphics[width=0.2\textwidth]{figures/kth_errores/lino_b_escala10.png} \\
-\footnotesize Algodón a, escala 10 & \footnotesize Algodón c, escala 10 & \footnotesize Algodón d, escala 10 & \footnotesize Lino b, escala 10 \\
-\end{tabular}
-\caption{Ejemplos de KTH-TIPS2-b \citep{mallikarjuna2005kth}. Fila superior: imágenes de algodón de la muestra física b que Top-4 directo y la cascada clasifican como lino, a cuatro escalas. Fila inferior: imágenes de algodón de las otras tres muestras y de lino de la muestra b, que ambas políticas clasifican correctamente. Para cada escala o muestra se tomó la primera imagen del manifiesto que cumple la condición.}
-\label{fig:errores-kth}
-\end{figure}
-\FloatBarrier
-
-\subsection{Medición física de una cascada anterior}\label{sec:piloto}
-
-Los costos de la Tabla~\ref{tab:cascada} son proyecciones. Las mediciones físicas de una cascada por margen corresponden a la evaluación anterior, cuya etapa cara era la Top-$k$ archivada de cada condición (Apéndice~\ref{app:reproducibilidad}); la cascada con Top-4 todavía no se midió en línea. La medición principal tomó una condición por dataset en una GPU RTX 4060, con modelos residentes e imágenes ya decodificadas: una imagen por clase, tres repeticiones pareadas y orden aleatorizado, en total 204 imágenes y 612 pares (Tabla~\ref{tab:piloto}). El agregado registra 90,25 ms por imagen para la cascada frente a 291,21 ms de Top-$k$ directo, una reducción del 69,0\,\%, del mismo orden que la proyectada; 453 de las 612 ejecuciones terminaron en la etapa barata. Las rutas y predicciones coincidieron con las calculadas sobre los embeddings almacenados, pero en CUReT y Soil la representación de ViT-B/16 extraída en el piloto difiere de la almacenada en todas las imágenes (61 y 7; cosenos mínimos de $-0{,}0707$ y $0{,}0085$), mientras que en los otros cuatro datasets ningún bloque bajó de un coseno de 0,99. La causa no se ha diagnosticado. Por eso el piloto se informa como medición descriptiva de tiempos y no como validación de que la medición física reproduce el sistema almacenado.
-
-Una medición adicional en KTH-TIPS2-b tomó 30 imágenes en cada una de sus cuatro particiones, con modelos residentes y el cuantil $q=0{,}50$; rutas y predicciones coincidieron con las almacenadas, con cosenos de al menos 0,9999. La cascada ahorró el 56 y el 46\,\% cuando la Top-$k$ incluía DINOv2-L (196,03 frente a 447,49 ms y 238,42 frente a 441,05 ms), pero fue más lenta en las dos particiones cuya Top-$k$ tenía un solo bloque (49,45 frente a 42,61 ms y 57,17 frente a 40,07 ms), porque allí la etapa barata agrega su costo sin evitar extracción.
-
-\begin{table}[pos=htbp]
-\centering
-\caption{Piloto físico de la cascada anterior, con la Top-$k$ archivada como etapa cara, en RTX 4060: una condición por dataset, tres repeticiones pareadas por imagen. Las repeticiones comparten imagen, por lo que los pares no son observaciones independientes.}
-\label{tab:piloto}
-\small
-\begin{tabular}{@{}lrrrrr@{}}
-\toprule
-Dataset & Imágenes & Pares & Cascada (ms) & Top-$k$ (ms) & Reducción \\
-\midrule
-DTD & 47 & 141 & 90,57 & 295,55 & 69,4\,\% \\
-FMD & 10 & 30 & 13,01 & 208,08 & 93,7\,\% \\
-CUReT & 61 & 183 & 92,52 & 270,60 & 65,8\,\% \\
-Outex & 68 & 204 & 111,47 & 354,31 & 68,5\,\% \\
-Soil & 7 & 21 & 41,99 & 109,10 & 61,5\,\% \\
-KTH-TIPS2-b & 11 & 33 & 46,08 & 188,33 & 75,5\,\% \\
-\midrule
-Agregado & 204 & 612 & 90,25 & 291,21 & 69,0\,\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-\FloatBarrier
-
-\subsection{Panel online: Top-4 directo y política por margen}\label{sec:panel}
-
-La Tabla~\ref{tab:panel} reúne el panel online. En las doce combinaciones de dataset y clasificador, la política por margen tiene la menor latencia media, entre 21,65 y 54,35 ms por imagen, con medianas entre 2,81 y 25,18 ms porque la mayoría de las imágenes termina en la etapa barata. Top-4 tarda entre 70,98 y 333,98 ms, y Completa-22 entre 1.551 y 1.823 ms. La razón de latencias entre Top-4 y la política por margen va de 1,6 en Soil con ResMLP, donde Top-4 ya es barato, a 12,2 en Outex con ResMLP. La latencia de cola se comporta distinto. Sobre todas las llamadas de cada combinación, el percentil 95 de la política por margen va de 113,7 a 279,3 ms y el de Top-4, de 117,6 a 296,3 ms, porque las imágenes escaladas pagan la etapa barata y el rescate. En FMD ambos percentiles son similares (270,8 y 279,3 ms con SVM y ResMLP, frente a 296,3 y 294,7 ms), y en Soil el de la política por margen es mayor (136,7 y 145,4 frente a 117,6 y 128,4 ms). La política por margen reduce, por tanto, la latencia media y la mediana, pero no la del peor caso.
-
-\begin{table}[pos=htbp]
-\centering
-\caption{Panel online de 94 condiciones (\texttt{batch=1}, RTX 4060): accuracy media entre particiones y latencia media en ms por imagen, medidas en las mismas llamadas. La política por margen rescata con subconjuntos de cuatro bloques de un ensamble por diversidad (Sección~\ref{sec:variante-panel}). Los dos ensambles del panel se resumen en el texto.}
-\label{tab:panel}
-\small
-\setlength{\tabcolsep}{4.5pt}
-\begin{tabular}{@{}llrrrrrr@{}}
-\toprule
- & & \multicolumn{2}{c}{Top-4} & \multicolumn{2}{c}{Política por margen} & \multicolumn{2}{c}{Completa-22} \\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(l){7-8}
-Dataset & Clasif. & Acc. & ms & Acc. & ms & Acc. & ms \\
-\midrule
-DTD$^{\dagger}$ & SVM & \textbf{0,8703} & 333,98 & 0,8686 & 54,35 & 0,8651 & 1.611,57 \\
- & ResMLP & 0,8624 & 267,50 & \textbf{0,8675} & 47,61 & 0,8634 & 1.551,34 \\
-FMD & SVM & \textbf{0,9823} & 268,96 & 0,9777 & 38,63 & 0,9650 & 1.759,50 \\
- & ResMLP & \textbf{0,9800} & 258,56 & 0,9760 & 36,35 & 0,9577 & 1.759,70 \\
-CUReT & SVM & 0,9986 & 270,69 & 0,9984 & 36,83 & \textbf{0,9989} & 1.712,57 \\
- & ResMLP & 0,9984 & 268,42 & 0,9989 & 30,47 & \textbf{0,9991} & 1.618,51 \\
-Outex & SVM & 0,9294 & 265,38 & 0,9294 & 40,33 & \textbf{0,9574} & 1.574,19 \\
- & ResMLP & 0,9294 & 263,77 & \textbf{0,9618} & 21,65 & 0,9485 & 1.563,18 \\
-Soil & SVM & 0,9158 & 70,98 & 0,9222 & 38,48 & \textbf{0,9275} & 1.651,19 \\
- & ResMLP & 0,9152 & 78,21 & 0,9184 & 48,33 & \textbf{0,9219} & 1.823,25 \\
-KTH-TIPS2-b & SVM & 0,9575 & 260,38 & 0,9415 & 30,95 & \textbf{0,9606} & 1.579,08 \\
- & ResMLP & \textbf{0,9558} & 260,11 & 0,9407 & 32,16 & 0,9472 & 1.626,70 \\
-\midrule
-Media & SVM & 0,9423 & 245,06 & 0,9396 & 39,93 & \textbf{0,9457} & 1.648,02 \\
- & ResMLP & 0,9402 & 232,76 & \textbf{0,9439} & 36,10 & 0,9396 & 1.657,11 \\
-\bottomrule
-\end{tabular}
-
-\vspace{0.35em}
-\begin{minipage}{0.98\textwidth}\footnotesize
-$^{\dagger}$En DTD con SVM se conserva una reserva sobre la medición de tiempos por una pausa durante una ventana nocturna; la mediana de la política por margen es 14,10 ms con SVM y 14,77 ms con ResMLP. Por esa pausa, la media de Top-4 con SVM (333,98 ms) supera a su percentil 95 (291,77 ms).
-\end{minipage}
-\end{table}
-
-En accuracy, la media por dataset es 0,9423 para Top-4 y 0,9396 para la política por margen con SVM, y 0,9402 y 0,9439 con ResMLP. Con SVM, la política por margen queda por debajo de Top-4 en cuatro datasets, lo iguala en Outex y lo supera en Soil ($+0{,}0064$); la mayor pérdida está en KTH-TIPS2-b ($-0{,}0160$). Con ResMLP supera a Top-4 en cuatro datasets, con la mayor ganancia en Outex ($+0{,}0324$) y la mayor pérdida en KTH-TIPS2-b ($-0{,}0151$). Entre las tres estrategias de la tabla, Completa-22 obtiene la mayor media con SVM, 0,9457, con una latencia 41 veces mayor que la de la política por margen. Los dos ensambles del panel superan a las tres: obtienen 0,9468 (diversidad) y 0,9452 (azar) con SVM y 0,9484 y 0,9487 con ResMLP, con latencias medias de 328 a 352 ms. La política por margen rescata con hasta tres subconjuntos del ensamble por diversidad, de modo que resigna parte de esa accuracy a cambio de una latencia media unas nueve veces menor. Los valores del panel no coinciden exactamente con los de la Tabla~\ref{tab:top4}; la mayor diferencia corresponde a Top-4 con SVM en Soil (0,9158 frente a 0,9272). Con los embeddings almacenados, los mismos clasificadores reproducen exactamente los 15 valores de la evaluación estática, de modo que la diferencia surge al volver a extraer los descriptores en línea: cambian las ocho condiciones cuyo Top-4 incluye ViT-B/16 y no cambian las siete restantes. Por eso la Tabla~\ref{tab:top4} informa 0,9272 y el panel, que empareja calidad y latencia en las mismas llamadas, 0,9158. Con ResMLP también difieren Outex (0,9294 frente a 0,9368) y KTH-TIPS2-b (0,9558 frente a 0,9596). Allí Top-4 no incluye ViT-B/16, y con SVM el panel reproduce la evaluación estática en esos datasets, de modo que la diferencia no se explica por la reextracción de ese bloque; una posibilidad es la variación del entrenamiento de ResMLP entre equipos, que no se diagnosticó.
-
-\subsection{Comparación con métodos recientes en el panel común}\label{sec:sota}
-
-Los cuatro métodos de la Sección~\ref{sec:trabajos} se reimplementaron y evaluaron sobre las mismas particiones del panel, con llamadas individuales (Tabla~\ref{tab:sota}). Antes de compararlos se verificó cada implementación contra el código o los ejemplos numéricos publicados cuando estaban disponibles. Las adaptaciones locales son las siguientes: Neshov et al., cuatro capas de BEiTv2-B (3.072 dimensiones) con una MLP; HyTexNet, DenseNet-121 y la codificación local guiada por percentiles (1.538 dimensiones) con capas totalmente conectadas; 6LBP+dCellNN, el código y el checkpoint de los autores (768 dimensiones) con una MLP; y DeepLumina, ResNet-101 sobre RGB y luminancia (2.000 dimensiones) con SVM binarios combinados mediante códigos correctores de errores. Cada cabeza se entrenó en las particiones del panel, que difieren de los repartos originales, por lo que ninguna adaptación se presenta como reproducción fiel de las cifras publicadas. En accuracy, la política por margen con SVM supera a los cuatro métodos en los seis datasets. Frente al mejor de ellos, la agregación multicapa de BEiTv2 de Neshov et al., la ventaja va de 0,0045 en CUReT a 0,0659 en DTD. Neshov et al. es, en cambio, más rápido: tarda entre 14,27 y 19,17 ms por imagen, frente a 30,95--54,35 ms de la política por margen. Ninguna de las 230 comparaciones por dataset entre las cinco estrategias del panel, con ambos clasificadores, y los 23 resultados externos con media disponible tiene diferencia negativa de accuracy, y tampoco las 60 frente a la variante B de DeepLumina descrita más abajo; la menor ventaja, 0,0045, se da en CUReT frente a Neshov et al. y la comparten la política por margen con SVM y Top-4 con ResMLP. En macro-F1, la única diferencia negativa es la de Top-4 con SVM en Soil frente a Neshov et al. ($-0{,}0037$).
-
-\begin{table}[pos=htbp]
-\centering
-\caption{Comparación descriptiva en el panel común: accuracy media por dataset y, entre paréntesis, latencia media en ms por imagen (\texttt{batch=1}). Los métodos externos se reimplementaron sobre las mismas particiones; las latencias se midieron en fechas distintas y con hardware compartido.}
-\label{tab:sota}
-\footnotesize
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{@{}lrrrrrr@{}}
-\toprule
-Método & DTD & FMD & CUReT & Outex & Soil & KTH-TIPS2-b \\
-\midrule
-6LBP+dCellNN \citep{chang2024cellnn} & 0,2247 (31,5) & 0,2710 (29,7) & 0,7099 (31,0) & 0,6471 (29,9) & 0,4684 (33,0) & 0,6073 (31,9) \\
-HyTexNet \citep{gupta2026hytexnet} & 0,6260 (33,5) & 0,7417 (31,2) & 0,9831 (32,4) & 0,8956 (29,0) & 0,8509 (33,1) & 0,8392 (31,0) \\
-DeepLumina local A$^{\ddagger}$ \citep{simon2022deeplumina} & --- & 0,8553 (53,3) & 0,9881 (53,0) & 0,9103 (53,5) & 0,8614 (57,8) & 0,8798 (51,6) \\
-DeepLumina local B$^{\S}$ & 0,7055 (79,8) & 0,8563 (73,3) & 0,9888 (85,0) & 0,9074 (84,1) & 0,8620 (78,5) & 0,8828 (73,6) \\
-Neshov et al. \citep{neshov2025aggregation} & 0,8027 (16,8) & 0,9420 (16,9) & 0,9939 (14,3) & 0,9221 (14,6) & 0,9082 (19,2) & 0,9282 (16,5) \\
-\midrule
-Top-4, SVM & \textbf{0,8703} (334,0) & \textbf{0,9823} (269,0) & 0,9986 (270,7) & 0,9294 (265,4) & 0,9158 (71,0) & \textbf{0,9575} (260,4) \\
-Política por margen, SVM & 0,8686 (54,4) & 0,9777 (38,6) & 0,9984 (36,8) & 0,9294 (40,3) & \textbf{0,9222} (38,5) & 0,9415 (31,0) \\
-Política por margen, ResMLP & 0,8675 (47,6) & 0,9760 (36,4) & \textbf{0,9989} (30,5) & \textbf{0,9618} (21,7) & 0,9184 (48,3) & 0,9407 (32,2) \\
-\bottomrule
-\end{tabular}
-
-\vspace{0.35em}
-\begin{minipage}{0.98\textwidth}\footnotesize
-$^{\ddagger}$La adaptación local A presenta avisos de convergencia; en DTD una de diez condiciones carece de resultado online y no se informa media. $^{\S}$La variante local B añade escalado ajustado con entrenamiento y aumenta el límite de iteraciones; ambas modificaciones se evalúan conjuntamente. Las latencias A y B corresponden a sesiones distintas. Ninguna variante constituye una reproducción fiel validada.
-\end{minipage}
-\end{table}
-
-HyTexNet y 6LBP+dCellNN obtienen valores muy inferiores a los publicados. El panel separa las muestras físicas entre entrenamiento y prueba, mientras que sus protocolos originales no lo hacen: HyTexNet alcanza una accuracy de 0,9391 en el protocolo de un tercio de KTH-TIPS2-b, que comparte muestras físicas, y 0,8392 en el panel. En la adaptación local A de DeepLumina, 1.653 de los 2.441 clasificadores binarios entrenados alcanzaron el máximo de 10.000 iteraciones, y su efecto sobre los resultados no está cuantificado. La variante B incorpora escalado ajustado sobre entrenamiento y eleva el máximo a 100.000 iteraciones: los 47 ajustes y sus 2.525 clasificadores binarios fueron auditados sin alcanzar el límite ni registrar avisos. La ausencia de avisos no demuestra equivalencia con la implementación original ni un óptimo exacto. Frente a la adaptación A, la accuracy de B cambia entre $-0{,}0029$ (Outex) y $+0{,}0030$ (KTH-TIPS2-b) en los cinco datasets con ambas, de modo que la falta de convergencia de A no explica su distancia a Top-4. Se evaluaron 47 condiciones y 36.264 llamadas individuales; las medias de accuracy ponderan las condiciones por igual y las latencias ponderan las llamadas. El macro-F1 de B es 0,7037 en DTD, 0,8560 en FMD, 0,9888 en CUReT, 0,9057 en Outex, 0,8061 en Soil y 0,8769 en KTH-TIPS2-b. Los folds pueden reutilizar imágenes y no se evaluó la significancia estadística. El cambio simultáneo de escalado y presupuesto impide atribuir por separado sus efectos. Por estas diferencias de protocolo, la Tabla~\ref{tab:sota} contextualiza magnitudes y no demuestra superioridad.
-\FloatBarrier
-
-\subsection{Síntesis de ablación}\label{sec:ablacion}
-
-La Tabla~\ref{tab:ablacion} reúne el efecto de cada decisión del método sobre la accuracy y la macro-F1, con el formato de los estudios de ablación de trabajos recientes \citep{gupta2026hytexnet}. Sus valores provienen de las Secciones~\ref{sec:curva-k}, \ref{sec:top4} y~\ref{sec:resultados-margen} y no agregan corridas; la macro-F1 de las variantes de uso de Top-4 se calculó con las mismas predicciones de test. Las medias de las dos métricas ordenan igual las configuraciones de cada grupo, con una sola excepción: 4 y 8 bloques intercambian su posición, con diferencias menores que 0,001 en ambas. Las lecturas de la tabla no dependen, entonces, de informar accuracy en lugar de macro-F1, aunque con SVM los rangos medios de Top-4 y Completa-22 se invierten entre ambas métricas (Sección~\ref{sec:top4}). «1 bloque» e «Individual» designan el mismo descriptor y coinciden en cinco datasets; difieren solo en KTH-TIPS2-b (0,9360 frente a 0,9415), donde Individual proviene del archivo de 22 bloques y el ranking, de la validación agrupada por muestra física, la reserva señalada en la Sección~\ref{sec:protocolo}.
-
-La tabla admite tres lecturas. Concatenar más de cuatro bloques del ranking casi no mejora ninguna de las dos métricas, y la concatenación completa gana 0,0031 de accuracy y 0,0025 de macro-F1 con más de seis veces las dimensiones; en cambio, agregar a Top-4 el bloque de color, que el ranking no podía elegir, la lleva por encima de Completa-22, aunque tres datasets suben y tres bajan. Entre las variantes que calculan Top-4 solo en parte de las imágenes, únicamente la activación por margen con la etapa barata elegida iguala a Top-4 directo en ambas métricas, y lo hace también con ResMLP; la etapa barata sola, el sorteo y la cascada con ResNet-50 quedan entre 0,0020 y 0,0214 por debajo en macro-F1. Entre las compuertas, el margen obtiene la mayor accuracy y la mayor macro-F1. Con el margen, los tres cuantiles quedan a menos de 0,0002 entre sí: escalar más imágenes no mejora ninguna de las dos métricas y solo aumenta el costo.
-
-\begin{table}[pos=htbp]
-\centering
-\caption{Síntesis de ablación: medias de los seis datasets. Los grupos de la evaluación estática promedian las condiciones externas de cada dataset (47 por clasificador); los de uso de Top-4, compuerta y cuantil, las 27 condiciones con SVM o ResMLP. En negrita, la configuración adoptada.}
-\label{tab:ablacion}
-\footnotesize
-\begin{tabular}{@{}llrrp{5.2cm}@{}}
-\toprule
-Decisión & Configuración & Accuracy & Macro-F1 & Lectura \\
-\midrule
-Tamaño de la & 1 bloque & 0,9272 & 0,9174 & Primer bloque del ranking interno \\
-concatenación & 2 bloques & 0,9381 & 0,9299 & \\
-(SVM, prefijos & 3 bloques & 0,9425 & 0,9339 & \\
-del ranking) & \textbf{4 bloques (Top-4)} & \textbf{0,9442} & \textbf{0,9366} & Curva aplanada; 15\,\% de las dimensiones \\
- & 6 bloques & 0,9436 & 0,9348 & \\
- & 8 bloques & 0,9443 & 0,9356 & \\
- & Completa-22 & 0,9473 & 0,9391 & Ventaja concentrada en Outex \\
- & Top-4 + N-gramas & 0,9489 & 0,9412 & Color fuera del ranking; 3 suben, 3 bajan \\
- & Individual & 0,9281 & 0,9190 & Mejor bloque según el ranking interno \\
-\addlinespace
-Clasificador & \textbf{SVM lineal} & \textbf{0,9442} & \textbf{0,9366} & \\
-(Top-4) & ResMLP & 0,9420 & 0,9331 & Diferencia menor que 0,004 \\
-\addlinespace
-Uso de Top-4 & Etapa barata sola & 0,9234 & 0,9153 & No alcanza a Top-4 \\
-(SVM, 27 cond.) & Aleatorio, igual cantidad & 0,9280 & 0,9199 & El sorteo apenas mejora la etapa barata \\
- & Margen, base ResNet-50 & 0,9426 & 0,9347 & Escala el 48,5\,\% de las imágenes \\
- & \textbf{Margen, base elegida} & \textbf{0,9446} & \textbf{0,9368} & 21,1\,\% escaladas; 75\,\% menos costo \\
- & Top-4 directo & 0,9444 & 0,9367 & Referencia \\
-\addlinespace
-Uso de Top-4 & \textbf{Margen} & \textbf{0,9424} & \textbf{0,9331} & 22,5\,\% escaladas; bloques de SVM \\
-(ResMLP, 27 cond.) & Top-4 directo & 0,9428 & 0,9337 & Referencia \\
-\addlinespace
-Compuerta & \textbf{Margen} & \textbf{0,9446} & \textbf{0,9368} & \\
-($q=0{,}25$, & Puntaje máximo & 0,9425 & 0,9353 & \\
-umbral OOF) & Entropía & 0,9356 & 0,9283 & Escala menos imágenes (16,2\,\%) \\
-\addlinespace
-Cuantil $q$ & \textbf{0,25} & \textbf{0,9446} & \textbf{0,9368} & 21,1\,\% de imágenes escaladas \\
-(margen) & 0,50 & 0,9445 & 0,9367 & 43,1\,\% \\
- & 0,75 & 0,9444 & 0,9367 & 66,7\,\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-\FloatBarrier
-
-% ============================================================
-% 5. DISCUSION
-% ============================================================
-\section{Discusión}\label{sec:discusion}
-
-Los resultados indican que buena parte del beneficio de concatenar se obtiene con pocos bloques. Con el ranking interno, los cuatro primeros descriptores son casi siempre Transformers preentrenados a gran escala: con SVM, SigLIP-B y EVA-02 aparecen en 41 de los 47 subconjuntos Top-4, DINOv2-B y DINOv2-L en 32 y BEiTv2-B en 19. Agregar más bloques del mismo ranking incorpora representaciones con información en parte redundante, y la curva externa deja de crecer. Top-4 mejora a Individual y queda cerca de la concatenación completa, pero no la reemplaza en todos los dominios: con SVM pierde 0,0368 en Outex, cuyos bloques ViT-B/16 y DeiT-S tienen la reserva de procedencia de la Sección~\ref{sec:datos}, y Completa-22 conserva ventaja en KTH-TIPS2-b. N-gramas + SVD, el bloque de color, no participó del ranking, y Completa-22 supera a los 21 bloques sin ese descriptor en 0,0058 en Soil y 0,0093 en KTH-TIPS2-b con SVM. Un Top-$k$ limitado a los bloques individualmente más fuertes puede omitir así información complementaria. Agregar ese bloque a Top-4 lo confirma en parte: la media sube a 0,9489, por encima de Completa-22, pero la mejora se concentra en Outex y KTH-TIPS2-b, y en DTD, FMD y Soil la accuracy baja levemente. En Soil, el color mejora la concatenación completa y no a Top-4.
-
-La activación por margen conserva la accuracy de Top-4 con una cuarta parte de su costo proyectado: la cota inferior unilateral al 95\,\% de la diferencia media por dataset es $-0{,}0013$, y la diferencia media se mantiene entre $-0{,}0002$ y $+0{,}0007$ al excluir cualquiera de los seis datasets. El resultado no depende de la SVM: con ResMLP y los mismos bloques, la diferencia media es $-0{,}0003$ y su cota inferior, $-0{,}0021$. Lo consigue porque la mayoría de las imágenes se resuelve en la etapa barata, que casi siempre es uno de los bloques de Top-4, y porque el margen ordena bien la dificultad. Por imagen, la compuerta escala el 21,8\,\% de las predicciones de test pero reúne en ellas el 72,9\,\% de los errores de la etapa barata, y en las que no escala esa etapa acierta el 96,2\,\% de las veces (Sección~\ref{sec:por-imagen}). Esa etapa barata no basta por sí sola: queda 0,0210 por debajo de Top-4. El control aleatorio aísla el efecto del margen: con la misma etapa barata y la misma cantidad de imágenes escaladas, el sorteo apenas mejora a la etapa barata sola (0,9280 frente a 0,9234), mientras que el margen recupera toda la distancia hasta Top-4. Frente al puntaje máximo y la entropía, el margen obtiene la misma accuracy o una mayor, pero las diferencias son pequeñas y no significativas; la información útil está en la confianza de la etapa barata, más que en una medida concreta de ella. La cascada puede incluso superar a Top-4 directo, como en DTD, FMD, Soil y KTH-TIPS2-b, porque conserva la predicción barata cuando esta es correcta y Top-4 se equivoca: eso ocurre en 168 imágenes de las 27 condiciones, frente a 151 en las que sucede lo contrario.
-
-El ahorro depende de la razón entre el costo de la etapa barata y el de Top-4. Cuando Top-4 contiene bloques costosos como DINOv2-L, que tardó 476 ms por imagen en una medición sobre KTH-TIPS2-b frente a 37 ms de ResNet-50, la cascada evita la mayor parte de la extracción. En Soil, donde Top-4 ya es liviano, la reducción proyectada baja al 61\,\%. Si la etapa cara es tan liviana como la barata, la cascada agrega costo: en la medición de KTH-TIPS2-b de la Sección~\ref{sec:piloto}, fue más lenta que Top-$k$ directo en las dos particiones cuya Top-$k$ tenía un solo bloque. En el panel, la razón de latencias frente a Top-4 cae a 1,6--1,8 en Soil. La regla de costo de la Sección~\ref{sec:margen} permite elegir el uso directo en esos casos antes de ver el test, siempre que el perfil de latencias represente el equipo de uso. El análisis supone, además, procesamiento imagen por imagen. Con inferencia por lotes, las imágenes escaladas forman lotes más pequeños e irregulares, y el ahorro en imágenes por segundo puede diferir del proyectado.
-
-El panel muestra que la compuerta por margen también reduce la latencia cuando el rescate es un ensamble de subconjuntos de cuatro bloques: la política por margen tiene menor latencia media que Top-4 en las doce combinaciones, con una accuracy media cercana ($-0{,}0027$ con SVM y $+0{,}0037$ con ResMLP), aunque su percentil 95 se acerca al de Top-4 en FMD y lo supera en Soil. Sus pérdidas frente a Top-4 se concentran en KTH-TIPS2-b con ambos clasificadores. Como su etapa cara no es Top-4, el panel no reemplaza a la comparación pareada de la Sección~\ref{sec:resultados-margen}; la complementa con latencias medidas en las 94 condiciones, mientras que la cascada con Top-4 todavía no se midió en línea.
-
-\subsection{Limitaciones}
-
-El valor $k=4$ se leyó de la curva externa de macro-F1 de SVM. La curva interna media muestra la misma forma, pero las reglas aplicadas por condición no lo recuperan, de modo que la elección no es independiente del test. Ese valor se aplicó sin cambios a ResMLP, cuya curva externa alcanza su máximo con cinco bloques, y el ranking no incluyó N-gramas + SVD; su agregado a Top-4 se evaluó por separado y solo con SVM. La accuracy pasó a ser la métrica principal después de observar los resultados, mientras que el ranking, la elección de Individual y la ruta de la cascada se basan en macro-F1; el margen de no inferioridad se fijó para macro-F1. El cambio no favorece las conclusiones: con SVM, Top-4 tenía el mejor rango medio en macro-F1 y en accuracy queda detrás de Completa-22, y en la activación por margen las diferencias entre ambos usos son menores que 0,0002 con las dos métricas.
-
-La comparación pareada entre uso directo y activación por margen usa una semilla, y con ResMLP reutiliza los bloques elegidos para SVM y no informa costos. Se ejecutó con la regla de ruta, las etapas baratas candidatas, los cuantiles y el perfil de costos congelados, pero después de haber inspeccionado las mismas particiones de test en pilotos anteriores y en la cascada con la Top-$k$ archivada. La tolerancia de 0,005 se fijó tras un análisis exploratorio con resultados externos, y el ranking que define Top-4 no se volvió a aprender dentro de cada fold que produce los márgenes OOF, lo que puede favorecer su estimación interna. El análisis de no inferioridad de la cascada se definió después de observar sus resultados, aunque reutiliza el margen de no inferioridad de la evaluación estática, y su intervalo toma como unidad la media por dataset, sin incorporar la variación entre particiones. Las compuertas alternativas usan puntuaciones de SVM sin calibrar y una etapa barata elegida para el margen, lo que puede favorecer a este.
-
-Los costos de la cascada son proyecciones por componente y no incluyen carga de modelos ni ajuste del clasificador; en KTH-TIPS2-b combinan tiempos medidos en sesiones distintas. La cascada con Top-4 no se midió en línea: el piloto físico corresponde a la cascada anterior con la Top-$k$ archivada, mide una condición por dataset y, en CUReT y Soil, la representación de ViT-B/16 extraída difiere de la almacenada. La discrepancia de Top-4 en Soil entre el panel y la evaluación estática también se concentra en las condiciones que incluyen ese bloque, y su causa no se ha diagnosticado. Las latencias del panel se midieron en fechas distintas y con hardware compartido, en DTD con SVM se registró una pausa durante una ventana nocturna, y no se registró la memoria de GPU de cada política. Top-4 con ResMLP se entrenó en GPU o en CPU según el dataset. Las comparaciones con métodos publicados son descriptivas: se reimplementaron en un protocolo común que difiere de los originales, la adaptación A de DeepLumina presenta problemas de convergencia y la variante B, sin avisos registrados, sigue siendo una adaptación local.
-
-Con seis datasets, las pruebas tienen poca potencia y no se realizó un cálculo de tamaño muestral a priori. Las particiones de DTD y FMD reutilizan imágenes, CUReT presenta dos direcciones complementarias y Outex tiene una sola partición. Dos datasets conservan reservas de procedencia en la evaluación estática: en KTH-TIPS2-b no está certificado que todos los controles archivados correspondan a la variante con agrupación interna corregida, y en Outex el arreglo histórico de DeiT-S, que integra Completa-22 pero no Top-4, no coincide con el del panel. Ninguna de las dos reservas demuestra un error, y sin cualquiera de esos datasets ningún par alcanza el nivel nominal tras Holm, igual que con los seis; pero la ventaja media de Completa-22 sobre Top-4 con SVM proviene sobre todo de Outex y debe leerse con esa reserva. Los descriptores clásicos se calcularon en escala de grises, mientras las redes y N-gramas + SVD utilizan RGB, y el posible solapamiento entre los corpus de preentrenamiento y los benchmarks no fue auditado.
-
-% ============================================================
-% 6. CONCLUSION
-% ============================================================
-\section{Conclusión}\label{sec:conclusion}
-
-Este trabajo comparó dos usos de una concatenación Top-$k$ de descriptores para clasificar texturas: calcularla para toda imagen o activarla solo cuando una etapa barata duda. Con 22 descriptores, seis datasets y dos clasificadores, la curva de desempeño se aplana alrededor de cuatro bloques. Top-4 ocupa cerca del 15\,\% de las dimensiones de la biblioteca, supera al descriptor individual elegido internamente en once de doce combinaciones de dataset y clasificador, y queda a 0,0031 de la accuracy de la concatenación completa con SVM, mientras la supera en 0,0032 con ResMLP. Frente a la concatenación completa, la no inferioridad con $\delta=0{,}01$ solo se establece con ResMLP. Agregar a Top-4 el bloque de color, que el ranking no incluía, eleva su media con SVM a 0,9489, por encima de la concatenación completa, aunque con resultados mixtos entre datasets.
-
-Activada por margen, la misma Top-4 obtuvo una accuracy media de 0,9446 frente a 0,9444 del uso directo en 27 condiciones de seis datasets, con un costo proyectado 75\,\% menor y calculando Top-4 en el 21\,\% de las imágenes. Con el mismo margen de no inferioridad, 0,01, y tomando cada dataset como unidad, la activación por margen resultó no inferior al uso directo, y el resultado se repitió con ResMLP sobre los mismos bloques (0,9424 frente a 0,9428). Imagen por imagen, ambas políticas difieren en el 1,0\,\% de las predicciones, repartidas casi por igual entre ellas, y la compuerta reúne en las imágenes escaladas el 72,9\,\% de los errores de la etapa barata. Con la misma etapa barata y la misma cantidad escalada, el margen eligió qué imágenes escalar mejor que un sorteo en todas las condiciones, y no fue peor que el puntaje máximo ni que la entropía. En el panel online, la política por margen con rescate de cuatro bloques tardó en promedio entre 22 y 54 ms por imagen, frente a 71--334 ms de Top-4, con una accuracy media 0,0027 menor con SVM y 0,0037 mayor con ResMLP, aunque su percentil 95 no siempre fue menor.
-
-En la práctica, Top-4 es una alternativa compacta a la concatenación completa, y su activación por margen conviene cuando la etapa barata es mucho más rápida que los bloques de Top-4. Como siguientes pasos se plantea medir en línea la latencia de Top-4 directo y por margen con el mismo protocolo, repetir la comparación con otras semillas y con una Top-4 propia de ResMLP, e incluir el bloque de color en el ranking.
-
-\clearpage
-\appendix
-\section{Trazabilidad de resultados}\label{app:reproducibilidad}
-
-Las curvas de $k$ y los resultados de Top-4 provienen de \nolinkurl{results/exploratory/k_sweep/} (SVM) y \nolinkurl{results/exploratory/resmlp/k_sweep/} (ResMLP), en los archivos \nolinkurl{k_sweep.csv} y \nolinkurl{k_sweep_inner.csv}. Las reglas para elegir $k$ y las medias por dataset de la evaluación estática en macro-F1, la métrica primaria anterior, están en \nolinkurl{results/analysis/k_selection_rules/} y \nolinkurl{results/analysis/selection_stats/}; las fuentes en accuracy se indican a continuación. Individual y Completa-22 proceden de la matriz principal del proyecto: \nolinkurl{results/confirmatory/ngram22_beitv2/nested_fold_results.csv} y los archivos homónimos de \nolinkurl{results/extensions/} para Outex, Soil y KTH-TIPS2-b, métodos \texttt{best\_individual} y \texttt{full\_concat}. Las medias en accuracy de la evaluación estática, de las curvas y del panel se reconstruyen, sin nuevos ajustes ni predicciones, en \nolinkurl{results/analysis/thesis_accuracy_primary_20261115_v3/}. La familia de ocho estrategias del proyecto (Individual, Completa-22, Top-$k$ con $k$ de GFS, GFS, Homogénea, Top-4 y dos ensambles de 15 subconjuntos de cuatro bloques) se evaluó en macro-F1 con CONTROLTEST y MULTIPLETEST de SCI2S: Friedman rechaza la igualdad con ambos clasificadores (SVM: $p=0{,}0264$; ResMLP: $p=0{,}0039$), Friedman alineado no rechaza ($p=0{,}6155$ y $0{,}6150$) y, tras ajustar con Holm los 28 pares, ningún par que incluya a Top-4 alcanza el nivel nominal. Sus salidas están en \nolinkurl{results/analysis/selection_stats/}. Las reglas para elegir $k$, la estadística con tres métodos, la no inferioridad, los contrastes de la cascada y los percentiles de latencia reunidos se calcularon en \nolinkurl{carlos/analisis_paper/}. Las sensibilidades de la evaluación estática sin KTH-TIPS2-b o sin Outex, y las diferencias por condición y al excluir un dataset en la activación por margen, están en \nolinkurl{results/analysis/ars_revision_existing_analyses_20261115_v1/}.
-
-La activación por margen de Top-4 está en \nolinkurl{results/exploratory/topk_cascade/top4_fixed_primary22_20261115_v1/} (25 condiciones) y \nolinkurl{top4_fixed_kth_completion_20261115_v1/} (dos particiones de KTH-TIPS2-b). Cada condición guarda la selección previa al test, las predicciones y puntuaciones OOF y de test de todas las etapas baratas, los controles aleatorios y las compuertas alternativas. La auditoría que reconstruye las Tablas~\ref{tab:cascada}, \ref{tab:control-aleatorio} y~\ref{tab:compuertas} está en \nolinkurl{results/analysis/top4_fixed_kth_completion_audit_20261115_v1/}. El análisis por imagen de la Tabla~\ref{tab:por-imagen} y la Figura~\ref{fig:confusion} se calculó en \nolinkurl{carlos/analisis_paper/} a partir de los archivos \nolinkurl{scores_predictions.json.gz} de cada condición, con \nolinkurl{e1_por_imagen.sh} y \nolinkurl{e1_analisis_por_imagen.awk}; las accuracies recalculadas coinciden exactamente con las almacenadas en las 27 condiciones, y las métricas por clase de los seis datasets están en \nolinkurl{e1_por_clase.csv}. La Tabla~\ref{tab:ablacion} se reconstruye en la misma carpeta con \nolinkurl{e1_ablacion.ps1} y \nolinkurl{ablacion_resumen.txt}, a partir de los \nolinkurl{result.json} de cada condición, de \nolinkurl{e2_complete_dataset_means.csv} de la auditoría anterior, de \nolinkurl{curves.csv} y de los archivos \nolinkurl{svm_metodos.csv} y \nolinkurl{resmlp_metodos.csv} de \nolinkurl{results/analysis/selection_stats/}. Las imágenes de la Figura~\ref{fig:errores-kth} se eligieron con \nolinkurl{e1_por_imagen.csv} y el manifiesto \nolinkurl{results/analysis/hytex_kth_external_queue_20261102_v1/canonical_manifest.csv}, cuyos índices coinciden con las 4.752 etiquetas de KTH-TIPS2-b. La comparación con ResMLP está auditada en \nolinkurl{results/analysis/e4_resmlp_complete_audit_20261116_v1/}, y Top-4 más N-gramas, en \nolinkurl{results/analysis/e5_top4_plus_ngram_audit_20261116_v1/} y \nolinkurl{e5_secondary_complete_20261116_v1/}; sus medias por dataset y la no inferioridad con ResMLP se calcularon con \nolinkurl{carlos/analisis_paper/e4_e5_resumen.ps1}. El perfil de costos de KTH-TIPS2-b está en \nolinkurl{results/analysis/kth_reference_validated_profile_20261115_v1/}. La cascada anterior, cuya etapa cara era la Top-$k$ archivada de cada condición, con $k$ heredado de la selección secuencial hacia adelante (entre 1 y 8; mediana 5), está en \nolinkurl{results/exploratory/topk_cascade/cheap_stage_selected_primary22/}. En los cinco datasets sin KTH-TIPS2-b obtuvo una accuracy media de 0,9427 frente a 0,9432 de su Top-$k$ directo, con 143,1 frente a 580,3 ms proyectados; con ResNet-50 como etapa barata, el margen superó en macro-F1 al escalamiento aleatorio en sus 27 condiciones. Su KTH-TIPS2-b parte de una selección anterior a la corrección de la validación interna. El piloto físico está en \nolinkurl{results/exploratory/fsc_tex/physical_six_20261012/}, con las mediciones (\nolinkurl{measurements.jsonl}) y los cosenos (\nolinkurl{parity.json}) de cada dataset. La variante B de DeepLumina está auditada en \nolinkurl{results/analysis/deeplumina_carlos_training_audit_20261119_v1/} (ajustes y clasificadores binarios) y \nolinkurl{results/analysis/deeplumina_carlos_online_audit_20261119_v1/} (llamadas, métricas y latencias). El panel online y la comparación con métodos externos están en \nolinkurl{results/analysis/reconciliation_full_panel_20261104_v1/}, que reconstruye las 230 comparaciones por dataset desde las llamadas guardadas; la lista de las 94 trazas canónicas está en \nolinkurl{results/analysis/consultas_joaquin_20261114_v1/canonical_panel_calls_94.csv}. Esa misma carpeta contiene las auditorías del piloto, de Soil y del control aleatorio de la cascada anterior. Los archivos por condición registran hashes SHA-256 de manifiestos, embeddings y ejecutores.
+Las curvas externas y las métricas de la evaluación estática y del panel online se consolidan en \nolinkurl{results/analysis/thesis_accuracy_primary_20261115_v3/}. La curva interna de SVM se reconstruye a partir de \nolinkurl{k_sweep_inner.csv} en \nolinkurl{results/exploratory/k_sweep/}. Las comparaciones de Top-4 por margen se reconstruyen desde las predicciones y puntuaciones archivadas. Las medias se verifican en \nolinkurl{results/analysis/top4_fixed_kth_completion_audit_20261115_v1/}. Las Tablas~\ref{tab:cascada} y~\ref{tab:e1-macro} se construyen a partir de \nolinkurl{e1_complete_dataset_means.csv}, que también es la fuente de la Figura~\ref{fig:e1-por-dataset}. La Tabla~\ref{tab:contrastes-margen} se basa en \nolinkurl{e1_contrastes.txt}, \nolinkurl{e1_no_inferioridad.txt} y \nolinkurl{e4_e5_resumen.txt}, en el directorio de análisis del artículo. La comparación con GFS procede de \nolinkurl{results/analysis/selection_stats/}. El análisis por imagen se documenta en \nolinkurl{carlos/analisis_paper/}. Los resultados secundarios se verifican en \nolinkurl{results/analysis/e4_resmlp_complete_audit_20261116_v1/} y \nolinkurl{results/analysis/e5_top4_plus_ngram_audit_20261116_v1/}. Las cifras externas proceden de las fuentes identificadas en la Tabla~\ref{tab:publicados}. El cotejo de métricas y protocolos está en \nolinkurl{docs/fsc_tex/METRICAS_PUBLICADAS_Y_COMPARABILIDAD_2026-11-23.md}.
 
 \section*{Disponibilidad de datos y código}
-Los datasets utilizados son de acceso público y permanecen sujetos a las condiciones de sus respectivos distribuidores. El \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{repositorio del proyecto} contiene el código, los manifiestos, las salidas por partición, los resultados estadísticos y los hashes necesarios para auditar las tablas; los datasets originales y los embeddings se obtienen o regeneran según sus respectivas condiciones de uso. El material público está versionado en Git, aunque este borrador todavía no identifica un depósito archivado con DOI o una versión inmutable independiente del repositorio.
 
-\section*{Declaración ética}
-Los experimentos utilizan colecciones públicas de imágenes de texturas y materiales y no incorporan reclutamiento de participantes. La declaración ética final queda pendiente de confirmación por los autores.
+El código y los registros de evaluación se mantienen en el \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{repositorio del proyecto}. Los datasets se obtienen de sus distribuidores bajo las condiciones de cada colección.
 
-\section*{Declaración de conflicto de intereses}
-Pendiente de confirmación por los autores.
+\section*{Declaraciones}
 
-\section*{Financiamiento}
-Pendiente de confirmación por los autores.
+El estudio usa colecciones públicas de imágenes y no recluta participantes. Las declaraciones de conflicto de intereses, financiamiento y asistencia de IA en la redacción están pendientes de revisión y confirmación por los autores.
 
-\section*{Declaración sobre el uso de IA generativa en la redacción}
-Pendiente de confirmación por los autores. Si se usaron herramientas de IA generativa, Elsevier pide indicar cuál y para qué, y declarar que los autores revisaron y editaron el contenido y asumen toda la responsabilidad por la publicación.
-
-% --- Contribución de los autores (CRediT) ---
-\printcredits
-
-% --- Referencias ---
 \bibliographystyle{unsrtnat}
 \bibliography{references}
-
 \end{document}

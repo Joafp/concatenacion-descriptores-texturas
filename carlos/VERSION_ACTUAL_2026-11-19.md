@@ -15,3 +15,24 @@ La versión para revisión [main_actual_2026-11-19_deeplumina_v2.tex](main_actua
 ## Actualización 23-11 (Carlos): versión única
 
 Los cambios de DeepLumina B de `main_actual_2026-11-19_deeplumina_v2.tex` se integraron en [main.tex](main.tex), que ya tenía E4, E5 y la ablación (`cc8e2e4`). Desde esta fecha **`main.tex` es otra vez la versión única del paper**. Los dos `main_actual_*.tex` se conservan sin cambios como referencia. La versión del 19-11 era idéntica a `main.tex` antes de E4 y E5, así que la integración no perdió cambios. Detalle en [PENDIENTES_JOAQUIN.md](PENDIENTES_JOAQUIN.md).
+
+
+## Revisión sincronizada desde Overleaf — 25-11-2026
+
+La fuente de trabajo es [main.tex](main.tex). El [PDF de 13 páginas](main_topk_margen.pdf)
+se compiló y descargó del [proyecto en Overleaf](https://www.overleaf.com/project/6a5031a5f6a149761c3337fe).
+La revisión incluye la figura de extracción y concatenación, los contrastes pareados,
+las métricas macro de E1 y la tabla de cifras publicadas con sus protocolos.
+
+Para compilar desde una copia local, abrir el directorio \`carlos/\` y ejecutar
+\`latexmk -pdf main.tex\` con TeX Live. En Overleaf, usar pdfLaTeX con \`main.tex\` como archivo principal.
+
+La integración de DeepLumina B del commit \`7ec6334\` queda identificada como evidencia de
+una adaptación local. Sus [auditorías de entrenamiento](../results/analysis/deeplumina_carlos_training_audit_20261119_v1/)
+y [evaluación online](../results/analysis/deeplumina_carlos_online_audit_20261119_v1/)
+documentan la receta, la cobertura y los resultados. El escalado y el límite de iteraciones
+cambiaron juntos, de modo que su efecto individual queda sin determinar.
+La tabla bibliográfica del manuscrito usa las cifras de los artículos originales.
+
+Para trabajar en ambos lugares, conviene incorporar primero las ediciones de Overleaf
+y registrar la revisión acordada en GitHub. Overleaf y GitHub se mantienen como copias separadas.
