@@ -1,0 +1,79 @@
+\documentclass[tikz,border=3pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,graphicx,amsmath,amssymb}
+\usetikzlibrary{arrows.meta}
+
+\definecolor{figblue}{HTML}{1B416C}
+\definecolor{figteal}{HTML}{087B76}
+\definecolor{figink}{HTML}{1D2938}
+\definecolor{figline}{HTML}{A4B1C0}
+\definecolor{figgray}{HTML}{F3F6F9}
+\begin{document}
+\begin{tikzpicture}[
+  x=1cm, y=1cm, font=\sffamily\small, text=figink,
+  title/.style={font=\sffamily\small\bfseries, inner sep=0pt, anchor=west},
+  label/.style={font=\sffamily\footnotesize\bfseries, text=figink, inner sep=0pt},
+  flow/.style={line width=.54pt, draw=figink!63},
+  arrow/.style={flow, -{Stealth[length=1.6mm,width=1.12mm]}},
+  selected/.style={line width=.56pt, draw=figteal!86, fill=figteal!8, rounded corners=1.7pt},
+  neutral/.style={line width=.5pt, draw=figline!83, fill=figgray, rounded corners=1.7pt},
+  slab/.style={line width=.5pt, draw=figline!83, fill=white, rounded corners=1.7pt},
+  descriptor/.style={font=\sffamily\small\bfseries, anchor=west, inner sep=0pt},
+  meaning/.style={font=\sffamily\footnotesize, anchor=west, inner sep=0pt}
+]
+\node[title] at (.02,.04) {(a) One image, five extractors};
+\node[label] at (1.11,-.65) {Image};
+\node[label,anchor=west] at (3.35,-.65) {Extractor};
+\node[label,anchor=west] at (6.12,-.65) {What it captures};
+\node[label] at (13.29,-.65) {Normalized block};
+
+\node[inner sep=0] (texture) at (1.11,-3.15)
+  {\includegraphics[width=21mm,height=21mm,keepaspectratio]{../texture_banded_0045.jpg}};
+\draw[figline!90,line width=.45pt] (texture.south west) rectangle (texture.north east);
+\node[font=\sffamily\footnotesize,align=center,anchor=north,inner sep=0pt]
+  at (1.11,-4.32) {DTD\\banded\_0045};
+\draw[flow] (texture.east) -- (2.67,-3.15);
+\draw[flow] (2.67,-4.99) -- (2.67,-1.31);
+\fill[figink!63] (2.67,-3.15) circle (.90pt);
+
+\foreach \ya/\yb/\y/\name/\summaryText/\variant/\value in {
+  -1.62/-1.00/-1.31/LBP/{Histogram of local patterns}/selected/{\tilde z_1=[3/5,\ 4/5]},
+  -2.54/-1.92/-2.23/Gabor/{Oriented filter responses}/neutral/{\tilde z_2\in\mathbb{R}^{d_2}},
+  -3.46/-2.84/-3.15/GLCM/{Intensity co-occurrences}/neutral/{\tilde z_3\in\mathbb{R}^{d_3}},
+  -4.38/-3.76/-4.07/ResNet/{Network activations}/selected/{\tilde z_4=[1,\ 0]},
+  -5.30/-4.68/-4.99/{RGB N-grams}/{N-gram counts + SVD}/neutral/{\tilde z_5\in\mathbb{R}^{d_5}}
+}{
+  \draw[neutral] (3.13,\ya) rectangle (10.39,\yb);
+  \node[descriptor] at (3.35,\y) {\name};
+  \node[meaning] at (6.12,\y) {\summaryText};
+  \draw[\variant] (11.24,\ya) rectangle (15.34,\yb);
+  \node[inner sep=0pt] at (13.29,\y) {$\value$};
+  \draw[arrow] (2.67,\y) -- (3.13,\y);
+  \draw[arrow] (10.39,\y) -- (11.24,\y);
+}
+
+\draw[figline!92,line width=.5pt] (.02,-5.75) -- (15.34,-5.75);
+\node[title] at (.02,-6.11) {(b) From blocks to a class};
+\node[label,anchor=west] at (.22,-6.69) {Selection};
+\node[label] at (7.06,-6.69) {Input vector};
+\node[label] at (11.15,-6.69) {Classifier};
+\node[label] at (14.12,-6.69) {Output};
+
+\foreach \ya/\yb/\y/\strategy/\coordText/\classifier in {
+  -7.76/-6.98/-7.37/{Single (\(\tilde z_1\))}/{[3/5,\ 4/5]}/{h_{\{1\}}},
+  -8.83/-8.05/-8.44/{Concatenation (\(\tilde z_1,\tilde z_4\))}/{[3/5,\ 4/5\mid 1,\ 0]}/{h_{\{1,4\}}}
+}{
+  \draw[neutral] (.02,\ya) rectangle (4.10,\yb);
+  \node[descriptor] at (.22,\y) {\strategy};
+  \draw[selected] (4.80,\ya) rectangle (9.33,\yb);
+  \node[text=figteal,inner sep=0pt] at (7.06,\y) {$\coordText$};
+  \draw[slab] (10.03,\ya) rectangle (12.27,\yb);
+  \node[inner sep=0pt] at (11.15,\y) {$\classifier$};
+  \draw[slab] (12.97,\ya) rectangle (15.34,\yb);
+  \node[font=\sffamily\footnotesize,inner sep=0pt] at (14.15,\y) {Predicted class};
+  \draw[arrow] (4.10,\y) -- (4.80,\y);
+  \draw[arrow] (9.33,\y) -- (10.03,\y);
+  \draw[arrow] (12.27,\y) -- (12.97,\y);
+}
+\end{tikzpicture}
+\end{document}
