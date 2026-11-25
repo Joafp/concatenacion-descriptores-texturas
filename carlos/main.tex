@@ -450,7 +450,7 @@ La Tabla~\ref{tab:publicados} documenta los resultados de referencia, ordenados 
 Dataset & Método & Acc. (\%) & Protocolo del artículo \\
 \midrule
 DTD & Neshov, BEiTv2 \citep{neshov2025aggregation} & $82{,}0\pm0{,}9$ & Diez particiones provistas por DTD \\
- & HyTexNet \citep{gupta2026hytexnet} & 73,2 & Media de diez repartos de entrenamiento, validación y test \\
+ & HyTexNet \citep{gupta2026hytexnet} & 73,2 & Media de diez repartos aleatorios de entrenamiento, validación y test \\
  & DeepLumina \citep{simon2022deeplumina} & 73,63 & Reparto aleatorio 80/20 \\
 \addlinespace
 FMD & Neshov, BEiTv2 \citep{neshov2025aggregation} & $96{,}7\pm1{,}9$ & Diez repeticiones de validación cruzada de diez folds \\
@@ -468,12 +468,12 @@ Soil (aumentado) & Neshov, BEiTv2 \citep{neshov2025aggregation} & 94,5 & Reparto
 
 \medskip
 \begin{minipage}{.97\textwidth}\footnotesize
-Fuentes: Neshov, Tabla 4. HyTexNet, Tabla 1 y Sección 4.5. Chang, Tabla 4. DeepLumina, Tablas 4--5, ResNet101 + SVM con RGB y luminancia. Paiva, Tabla 5, implementación 1 con el mejor clasificador de su estudio para cada dataset.
+Fuentes: Neshov, Tabla 4. HyTexNet, Tabla 1 para KTH-TIPS2-b y Figura 9 y Sección 4.5 para DTD. Chang, Tabla 4. DeepLumina, Tablas 4--5, ResNet-101 + SVM con RGB y el canal de luminancia YIQ. Paiva et al., Tabla 5, implementación 1, con el mejor resultado entre KNN, RF y SVM para cada dataset.
 \end{minipage}
 \end{table}
 \FloatBarrier
 
-Compartir la métrica o el nombre del dataset permite ubicar los resultados. La comparación directa requiere verificar las particiones, las imágenes y la receta. En KTH-TIPS2-b, por ejemplo, nuestras particiones excluyen del entrenamiento la muestra física completa que se evalúa en test. Para CUReT usamos imágenes en gris y agrupamos por condición de captura. El Soil de nuestro panel se construyó a partir de imágenes originales deduplicadas.
+Compartir la métrica o el nombre del dataset permite ubicar los resultados. La comparación directa requiere verificar las particiones, las imágenes y la receta. En KTH-TIPS2-b, por ejemplo, nuestras particiones excluyen del entrenamiento la muestra física completa que se evalúa en test. Para CUReT usamos imágenes en gris y agrupamos por condición de captura. El Soil de nuestro panel se construyó a partir de imágenes originales deduplicadas. En Outex TC 00013 ambos estudios usan la partición oficial. La cifra publicada de RGB Pixel N-grams selecciona el mejor resultado entre tres familias de clasificadores. Nuestra ablación fija la cabeza SVM y agrega un bloque comprimido.
 
 Los artículos aportan otras medidas para preguntas específicas. Neshov informa dispersión entre particiones y complejidad del backbone. HyTexNet presenta curvas de aprendizaje, matrices de confusión, robustez y estabilidad entre inicializaciones. Las AUC-ROC y AUC-PR de Chang evalúan la detección de contornos en DRIVE. Nuestro análisis por imagen estudia qué errores dirige la compuerta a Top-4.
 

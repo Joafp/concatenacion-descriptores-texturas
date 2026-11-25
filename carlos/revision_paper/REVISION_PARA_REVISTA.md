@@ -11,6 +11,8 @@
 | La adquisición de bloques se abarata en E1 | [Auditoría de E1](../../results/analysis/top4_fixed_kth_completion_audit_20261115_v1/README.md), [implementación de la proyección](../../scripts/run_top4_fixed_e1_e2.py) | Proyección de extracción. El ahorro físico de la cascada exacta sigue sin verificarse. |
 | Otra política por margen reduce la latencia media medida en las doce combinaciones | [Panel online](../../results/analysis/blocker_resolution_20261101/full_panel_online_v1/coverage.json), [medias por política](../../results/analysis/thesis_accuracy_primary_20261115_v3/online_means.csv), [percentiles](../analisis_paper/latencia_p95_reunida.csv) | Rescate por ensamble. La latencia de cola en Soil y la caída de accuracy en KTH-TIPS2-b delimitan la utilidad. |
 
+La tabla de trabajos publicados tiene un [cotejo fila por fila con los PDF primarios](../../docs/fsc_tex/METRICAS_PUBLICADAS_Y_COMPARABILIDAD_2026-11-23.md#cotejo-de-las-11-filas-que-entran-al-manuscrito), con localizadores de cifras y protocolos.
+
 ## Archivos editoriales para revisión
 
 - [Highlights](Highlights.txt). Cuatro puntos editables de hasta 85 caracteres, conforme a la guía general de Elsevier. La obligatoriedad para el destino queda sujeta a su guía de autores. [Instrucciones generales sobre highlights](https://www.elsevier.support/publishing/answer/how-do-i-include-highlights-with-my-manuscript)

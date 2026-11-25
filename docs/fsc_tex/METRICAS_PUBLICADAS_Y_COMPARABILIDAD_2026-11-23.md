@@ -19,3 +19,28 @@ Revisión de las once copias primarias del [catálogo de referencias](../referen
 La **accuracy por imagen** se mantiene como métrica principal. La **precisión macro**, el **recall macro** y el **macro-F1** están calculados junto con accuracy para las 60 combinaciones completas de dataset, cabeza y política de nuestro panel. Las columnas se pueden consultar en el [consolidado propio](../../results/analysis/thesis_accuracy_primary_20261115_v3/online_means.csv). Precisión mide, por clase, cuántas predicciones de esa clase acertaron. Recall mide cuántos ejemplos reales de la clase se recuperaron. Para cada medida macro se da el mismo peso a todas las clases. Los diagnósticos por clase de E1 están en [las métricas por clase](../../carlos/analisis_paper/e1_por_clase.csv).
 
 La [versión del artículo](../../carlos/main_metricas_publicadas_20261123.tex) usa cifras de los artículos para los métodos externos y conserva el costo y la latencia de los métodos propios en sus experimentos correspondientes. Las cifras publicadas sirven como contexto bibliográfico. La similitud de una métrica o del nombre del dataset permite ubicar los resultados, pero la equivalencia experimental también requiere comprobar datos, splits, receta y forma de agregación.
+
+
+## Cotejo de las 11 filas que entran al manuscrito
+
+Las páginas son las posiciones físicas del PDF de cada copia primaria. Las cifras se toman de las variantes y tablas indicadas, con sus unidades originales.
+
+| Dataset | Artículo y cifra | Localizador de la cifra | Localizador del protocolo |
+|---|---|---|---|
+| DTD | Neshov, 82,0 ± 0,9 % | Tabla 4, fila BEiTv2, p. 15 | Sección 3.1, pp. 8–9, diez particiones de DTD |
+| DTD | HyTexNet, 73,2 % | Figura 9 y texto de la sección 4.5, pp. 12–13 | Pie de la Figura 9, p. 12, diez repartos aleatorios de entrenamiento, validación y test |
+| DTD | DeepLumina, 73,63 % | Tabla 4, fila ResNet101 + SVM, RGB-YIQ, p. 11 | Sección experimental, p. 9, reparto aleatorio 80/20 |
+| FMD | Neshov, 96,7 ± 1,9 % | Tabla 4, fila BEiTv2, p. 15 | Sección 3.1, p. 8, 10 repeticiones de validación cruzada de diez folds |
+| FMD | DeepLumina, 90,15 % | Tabla 5, fila ResNet101 + SVM, RGB-YIQ, p. 12 | Sección experimental, p. 9, reparto aleatorio 80/20 |
+| KTH-TIPS2-b | Neshov, 96,8 ± 2,5 % | Tabla 4, fila BEiTv2, p. 15 | Sección 3.1, p. 8, cuatro particiones fijas |
+| KTH-TIPS2-b | HyTexNet, 99,79 % | Tabla 1, p. 7 | Discusión del dataset, p. 7, tercio de entrenamiento por pose, iluminación y escala |
+| KTH-TIPS2-b | 6LBP+dCellNNs, 91,29 % | Tabla 4, p. 9 | Descripción experimental, p. 6, tercio por pose, iluminación y escala |
+| CUReT en color | Paiva et al., 96,2 % | Tabla 5, fila Imp. 1, p. 9, proporción 0,962 | Sección 4.1, p. 5, validación cruzada de diez folds |
+| Outex TC 00013 | Paiva et al., 96,3 % | Tabla 5, fila Imp. 1, p. 9, proporción 0,963 | Sección 4.1, p. 5, partición original |
+| Soil aumentado | Neshov, 94,5 % | Tabla 4, fila BEiTv2, p. 15 | Sección 3.1, p. 9, 70/15/15 y aumento del entrenamiento |
+
+Los autores de Chang et al. enlazan el repositorio [LBP_Contour](https://github.com/UESTC-nnLab/LBP_Contour). El README documenta un punto de entrada para Outex TC 00012. El número citado en nuestro cuadro corresponde a KTH-TIPS2-b y nuestro panel de Outex usa TC 00013, por lo que se conserva el localizador del artículo para ese 91,29 %. La existencia de ese código no verifica la reproducción de la fila de KTH.
+
+La Tabla 5 de Paiva et al. selecciona por dataset el mejor resultado entre KNN, RF y SVM. Aunque Outex TC 00013 comparte el reparto oficial, nuestro E5 es una ablación pareada que fija SVM y añade RGB N-gramas + SVD, con la transformación ajustada en entrenamiento.
+
+Las Tablas 4 y 5 de DeepLumina informan los valores puntuales por combinación del extractor y del canal. La comparación posterior del mismo artículo también presenta los valores 73,63 ± 0,5 y 90,15 ± 1,2. El manuscrito cita las tablas de configuración para identificar de manera inequívoca la fila ResNet-101 + SVM con RGB y luminancia YIQ.

@@ -377,7 +377,7 @@ $^{\dagger}$DTD SVM timings include an overnight interruption. The gated ensembl
 \FloatBarrier
 \subsection{Published texture classification results}
 
-Table~\ref{tab:publicados} reports the original papers' accuracy values alongside their protocols. A shared dataset name does not establish a common test set. For instance, our KTH-TIPS2-b protocol holds out a whole physical sample, our CUReT representation uses grayscale inputs and separates capture conditions, and our Soil panel uses deduplicated original images. These design choices affect the interpretation of differences between studies.
+Table~\ref{tab:publicados} reports the original papers' accuracy values alongside their protocols. A shared dataset name does not establish a common test set. For instance, our KTH-TIPS2-b protocol holds out a whole physical sample, our CUReT representation uses grayscale inputs and separates capture conditions, and our Soil panel uses deduplicated original images. Even for Outex TC 00013, where both studies use the official split, the published RGB Pixel N-grams result selects the best of three classifier families, whereas our color ablation holds the SVM head fixed and adds a compressed block. Each published figure therefore characterizes its original evaluation and recipe.
 
 \begin{table}[pos=htbp]
 \centering
@@ -390,7 +390,7 @@ Table~\ref{tab:publicados} reports the original papers' accuracy values alongsid
 Dataset & Method & Acc. (\%) & Original protocol \\
 \midrule
 DTD & Neshov, BEiTv2 \citep{neshov2025aggregation} & $82.0\pm0.9$ & Ten splits provided by DTD \\
- & HyTexNet \citep{gupta2026hytexnet} & 73.2 & Mean of ten train, validation and test splits \\
+ & HyTexNet \citep{gupta2026hytexnet} & 73.2 & Mean over ten random train/validation/test splits \\
  & DeepLumina \citep{simon2022deeplumina} & 73.63 & Random 80/20 split \\
 \addlinespace
 FMD & Neshov, BEiTv2 \citep{neshov2025aggregation} & $96.7\pm1.9$ & Ten repetitions of ten-fold cross-validation \\
@@ -408,7 +408,7 @@ Soil (augmented) & Neshov, BEiTv2 \citep{neshov2025aggregation} & 94.5 & 70/15/1
 
 \medskip
 \begin{minipage}{.97\textwidth}\footnotesize
-Sources: Neshov, Table 4. HyTexNet, Table 1 and Section 4.5. Chang, Table 4. DeepLumina, Tables 4--5, ResNet101 + SVM with RGB and luminance. Paiva, Table 5, implementation 1 with the best classifier for each dataset in that study.
+Sources: Neshov, Table 4. HyTexNet, Table 1 for KTH-TIPS2-b and Figure 9 and Section 4.5 for DTD. Chang, Table 4. DeepLumina, Tables 4--5, ResNet-101 + SVM with RGB and the YIQ luminance channel. Paiva et al., Table 5, implementation 1, taking the best result among KNN, RF, and SVM for each dataset.
 \end{minipage}
 \end{table}
 \FloatBarrier
