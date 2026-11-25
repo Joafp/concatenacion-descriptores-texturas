@@ -32,6 +32,31 @@ Las medias de E2 (compuertas) se toman directamente de `results/analysis/top4_fi
 | `estadistica_3_metodos.txt` | La misma estadística de tres métodos en macro-F1 |
 | `etapa_barata_oof.csv` | Macro-F1 OOF de la etapa barata de la cascada anterior (Top-k archivada). Ya no se usa en el paper: E1 guarda la etapa barata sola en test |
 
+## Comprobación de la tabla de cambios de acierto
+
+Desde la raíz del repositorio, se pueden regenerar los cuatro CSV del análisis por imagen sin entrenar modelos ni volver a medir tiempos. La entrada versionada tiene 31.984 filas de predicciones y el script escribe en un directorio temporal.
+
+~~~bash
+out=$(mktemp -d)
+analisis=carlos/analisis_paper
+awk -F, -v OUTDIR="$out" -f "$analisis/e1_analisis_por_imagen.awk" "$analisis/e1_por_imagen.csv"
+for archivo in e1_mcnemar_compuerta.csv e1_resumen_por_dataset.csv e1_confusion.csv e1_por_clase.csv; do
+  cmp "$out/$archivo" "$analisis/$archivo" || break
+done
+~~~
+
+Para la tabla «Cambios de acierto en la cascada Top-4 con SVM», se suman los conteos de [e1_mcnemar_compuerta.csv](e1_mcnemar_compuerta.csv) dentro de cada dataset. Las columnas del CSV son:
+
+| Columna de la tabla | Cálculo por condición antes de sumar |
+|---|---|
+| Escaladas | escaladas |
+| Corregibles | rescatados + b_top4_acierta_cascada_falla |
+| Corregidos | rescatados |
+| Perdidos | perdidos_al_escalar |
+| Preservados | c_cascada_acierta_top4_falla |
+
+El total contiene 6.963 escaladas, 1.327 errores corregibles, 1.176 correcciones realizadas, 472 aciertos perdidos y 168 aciertos preservados. La proporción de 21,8 % pondera cada llamada por igual. El 21,1 % del resumen promedia primero por condición y dataset y da igual peso a los seis datasets. Estos conteos describen la política observada en E1 y pueden incluir imágenes repetidas entre particiones.
+
 ## Detalles de cálculo
 
 - **Friedman con seis datasets:** el valor *p* asintótico es grueso. Además del asintótico se informa el exacto, de 46.656 asignaciones de rangos (6 datasets, 3 métodos).

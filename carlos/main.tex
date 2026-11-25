@@ -129,7 +129,7 @@
 \fntext[1]{Ambos autores contribuyeron al diseño y ejecución del estudio. Tutor: Prof. José Vázquez.}
 
 \begin{abstract}[Resumen]
-El costo de combinar descriptores de textura depende de cuántos bloques se calculan y de cuántas imágenes los necesitan. Estudiamos una concatenación Top-$k$ que ordena los descriptores por su macro-F1 individual en validación interna. Comparamos el uso directo con una cascada que empieza con un descriptor de bajo costo y activa la concatenación si el margen entre las dos mayores puntuaciones es pequeño. En seis datasets, Top-4 ocupa cerca del 15\,\% de las dimensiones de la biblioteca completa. Su accuracy media es 94,42\,\% con SVM y 94,20\,\% con ResMLP, frente a 94,73\,\% y 93,88\,\% al concatenar los 22 bloques. El valor $k=4$ se seleccionó de forma exploratoria. En una comparación pareada de 27 condiciones con SVM, el margen activa Top-4 en el 21,1\,\% de las imágenes en promedio. La accuracy pasa de 94,44\,\% a 94,46\,\% y el costo proyectado de 468,3 a 117,1 ms por imagen. Con la misma cantidad de activaciones, elegir por margen supera al sorteo en las 27 condiciones. El costo anterior se estima a partir de perfiles por componente. En un panel físico de 94 condiciones medimos otra política por margen, cuyo rescate usa un ensamble. Su latencia media es menor que la de Top-4 directo en las doce combinaciones de dataset y clasificador. La mayor pérdida de accuracy ocurre en KTH-TIPS2-b y el percentil 95 de latencia aumenta en Soil. La reducción de costo depende tanto de la elección de bloques como de qué imágenes activan el rescate.
+Concatenar descriptores de textura aporta señales complementarias, pero exige calcular todos los bloques elegidos para cada imagen. En seis datasets estudiamos cuánto aporta ampliar una concatenación ordenada por macro-F1 individual y cuándo conviene calcularla. Elegimos cuatro bloques de forma exploratoria. Top-4 usa cerca del 15\,\% de las dimensiones de la concatenación completa de 22 descriptores; la diferencia de accuracy media es $-0{,}31$ puntos porcentuales con SVM y $+0{,}32$ con ResMLP. En 27 condiciones pareadas con SVM, una cascada que activa Top-4 según el margen de la primera predicción escala en promedio el 21,1\,\% de las imágenes. Frente al uso directo, la diferencia de accuracy es $+0{,}01$ puntos (IC del 95\,\%: $-0{,}17$ a $+0{,}19$). El costo de extracción proyectado baja de 468,3 a 117,1 ms por imagen. Con igual número de activaciones, el margen supera al sorteo en las 27 condiciones. En un panel online aparte, una variante que escala a un ensamble reduce la latencia media frente a Top-4 directo en las doce combinaciones de dataset y clasificador, con pérdidas de accuracy en KTH-TIPS2-b y aumentos del percentil 95 de latencia en Soil.
 \end{abstract}
 
 \begin{keywords}[Palabras clave]
@@ -219,13 +219,13 @@ En SVM, las puntuaciones proceden de las funciones de decisión uno contra el re
 \label{fig:cascada}
 \end{figure}
 
-El umbral $\tau_q$ es el cuantil $q$ de los márgenes obtenidos al predecir cada fold con una cabeza ajustada en los demás folds del entrenamiento externo. Ese cuantil se fija antes de predecir el test. La proporción observada de imágenes escaladas, $\rho_q$, puede diferir de $q$. Con costos por bloque $C_j$, las proyecciones para el uso directo y la cascada son
+El umbral $\tau_q$ es el cuantil $q$ de los márgenes obtenidos al predecir cada fold con una cabeza ajustada en los demás folds del entrenamiento externo. Ese cuantil se fija antes de predecir el test. La proporción observada de imágenes escaladas, $\rho_q$, puede diferir de $q$. Con tiempos de extracción por bloque $C_j$ fijados para la condición, las proyecciones del costo de adquisición son
 \begin{equation}
  C_{\mathrm{directo}}=\sum_{j\in S_k} C_j,\qquad
  C_{\mathrm{margen}}= C_b + \rho_q \sum_{j\in S_k\setminus\{b\}}C_j.
  \label{eq:costos}
 \end{equation}
-En la selección se emplea la fracción escalada en entrenamiento. Para reportar el costo proyectado del test se usa la fracción observada allí. El ahorro requiere que evitar parte de las extracciones compense el costo de ejecutar la etapa inicial en todas las imágenes.
+En la selección se emplea la fracción escalada en entrenamiento. Para reportar el costo proyectado del test se usa la fracción observada allí. Si el bloque inicial pertenece a Top-$k$, el ahorro proyectado corresponde a los bloques faltantes que se omiten en la fracción $1-\rho_q$ de las imágenes. Si queda fuera de Top-$k$, es necesario que $(1-\rho_q)C_{\mathrm{directo}}>C_b$ para que exista ahorro proyectado. El modelo suma costos de extracción y deja fuera la puntuación de ambas cabezas y la decisión de escalamiento. La latencia completa se mide en el panel de la variante con ensamble (Sección~\ref{sec:variante-panel}).
 
 Para la comparación de Top-4 evaluamos los cuantiles $0{,}25$, $0{,}50$ y $0{,}75$. Las etapas iniciales candidatas usan ResNet-50, SigLIP-B, BEiTv2-B o ConvNeXt V2-T. En KTH-TIPS2-b se consideran ResNet-50 y BEiTv2-B. Elegimos la ruta de menor costo proyectado entre las que quedan a lo sumo 0,005 por debajo del macro-F1 fuera de pliegue de Top-4. El uso directo queda disponible como referencia de calidad y como ruta si las candidatas no ofrecen un ahorro admisible. Se reajustan las cabezas dentro de los folds para obtener los márgenes. Los cuatro bloques ya están fijados por el ranking del entrenamiento externo al realizar ese paso.
 
@@ -490,7 +490,9 @@ La evaluación estática conserva una reserva sobre la agrupación interna de al
 
 \section{Conclusión}
 
-Con el ranking interno empleado, cuatro bloques recuperan gran parte de la accuracy de la concatenación de 22 y ocupan alrededor del 15\,\% de su dimensión. Sobre esa representación fija, la cascada por margen mantiene una accuracy media cercana al uso directo con SVM y reduce 75\,\% el costo proyectado al escalar cerca de una quinta parte de las imágenes. El control de igual cantidad confirma que importa cuáles imágenes se escalan. En las mediciones online, la variante con ensamble reduce la latencia media y presenta pérdidas de accuracy o aumentos de latencia de cola en algunos datasets. La decisión de usar la concatenación siempre o bajo demanda debe considerar la calidad de la primera predicción, el costo del rescate y la latencia que se tolera para las imágenes que lo requieren.
+En los seis datasets, cuatro bloques ofrecieron una representación compacta a partir de la cual estudiar la activación. El barrido mostró diferencias según el clasificador, y el resultado de Outex ilustra el costo de dejar fuera un descriptor complementario. Con Top-4 fijo, el margen dirigió el rescate hacia muchas de las imágenes que Top-4 podía corregir. La diferencia media de accuracy frente al uso directo fue de $+0{,}01$ puntos con SVM, con un intervalo compatible con pérdidas o ganancias pequeñas. El ahorro del 75\,\% corresponde a una proyección del costo de extracción.
+
+La medición física con el ensamble muestra qué debe comprobarse al desplegar una política de este tipo: además de la accuracy y la latencia media, importa cuánto tardan las imágenes que requieren ambas etapas. La comparación pendiente para la cascada Top-4 es medir, sobre las mismas imágenes y con los mismos extractores, el costo completo de decidir cuándo concatenar.
 
 \appendix
 \section{Biblioteca y comprobación del bloque de color}
@@ -655,7 +657,11 @@ El código y los registros de evaluación se mantienen en el \href{https://githu
 
 \section*{Declaraciones}
 
-El estudio usa colecciones públicas de imágenes y no recluta participantes. Las declaraciones de conflicto de intereses, financiamiento y asistencia de IA en la redacción están pendientes de revisión y confirmación por los autores.
+El estudio usa colecciones públicas de imágenes y no recluta participantes. Las declaraciones de conflicto de intereses y financiamiento requieren confirmación de los autores.
+
+\section*{Asistencia de IA en la preparación del manuscrito}
+
+En esta revisión se utilizó OpenAI Codex con GPT-6 para reorganizar el texto, revisar su claridad, preparar elementos en \LaTeX{} y comprobar que los recuentos del manuscrito coincidieran con los resultados archivados. Antes del envío, los autores deben revisar el artículo y confirmar que la declaración cubre las herramientas utilizadas durante su preparación.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
