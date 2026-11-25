@@ -1,4 +1,11 @@
-# Versión actual del paper: 19 de noviembre de 2026
+# Historial y versión de trabajo del paper
+
+Para la revisión del lunes 30 de noviembre de 2026, usar [main.tex](main.tex) y el
+[PDF de 14 páginas](main_topk_margen.pdf) de GitHub. La
+[lectura de 20 artículos](../docs/fsc_tex/LECTURA_20_PAPERS_REVISION_LUNES_2026-11-30.md)
+registra las decisiones de reporte y el estado del experimento físico de E1.
+
+## Fuente recibida el 19 de noviembre
 
 El usuario entregó [main_actual_2026-11-19.tex](main_actual_2026-11-19.tex) como la versión actual del paper. Es una copia exacta del archivo recibido; SHA-256 `5de5c8d9879abbc270b0d2e38ef1236f066acde4670b70304a4ee67989a20d7e`. No se ha modificado su contenido ni sustituido `main.tex`, que se preserva como versión anterior de referencia.
 
