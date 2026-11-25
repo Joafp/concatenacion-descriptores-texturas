@@ -21,10 +21,10 @@ La tabla de trabajos publicados tiene un [cotejo fila por fila con los PDF prima
 
 ## Pendientes de envío
 
-1. Cotejar la [versión en inglés](../main_en.tex) con la guía específica. El [PDF](../main_topk_margen_en.pdf) tiene 21 páginas numeradas, una columna, texto a doble espacio, 16 tablas y cinco figuras. El rango de 20 a 35 páginas figura en la ficha editorial. Queda por confirmar si ese conteo incluye anexos y referencias, los archivos obligatorios y el formato de revisión. La guía completa devolvió un error de acceso. [Ficha editorial](https://shop.elsevier.com/journals/pattern-recognition/0031-3203) · [Guía para autores](https://www.sciencedirect.com/journal/pattern-recognition/publish/guide-for-authors)
+1. Cotejar la [versión en inglés](../main_en.tex) con la guía específica. El [PDF](../main_topk_margen_en.pdf) tiene 22 páginas numeradas, una columna, texto a doble espacio, 16 tablas y cinco figuras. El rango de 20 a 35 páginas figura en la ficha editorial. Queda por confirmar si ese conteo incluye anexos y referencias, los archivos obligatorios y el formato de revisión. La guía completa devolvió un error de acceso. [Ficha editorial](https://shop.elsevier.com/journals/pattern-recognition/0031-3203) · [Guía para autores](https://www.sciencedirect.com/journal/pattern-recognition/publish/guide-for-authors)
 2. Confirmar con los autores contribuciones, financiamiento, conflictos y declaración de asistencia de IA. El borrador declara el uso confirmado de Codex en esta revisión. La política del editor también requiere verificar los detalles de herramientas empleadas en diagramas y visualizaciones, incluidos el modelo o versión y el uso concreto. [Política de IA de Elsevier](https://www.elsevier.com/en-gb/about/policies-and-standards/generative-ai-policies-for-journals)
 3. La verificación de resultados archivados pasó en una exportación independiente de Git. Volver a entrenar o medir requiere los datasets y reconstruir los pesos, cabezas y embeddings en el entorno experimental. [Verificación reproducible](#verificar-la-evidencia-del-paper)
-4. Si la conclusión del artículo requiere una cifra de ahorro físico para la cascada Top-4 exacta, respaldarla con evidencia de esa implementación frente a su uso directo. La evidencia publicada en el manuscrito permite atribuir el ahorro del 75 % al modelo de costo y las mediciones físicas al ensamble.
+4. Para una cifra de ahorro físico de la cascada exacta queda pendiente su medición pareada. El manuscrito atribuye el ahorro del 75 % al modelo de extracción. [Alcance de las trazas disponibles](#alcance-de-las-trazas-disponibles)
 
 
 ## Empaquetar la versión para revisión
@@ -35,7 +35,7 @@ Desde la raíz del repositorio, con Python 3:
 python3 scripts/package_topk_journal.py /tmp/topk_manuscrito_revista.zip
 ~~~
 
-El ZIP lleva el PDF en inglés, su fuente, las referencias, los recursos necesarios para compilar, los highlights y el borrador de carta. Incluye hashes de los archivos. Para importarlo en Overleaf, el documento principal es **main_en.tex**. En una carpeta extraída, la compilación utiliza pdfLaTeX, BibTeX y la distribución LaTeX con STIX. Verificamos los 18 archivos del manifiesto y compilamos desde una extracción temporal. El texto de las 21 páginas coincide con el PDF suministrado.
+El ZIP lleva el PDF en inglés, su fuente, las referencias, los recursos necesarios para compilar, los highlights y el borrador de carta. Incluye hashes de los archivos. Para importarlo en Overleaf, el documento principal es **main_en.tex**. En una carpeta extraída, la compilación utiliza pdfLaTeX, BibTeX y la distribución LaTeX con STIX. Verificamos los 18 archivos del manifiesto y compilamos desde una extracción temporal. El texto de las 22 páginas coincide con el PDF suministrado.
 
 ## Compilar el borrador en inglés
 
@@ -62,3 +62,15 @@ python3 scripts/verify_topk_paper_evidence.py
 El comando usa la biblioteca estándar y deja el repositorio intacto. Recalcula las métricas por condición y el promedio por dataset de E1 con 31.984 predicciones. Comprueba los índices de test del protocolo congelado, la aplicación de la ruta guardada y los costos proyectados a partir de las constantes de extracción. Para el panel online verifica los SHA-256 de las 94 trazas, que las cinco políticas recibieron las mismas imágenes por condición y que cada imagen se midió una vez por política. Recalcula 470 filas de métricas por condición y política, 60 medias por dataset, cabeza y política, y las medianas y percentiles 95 de las 36 filas de latencia publicadas en el análisis del paper.
 
 La comprobación pasó sobre una exportación con los 104 archivos de entrada versionados. Una edición deliberada en una copia de una traza produjo el error de hash esperado. El comando verifica agregados de predicciones y tiempos archivados. La verificación de cifras bibliográficas, la recuperación de todos los artefactos de entrenamiento y el cronometraje físico de la cascada Top-4 siguen sus propias fuentes y protocolos.
+
+
+## Alcance de las trazas disponibles
+
+| Evidencia | Cobertura y receta | Afirmación que respalda |
+|---|---|---|
+| [E1, auditoría](../../results/analysis/top4_fixed_kth_completion_audit_20261115_v1/README.md) | 27 condiciones SVM. Top-4 fijo, 31.984 predicciones pareadas desde caché y perfiles por componente. | Calidad de E1 y costo de extracción proyectado. |
+| [Piloto físico anterior de KTH](../../results/exploratory/topk_cascade/kth_tips2b/online_fair_topk/) | Cuatro particiones invertidas, 30 imágenes por condición, ResNet-50 inicial y uno o dos bloques de rescate según partición. Cuantil 0,50. | Latencia física de la receta histórica. La cascada supera en tiempo al uso directo en dos condiciones y pierde en dos. |
+| [Panel online](../../results/analysis/blocker_resolution_20261101/full_panel_online_v1/coverage.json) | 94 condiciones, seis datasets y dos cabezas. La política por margen rescata con un ensamble. | Latencia medida de esa política y sus controles. |
+| [Preparación física de E1](../../results/analysis/top4_online_case_input_audit_20261116_v1/summary.json) | 24 casos con vinculación de entradas verificada. CUReT SVM s42 f0 y Soil SVM s42 f1 y f4 requieren revisión de fidelidad de ViT-B/16. | La vinculación de entradas es una comprobación previa. La medición pareada de las rutas de E1 sigue pendiente. |
+
+La [inspección de procedencia de ViT](../../results/analysis/vit_provenance_20261116_v1/summary.json) mantiene abierta la identidad del productor histórico de los vectores. La [inspección del checkpoint local](../../results/analysis/vit_local_checkpoint_inspection_20261116_v1/summary.json) verifica sus archivos y configuración. El cotejo documental preserva los tres estados de revisión y las trazas de las corridas previas.
