@@ -307,7 +307,7 @@ Como comparación complementaria, la evaluación archivada por macro-F1 incluye 
 
 \subsection{Cuándo conviene activar la concatenación}
 
-La Tabla~\ref{tab:cascada} compara las dos rutas sobre las mismas imágenes. Con SVM, el margen escala el 21,1\,\% en promedio y la accuracy pasa de 94,44\,\% a 94,46\,\%. El costo proyectado cae un 75,0\,\%, de 468,3 a 117,1 ms por imagen. La mayor ganancia ocurre en Soil ($+0{,}18$ puntos porcentuales) y la mayor pérdida en Outex ($-0{,}29$). La precisión, el recall y el F1 macro de ambas rutas figuran en la Tabla~\ref{tab:e1-macro}. Con ResMLP sobre los bloques elegidos para SVM, la cascada escala el 22,5\,\% y obtiene 94,24\,\% frente a 94,28\,\% del uso directo.
+La Tabla~\ref{tab:cascada} compara las dos rutas sobre las mismas imágenes. Con SVM, el margen escala el 21,1\,\% en promedio y la accuracy pasa de 94,44\,\% a 94,46\,\%. El costo proyectado cae un 75,0\,\%, de 468,3 a 117,1 ms por imagen. La mayor ganancia ocurre en Soil ($+0{,}18$ puntos porcentuales) y la mayor pérdida en Outex ($-0{,}29$). La precisión, el recall y el F1 macro de ambas rutas figuran en la Tabla~\ref{tab:e1-macro}. Con ResMLP sobre los bloques elegidos para SVM, la cascada escala el 22,5\,\% y obtiene 94,24\,\% frente a 94,28\,\% del uso directo. La Tabla~\ref{tab:e4-datasets} desglosa el resultado por dataset.
 
 \begin{table}[pos=htbp]
 \centering
@@ -567,9 +567,37 @@ Media & 94,37 & 93,59 & 93,67 & 94,37 & 93,62 & 93,68 \\
 \end{table}
 \FloatBarrier
 
+\section{Sensibilidad al clasificador ResMLP}
+
+E4 conserva los cuatro bloques elegidos para SVM y ajusta las cabezas con ResMLP en las mismas 27 particiones. La regla de selección de ruta se aplica con los datos de entrenamiento. En Outex se observa la mayor pérdida, de 0,44 puntos porcentuales. En FMD, CUReT y Soil, ambas rutas obtienen la misma accuracy media. La proporción escalada va de 16,3\,\% en Outex a 33,3\,\% en CUReT. Esta evaluación usa descriptores almacenados.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Top-4 directo y cascada Top-4 con ResMLP (E4). Accuracy, macro-F1 y fracción escalada en porcentaje. $\Delta$ indica la diferencia de accuracy entre cascada y uso directo en puntos porcentuales, calculada antes de redondear. La última fila da el mismo peso a cada dataset.}
+\label{tab:e4-datasets}
+\small
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+ & & \multicolumn{3}{c}{Accuracy} & \multicolumn{2}{c}{Macro-F1} & \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-7}
+Dataset & Cond. & Directo & Margen & $\Delta$ & Directo & Margen & Escaladas \\
+\midrule
+DTD & 10 & 86,64 & 86,71 & +0,07 & 86,52 & 86,59 & 23,1 \\
+FMD & 5 & 97,30 & 97,30 & 0,00 & 97,29 & 97,29 & 21,0 \\
+CUReT & 2 & 99,86 & 99,86 & 0,00 & 99,86 & 99,86 & 33,3 \\
+Outex & 1 & 94,12 & 93,68 & $-0{,}44$ & 93,89 & 93,56 & 16,3 \\
+Soil & 5 & 91,84 & 91,84 & 0,00 & 87,02 & 86,73 & 22,8 \\
+KTH-TIPS2-b & 4 & 95,92 & 96,09 & +0,17 & 95,65 & 95,82 & 18,4 \\
+\midrule
+Media & 27 & 94,28 & 94,24 & $-0{,}03$ & 93,37 & 93,31 & 22,5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\FloatBarrier
+
 \section{Trazabilidad}
 
-Las curvas externas y las métricas de la evaluación estática y del panel online se consolidan en \nolinkurl{results/analysis/thesis_accuracy_primary_20261115_v3/}. La curva interna de SVM se reconstruye a partir de \nolinkurl{k_sweep_inner.csv} en \nolinkurl{results/exploratory/k_sweep/}. Las comparaciones de Top-4 por margen se reconstruyen desde las predicciones y puntuaciones archivadas. Las medias se verifican en \nolinkurl{results/analysis/top4_fixed_kth_completion_audit_20261115_v1/}. Las Tablas~\ref{tab:cascada} y~\ref{tab:e1-macro} se construyen a partir de \nolinkurl{e1_complete_dataset_means.csv}, que también es la fuente de la Figura~\ref{fig:e1-por-dataset}. La Tabla~\ref{tab:contrastes-margen} se basa en \nolinkurl{e1_contrastes.txt}, \nolinkurl{e1_no_inferioridad.txt} y \nolinkurl{e4_e5_resumen.txt}, en el directorio de análisis del artículo. La comparación con GFS procede de \nolinkurl{results/analysis/selection_stats/}. El análisis por imagen se documenta en \nolinkurl{carlos/analisis_paper/}. Los resultados secundarios se verifican en \nolinkurl{results/analysis/e4_resmlp_complete_audit_20261116_v1/} y \nolinkurl{results/analysis/e5_top4_plus_ngram_audit_20261116_v1/}. Las cifras externas proceden de las fuentes identificadas en la Tabla~\ref{tab:publicados}. El cotejo de métricas y protocolos está en \nolinkurl{docs/fsc_tex/METRICAS_PUBLICADAS_Y_COMPARABILIDAD_2026-11-23.md}.
+Las curvas externas y las métricas de la evaluación estática y del panel online se consolidan en \nolinkurl{results/analysis/thesis_accuracy_primary_20261115_v3/}. La curva interna de SVM se reconstruye a partir de \nolinkurl{k_sweep_inner.csv} en \nolinkurl{results/exploratory/k_sweep/}. Las comparaciones de Top-4 por margen se reconstruyen desde las predicciones y puntuaciones archivadas. Las medias se verifican en \nolinkurl{results/analysis/top4_fixed_kth_completion_audit_20261115_v1/}. Las Tablas~\ref{tab:cascada} y~\ref{tab:e1-macro} se construyen a partir de \nolinkurl{e1_complete_dataset_means.csv}, que también es la fuente de la Figura~\ref{fig:e1-por-dataset}. La Tabla~\ref{tab:contrastes-margen} se basa en \nolinkurl{e1_contrastes.txt}, \nolinkurl{e1_no_inferioridad.txt} y \nolinkurl{e4_e5_resumen.txt}, en el directorio de análisis del artículo. La comparación con GFS procede de \nolinkurl{results/analysis/selection_stats/}. El análisis por imagen se documenta en \nolinkurl{carlos/analisis_paper/}. La Tabla~\ref{tab:e4-datasets} se reconstruye de \nolinkurl{summary.json} en \nolinkurl{results/analysis/e4_resmlp_complete_audit_20261116_v1/}. La comparación de color se verifica en \nolinkurl{results/analysis/e5_top4_plus_ngram_audit_20261116_v1/}. Las cifras externas proceden de las fuentes identificadas en la Tabla~\ref{tab:publicados}. El cotejo de métricas y protocolos está en \nolinkurl{docs/fsc_tex/METRICAS_PUBLICADAS_Y_COMPARABILIDAD_2026-11-23.md}.
 
 \section*{Disponibilidad de datos y código}
 

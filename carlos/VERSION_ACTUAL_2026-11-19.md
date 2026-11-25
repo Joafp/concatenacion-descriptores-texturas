@@ -36,3 +36,7 @@ La tabla bibliográfica del manuscrito usa las cifras de los artículos original
 
 Para trabajar en ambos lugares, conviene incorporar primero las ediciones de Overleaf
 y registrar la revisión acordada en GitHub. Overleaf y GitHub se mantienen como copias separadas.
+
+### Revisión posterior en GitHub
+
+El apéndice «Sensibilidad al clasificador ResMLP» desglosa E4 por dataset sobre los bloques elegidos para SVM. Las cifras se verificaron contra el resumen auditado de las 27 condiciones. El PDF de esta revisión se compiló desde el repositorio.
