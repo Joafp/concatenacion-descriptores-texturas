@@ -22,7 +22,7 @@ La tabla de trabajos publicados tiene un [cotejo fila por fila con los PDF prima
 ## Pendientes de envío
 
 1. Cotejar la [versión en inglés](../main_en.tex) con la guía específica. El [PDF](../main_topk_margen_en.pdf) tiene 22 páginas numeradas, una columna, texto a doble espacio, 16 tablas y cinco figuras. El rango de 20 a 35 páginas figura en la ficha editorial. Queda por confirmar si ese conteo incluye anexos y referencias, los archivos obligatorios y el formato de revisión. La guía completa devolvió un error de acceso. [Ficha editorial](https://shop.elsevier.com/journals/pattern-recognition/0031-3203) · [Guía para autores](https://www.sciencedirect.com/journal/pattern-recognition/publish/guide-for-authors)
-2. Confirmar con los autores contribuciones, financiamiento, conflictos y declaración de asistencia de IA. El borrador declara el uso confirmado de Codex en esta revisión. La política del editor también requiere verificar los detalles de herramientas empleadas en diagramas y visualizaciones, incluidos el modelo o versión y el uso concreto. [Política de IA de Elsevier](https://www.elsevier.com/en-gb/about/policies-and-standards/generative-ai-policies-for-journals)
+2. Confirmar con los autores contribuciones, financiamiento, conflictos y declaración de asistencia de IA. El borrador declara el uso confirmado de Codex en esta revisión. Las leyendas de los esquemas y el protocolo de generación de gráficos declaran el trabajo asistido por Codex, con su versión y su uso. Queda por confirmar si hubo otras herramientas o intervenciones que los autores deban declarar. [Política de IA de Elsevier](https://www.elsevier.com/en-gb/about/policies-and-standards/generative-ai-policies-for-journals)
 3. La verificación de resultados archivados pasó en una exportación independiente de Git. Volver a entrenar o medir requiere los datasets y reconstruir los pesos, cabezas y embeddings en el entorno experimental. [Verificación reproducible](#verificar-la-evidencia-del-paper)
 4. Para una cifra de ahorro físico de la cascada exacta queda pendiente su medición pareada. El manuscrito atribuye el ahorro del 75 % al modelo de extracción. [Alcance de las trazas disponibles](#alcance-de-las-trazas-disponibles)
 
@@ -35,11 +35,11 @@ Desde la raíz del repositorio, con Python 3:
 python3 scripts/package_topk_journal.py /tmp/topk_manuscrito_revista.zip
 ~~~
 
-El ZIP lleva el PDF en inglés, su fuente, las referencias, los recursos necesarios para compilar, los highlights y el borrador de carta. Incluye hashes de los archivos. Para importarlo en Overleaf, el documento principal es **main_en.tex**. En una carpeta extraída, la compilación utiliza pdfLaTeX, BibTeX y la distribución LaTeX con STIX. Verificamos los 18 archivos del manifiesto y compilamos desde una extracción temporal. El texto de las 22 páginas coincide con el PDF suministrado.
+El ZIP lleva el PDF en inglés, su fuente, las referencias, los recursos necesarios para compilar, los highlights y el borrador de carta. Incluye hashes de los archivos. Para importarlo en Overleaf, el documento principal es **main_en.tex**. En una carpeta extraída, la compilación utiliza pdfLaTeX, BibTeX y la distribución LaTeX con STIX. Verificamos los 19 archivos del manifiesto y compilamos desde una extracción temporal. El texto de las 22 páginas coincide con el PDF suministrado.
 
 ## Compilar el borrador en inglés
 
-Desde la raíz del repositorio, las figuras de resultados se pueden regenerar con Python y Matplotlib a partir del barrido interno de SVM y los CSV archivados. El diagrama se compila por separado para que TeX encuentre la imagen DTD en el directorio superior.
+Desde la raíz del repositorio, las figuras de resultados se pueden regenerar con Python y Matplotlib a partir del barrido interno de SVM y los CSV archivados. El diagrama vectorial se compila por separado desde su fuente TikZ. El ejemplo de textura se dibuja con rectángulos inclinados en TikZ. La imagen de DTD usada antes queda en el archivo histórico. La página de distribución describe DTD como un conjunto de imágenes de Google y Flickr para investigación. [Descripción de DTD](https://www.robots.ox.ac.uk/~vgg/data/dtd/)
 
 ~~~bash
 python3 scripts/plot_paper_figures_20261123.py /tmp/tesis_figuras_en --language en --by-dataset

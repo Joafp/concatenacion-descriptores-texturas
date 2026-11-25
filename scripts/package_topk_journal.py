@@ -13,6 +13,7 @@ FILES = (
     "cas-sc.cls",
     "cas-common.sty",
     "figures/english/descriptor_pipeline.pdf",
+    "figures/english/descriptor_pipeline.tex",
     "figures/english/curva_k.pdf",
     "figures/english/comparacion_pareada_e1.pdf",
     "figures/english/curves_by_dataset.pdf",
