@@ -21,7 +21,7 @@
 
 1. Revisar con los autores la [versión completa en inglés](../main_en.tex) y cotejar la maquetación con la guía de la revista. El [PDF en inglés](../main_topk_margen_en.pdf) incluye 16 tablas y cinco figuras, con las curvas por dataset, reglas internas para elegir el tamaño y el desglose de E1 por condición. El borrador usa la clase CAS de una columna. La compilación con la opción de revisión de CAS da 21 páginas, en una columna y con texto a doble espacio. La ficha indica un intervalo de 20 a 35 páginas; hay que confirmar cómo cuenta anexos y referencias la guía completa. La ficha editorial de Pattern Recognition indica formato de una columna y doble espacio. La guía completa enlazada desde la ficha no estuvo accesible en esta revisión, así que se mantienen abiertas las comprobaciones específicas del envío.
 2. Confirmar con los autores contribuciones, financiamiento, conflictos y declaración de asistencia de IA. El borrador declara el uso confirmado de Codex en esta revisión. La política del editor también requiere verificar los detalles de herramientas empleadas en diagramas y visualizaciones, incluidos el modelo o versión y el uso concreto. [Política de IA de Elsevier](https://www.elsevier.com/en-gb/about/policies-and-standards/generative-ai-policies-for-journals)
-3. Revisar qué material puede usar un tercero desde una copia del repositorio. Las predicciones por imagen y el análisis de E1 están versionados. Las cabezas serializadas y los embeddings citados por la auditoría tienen disponibilidad local. [Reconstrucción de conteos archivados](../analisis_paper/README.md)
+3. La verificación de resultados archivados pasó en una exportación independiente de Git. Volver a entrenar o medir requiere los datasets y reconstruir los pesos, cabezas y embeddings en el entorno experimental. [Verificación reproducible](#verificar-la-evidencia-del-paper)
 4. Si la conclusión del artículo requiere una cifra de ahorro físico para la cascada Top-4 exacta, respaldarla con evidencia de esa implementación frente a su uso directo. La evidencia publicada en el manuscrito permite atribuir el ahorro del 75 % al modelo de costo y las mediciones físicas al ensamble.
 
 
@@ -38,3 +38,15 @@ python3 scripts/plot_paper_figures_20261123.py /tmp/tesis_figuras_en --language 
 ~~~
 
 El primer comando escribe los gráficos recalculados en un directorio temporal. Los PDF versionados de los gráficos ya están en la ruta que lee el manuscrito. La compilación necesita las fuentes STIX y los paquetes LaTeX declarados en la clase CAS. La clase reporta una advertencia de caja en la portada al colocar la columna de palabras clave en una caja de ancho cero. Revisamos la portada renderizada y las palabras clave y el resumen se ven completos.
+
+## Verificar la evidencia del paper
+
+Con Python 3.10 o posterior, desde la raíz del repositorio:
+
+~~~bash
+python3 scripts/verify_topk_paper_evidence.py
+~~~
+
+El comando usa la biblioteca estándar y deja el repositorio intacto. Recalcula las métricas por condición y el promedio por dataset de E1 con 31.984 predicciones. Comprueba los índices de test del protocolo congelado, la aplicación de la ruta guardada y los costos proyectados a partir de las constantes de extracción. Para el panel online verifica los SHA-256 de las 94 trazas, que las cinco políticas recibieron las mismas imágenes por condición y que cada imagen se midió una vez por política. Recalcula 470 filas de métricas por condición y política, 60 medias por dataset, cabeza y política, y las medianas y percentiles 95 de las 36 filas de latencia publicadas en el análisis del paper.
+
+La comprobación pasó sobre una exportación con los 104 archivos de entrada versionados. Una edición deliberada en una copia de una traza produjo el error de hash esperado. El comando verifica agregados de predicciones y tiempos archivados. La verificación de cifras bibliográficas, la recuperación de todos los artefactos de entrenamiento y el cronometraje físico de la cascada Top-4 siguen sus propias fuentes y protocolos.
