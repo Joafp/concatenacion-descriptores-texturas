@@ -53,6 +53,8 @@ El primer comando escribe los gráficos recalculados en un directorio temporal. 
 
 ## Verificar la evidencia del paper
 
+La [guía de disponibilidad](DATA_AVAILABILITY.md) identifica los seis manifiestos congelados, sus fuentes, sus hashes y el commit de los archivos de verificación.
+
 Con Python 3.10 o posterior, desde la raíz del repositorio:
 
 ~~~bash
