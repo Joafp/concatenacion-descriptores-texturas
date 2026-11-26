@@ -235,6 +235,8 @@ Para la comparación de Top-4 evaluamos los cuantiles $0{,}25$, $0{,}50$ y $0{,}
 
 La política evaluada en línea usa el mismo tipo de margen y otro rescate. Selecciona una etapa inicial en la frontera entre macro-F1 interno y costo y busca un cuantil en $\{0{,}10;\,0{,}25;\,0{,}50\}$. Si $m(x)<\tau_q$, agrega las puntuaciones de hasta tres concatenaciones de cuatro bloques de un ensamble por diversidad. El ensamble tiene 15 subconjuntos muestreados según la relevancia interna de los bloques, con penalización por similitud CKA ($\lambda=0{,}25$, $\beta=8$) \citep{kornblith2019similarity}. La selección de etapa inicial, umbral y rescates maximiza macro-F1 interno en tres folds bajo un presupuesto proyectado de 60 ms de media. En adelante, \emph{cascada Top-4} designa la regla de la Ecuación~\eqref{eq:regla} con $k=4$ y \emph{margen con ensamble} designa la variante online.
 
+El panel incluye dos ensambles de uso directo. Ambos aplican 15 cabezas sobre subconjuntos de cuatro bloques elegidos entre los 21 del ranking. En la tómbola, el peso de cada bloque en el sorteo depende de su posición en el ranking interno ($\beta=8$). El ensamble por diversidad incorpora una penalización por similitud. Cada llamada extrae cada descriptor a lo sumo una vez. Las puntuaciones de cada cabeza se dividen por su desviación estándar en entrenamiento antes de promediar y elegir la clase con mayor puntuación. Esa escala se fija antes de inferir una imagen por vez.
+
 \section{Protocolo experimental}
 
 La unidad experimental es una condición, definida por una partición externa y una configuración de evaluación. DTD usa sus diez tests oficiales, con entrenamiento y validación unidos para la selección interna y deduplicación de entrenamiento frente al test \citep{cimpoi2014dtd}. FMD y Soil usan cinco folds estratificados y agrupados con cada una de las semillas 42, 123 y 2026 \citep{sharan2013fmd}. Soil usa 1.140 imágenes originales tras eliminar duplicados exactos y agrupa familias de archivos. CUReT usa un subconjunto en gris con 61 clases y 92 condiciones de captura comunes. La alternancia de los identificadores de captura produce dos mitades complementarias de 46 condiciones \citep{varma2003filter}. Outex usa una partición oficial de la suite TC 00013 (680 imágenes por lado) \citep{ojala2002outex}. KTH-TIPS2-b evalúa cuatro particiones que reservan una muestra física por clase para test y entrenan con las otras tres \citep{mallikarjuna2005kth,scabini2023radam}.
@@ -403,7 +405,7 @@ En el panel online (Tabla~\ref{tab:panel}), el margen con ensamble reduce la lat
 
 \begin{table}[pos=htbp]
 \centering
-\caption{Panel online de 94 condiciones (\texttt{batch=1}, RTX 4060): accuracy media entre particiones y latencia media en ms por imagen, medidas en las mismas llamadas. La política por margen rescata con subconjuntos de cuatro bloques de un ensamble por diversidad (Sección~\ref{sec:variante-panel}). Los dos ensambles del panel se resumen en el texto.}
+\caption{Panel online de 94 condiciones (\texttt{batch=1}, RTX 4060): accuracy media entre particiones y latencia media en ms por imagen, medidas en las mismas llamadas. La política por margen rescata con subconjuntos de cuatro bloques de un ensamble por diversidad (Sección~\ref{sec:variante-panel}). La Tabla~\ref{tab:panel-ensembles} completa los controles de ensamble.}
 \label{tab:panel}
 \small
 \setlength{\tabcolsep}{4.5pt}
@@ -436,6 +438,8 @@ Media & SVM & 0,9423 & 245,06 & 0,9396 & 39,93 & \textbf{0,9457} & 1.648,02 \\
 $^{\dagger}$En DTD con SVM se conserva una reserva sobre la medición de tiempos por una pausa durante una ventana nocturna; la mediana de la política por margen es 14,10 ms con SVM y 14,77 ms con ResMLP. Por esa pausa, la media de Top-4 con SVM (333,98 ms) supera a su percentil 95 (291,77 ms).
 \end{minipage}
 \end{table}
+
+Frente a Top-4 directo, cada ensamble de uso directo mejora la accuracy en nueve de las doce comparaciones por dataset y cabeza, y aumenta la latencia media en las doce (Tabla~\ref{tab:panel-ensembles}). La mayor mejora de ambos ocurre en Outex con ResMLP. Diversidad y tómbola ganan 2,35 y 2,94 puntos porcentuales y agregan 85,66 y 73,76 ms por imagen, respectivamente. Es el intercambio observado al combinar varias concatenaciones para cada imagen.
 
 \FloatBarrier
 \subsection{Resultados publicados en clasificación de texturas}
@@ -645,6 +649,36 @@ Umbral de entrenamiento & Margen & 21,06 & 94,46 & 93,68 \\
 Igual cantidad escalada & Margen & 21,06 & 94,46 & 93,68 \\
  & Puntaje máximo & 21,06 & 94,25 & 93,53 \\
  & Entropía softmax & 21,06 & 93,98 & 93,28 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\FloatBarrier
+
+\section{Controles de ensamble de uso directo}
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Accuracy y latencia media de los dos ensambles de uso directo en el panel de 94 condiciones. Cada ensamble se evalúa sobre las mismas imágenes que las políticas de la Tabla~\ref{tab:panel}. Sus predicciones y tiempos provienen de las mismas llamadas. Se conserva la reserva de tiempo de DTD con SVM.}
+\label{tab:panel-ensembles}
+\small
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+ & & \multicolumn{2}{c}{Ensamble por diversidad} & \multicolumn{2}{c}{Ensamble por tómbola} \\
+\cmidrule(lr){3-4}\cmidrule(l){5-6}
+Dataset & Cabeza & Acc. (\%) & ms/imagen & Acc. (\%) & ms/imagen \\
+\midrule
+DTD & SVM & 87,48 & 411,43 & 87,38 & 424,63 \\
+ & ResMLP & 87,86 & 366,45 & 87,60 & 356,18 \\
+FMD & SVM & 97,83 & 364,54 & 97,93 & 356,76 \\
+ & ResMLP & 97,73 & 373,45 & 97,70 & 367,84 \\
+CUReT & SVM & 99,88 & 404,02 & 99,89 & 348,36 \\
+ & ResMLP & 99,89 & 395,12 & 99,91 & 365,79 \\
+Outex & SVM & 94,56 & 358,17 & 94,12 & 362,65 \\
+ & ResMLP & 95,29 & 349,43 & 95,88 & 337,53 \\
+Soil & SVM & 92,60 & 204,97 & 92,08 & 200,32 \\
+ & ResMLP & 92,43 & 208,15 & 92,43 & 183,51 \\
+KTH-TIPS2-b & SVM & 95,75 & 367,46 & 95,73 & 345,56 \\
+ & ResMLP & 95,83 & 366,38 & 95,71 & 354,33 \\
 \bottomrule
 \end{tabular}
 \end{table}

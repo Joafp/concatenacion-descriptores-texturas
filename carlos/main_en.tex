@@ -171,6 +171,8 @@ For each candidate block and quantile, we substitute the Top-4 prediction on inn
 
 The online policy chooses a first-stage block on the internal macro-F1 versus cost frontier and searches quantiles $\{0.10,0.25,0.50\}$. When $m(x)<\tau_q$, it aggregates the scores of up to three four-block concatenations from a diversity-based ensemble. The ensemble contains 15 subsets sampled using internal block relevance with a centered kernel alignment similarity penalty ($\lambda=0.25$, $\beta=8$) \citep{kornblith2019similarity}. The policy chooses the first stage, threshold, and escalation subsets to maximize three-fold internal macro-F1 under a projected mean budget of 60 ms. We refer to this policy as the \emph{margin-gated ensemble}; \emph{Top-4 cascade} refers to Equation~\eqref{eq:regla} with $k=4$.
 
+The panel also includes two always-on ensembles. Both evaluate 15 heads on four-block subsets drawn from the 21 ranked blocks. The lottery weights the draws by each block's internal rank ($\beta=8$). The diversity ensemble also penalizes similarity between blocks. At inference, each descriptor is extracted at most once per call. The heads' scores are divided by their respective training score standard deviations before averaging and predicting the top class. The scale is fixed for single-image inference.
+
 \section{Experimental protocol}
 
 A condition is defined by an outer split and an evaluation configuration. DTD uses its ten official tests, with the training and validation sets combined for inner selection and exact training duplicates of test images removed \citep{cimpoi2014dtd}. FMD and Soil use five stratified group folds for each of seeds 42, 123 and 2026 \citep{sharan2013fmd}. Soil comprises 1,140 original images after exact deduplication and groups related file families. CUReT uses a grayscale subset of 61 classes and 92 common capture conditions. Alternating the condition IDs gives two complementary halves of 46 conditions \citep{varma2003filter}. Outex uses an official TC 00013 split with 680 images on each side \citep{ojala2002outex}. KTH-TIPS2-b uses four splits that each hold out a complete physical sample per class \citep{mallikarjuna2005kth,scabini2023radam}.
@@ -377,6 +379,8 @@ Mean & SVM & 0.9423 & 245.06 & 0.9396 & 39.93 & \textbf{0.9457} & 1,648.02 \\
 $^{\dagger}$DTD SVM timings include an overnight interruption. The gated ensemble median is 14.10 ms with SVM and 14.77 ms with ResMLP. The interruption makes the SVM Top-4 mean (333.98 ms) exceed its 95th percentile (291.77 ms).
 \end{minipage}
 \end{table}
+Against direct Top-4, each always-on ensemble improves accuracy in nine of the twelve dataset--head comparisons and increases mean latency in all twelve (Table~\ref{tab:panel-ensembles}). The largest gain for both occurs with ResMLP on Outex, where they add 2.35 and 2.94 percentage points, respectively, at an extra 85.66 and 73.76 ms per image. This gives the size of the accuracy--latency trade-off for combining multiple concatenations on every image.
+
 \FloatBarrier
 \subsection{Published texture classification results}
 
@@ -661,6 +665,36 @@ KTH-TIPS2-b & 4 & 4 & 0 & 0 & 4 & 0 \\
 \end{tabular}
 \end{table}
 
+\FloatBarrier
+
+\section{Always-on ensemble controls}
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Accuracy and mean latency for the two always-on ensembles in the 94-condition panel. Both ensembles use the same test images as the policies in Table~\ref{tab:panel}. Predictions and elapsed times are recorded in the same calls for each ensemble. The DTD SVM timing reservation also applies here.}
+\label{tab:panel-ensembles}
+\small
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+ & & \multicolumn{2}{c}{Diversity ensemble} & \multicolumn{2}{c}{Rank-weighted lottery} \\
+\cmidrule(lr){3-4}\cmidrule(l){5-6}
+Dataset & Head & Acc. (\%) & ms/image & Acc. (\%) & ms/image \\
+\midrule
+DTD & SVM & 87.48 & 411.43 & 87.38 & 424.63 \\
+ & ResMLP & 87.86 & 366.45 & 87.60 & 356.18 \\
+FMD & SVM & 97.83 & 364.54 & 97.93 & 356.76 \\
+ & ResMLP & 97.73 & 373.45 & 97.70 & 367.84 \\
+CUReT & SVM & 99.88 & 404.02 & 99.89 & 348.36 \\
+ & ResMLP & 99.89 & 395.12 & 99.91 & 365.79 \\
+Outex & SVM & 94.56 & 358.17 & 94.12 & 362.65 \\
+ & ResMLP & 95.29 & 349.43 & 95.88 & 337.53 \\
+Soil & SVM & 92.60 & 204.97 & 92.08 & 200.32 \\
+ & ResMLP & 92.43 & 208.15 & 92.43 & 183.51 \\
+KTH-TIPS2-b & SVM & 95.75 & 367.46 & 95.73 & 345.56 \\
+ & ResMLP & 95.83 & 366.38 & 95.71 & 354.33 \\
+\bottomrule
+\end{tabular}
+\end{table}
 \FloatBarrier
 
 \section{Data and code availability}
