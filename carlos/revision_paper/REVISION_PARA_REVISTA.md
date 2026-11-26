@@ -13,6 +13,8 @@
 
 La tabla de trabajos publicados tiene un [cotejo fila por fila con los PDF primarios](../../docs/fsc_tex/METRICAS_PUBLICADAS_Y_COMPARABILIDAD_2026-11-23.md#cotejo-de-las-11-filas-que-entran-al-manuscrito), con localizadores de cifras y protocolos.
 
+La [versión en español](../main_topk_margen.pdf) conserva el formato de revisión de tesis e incluye las mismas figuras, tablas y referencias que la versión en inglés.
+
 ## Archivos editoriales para revisión
 
 - [Highlights](Highlights.txt). Cuatro puntos editables de hasta 85 caracteres, conforme a la guía general de Elsevier. La guía de Pattern Recognition los requiere. [Instrucciones generales sobre highlights](https://www.elsevier.support/publishing/answer/how-do-i-include-highlights-with-my-manuscript)

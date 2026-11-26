@@ -267,6 +267,12 @@ Calculamos medias por dataset primero y después damos el mismo peso a los seis 
 
 \FloatBarrier
 
+\subsection{Medición de latencia y agregación}
+
+Para cada imagen de test, el ejecutor aplica las cinco políticas congeladas en orden aleatorio. Usa dos imágenes de calentamiento por política. El cronómetro se inicia después de sincronizar la GPU y se detiene tras obtener la clase predicha y sincronizar de nuevo. Incluye apertura y decodificación del archivo, conversión a RGB, preprocesamiento, extracción y transferencia a CPU, normalización, armado del vector, clasificación y decisión de ruta o votación. La carga de pesos, el ajuste de las cabezas, el calentamiento y el guardado de las trazas se hacen fuera del intervalo medido. La accuracy y el tiempo de cada política provienen de las mismas llamadas.
+
+El panel principal reúne 362.640 llamadas en 94 condiciones con una repetición medida por política e imagen. La observación adicional de DTD contiene 9.400 llamadas y se conserva por separado. El equipo era compartido y una interrupción registrada afecta la media de DTD. Para estimar el percentil 95 se reúnen las llamadas por dataset, cabeza y política. Para la accuracy y la latencia media de la tabla principal, primero se calcula el valor por partición y después se promedia dentro de cada dataset.
+
 \section{Resultados}
 
 \subsection{Ganancia de concatenar y tamaño del vector}
@@ -399,6 +405,14 @@ Margen vs.\ directo (E4, ResMLP) & $-0{,}03$ & No inferioridad & Cota inferior 9
 \end{table}
 \FloatBarrier
 
+\paragraph{Qué cambia al escalar.}
+Para $n$ llamadas pareadas, sean $A_i$ y $T_i$ los indicadores de acierto de la primera etapa y de Top-4 directo, y $G_i$ el indicador de escalamiento. El acierto de la cascada es $A_i+G_i(T_i-A_i)$. Las diferencias de accuracy frente a la primera etapa y al uso directo son
+\begin{align}
+ \Delta_{\mathrm{primera}} &= n^{-1}\sum_{i=1}^{n}G_i(T_i-A_i),\\
+ \Delta_{\mathrm{directa}} &= n^{-1}\sum_{i=1}^{n}(1-G_i)(A_i-T_i).
+\end{align}
+La primera resta los aciertos perdidos de los errores corregidos entre las llamadas escaladas. La segunda resta las correcciones omitidas de los aciertos preservados en las llamadas restantes. En el conjunto de llamadas de E1, la cascada gana 704 aciertos frente a la primera etapa y 17 frente al uso directo. El estimando principal da igual peso a cada dataset.
+
 \subsection{Latencia observada de nuestras políticas}
 
 En el panel online (Tabla~\ref{tab:panel}), el margen con ensamble reduce la latencia media de Top-4 en las doce combinaciones. Con SVM, la media pasa de 245,06 a 39,93 ms y la accuracy de 94,23\,\% a 93,96\,\%. Con ResMLP, la latencia pasa de 232,76 a 36,10 ms y la accuracy de 94,02\,\% a 94,39\,\%. Los efectos varían por dataset. En KTH-TIPS2-b, la accuracy baja 1,60 y 1,51 puntos con SVM y ResMLP. En Outex sube 3,24 puntos con ResMLP. En Soil mejora la latencia media, pero el percentil 95 del margen con ensamble sube de 117,6 a 136,7 ms con SVM y de 128,4 a 145,4 ms con ResMLP. Los casos que requieren rescate pueden pagar el costo de las dos etapas.
@@ -497,12 +511,16 @@ La evaluación estática conserva una reserva sobre la agrupación interna de al
 
 \section{Conclusión}
 
-En los seis datasets, cuatro bloques ofrecieron una representación compacta a partir de la cual estudiar la activación. El barrido mostró diferencias según el clasificador, y el resultado de Outex ilustra el costo de dejar fuera un descriptor complementario. Con Top-4 fijo, el margen dirigió el rescate hacia muchas de las imágenes que Top-4 podía corregir. La diferencia media de accuracy frente al uso directo fue de $+0{,}01$ puntos con SVM, con un intervalo compatible con pérdidas o ganancias pequeñas. El ahorro del 75\,\% corresponde a una proyección del costo de extracción.
+Al combinar descriptores, elegir cuántos bloques usar y decidir cuándo extraerlos son dos decisiones distintas. Cuatro bloques ofrecen un punto de partida compacto. En FMD, ambas cabezas alcanzan su mayor accuracy con cuatro bloques, mientras que en la partición oficial de Outex el máximo se alcanza con dieciocho. Conviene examinar cuánto aportan los descriptores complementarios en el dominio de interés antes de fijar el tamaño de la representación.
 
-La medición física con el ensamble muestra qué debe comprobarse al desplegar una política de este tipo: además de la accuracy y la latencia media, importa cuánto tardan las imágenes que requieren ambas etapas. La comparación pendiente para la cascada Top-4 es medir, sobre las mismas imágenes y con los mismos extractores, el costo completo de decidir cuándo concatenar.
+Con cuatro bloques fijos, la comparación con el control aleatorio de igual presupuesto muestra que importa cuáles imágenes se escalan. El margen dirige a Top-4 la mayoría de los errores que la cabeza conjunta podía corregir, aunque al escalar también se pierden algunos aciertos iniciales. El desglose pareado permite separar esos efectos. La proyección de costo motiva una evaluación de la cascada para despliegue.
+
+El panel con ensamble muestra que una menor latencia media puede coexistir con demoras mayores en las solicitudes más lentas. Una medición pareada de la cascada Top-4 exacta y su referencia directa permitiría saber cuánto ahorro queda al incluir decodificación, clasificación y decisión de ruta. Validar la reconstrucción de los descriptores y comprobar el punto de operación en particiones nuevas ayudaría a establecer hasta dónde se sostienen los resultados.
 
 \appendix
 \section{Biblioteca y comprobación del bloque de color}
+
+La biblioteca incluye filtros de Gabor \citep{jain1991gabor} e histogramas de gradientes \citep{dalal2005hog}. Entre las redes con pesos congelados hay redes residuales \citep{he2016resnet}, redes con conexiones densas \citep{huang2017densenet} y ConvNeXt V2 \citep{woo2023convnextv2}. Las representaciones con atención incluyen ViT \citep{dosovitskiy2021vit}, DeiT \citep{touvron2021deit} y Swin \citep{liu2021swin}. También se usan DINOv2 \citep{oquab2024dinov2} y SigLIP \citep{zhai2023siglip} como extractores congelados.
 
 \begin{table}[pos=htbp]
 \centering
@@ -654,6 +672,89 @@ Igual cantidad escalada & Margen & 21,06 & 94,46 & 93,68 \\
 \end{table}
 \FloatBarrier
 
+\section{Sensibilidad y auditoría de las rutas}
+
+\subsection{Barrido por dataset}
+
+La Figura~\ref{fig:curves-by-dataset} muestra cuánto cambia la accuracy respecto de Top-4. En FMD, cuatro bloques alcanzan el máximo del barrido con ambas cabezas. En CUReT, la mejora máxima respecto de Top-4 es menor a 0,10 puntos porcentuales. En Outex, ambas cabezas alcanzan su máximo con 18 bloques y ganan 3,24 puntos con SVM y 2,21 con ResMLP. Esos valores describen la única partición oficial evaluada en Outex.
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/curves_by_dataset.pdf}
+\caption{Accuracy en test respecto de Top-4 directo por dataset y cabeza, en puntos porcentuales. Cero corresponde a $k=4$ con la misma cabeza y el mismo dataset. Cada punto promedia las condiciones externas del dataset. Los seis paneles comparten la escala vertical.}
+\label{fig:curves-by-dataset}
+\end{figure}
+\FloatBarrier
+
+\subsection{Selección del número de bloques}
+
+La regla del máximo elige el menor $k$ que alcanza el macro-F1 interno más alto. La regla de ganancia se detiene cuando el siguiente bloque aporta menos que la tolerancia indicada. Si nunca se cumple esa condición, conserva los 21 bloques. La Tabla~\ref{tab:k-rules} muestra la accuracy externa para el tamaño que se seleccionó dentro de cada condición. La elección de cuatro bloques fue exploratoria.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Reglas de elección de $k$ a partir de la curva interna de macro-F1. Se informa el $k$ medio y la accuracy externa (\%). Los seis datasets tienen el mismo peso.}
+\label{tab:k-rules}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Regla & SVM $k$ & Accuracy SVM & ResMLP $k$ & Accuracy ResMLP \\
+\midrule
+Máximo macro-F1 interno & 6,32 & 94,14 & 7,26 & 94,30 \\
+Primera ganancia menor a 0,001 & 3,23 & 94,11 & 2,15 & 93,93 \\
+Primera ganancia menor a 0,005 & 1,92 & 93,82 & 1,71 & 93,78 \\
+Primera ganancia menor a 0,010 & 1,68 & 93,52 & 1,30 & 93,22 \\
+Fijo $k=3$ & 3,00 & 94,25 & 3,00 & 94,28 \\
+Fijo $k=4$ & 4,00 & 94,42 & 4,00 & 94,20 \\
+Fijo $k=6$ & 6,00 & 94,36 & 6,00 & 93,98 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Variación entre condiciones}
+
+DTD aporta 18.800 llamadas al recuento por imagen y Outex aporta 680. El estimando principal da igual peso a los seis datasets. Los extremos de la Tabla~\ref{tab:e1-ranges} describen las condiciones observadas, que pueden compartir imágenes. En Outex se dispone de una sola condición.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Cambios de accuracy de la cascada respecto de Top-4 directo en E1, en puntos porcentuales. Ganancias, empates y pérdidas son conteos de condiciones.}
+\label{tab:e1-ranges}
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+Dataset & Cond. & Media & Mín. & Máx. & Ganancias & Empates & Pérdidas \\
+\midrule
+DTD & 10 & +0,085 & -0,319 & +0,479 & 6 & 0 & 4 \\
+FMD & 5 & +0,100 & +0,000 & +0,500 & 1 & 4 & 0 \\
+CUReT & 2 & -0,071 & -0,143 & +0,000 & 0 & 1 & 1 \\
+Outex & 1 & -0,294 & -0,294 & -0,294 & 0 & 0 & 1 \\
+Soil & 5 & +0,175 & +0,000 & +0,439 & 2 & 3 & 0 \\
+KTH-TIPS2-b & 4 & +0,084 & -0,084 & +0,421 & 1 & 2 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Descriptores iniciales seleccionados}
+
+Las 27 condiciones de E1 eligieron una cascada. SigLIP-B fue la primera etapa en las 20 condiciones de DTD, FMD y Soil. BEiTv2-B fue elegido en las cinco condiciones de KTH-TIPS2-b y Outex. Las dos mitades de CUReT usaron primeros bloques distintos. El bloque elegido determina las puntuaciones de la compuerta y qué extracciones faltan al escalar.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Cobertura y descriptores iniciales de E1 con SVM. Las columnas Estático y E1 cuentan condiciones externas. Las demás cuentan selecciones del descriptor como primera etapa. E4 usa las mismas particiones con ResMLP.}
+\label{tab:e1-routes}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Dataset & Estático & E1 & ResNet-50 & SigLIP-B & BEiTv2-B & ConvNeXt V2-T \\
+\midrule
+DTD & 10 & 10 & 0 & 10 & 0 & 0 \\
+FMD & 15 & 5 & 0 & 5 & 0 & 0 \\
+CUReT & 2 & 2 & 1 & 0 & 1 & 0 \\
+Outex & 1 & 1 & 0 & 0 & 1 & 0 \\
+Soil & 15 & 5 & 0 & 5 & 0 & 0 \\
+KTH-TIPS2-b & 4 & 4 & 0 & 0 & 4 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+
 \section{Controles de ensamble de uso directo}
 
 \begin{table}[pos=htbp]
@@ -687,6 +788,8 @@ KTH-TIPS2-b & SVM & 95,75 & 367,46 & 95,73 & 345,56 \\
 \section{Trazabilidad}
 
 Las curvas externas y las métricas de la evaluación estática y del panel online se consolidan en \nolinkurl{results/analysis/thesis_accuracy_primary_20261115_v3/}. La curva interna de SVM se reconstruye a partir de \nolinkurl{k_sweep_inner.csv} en \nolinkurl{results/exploratory/k_sweep/}. Las comparaciones de Top-4 por margen se reconstruyen desde las predicciones y puntuaciones archivadas. Las medias se verifican en \nolinkurl{results/analysis/top4_fixed_kth_completion_audit_20261115_v1/}. Las Tablas~\ref{tab:cascada} y~\ref{tab:e1-macro} se construyen a partir de \nolinkurl{e1_complete_dataset_means.csv}, que también es la fuente de la Figura~\ref{fig:e1-por-dataset}. La Tabla~\ref{tab:e2-compuertas} usa \nolinkurl{e2_conditions.csv} y el ajuste múltiple registrado en \nolinkurl{e2_statistics.csv}. La Tabla~\ref{tab:contrastes-margen} se basa en \nolinkurl{e1_contrastes.txt}, \nolinkurl{e1_no_inferioridad.txt} y \nolinkurl{e4_e5_resumen.txt}, en el directorio de análisis del artículo. La comparación con GFS procede de \nolinkurl{results/analysis/selection_stats/}. El análisis por imagen se documenta en \nolinkurl{carlos/analisis_paper/}. Los valores de la Tabla~\ref{tab:e1-cambios} se obtienen sumando las columnas de \nolinkurl{e1_mcnemar_compuerta.csv} por dataset. Los errores corregibles son la suma de \nolinkurl{rescatados} y \nolinkurl{b_top4_acierta_cascada_falla}, y los aciertos preservados provienen de \nolinkurl{c_cascada_acierta_top4_falla}. La Tabla~\ref{tab:e4-datasets} se reconstruye de \nolinkurl{summary.json} en \nolinkurl{results/analysis/e4_resmlp_complete_audit_20261116_v1/}. La comparación de color se verifica en \nolinkurl{results/analysis/e5_top4_plus_ngram_audit_20261116_v1/}. Las cifras externas proceden de las fuentes identificadas en la Tabla~\ref{tab:publicados}. El cotejo de métricas y protocolos está en \nolinkurl{docs/fsc_tex/METRICAS_PUBLICADAS_Y_COMPARABILIDAD_2026-11-23.md}.
+
+El comando \nolinkurl{scripts/verify_topk_paper_evidence.py} reconstruye los conteos, las métricas y el costo proyectado de E1. Comprueba los hashes de las 94 trazas online y vuelve a calcular accuracy, métricas macro, latencia media y percentiles a partir de las llamadas archivadas. La verificación usa Python y los archivos versionados.
 
 \section*{Disponibilidad de datos y código}
 
