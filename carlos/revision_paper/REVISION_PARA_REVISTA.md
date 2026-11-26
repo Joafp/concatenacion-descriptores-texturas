@@ -15,14 +15,14 @@ La tabla de trabajos publicados tiene un [cotejo fila por fila con los PDF prima
 
 ## Archivos editoriales para revisión
 
-- [Highlights](Highlights.txt). Cuatro puntos editables de hasta 85 caracteres, conforme a la guía general de Elsevier. La obligatoriedad para el destino queda sujeta a su guía de autores. [Instrucciones generales sobre highlights](https://www.elsevier.support/publishing/answer/how-do-i-include-highlights-with-my-manuscript)
+- [Highlights](Highlights.txt). Cuatro puntos editables de hasta 85 caracteres, conforme a la guía general de Elsevier. La guía de Pattern Recognition los requiere. [Instrucciones generales sobre highlights](https://www.elsevier.support/publishing/answer/how-do-i-include-highlights-with-my-manuscript)
 - [Borrador de carta editorial](COVER_LETTER_DRAFT.md). Para revisión y firma de los autores antes de remitirla. Las confirmaciones sobre autoría, exclusividad, conflictos y financiamiento corresponden a los autores.
 - El [manuscrito](../main_en.tex) documenta la ventana cronometrada de la evaluación online, los calentamientos, las llamadas del panel primario y la agregación. Se verificó contra el [ejecutor](../../scripts/benchmark_local_single_image.py) y la [auditoría de cobertura](../../results/analysis/blocker_resolution_20261101/full_panel_online_v1/coverage.json).
 
 ## Pendientes de envío
 
-1. Cotejar la [versión en inglés](../main_en.tex) con la guía específica. El [PDF](../main_topk_margen_en.pdf) tiene 22 páginas numeradas, una columna, texto a doble espacio, 17 tablas y cinco figuras. El rango de 20 a 35 páginas figura en la ficha editorial. Queda por confirmar si ese conteo incluye anexos y referencias, los archivos obligatorios y el formato de revisión. La guía completa devolvió un error de acceso. [Ficha editorial](https://shop.elsevier.com/journals/pattern-recognition/0031-3203) · [Guía para autores](https://www.sciencedirect.com/journal/pattern-recognition/publish/guide-for-authors)
-2. Se confirmó ausencia de financiamiento y de conflictos de intereses. Quedan la aprobación del texto final y la revisión de contribuciones y exclusividad. A pedido de Joaquín, el PDF de revisión omite el texto de asistencia de IA. La declaración para la versión de envío y los créditos de las figuras requieren revisión de los autores. [Política de IA de Elsevier](https://www.elsevier.com/about/policies-and-standards/generative-ai-policies-for-journals)
+1. La guía específica se consultó el 26 de noviembre de 2026. El PDF en inglés tiene 32 páginas y 38 referencias; usa una columna, Times New Roman y doble espacio. Se ajustaron los márgenes, los tamaños tipográficos, la numeración de anexos y la carta. La guía contiene dos formulaciones sobre el conteo de anexos. El manuscrito entra en el rango de 20 a 35 páginas contando el PDF completo y también sin las páginas que contienen únicamente anexos. [Guía para autores](https://www.sciencedirect.com/journal/pattern-recognition/publish/guide-for-authors)
+2. Se confirmó ausencia de financiamiento y de conflictos de intereses. Quedan la aprobación del texto final, la revisión de contribuciones y exclusividad, y el archivo Word de la declaración de intereses que la guía pide generar con la herramienta de Elsevier. A pedido de Joaquín, el PDF de revisión omite el texto de asistencia de IA. La declaración para la versión de envío y los créditos de las figuras requieren revisión de los autores. [Política de IA de Elsevier](https://www.elsevier.com/about/policies-and-standards/generative-ai-policies-for-journals)
 3. La verificación de resultados archivados pasó en una exportación independiente de Git. Volver a entrenar o medir requiere los datasets y reconstruir los pesos, cabezas y embeddings en el entorno experimental. [Verificación reproducible](#verificar-la-evidencia-del-paper)
 4. Para una cifra de ahorro físico de la cascada exacta queda pendiente su medición pareada. El manuscrito atribuye el ahorro del 75 % al modelo de extracción. [Alcance de las trazas disponibles](#alcance-de-las-trazas-disponibles)
 
@@ -35,7 +35,7 @@ Desde la raíz del repositorio, con Python 3:
 python3 scripts/package_topk_journal.py /tmp/topk_manuscrito_revista.zip
 ~~~
 
-El ZIP lleva el PDF en inglés, su fuente, las referencias, los recursos necesarios para compilar, los highlights y el borrador de carta. Incluye hashes de los archivos. Para importarlo en Overleaf, el documento principal es **main_en.tex**. En una carpeta extraída, la compilación utiliza pdfLaTeX, BibTeX y la distribución LaTeX con STIX. Verificamos los 19 archivos del manifiesto y compilamos desde una extracción temporal. El texto de las 22 páginas coincide con el PDF suministrado.
+El ZIP lleva el PDF en inglés, su fuente, las referencias, los recursos necesarios para compilar, los highlights y el borrador de carta. Incluye hashes de los archivos. Para importarlo en Overleaf, el documento principal es **main_en.tex**. En una carpeta extraída, la compilación en inglés utiliza XeLaTeX y BibTeX. Con Times New Roman instalado, reproduce la tipografía de la revista. Verificamos los archivos del manifiesto y compilamos desde una extracción temporal. El texto del manuscrito coincide con el PDF suministrado.
 
 ## Compilar el borrador en inglés
 
@@ -44,12 +44,12 @@ Desde la raíz del repositorio, las figuras de resultados se pueden regenerar co
 ~~~bash
 python3 scripts/plot_paper_figures_20261123.py /tmp/tesis_figuras_en --language en --by-dataset
 (cd carlos/figures/english && pdflatex -halt-on-error descriptor_pipeline.tex)
-(cd carlos && pdflatex -halt-on-error main_en.tex &&
- bibtex main_en && pdflatex -halt-on-error main_en.tex &&
- pdflatex -halt-on-error main_en.tex)
+(cd carlos && xelatex -halt-on-error main_en.tex &&
+ bibtex main_en && xelatex -halt-on-error main_en.tex &&
+ xelatex -halt-on-error main_en.tex)
 ~~~
 
-El primer comando escribe los gráficos recalculados en un directorio temporal. Los PDF versionados de los gráficos ya están en la ruta que lee el manuscrito. La compilación necesita las fuentes STIX y los paquetes LaTeX declarados en la clase CAS. La clase reporta una advertencia de caja en la portada al colocar la columna de palabras clave en una caja de ancho cero. Revisamos la portada renderizada y las palabras clave y el resumen se ven completos.
+El primer comando escribe los gráficos recalculados en un directorio temporal. Los PDF versionados de los gráficos ya están en la ruta que lee el manuscrito. El PDF en inglés se compiló con Times New Roman. El código fuente recurre a TeX Gyre Termes cuando la fuente requerida no está disponible; en ese caso conviene usar el PDF verificado para la revisión de formato.
 
 ## Verificar la evidencia del paper
 

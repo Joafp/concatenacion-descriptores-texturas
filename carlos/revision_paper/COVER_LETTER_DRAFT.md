@@ -10,6 +10,12 @@ The paired comparison shows which first-stage errors the gate identifies and whi
 
 We believe the study would interest readers working on feature fusion and cost-aware inference for recognition systems.
 
+**Comparison with published methods.** The manuscript places its results beside five texture-recognition studies: Neshov et al. on multilayer aggregation, Gupta et al. on HyTexNet, Chang et al. on multiscale LBP and cellular-network contours, Simon and Uma on DeepLumina, and Paiva et al. on RGB pixel n-grams. We identify the data and split for each published accuracy. The paired comparisons use our own models under common conditions because the published protocols and model setups differ.
+
+**Public benchmarks.** We use DTD, FMD, grayscale CUReT, Outex TC 00013, KTH-TIPS2-b, and the original-image subset of the Comprehensive Soil Classification Datasets. The data guide links the manifests and original distributions or archived source descriptions.
+
+**Validation measures.** We report accuracy and, where available in the paired analyses, macro-precision, macro-recall, and macro-F1. The online experiment measures single-image latency, including mean and tail behavior, from the calls that make the predictions. For the fixed Top-4 cascade, the evaluation reports escalation rate and projected extraction cost.
+
 Sincerely,
 
 Carlos Ayala and Joaquín Delgado

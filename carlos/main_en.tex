@@ -1,11 +1,18 @@
-% English manuscript draft. Compile from carlos/.
+% English review manuscript for Pattern Recognition. Compile from carlos/ with XeLaTeX.
 \PassOptionsToPackage{hypertexnames=false}{hyperref}
-\documentclass[a4paper,fleqn,review]{cas-sc}
-
-\usepackage[T1]{fontenc}
-\renewcommand{\rmdefault}{lmr}
-\renewcommand{\sfdefault}{lmss}
-\renewcommand{\ttdefault}{lmtt}
+\documentclass[10pt,a4paper,fleqn]{article}
+\usepackage[top=4.3cm,bottom=4.3cm,left=4.8cm,right=4.8cm]{geometry}
+\usepackage{fontspec}
+\IfFontExistsTF{Times New Roman}
+  {\setmainfont{Times New Roman}}
+  {\setmainfont{TeX Gyre Termes}}
+\usepackage{setspace}
+\usepackage[font=footnotesize,labelfont=bf,labelsep=period]{caption}
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\normalsize\bfseries}{\thesection}{.7em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{.7em}{}
+\setlength{\tabcolsep}{3pt}
+\setlength{\emergencystretch}{1em}
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage[english]{babel}
 \usepackage{amsmath,amsfonts,amssymb}
@@ -21,57 +28,27 @@
 \definecolor{figink}{HTML}{1D2938}
 \definecolor{figline}{HTML}{A4B1C0}
 \definecolor{figgray}{HTML}{F3F6F9}
+\usepackage{xurl}
 \usepackage{hyperref}
-\RenewDocumentCommand{\printorcid}{}{}
-\ExplSyntaxOn
-\RenewDocumentEnvironment { keywords } { O{ Keywords } }
-  {
-    \tex_global:D \tex_setbox:D \g_stm_key_box = \vtop \bgroup
-    \hsize=.25\textwidth
-    \cs_new:Nn \sep: { \par }
-    \cs_set_eq:NN \sep \sep:
-    \parindent=0pt
-    {\small A\,R\,T\,I\,C\,L\,E~I\,N\,F\,O } \par \skip_vertical:n { -3pt }
-    \rule{.25\textwidth}{.2pt}\par\footnotesize
-    \noindent \textit { #1 } \par
-  }
-  { \egroup }
-\cs_set:Npn \__first_footerline:
-  {
-    \small\sffamily\__short_authors:\quad
-    {\rmfamily\itshape Draft~for~author~review}
-  }
-\ExplSyntaxOff
+\hypersetup{hidelinks}
 
+\title{\fontsize{14}{17}\selectfont Top-\texorpdfstring{$k$}{k} descriptor concatenation for texture classification: direct use versus margin-gated acquisition}
+\author{\fontsize{8}{10}\selectfont Carlos Ayala and Joaquín Delgado\\
+\fontsize{8}{10}\selectfont Facultad Politécnica, Universidad Nacional de Asunción\\
+\fontsize{8}{10}\selectfont Campus Universitario, San Lorenzo, Central, Paraguay\\
+\fontsize{8}{10}\selectfont Correspondence: Carlos Ayala, \href{mailto:carlos.ayala@est.fpuna.edu.py}{carlos.ayala@est.fpuna.edu.py}\\
+\fontsize{8}{10}\selectfont Joaquín Delgado: \href{mailto:joaquin.delgado@est.fpuna.edu.py}{joaquin.delgado@est.fpuna.edu.py}}
+\date{}
 \begin{document}
-\let\WriteBookmarks\relax
-\def\floatpagepagefraction{1}
-\def\textpagefraction{.001}
-
-\shorttitle{Top-$k$ texture descriptors: direct and margin-gated inference}
-\shortauthors{C. Ayala and J. Delgado}
-\title[mode=title]{Top-\texorpdfstring{$k$}{k} descriptor concatenation for texture classification: direct use versus margin-gated acquisition}
-\tnotemark[1]
-\tnotetext[1]{English manuscript draft for author review.}
-\author[1]{Carlos Ayala}
-\cormark[1]
-\ead{carlos.ayala@est.fpuna.edu.py}
-\credit{Conceptualization, Methodology, Software, Investigation, Formal analysis, Writing -- original draft}
-\affiliation[1]{organization={Facultad Politécnica, Universidad Nacional de Asunción},
-            addressline={Campus Universitario}, city={San Lorenzo}, state={Central}, country={Paraguay}}
-\author[1]{Joaquín Delgado}
-\ead{joaquin.delgado@est.fpuna.edu.py}
-\credit{Conceptualization, Methodology, Software, Investigation, Formal analysis, Writing -- review and editing}
-\cortext[1]{Corresponding author}
+\maketitle
+\doublespacing
 
 \begin{abstract}
 Concatenating texture descriptors gives the classifier complementary information, but extracting every selected block for every image can be costly. We study two decisions on six texture datasets: how many blocks to retain and when to extract them. Four blocks, selected as an exploratory operating point, use about 15\% of the dimensionality of the 22-block concatenation. Relative to all 22 blocks, mean accuracy changes by $-0.31$ percentage points with a linear SVM and $+0.32$ with a residual multilayer perceptron (ResMLP). In 27 paired SVM conditions, a cascade that requests Top-4 when the initial score margin is small escalates 21.1\% of images on average. Its accuracy differs from direct Top-4 by $+0.01$ percentage points (95\% interval: $-0.17$ to $+0.19$), while projected extraction cost falls from 468.3 to 117.1 ms per image. The margin gate outperforms random escalation at the same number of requests in all 27 conditions. In a separate online panel, a margin-gated policy that escalates to an ensemble lowers mean latency in all twelve dataset--classifier combinations, with accuracy losses on KTH-TIPS2-b and higher 95th-percentile latency on Soil.
 \end{abstract}
 
-\begin{keywords}
-texture classification \sep descriptor fusion \sep Top-$k$ \sep conditional inference \sep latency
-\end{keywords}
-\maketitle
+\noindent\textbf{Keywords.} texture classification ; descriptor fusion ; Top-$k$ ; conditional inference ; latency\par\medskip
+
 
 \section{Introduction}
 
@@ -102,7 +79,7 @@ Let $z_j(x)\in\mathbb{R}^{d_j}$ denote descriptor $j$ for image $x$. We normaliz
 \end{equation}
 The head $h_S$ takes the resulting fixed-length vector and outputs one score per class. Figure~\ref{fig:pipeline} shows the difference between individual and joint inputs. The library has six classical descriptors and sixteen learned representations with frozen weights (Tables~\ref{tab:extractores-clasicos} and \ref{tab:extractores-aprendidos}).
 
-\begin{figure}[pos=htbp]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{figures/english/descriptor_pipeline.pdf}
 \caption{Extraction and concatenation for one image. Each extractor returns a normalized block. The individual head receives LBP. The joint head receives the concatenated LBP and ResNet blocks. The bar marks the block boundary; coordinates are illustrative. The input is an illustrative vector pattern.}
@@ -125,8 +102,9 @@ The first-stage head $h_b$ receives only descriptor block $b$. Let $s_{(1)}(x)$ 
 \end{equation}
 Scores are one-versus-rest decision values for the SVM and logits for ResMLP. If the margin is small, the cascade extracts the missing blocks and returns the joint head's prediction. When $b\in S_k$, it reuses the first-stage block.
 
-\begin{figure}[pos=htbp]
+\begin{figure}[htbp]
 \centering
+\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
   x=1cm, y=1cm, font=\sffamily\small, text=figink,
   caja/.style={rounded corners=2pt, draw=#1!75, fill=#1!8, align=center,
@@ -149,7 +127,7 @@ Scores are one-versus-rest decision values for the SVM and logits for ResMLP. If
 \draw[arr,draw=figblue] (split) |- (out.west);
 \draw[arr,draw=figteal] (split) |- (top.west);
 \fill[figink!72] (split) circle (1.1pt);
-\end{tikzpicture}
+\end{tikzpicture}}
 \caption{Top-$k$ cascade. The margin is the gap between the two highest first-stage scores. Above $\tau_q$ the cascade retains the initial prediction. Otherwise it acquires any missing blocks and returns the joint prediction. The threshold is fixed before testing.}
 \label{fig:cascada}
 \end{figure}
@@ -181,12 +159,11 @@ The linear SVM uses $C=1$, balanced class weights, squared hinge loss, $L_2$ reg
 
 We use four stratified group folds within the outer training split for the sweep and the Top-4 cascade (Table~\ref{tab:protocolo}). Macro-F1 determines block rankings and route selection. Accuracy is the primary reported metric. Macro precision, recall and F1 treat classes equally and complement accuracy. E1 compares the policies with SVM using cached descriptors and extraction profiles. E4 refits the heads with ResMLP on the SVM-ranked blocks and reports accuracy. The online panel uses a single-image call on an RTX 4060 with resident extractors and prepared classifier heads.
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Main experiments. E1 and E4 share data splits and descriptor blocks.}
 \label{tab:protocolo}
-\small
-\begin{tabular}{@{}p{.27\textwidth}p{.29\textwidth}p{.37\textwidth}@{}}
+\begin{tabular}{@{}p{.26\textwidth}p{.27\textwidth}p{.38\textwidth}@{}}
 \toprule
 Experiment & Coverage & Evidence \\
 \midrule
@@ -214,7 +191,7 @@ The primary panel contains 94 split--classifier conditions, each with five polic
 
 SVM accuracy rises from 92.72\% with one block to 94.42\% with four. From five through 21 blocks it ranges from 94.33\% to 94.51\%. ResMLP reaches 94.20\% at four blocks and peaks at 94.43\% at five. Internal SVM macro-F1 peaks at six blocks (Figure~\ref{fig:curva-k}). Four blocks use roughly 3,150 of the 20,652 dimensions of Full-22. Rules that chose $k$ from the inner curves produced other sizes, so we treat four blocks as a practical operating point for studying the cascade.
 
-\begin{figure}[pos=htbp]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{figures/english/curva_k.pdf}
 \caption{Adding blocks in validation rank order. (a) Test accuracy with SVM and ResMLP. (b) Inner SVM macro-F1, which peaks at $k=6$. Each point averages within datasets and then across datasets. The vertical line marks $k=4$. The 21-block sweep excludes N-grams + SVD.}
@@ -223,11 +200,10 @@ SVM accuracy rises from 92.72\% with one block to 94.42\% with four. From five t
 
 Top-4 improves on Single in eleven of twelve dataset--classifier comparisons, with mean accuracy 0.31 percentage points below Full-22 for SVM and 0.32 points above it for ResMLP (Table~\ref{tab:top4}). Outex accounts for the largest SVM decline (3.68 points). The exact Friedman tests across the three methods give $p=0.0521$ and $p=0.4297$ for SVM and ResMLP, respectively. No pairwise contrast reaches nominal significance after multiplicity adjustment. For the exploratory noninferiority comparison against Full-22, one-sided 95\% lower bounds are $-1.80$ points with SVM and $-0.64$ with ResMLP. Only the ResMLP bound exceeds the $-1$ point tolerance.
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Test accuracy of Single, Full-22 and Top-4, averaged over the outer conditions (47 per classifier). Outex has one official split. The last row gives mean representation dimension.}
 \label{tab:top4}
-\small
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
  & \multicolumn{3}{c}{SVM} & \multicolumn{3}{c}{ResMLP} \\
@@ -253,16 +229,15 @@ Adding the RGB N-grams + SVD block raises mean SVM accuracy from 94.42\% to 94.8
 
 Across 27 paired SVM conditions, mean accuracy is 94.44\% for direct Top-4 and 94.46\% for the cascade. The gate escalates 21.1\% of images on average and projected acquisition cost drops by 75.0\% (Table~\ref{tab:cascada}). Changes range from $-0.29$ percentage points on Outex to $+0.18$ on Soil (Figure~\ref{fig:e1-por-dataset}). With ResMLP on the SVM-ranked blocks, the gate escalates 22.5\% of images and obtains 94.24\% accuracy versus 94.28\% for direct use (Table~\ref{tab:e4-datasets}).
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
-\caption{Direct Top-4 and the Top-4 cascade with SVM on the same 27 test conditions (E1). $\Delta$ is cascade minus direct accuracy in percentage points before rounding. Extraction cost is projected from component profiles. The last row equally weights the datasets.}
+\caption{Direct Top-4 and the Top-4 cascade with SVM on the same 27 test conditions (E1). $\Delta$ is cascade minus direct accuracy in percentage points before rounding. Direct and margin accuracy are percentages. Esc. is the percentage of escalated images. Costs are projected milliseconds per image. The last row equally weights the datasets.}
 \label{tab:cascada}
-\small
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
- & & \multicolumn{3}{c}{Accuracy} & & \multicolumn{2}{c}{Projected cost (ms/image)} \\
+ & & \multicolumn{3}{c}{Accuracy} & & \multicolumn{2}{c}{Cost (ms)} \\
 \cmidrule(lr){3-5}\cmidrule(l){7-8}
-Dataset & Cond. & Direct (\%) & Margin (\%) & $\Delta$ (pp) & Escalated (\%) & Direct & Margin \\
+Dataset & Cond. & Direct & Margin & $\Delta$ & Esc. (\%) & Direct & Margin \\
 \midrule
 DTD & 10 & 87.03 & 87.11 & $+0.09$ & 23.0 & 586.9 & 154.8 \\
 FMD & 5 & 98.20 & 98.30 & $+0.10$ & 20.7 & 586.9 & 142.2 \\
@@ -275,7 +250,7 @@ Mean & 27 & 94.44 & 94.46 & $+0.01$ & 21.1 & 468.3 & 117.1 \\
 \bottomrule
 \end{tabular}
 \end{table}
-\begin{figure}[pos=htbp]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{figures/english/comparacion_pareada_e1.pdf}
 \caption{Accuracy and projected extraction cost for the Top-4 cascade by dataset (E1, 27 SVM conditions). (a) Cascade minus direct accuracy in percentage points. (b) Projected costs for the same conditions.}
@@ -288,14 +263,13 @@ Of 31,984 predictions pooled across SVM conditions, 6,963 are escalated (21.8\%)
 
 Only calls that retain the first-stage prediction can change correctness relative to direct Top-4. On 168 such calls the first stage is correct and Top-4 is wrong; on 151, Top-4 would have corrected a first-stage error. No condition-level exact McNemar test reaches significance. The 95\% interval on the mean dataset-level accuracy difference is $[-0.17,+0.19]$ percentage points. In the exploratory noninferiority analysis, the one-sided $t$ bounds for both heads exceed $-1$ point (Table~\ref{tab:contrastes-margen}). The E1 two-sided Holm family compares the cascade with direct Top-4, a cascade restricted to ResNet-50, and Full-22. The noninferiority analysis was defined after observing E1.
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Changes in correctness (E1, 27 SVM conditions). An error is correctable when the first stage is wrong and Top-4 is correct. Corrected counts the subset selected by the gate. Lost and retained count correct first-stage predictions that Top-4 would get wrong, depending on whether the gate escalates. Totals may include images reused across splits.}
 \label{tab:e1-cambios}
-\small
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
- & & \multicolumn{2}{c}{First-stage errors} & \multicolumn{2}{c}{First-stage correct predictions} \\
+ & & \multicolumn{2}{c}{First-stage errors} & \multicolumn{2}{c}{First-stage hits} \\
 \cmidrule(lr){3-4}\cmidrule(l){5-6}
 Dataset & Escalated & Correctable & Corrected & Lost & Retained \\
 \midrule
@@ -310,13 +284,12 @@ Total & 6,963 & 1,327 & 1,176 & 472 & 168 \\
 \bottomrule
 \end{tabular}
 \end{table}
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Exploratory accuracy comparisons. Each test uses six paired dataset means. $\Delta$ is gated accuracy minus the comparator in percentage points. The noninferiority margin is one point.}
 \label{tab:contrastes-margen}
-\small
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}p{.29\textwidth}rp{.24\textwidth}p{.315\textwidth}@{}}
+\begin{tabular}{@{}p{.26\textwidth}rp{.22\textwidth}p{.31\textwidth}@{}}
 \toprule
 Comparison & $\Delta$ (pp) & Test & Result \\
 \midrule
@@ -344,12 +317,11 @@ The first contrast counts corrections minus lost correct predictions among escal
 
 The margin-gated ensemble lowers mean latency relative to direct Top-4 in all twelve dataset--classifier combinations. SVM latency falls from 245.06 to 39.93 ms per image, with accuracy changing from 94.23\% to 93.96\%. For ResMLP, latency falls from 232.76 to 36.10 ms and accuracy rises from 94.02\% to 94.39\%. On KTH-TIPS2-b, accuracy falls by 1.60 and 1.51 points respectively; on Outex it rises by 3.24 points with ResMLP. On Soil, even as mean latency drops, the 95th percentile rises from 117.6 to 136.7 ms for SVM and from 128.4 to 145.4 ms for ResMLP. Escalated inputs can incur the cost of both stages (Table~\ref{tab:panel}).
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Online panel of 94 conditions (\texttt{batch=1}, RTX 4060). Accuracy and latency (ms per image) use the same inference calls. The gate escalates to four-block subsets of a diversity-based ensemble.}
 \label{tab:panel}
-\small
-\setlength{\tabcolsep}{4.5pt}
+\setlength{\tabcolsep}{2.5pt}
 \begin{tabular}{@{}llrrrrrr@{}}
 \toprule
  & & \multicolumn{2}{c}{Top-4} & \multicolumn{2}{c}{Margin ensemble} & \multicolumn{2}{c}{Full-22} \\
@@ -386,13 +358,12 @@ Against direct Top-4, each always-on ensemble improves accuracy in nine of the t
 
 Table~\ref{tab:publicados} reports the original papers' accuracy values alongside their protocols. A shared dataset name does not establish a common test set. For instance, our KTH-TIPS2-b protocol holds out a whole physical sample, our CUReT representation uses grayscale inputs and separates capture conditions, and our Soil panel uses deduplicated original images. Even for Outex TC 00013, where both studies use the official split, the published RGB Pixel N-grams result selects the best of three classifier families, whereas our color ablation holds the SVM head fixed and adds a compressed block. Each published figure therefore characterizes its original evaluation and recipe.
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Accuracy reported by the original studies, with dataset and protocol. Neshov et al. report standard deviations in the three rows marked $\pm$.}
 \label{tab:publicados}
-\small
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}p{.145\textwidth}p{.258\textwidth}r p{.435\textwidth}@{}}
+\begin{tabular}{@{}p{.15\textwidth}p{.24\textwidth}r p{.39\textwidth}@{}}
 \toprule
 Dataset & Method & Acc. (\%) & Original protocol \\
 \midrule
@@ -432,17 +403,26 @@ Some archived static KTH-TIPS2-b controls have a reservation concerning their in
 
 \section{Conclusion}
 
-Four blocks retained much of the accuracy of the full concatenation while reducing the representation to about 15\% of its dimensions. With those blocks fixed, the margin gate captured most correctable first-stage errors while escalating about one image in five. The estimated extraction saving was 75\%, with a mean accuracy difference of $+0.01$ percentage points relative to running Top-4 on every input. The separate ensemble experiment shows that a smaller mean latency can coexist with worse tail latency or accuracy on particular datasets. A deployment decision therefore depends on the accuracy of the first stage, the cost of the full route, and what happens to inputs that need both stages.
+For a recognition system that combines descriptor blocks, the block count and the request decision are separate choices. Four blocks give a compact starting point, but the dataset curves show when that choice breaks down. Both heads peak at four blocks on FMD and at eighteen on Outex. The result gives a practitioner a reason to check the value of complementary descriptors on the target domain before fixing the size of the joint representation.
+
+Once the four blocks are fixed, the matched-count experiment shows that the identity of the escalated images matters. The margin directs most correctable first-stage errors to Top-4, but the joint prediction also replaces some correct first-stage decisions. Our paired breakdown distinguishes those effects. The estimated extraction savings justify testing the cascade as a deployment option, with the size of the physical saving still open.
+
+The measured ensemble results show what that deployment test should report. A policy can lower mean latency while making the slowest requests slower on a given dataset. A paired timing run of the exact Top-4 routes would establish whether the projected savings survive decoding, scoring, and routing overhead. Validating the descriptor reconstruction and testing the operating point on new splits would help determine how well the findings transfer.
 
 \appendix
+\counterwithin{table}{section}
+\counterwithin{figure}{section}
+\counterwithin{equation}{section}
 \section{Descriptor library and color ablation}
 
-\begin{table}[pos=htbp]
+The classical library includes Gabor filter responses \citep{jain1991gabor} and histograms of oriented gradients \citep{dalal2005hog}. The frozen learned blocks span residual networks \citep{he2016resnet}, densely connected networks \citep{huang2017densenet}, and ConvNeXt V2 \citep{woo2023convnextv2}. The transformer group includes the patch-based ViT \citep{dosovitskiy2021vit}, its data-efficient DeiT variant \citep{touvron2021deit}, and shifted-window Swin \citep{liu2021swin}. The library also tests representations obtained by self-supervised DINOv2 \citep{oquab2024dinov2} and image--text SigLIP \citep{zhai2023siglip}. We use these checkpoints to extract whole descriptor blocks.
+
+
+\begin{table}[htbp]
 \centering
 \caption{Six classical descriptors in the library. Each row defines one block.}
 \label{tab:extractores-clasicos}
-\small
-\begin{tabular}{@{}lp{7.0cm}p{3.2cm}r@{}}
+\begin{tabular}{@{}lp{5.1cm}p{2.3cm}r@{}}
 \toprule
 Descriptor & Parameters & Output & Dim. \\
 \midrule
@@ -455,42 +435,40 @@ N-grams & vertical window $2\times1$; RGB quantization by 12; 8,192 bins; SVD & 
 \bottomrule
 \end{tabular}
 \end{table}
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Sixteen frozen representations. Pre-head denotes the output immediately before the backbone classifier.}
 \label{tab:extractores-aprendidos}
-\small
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}llp{6.3cm}p{1.7cm}r@{}}
+\begin{tabular}{@{}p{1.80cm}p{1.95cm}p{4.15cm}p{1.25cm}r@{}}
 \toprule
 Family & Descriptor & Checkpoint & Output & Dim. \\
 \midrule
-CNN & VGG16 & \texttt{vgg16.tv\_in1k} & pre-head & 4,096 \\
- & ResNet-50 & \texttt{resnet50.a1\_in1k} & pre-head & 2,048 \\
- & ResNet-101 & \texttt{resnet101.a1\_in1k} & pre-head & 2,048 \\
- & DenseNet-121 & \texttt{densenet121.tv\_in1k} & pre-head & 1,024 \\
- & EfficientNet-B0 & \texttt{efficientnet\_b0.ra\_in1k} & pre-head & 1,280 \\
- & ConvNeXt V2-T & \texttt{convnextv2\_tiny.fcmae\_ft\_in22k\_in1k} & pre-head & 768 \\
+CNN & VGG16 & \nolinkurl{vgg16.tv_in1k} & pre-head & 4,096 \\
+ & ResNet-50 & \nolinkurl{resnet50.a1_in1k} & pre-head & 2,048 \\
+ & ResNet-101 & \nolinkurl{resnet101.a1_in1k} & pre-head & 2,048 \\
+ & DenseNet-121 & \nolinkurl{densenet121.tv_in1k} & pre-head & 1,024 \\
+ & EfficientNet-B0 & \nolinkurl{efficientnet_b0.ra_in1k} & pre-head & 1,280 \\
+ & ConvNeXt V2-T & \nolinkurl{convnextv2_tiny.fcmae_ft_in22k_in1k} & pre-head & 768 \\
 \midrule
-Transformer & ViT-B/16 & \texttt{google/vit-base-patch16-224} & pooler/CLS & 768 \\
- & DeiT-S & \texttt{facebook/deit-small-patch16-224} & pooler/CLS & 384 \\
- & Swin-T & \texttt{microsoft/swin-tiny-patch4-window7-224} & pooler & 768 \\
- & EVA-02 base & \texttt{eva02\_base\_patch14\_224} & pre-head & 768 \\
+Transformer & ViT-B/16 & \nolinkurl{google/vit-base-patch16-224} & pooler/\newline CLS & 768 \\
+ & DeiT-S & \nolinkurl{facebook/deit-small-patch16-224} & pooler/\newline CLS & 384 \\
+ & Swin-T & \nolinkurl{microsoft/swin-tiny-patch4-window7-224} & pooler & 768 \\
+ & EVA-02 base & \nolinkurl{eva02_base_patch14_224} & pre-head & 768 \\
 \midrule
-Self-sup./multimodal & DINOv2-S & \texttt{vit\_small\_patch14\_dinov2.lvd142m} & pre-head & 384 \\
- & DINOv2-B & \texttt{vit\_base\_patch14\_dinov2.lvd142m} & pre-head & 768 \\
- & DINOv2-L & \texttt{vit\_large\_patch14\_dinov2.lvd142m} & pre-head & 1,024 \\
- & MAE-B & \texttt{facebook/vit-mae-base} & pooler/CLS & 768 \\
- & SigLIP-B & \texttt{google/siglip-base-patch16-224} & pooler/CLS & 768 \\
- & BEiTv2-B & \makecell[l]{\texttt{beitv2\_base\_patch16\_224.}\\\texttt{in1k\_ft\_in22k\_in1k}} & pre-head & 768 \\
+Self-sup. / multimodal & DINOv2-S & \nolinkurl{vit_small_patch14_dinov2.lvd142m} & pre-head & 384 \\
+ & DINOv2-B & \nolinkurl{vit_base_patch14_dinov2.lvd142m} & pre-head & 768 \\
+ & DINOv2-L & \nolinkurl{vit_large_patch14_dinov2.lvd142m} & pre-head & 1,024 \\
+ & MAE-B & \nolinkurl{facebook/vit-mae-base} & pooler/\newline CLS & 768 \\
+ & SigLIP-B & \nolinkurl{google/siglip-base-patch16-224} & pooler/\newline CLS & 768 \\
+ & BEiTv2-B & \nolinkurl{beitv2_base_patch16_224.in1k_ft_in22k_in1k} & pre-head & 768 \\
 \bottomrule
 \end{tabular}
 \end{table}
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Top-4 versus Top-4 + RGB N-grams + SVD (E5). $\Delta$ is the mean paired accuracy difference in percentage points. SVD uses training data only. This exploratory comparison uses cached descriptors.}
 \label{tab:e5-datasets}
-\small
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
 Dataset & Cond. & Top-4 & Top-4 + N-grams & $\Delta$ (pp) \\
@@ -510,11 +488,10 @@ KTH-TIPS2-b & 4 & 0.9575 & 0.9628 & +0.53 \\
 
 Table~\ref{tab:e1-macro} reports macro precision, recall, and F1 for the same predictions as the E1 accuracy comparison. Table~\ref{tab:e4-datasets} shows the breakdown for ResMLP on the blocks selected for SVM. E4 uses cached descriptors and the same 27 splits. The largest accuracy loss is 0.44 points on Outex; FMD, CUReT, and Soil show equal mean accuracy for the two routes.
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Macro precision, recall and F1 (\%) for E1 (SVM). Metrics are calculated per condition and averaged within datasets. The last row equally weights the datasets.}
 \label{tab:e1-macro}
-\small
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
  & \multicolumn{3}{c}{Direct Top-4} & \multicolumn{3}{c}{Top-4 cascade} \\
@@ -532,11 +509,10 @@ Mean & 94.37 & 93.59 & 93.67 & 94.37 & 93.62 & 93.68 \\
 \bottomrule
 \end{tabular}
 \end{table}
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Direct Top-4 and the Top-4 cascade with ResMLP (E4). Accuracy, macro-F1 and escalation rate are percentages. $\Delta$ is cascade minus direct accuracy in percentage points before rounding. The last row equally weights the datasets.}
 \label{tab:e4-datasets}
-\small
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
  & & \multicolumn{3}{c}{Accuracy} & \multicolumn{2}{c}{Macro-F1} & \\
@@ -560,11 +536,10 @@ Mean & 27 & 94.28 & 94.24 & $-0.03$ & 93.37 & 93.31 & 22.5 \\
 
 Training-fold thresholds at $q=0.25$ produce different test escalation rates across gates. E2 also includes a retrospective control in which the maximum-score and entropy gates rank the test batch and escalate the same number of calls as the margin gate in each condition. This uses the target test count to compare how the gates rank images under an equal request budget. A deployment that sees inputs one at a time cannot apply this test-batch ranking.
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Gates for $q=0.25$ (E2, 27 SVM conditions). Gates share the first stage within each condition. Metrics are percentages and equally weight the datasets. Counts are matched per condition in the retrospective comparison.}
 \label{tab:e2-compuertas}
-\small
 \begin{tabular}{@{}llrrr@{}}
 \toprule
 Mode & Gate & Escalated & Accuracy & Macro-F1 \\
@@ -587,7 +562,7 @@ Matched escalation count & Margin & 21.06 & 94.46 & 93.68 \\
 
 Figure~\ref{fig:curves-by-dataset} shows why a single mean curve is insufficient for choosing $k$ on a particular dataset. In FMD, four blocks attain the highest accuracy in the sweep for both heads. In CUReT, the best point is within 0.10 percentage points of Top-4 for either head. In Outex, both heads peak at 18 blocks in this sweep. Compared with four blocks, the gain is 3.24 points with SVM and 2.21 with ResMLP. Outex has one official split; gains at larger $k$ describe that split. The curves summarize existing test results and serve as a diagnostic of the compression trade-off.
 
-\begin{figure}[pos=htbp]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{figures/english/curves_by_dataset.pdf}
 \caption{Outer-test accuracy relative to direct Top-4 for each dataset and head. For each curve, zero is that head's accuracy at $k=4$ on the same dataset. Values above zero favor the indicated block count. Each point averages the outer conditions for that dataset; Outex uses one official split. The six panels share the same vertical scale.}
@@ -599,11 +574,10 @@ Figure~\ref{fig:curves-by-dataset} shows why a single mean curve is insufficient
 
 For each outer condition, the maximum rule takes the smallest $k$ with maximum inner macro-F1. The gain rule stops at the first $k$ for which adding block $k+1$ changes inner macro-F1 by less than the tolerance; if it never stops, it retains all 21 ranked blocks. Table~\ref{tab:k-rules} reports external accuracy using the selected size for each condition. With SVM, the maximum rule chooses 6.32 blocks on average and obtains 94.14\% accuracy, against 94.42\% at four. With ResMLP, it selects 7.26 blocks and obtains 94.30\%, against 94.20\% at four. The fixed settings and the gain rules describe smaller operating points. The choice of four blocks trades accuracy against size and depends on the head.
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Block-count rules applied to the inner macro-F1 curve. Entries give mean selected $k$ and outer accuracy (\%) by head. Conditions are averaged within dataset; the six datasets have equal weight.}
 \label{tab:k-rules}
-\small
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
 Selection rule & SVM $k$ & SVM acc. & ResMLP $k$ & ResMLP acc. \\
@@ -623,11 +597,10 @@ Fixed $k=6$ & 6.00 & 94.36 & 6.00 & 93.98 \\
 
 The pooled error counts in E1 give more weight to datasets with more test calls. DTD contributes ten conditions and 18,800 predictions in total; Outex contributes one condition and 680 predictions. In contrast, the main estimate gives the two datasets equal weight. Table~\ref{tab:e1-ranges} describes the variation observed within each dataset. Outex contributes a single change. Reused test images across splits limit the independence of these observations.
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Observed changes in E1. Changes are cascade minus direct accuracy, in percentage points. Gains, ties, and losses count conditions. The extrema describe the archived conditions.}
 \label{tab:e1-ranges}
-\small
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
 Dataset & Conditions & Mean & Minimum & Maximum & Gains & Ties & Losses \\
@@ -646,11 +619,10 @@ KTH-TIPS2-b & 4 & +0.084 & -0.084 & +0.421 & 1 & 2 & 1 \\
 
 The E1 route is chosen separately in each outer training split, and every condition selects a cascade. SigLIP-B is the first stage in all 20 DTD, FMD, and Soil conditions. BEiTv2-B is selected in all five KTH-TIPS2-b and Outex conditions. The two complementary CUReT splits use different first stages. The selected descriptor determines both the scores used by the gate and the extractions left to perform if it escalates.
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Split coverage and first-stage selections with SVM. Static and E1 count outer conditions. The remaining columns count E1 conditions selecting each first-stage descriptor. E4 refits with ResMLP on the E1 splits.}
 \label{tab:e1-routes}
-\small
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
 Dataset & Static & E1 & ResNet-50 & SigLIP-B & BEiTv2-B & ConvNeXt V2-T \\
@@ -669,11 +641,10 @@ KTH-TIPS2-b & 4 & 4 & 0 & 0 & 4 & 0 \\
 
 \section{Always-on ensemble controls}
 
-\begin{table}[pos=htbp]
+\begin{table}[htbp]
 \centering
 \caption{Accuracy and mean latency for the two always-on ensembles in the 94-condition panel. Both ensembles use the same test images as the policies in Table~\ref{tab:panel}. Predictions and elapsed times are recorded in the same calls for each ensemble. The DTD SVM timing reservation also applies here.}
 \label{tab:panel-ensembles}
-\small
 \begin{tabular}{@{}llrrrr@{}}
 \toprule
  & & \multicolumn{2}{c}{Diversity ensemble} & \multicolumn{2}{c}{Rank-weighted lottery} \\
@@ -697,12 +668,16 @@ KTH-TIPS2-b & SVM & 95.75 & 367.46 & 95.73 & 345.56 \\
 \end{table}
 \FloatBarrier
 
-\section{Data and code availability}
+\section*{Data and code availability}
 
 From a repository checkout, \nolinkurl{scripts/verify_topk_paper_evidence.py} reconstructs the paired E1 prediction counts, macro metrics, and extraction cost projections. It also checks the hashes of the 94 online timing traces and recomputes accuracy, macro metrics, mean latency, and the reported percentiles from the recorded calls. The audit uses Python's standard library and runs without models, image data, or a GPU. Repeating the measurements requires the original datasets, model checkpoints, and evaluation setup.
 
 
 The code and archived results are in the \href{https://github.com/Joafp/concatenacion-descriptores-texturas/tree/97e4a8a4fe3b551f529a6e1f8814f6125cccaf78}{frozen repository snapshot}. The \href{https://github.com/Joafp/concatenacion-descriptores-texturas/blob/main/carlos/revision_paper/DATA_AVAILABILITY.md}{dataset guide} identifies the six manifests and source versions. The static curves and online metrics are consolidated in \nolinkurl{results/analysis/thesis_accuracy_primary_20261115_v3/}. Figure~\ref{fig:curves-by-dataset} uses \nolinkurl{per_dataset_curves.csv} from that directory. The online timing harness is \nolinkurl{scripts/benchmark_local_single_image.py}; the aliased runner uses the same timing boundary. Canonical coverage and timing reservations are recorded in \nolinkurl{results/analysis/blocker_resolution_20261101/full_panel_online_v1/coverage.json}. The audit of E1 and E2 is in \nolinkurl{results/analysis/top4_fixed_kth_completion_audit_20261115_v1/}. The per-image analysis and the recipe for reconstructing its counts are in \nolinkurl{carlos/analisis_paper/}. That directory contains \nolinkurl{reglas_k.awk} and \nolinkurl{reglas_k.txt}, which reproduce Table~\ref{tab:k-rules} from the archived sweeps. Table~\ref{tab:e1-ranges} comes from \nolinkurl{e1_dataset_observed_ranges.csv} in the archived sensitivity analysis \nolinkurl{results/analysis/ars_revision_existing_analyses_20261115_v1/}. Table~\ref{tab:e1-routes} tallies the \texttt{cheap} field of \nolinkurl{e1_conditions.csv}. The E4 and E5 audits are in \nolinkurl{results/analysis/e4_resmlp_complete_audit_20261116_v1/} and \nolinkurl{results/analysis/e5_top4_plus_ngram_audit_20261116_v1/}. The published figures and protocols are documented in \nolinkurl{docs/fsc_tex/METRICAS_PUBLICADAS_Y_COMPARABILIDAD_2026-11-23.md}.
+
+\section*{CRediT author contributions}
+\textbf{Carlos Ayala:} Conceptualization, Methodology, Software, Investigation, Formal analysis, Writing -- original draft.
+\textbf{Joaquín Delgado:} Conceptualization, Methodology, Software, Investigation, Formal analysis, Writing -- review and editing.
 
 \section*{Declarations}
 
