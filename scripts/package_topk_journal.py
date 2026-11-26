@@ -42,7 +42,7 @@ The build uses the included Elsevier CAS class and the unsrtnat bibliography
 style from the LaTeX distribution. Use a distribution with STIX fonts.
 
 Highlights.txt and the draft cover letter are in revision_paper/. The authors
-need to confirm the declarations and review the journal's submission form.
+need to review the remaining editorial declarations and the submission form.
 SHA256SUMS.json records the hashes of the source files and the supplied PDF.
 
 Code and archived results:

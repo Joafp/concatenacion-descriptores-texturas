@@ -154,7 +154,9 @@ La integración de descriptores tiene antecedentes directos en texturas. Puig et
 
 Los comparadores recientes ilustran distintas fuentes de información complementaria. Neshov et al. reúnen activaciones de varias capas de un mismo backbone, entre ellos BEiTv2 \citep{neshov2025aggregation}. HyTexNet combina una codificación local basada en percentiles con características de DenseNet-121 \citep{gupta2026hytexnet}. Chang et al. concatenan LBP multiescala con contornos producidos por redes neuronales celulares profundas \citep{chang2024cellnn}. DeepLumina combina características profundas de color con información de luminancia \citep{simon2022deeplumina}. Sus resultados publicados sirven de referencia para situar distintas formas de combinar representaciones en la clasificación de texturas.
 
-Las cascadas y las salidas tempranas vinculan el costo de cómputo con la dificultad de cada entrada \citep{viola2001rapid,teerapittayanon2016branchynet,wang2018idk,han2021dynamic}. En clasificación con costos de adquisición, un sistema también puede decidir qué características adicionales obtener \citep{xu2012greedy,nan2017adaptive,ma2019eddi}. En las salidas tempranas se decide hasta qué capa avanzar, y en las cascadas IDK a qué modelo enviar la consulta. En clasificación selectiva se caracteriza el riesgo de las predicciones aceptadas según la cobertura \citep{geifman2017selective}. Aquí la política siempre emite una clase. El margen decide si se adquieren los bloques que faltan para una concatenación prefijada. Por eso reportamos accuracy sobre todas las imágenes, proporción escalada y costo por adquisición.
+Las cascadas y las salidas tempranas asignan cómputo según la entrada \citep{viola2001rapid,teerapittayanon2016branchynet,han2021dynamic}. En las cascadas IDK, la confianza o la entropía del primer modelo permiten decidir si se consulta un modelo más costoso \citep{wang2018idk}. Los trabajos sobre adquisición de características asignan un costo a obtener cada entrada \citep{xu2012greedy,ma2019eddi}. Por ejemplo, \citet{nan2017adaptive} ajustan conjuntamente un clasificador de bajo costo y una compuerta para aproximar un modelo más costoso. En clasificación selectiva, el riesgo se estudia sobre las predicciones aceptadas a distintos niveles de cobertura \citep{geifman2017selective}.
+
+Nuestro protocolo combina fusión de descriptores e inferencia condicional. Si el primer bloque pertenece a la representación conjunta, puede reutilizarse al escalar. Así, el costo adicional depende de qué bloques comparten ambas rutas. La cascada y el uso directo usan la misma cabeza Top-4. El barrido de tamaños mide cuánto cambia la accuracy al ampliar la representación. Con los cuatro bloques fijos, la comparación entre uso directo y cascada mide el efecto de reservar la cabeza conjunta para determinadas imágenes. El control aleatorio de igual cantidad evalúa la selección de imágenes y el análisis por llamada muestra qué aciertos se ganan y cuáles se pierden.
 
 \section{Método}
 
@@ -170,7 +172,7 @@ La cabeza $h_S$ recibe ese vector de longitud fija y produce una puntuación por
 \begin{figure}[pos=htbp]
 \centering
 \includegraphics[width=\textwidth]{figures/concatenacion_clasificador.pdf}
-\caption{Extracción y concatenación a partir de una misma imagen. (a) Cada extractor produce un bloque normalizado. Los bloques resaltados son los que se usan en el ejemplo de (b). (b) La cabeza individual recibe el bloque de LBP. La cabeza conjunta recibe un único vector que concatena los bloques de LBP y ResNet en el orden indicado. La barra señala el límite entre bloques. Las coordenadas de dos dimensiones son ilustrativas. La entrada es un patrón vectorial ilustrativo. OpenAI Codex (GPT-6) asistió en la edición del diagrama TikZ y sus rótulos.}
+\caption{Extracción y concatenación a partir de una misma imagen. (a) Cada extractor produce un bloque normalizado. Los bloques resaltados son los que se usan en el ejemplo de (b). (b) La cabeza individual recibe el bloque de LBP. La cabeza conjunta recibe un único vector que concatena los bloques de LBP y ResNet en el orden indicado. La barra señala el límite entre bloques. Las coordenadas de dos dimensiones son ilustrativas. La entrada es un patrón vectorial ilustrativo.}
 \label{fig:pipeline}
 \end{figure}
 
@@ -215,7 +217,7 @@ En SVM, las puntuaciones proceden de las funciones de decisión uno contra el re
 \draw[arr,draw=figteal] (split) |- (top.west);
 \fill[figink!72] (split) circle (1.1pt);
 \end{tikzpicture}
-\caption{Inferencia de la cascada Top-$k$. El margen es la diferencia entre las dos puntuaciones más altas de la etapa inicial. Si el margen supera $\tau_q$, se conserva la clase de la primera etapa. En otro caso se calcula la concatenación, reutilizando el bloque inicial cuando forma parte de ella, y se devuelve la clase de la cabeza conjunta. El umbral se fija antes del test. OpenAI Codex (GPT-6) asistió en la edición del diagrama TikZ y sus rótulos.}
+\caption{Inferencia de la cascada Top-$k$. El margen es la diferencia entre las dos puntuaciones más altas de la etapa inicial. Si el margen supera $\tau_q$, se conserva la clase de la primera etapa. En otro caso se calcula la concatenación, reutilizando el bloque inicial cuando forma parte de ella, y se devuelve la clase de la cabeza conjunta. El umbral se fija antes del test.}
 \label{fig:cascada}
 \end{figure}
 
@@ -262,7 +264,6 @@ Para el barrido y la cascada Top-4, la validación interna usa cuatro folds estr
 Calculamos medias por dataset primero y después damos el mismo peso a los seis datasets. En los contrastes entre datasets, cada dataset constituye un bloque \citep{demsar2006statistical}. Las particiones repetidas pueden compartir imágenes. Los intervalos de diferencias se refieren a esos seis bloques. Tanto la elección de $k=4$ como la prioridad de accuracy en el reporte se fijaron tras observar resultados. El análisis de no inferioridad de la cascada es retrospectivo y usa una tolerancia de un punto porcentual. Las diferencias numéricas se interpretan como evidencia exploratoria.
 
 \FloatBarrier
-OpenAI Codex (GPT-6) asistió en el código y los rótulos de los gráficos. Los valores se trazan a partir de las tablas del barrido y E1 con el script determinista de Matplotlib \nolinkurl{scripts/plot_paper_figures_20261123.py}.
 
 \section{Resultados}
 
@@ -659,11 +660,7 @@ El código y los registros de evaluación se mantienen en el \href{https://githu
 
 \section*{Declaraciones}
 
-El estudio usa colecciones públicas de imágenes y no recluta participantes. Las declaraciones de conflicto de intereses y financiamiento requieren confirmación de los autores.
-
-\section*{Asistencia de IA en la preparación del manuscrito}
-
-En esta revisión se utilizó OpenAI Codex con GPT-6 para reorganizar el texto, revisar su claridad, preparar elementos en \LaTeX{}, editar diagramas TikZ, preparar código y rótulos de los gráficos y comprobar los recuentos frente a los resultados archivados. Antes del envío, los autores deben revisar el artículo y confirmar que la declaración cubre las herramientas utilizadas durante su preparación.
+El estudio usa colecciones públicas de imágenes y no recluta participantes. Este trabajo no recibió financiamiento. Los autores declaran que no tienen conflictos de intereses.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}

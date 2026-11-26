@@ -87,7 +87,9 @@ Earlier work on texture recognition has selected an extractor subset for reuse a
 
 Several texture classifiers illustrate different sources of complementarity. \citet{neshov2025aggregation} aggregate activations across layers of a single backbone, including BEiTv2. HyTexNet combines percentile-based local encoding with DenseNet-121 features \citep{gupta2026hytexnet}. \citet{chang2024cellnn} concatenate multiscale LBP and contours from deep cellular neural networks. DeepLumina augments deep color features with luminance information \citep{simon2022deeplumina}. Their published accuracies provide context under the evaluation protocols reported by the original authors.
 
-Cascades and early exits allocate compute according to the input \citep{viola2001rapid,teerapittayanon2016branchynet,wang2018idk,han2021dynamic}. Cost-aware feature acquisition likewise decides whether to acquire further inputs \citep{xu2012greedy,nan2017adaptive,ma2019eddi}. Early exits decide how far to advance in a network; IDK cascades choose whether to send a query to another model. Selective classification characterizes the error of accepted predictions as a function of coverage \citep{geifman2017selective}. Our cascade predicts a class on every input. The margin determines whether to acquire the remaining blocks of a fixed concatenation. This leads to three outcomes of interest: accuracy on all images, the rate of escalation, and extraction cost.
+Cascades and early exits allocate compute according to the input \citep{viola2001rapid,teerapittayanon2016branchynet,han2021dynamic}. In an IDK cascade, the first model's confidence or entropy can decide whether to call a more expensive model \citep{wang2018idk}. Work on feature acquisition assigns a cost to obtaining each input feature \citep{xu2012greedy,ma2019eddi}. For example, \citet{nan2017adaptive} jointly train a low-cost classifier and a gate to approximate a high-cost model. Selective classification instead analyzes the trade-off between the risk of accepted predictions and coverage \citep{geifman2017selective}.
+
+Our setting combines descriptor fusion and conditional inference. The first-stage block can be reused if it belongs to the joint representation, so the marginal acquisition cost depends on the overlap of the two routes. Top-4 and its cascade use the same joint head whenever it is called. The block-count sweep measures how accuracy changes as the representation grows. With four blocks fixed, the paired comparison measures the effect of calling the joint head only on selected inputs. The matched-count control measures the effect of choosing those inputs, and the per-image comparison shows how often choosing them pays off in correct predictions.
 
 \section{Method}
 
@@ -103,7 +105,7 @@ The head $h_S$ takes the resulting fixed-length vector and outputs one score per
 \begin{figure}[pos=htbp]
 \centering
 \includegraphics[width=\textwidth]{figures/english/descriptor_pipeline.pdf}
-\caption{Extraction and concatenation for one image. Each extractor returns a normalized block. The individual head receives LBP. The joint head receives the concatenated LBP and ResNet blocks. The bar marks the block boundary; coordinates are illustrative. The input is an illustrative vector pattern. OpenAI Codex (GPT-6) assisted with the TikZ diagram and its labels.}
+\caption{Extraction and concatenation for one image. Each extractor returns a normalized block. The individual head receives LBP. The joint head receives the concatenated LBP and ResNet blocks. The bar marks the block boundary; coordinates are illustrative. The input is an illustrative vector pattern.}
 \label{fig:pipeline}
 \end{figure}
 
@@ -148,7 +150,7 @@ Scores are one-versus-rest decision values for the SVM and logits for ResMLP. If
 \draw[arr,draw=figteal] (split) |- (top.west);
 \fill[figink!72] (split) circle (1.1pt);
 \end{tikzpicture}
-\caption{Top-$k$ cascade. The margin is the gap between the two highest first-stage scores. Above $\tau_q$ the cascade retains the initial prediction. Otherwise it acquires any missing blocks and returns the joint prediction. The threshold is fixed before testing. OpenAI Codex (GPT-6) assisted with the TikZ flowchart and its labels.}
+\caption{Top-$k$ cascade. The margin is the gap between the two highest first-stage scores. Above $\tau_q$ the cascade retains the initial prediction. Otherwise it acquires any missing blocks and returns the joint prediction. The threshold is fixed before testing.}
 \label{fig:cascada}
 \end{figure}
 
@@ -203,7 +205,6 @@ For each test image, the harness runs the five frozen policies in randomized ord
 
 The primary panel contains 94 split--classifier conditions, each with five policies and one measured repetition per image. Its 362,640 calls exclude the 9,400 calls in the additional DTD observation. The original DTD timing is retained. Hardware was shared, so timing reflects the conditions of these sessions. In particular, a recorded interruption affects the DTD mean. For the tail latency discussion, the 95th percentile is calculated over calls pooled within dataset, classifier and policy. Accuracy and mean latency in the main table average the split-level results within each dataset.
 
-OpenAI Codex (GPT-6) assisted with the code and labeling of the figures. The plotted values come from the archived sweep and E1 tables using the deterministic Matplotlib script \nolinkurl{scripts/plot_paper_figures_20261123.py}.
 
 \section{Results}
 
@@ -671,11 +672,7 @@ The \href{https://github.com/Joafp/concatenacion-descriptores-texturas}{project 
 
 \section*{Declarations}
 
-The study uses public image collections and did not recruit participants. Funding and competing interests are pending author confirmation.
-
-\section*{Generative AI assistance in manuscript preparation}
-
-OpenAI Codex (GPT-6) assisted with manuscript organization, clarity, translation, LaTeX preparation, TikZ diagram editing, plot code and labels, and checking manuscript counts against archived results. The authors should review this version and confirm the scope of the declaration before submission.
+The study uses public image collections and did not recruit participants. This research received no funding. The authors declare no competing interests.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}

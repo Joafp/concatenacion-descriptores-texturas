@@ -1,6 +1,6 @@
 # Revisión editorial para revista
 
-**Candidato de referencia:** Pattern Recognition. El alcance editorial admite contribuciones originales de metodología y aplicación con respaldo en la literatura de reconocimiento de patrones. La contribución defendible aquí es la evaluación pareada de cuándo adquirir bloques adicionales para clasificar texturas. El ranking individual, las cascadas y el uso del margen tienen antecedentes. [Alcance editorial](https://shop.elsevier.com/journals/pattern-recognition/0031-3203)
+**Candidato de referencia:** Pattern Recognition. El alcance editorial admite contribuciones originales de metodología y aplicación con respaldo en la literatura de reconocimiento de patrones. La contribución defendible aquí es la evaluación pareada de cuándo adquirir bloques adicionales para clasificar texturas. El ranking individual, las cascadas y el uso del margen tienen antecedentes. La sección de trabajos relacionados coteja el costo por modelo de IDK y la compuerta aprendida de Nan y Saligrama con la adquisición de bloques reutilizables y el control pareado de este estudio. [Wang et al.](https://arxiv.org/pdf/1706.00885) · [Nan y Saligrama](https://papers.nips.cc/paper_files/paper/2017/file/d9ff90f4000eacd3a6c9cb27f78994cf-Paper.pdf) [Alcance editorial](https://shop.elsevier.com/journals/pattern-recognition/0031-3203)
 
 ## Afirmaciones centrales y evidencia
 
@@ -21,8 +21,8 @@ La tabla de trabajos publicados tiene un [cotejo fila por fila con los PDF prima
 
 ## Pendientes de envío
 
-1. Cotejar la [versión en inglés](../main_en.tex) con la guía específica. El [PDF](../main_topk_margen_en.pdf) tiene 22 páginas numeradas, una columna, texto a doble espacio, 16 tablas y cinco figuras. El rango de 20 a 35 páginas figura en la ficha editorial. Queda por confirmar si ese conteo incluye anexos y referencias, los archivos obligatorios y el formato de revisión. La guía completa devolvió un error de acceso. [Ficha editorial](https://shop.elsevier.com/journals/pattern-recognition/0031-3203) · [Guía para autores](https://www.sciencedirect.com/journal/pattern-recognition/publish/guide-for-authors)
-2. Confirmar con los autores contribuciones, financiamiento, conflictos y declaración de asistencia de IA. El borrador declara el uso confirmado de Codex en esta revisión. Las leyendas de los esquemas y el protocolo de generación de gráficos declaran el trabajo asistido por Codex, con su versión y su uso. Queda por confirmar si hubo otras herramientas o intervenciones que los autores deban declarar. [Política de IA de Elsevier](https://www.elsevier.com/en-gb/about/policies-and-standards/generative-ai-policies-for-journals)
+1. Cotejar la [versión en inglés](../main_en.tex) con la guía específica. El [PDF](../main_topk_margen_en.pdf) tiene 21 páginas numeradas, una columna, texto a doble espacio, 16 tablas y cinco figuras. El rango de 20 a 35 páginas figura en la ficha editorial. Queda por confirmar si ese conteo incluye anexos y referencias, los archivos obligatorios y el formato de revisión. La guía completa devolvió un error de acceso. [Ficha editorial](https://shop.elsevier.com/journals/pattern-recognition/0031-3203) · [Guía para autores](https://www.sciencedirect.com/journal/pattern-recognition/publish/guide-for-authors)
+2. Se confirmó ausencia de financiamiento y de conflictos de intereses. Quedan la aprobación del texto final y la revisión de contribuciones y exclusividad. A pedido de Joaquín, el PDF de revisión omite el texto de asistencia de IA. La declaración para la versión de envío y los créditos de las figuras requieren revisión de los autores. [Política de IA de Elsevier](https://www.elsevier.com/about/policies-and-standards/generative-ai-policies-for-journals)
 3. La verificación de resultados archivados pasó en una exportación independiente de Git. Volver a entrenar o medir requiere los datasets y reconstruir los pesos, cabezas y embeddings en el entorno experimental. [Verificación reproducible](#verificar-la-evidencia-del-paper)
 4. Para una cifra de ahorro físico de la cascada exacta queda pendiente su medición pareada. El manuscrito atribuye el ahorro del 75 % al modelo de extracción. [Alcance de las trazas disponibles](#alcance-de-las-trazas-disponibles)
 
@@ -35,7 +35,7 @@ Desde la raíz del repositorio, con Python 3:
 python3 scripts/package_topk_journal.py /tmp/topk_manuscrito_revista.zip
 ~~~
 
-El ZIP lleva el PDF en inglés, su fuente, las referencias, los recursos necesarios para compilar, los highlights y el borrador de carta. Incluye hashes de los archivos. Para importarlo en Overleaf, el documento principal es **main_en.tex**. En una carpeta extraída, la compilación utiliza pdfLaTeX, BibTeX y la distribución LaTeX con STIX. Verificamos los 19 archivos del manifiesto y compilamos desde una extracción temporal. El texto de las 22 páginas coincide con el PDF suministrado.
+El ZIP lleva el PDF en inglés, su fuente, las referencias, los recursos necesarios para compilar, los highlights y el borrador de carta. Incluye hashes de los archivos. Para importarlo en Overleaf, el documento principal es **main_en.tex**. En una carpeta extraída, la compilación utiliza pdfLaTeX, BibTeX y la distribución LaTeX con STIX. Verificamos los 19 archivos del manifiesto y compilamos desde una extracción temporal. El texto de las 21 páginas coincide con el PDF suministrado.
 
 ## Compilar el borrador en inglés
 
@@ -74,3 +74,8 @@ La comprobación pasó sobre una exportación con los 104 archivos de entrada ve
 | [Preparación física de E1](../../results/analysis/top4_online_case_input_audit_20261116_v1/summary.json) | 24 casos con vinculación de entradas verificada. CUReT SVM s42 f0 y Soil SVM s42 f1 y f4 requieren revisión de fidelidad de ViT-B/16. | La vinculación de entradas es una comprobación previa. La medición pareada de las rutas de E1 sigue pendiente. |
 
 La [inspección de procedencia de ViT](../../results/analysis/vit_provenance_20261116_v1/summary.json) mantiene abierta la identidad del productor histórico de los vectores. La [inspección del checkpoint local](../../results/analysis/vit_local_checkpoint_inspection_20261116_v1/summary.json) verifica sus archivos y configuración. El cotejo documental preserva los tres estados de revisión y las trazas de las corridas previas.
+
+
+## Registro editorial de asistencia
+
+OpenAI Codex (GPT-6) asistió en la reorganización y revisión de la prosa, la versión en inglés, la preparación en LaTeX y la comprobación de conteos contra archivos existentes. En las Figuras 1 y 2 asistió con el código TikZ y los rótulos. En las figuras de resultados asistió con el código y el rotulado de Matplotlib; los valores provienen de los CSV versionados. Los autores deben revisar el alcance completo antes del envío y confirmar si hubo herramientas adicionales.
